@@ -270,7 +270,8 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	D_(D_INFO "Stored samples: %d", mod->smp);
 
 	for (i = 0; i < mod->ins; i++) {
-		if (mod->xxs[i].len > 1) {
+		if (sfh.ins[i].volume && sfh.ins[i].length) {
+			hio_seek(f, start + sfh.ins[i].rsvd1 << 4, SEEK_SET);
 			if (libxmp_load_sample(m, f, 0, &mod->xxs[i], NULL) < 0)
 				return -1;
 		} else {
