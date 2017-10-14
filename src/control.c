@@ -174,6 +174,34 @@ int xmp_set_position(xmp_context opaque, int pos)
 	return p->pos;
 }
 
+int xmp_set_row(xmp_context opaque, int row)
+{
+	struct context_data *ctx = (struct context_data *)opaque;
+	struct player_data *p = &ctx->p;
+	struct module_data *m = &ctx->m;
+	struct xmp_module *mod = &m->mod;
+	int pos = p->pos;
+	if (pos < 0 || pos >= mod->len) {
+		pos = 0;
+	}
+	int pattern = mod->xxo[pos];
+
+	if (ctx->state < XMP_STATE_PLAYING)
+		return -XMP_ERROR_STATE;
+
+	if (row >= mod->xxp[pattern]->rows)
+		return -XMP_ERROR_INVALID;
+
+	/* See set_position. */
+	if (p->pos < 0)
+		p->pos = 0;
+	p->ord = p->pos;
+	p->row = row;
+	p->frame = -1;
+
+	return row;
+}
+
 void xmp_stop_module(xmp_context opaque)
 {
 	struct context_data *ctx = (struct context_data *)opaque;

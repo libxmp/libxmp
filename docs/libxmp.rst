@@ -632,6 +632,22 @@ int xmp_set_position(xmp_context c, int pos)
     The new position index, ``-XMP_ERROR_INVALID`` of the new position is
     invalid or ``-XMP_ERROR_STATE`` if the player is not in playing state.
 
+.. _xmp_set_row():
+
+int xmp_set_row(xmp_context c, int row)
+````````````````````````````````````````````
+
+  Skip replay to the given row.
+
+  **Parameters:**
+    :c: the player context handle.
+
+    :row: the row to set.
+
+  **Returns:**
+    The new row, ``-XMP_ERROR_INVALID`` if the new row is invalid or
+    ``-XMP_ERROR_STATE`` if the player is not in playing state.
+
 .. _xmp_stop_module():
 
 void xmp_stop_module(xmp_context c)
