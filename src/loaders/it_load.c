@@ -1361,6 +1361,7 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			if (ifh.msglen > 0) {
 				m->comment[j-1] = 0;
 			}
+			/* This is a comment. */
 		}
 	}
 
