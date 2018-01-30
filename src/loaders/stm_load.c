@@ -20,6 +20,11 @@
  * THE SOFTWARE.
  */
 
+#ifdef __native_client__
+#include <sys/syslimits.h>
+#else
+#include <limits.h>
+#endif
 #include "loader.h"
 #include "period.h"
 
