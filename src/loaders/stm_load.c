@@ -355,7 +355,7 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 				hio_close(s);
 		    	    }
 			} else {
-				hio_seek(f, start + sfh.ins[i].rsvd1 << 4, SEEK_SET);
+				hio_seek(f, start + (sfh.ins[i].rsvd1 << 4), SEEK_SET);
 				if (libxmp_load_sample(m, f, 0, &mod->xxs[i], NULL) < 0)
 				    return -1;
 			}
