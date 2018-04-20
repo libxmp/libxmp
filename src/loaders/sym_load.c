@@ -346,14 +346,14 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			int idx = 2 * (i * mod->chn + j);
 			int t = readptr16l(&buf[idx]);
 
-			/* Sanity check */
-			if (t >= mod->trk - 1) {
+			if (t == 0x1000) {
+				/* empty trk */
+				t = mod->trk - 1;
+			} else if (t >= mod->trk - 1) {
+				/* Sanity check */
 				free(buf);
 				return -1;
 			}
-	
-			if (t == 0x1000) /* empty trk */
-				t = mod->trk - 1;
 
 			mod->xxp[i]->index[j] = t;
 		}
