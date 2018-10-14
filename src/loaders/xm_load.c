@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2016 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -603,8 +603,10 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 		/* Reposition correctly in case of 16-bit sample having odd in-file length.
 		 * See "Lead Lined for '99", reported by Dennis Mulleneers.
 		 */
-		if (hio_seek(f, instr_pos + xih.size + 40 * xih.samples + total_sample_size, SEEK_SET) < 0) {
-			return -1;
+		if (~flags & SAMPLE_FLAG_ADPCM) {
+			if (hio_seek(f, instr_pos + xih.size + 40 * xih.samples + total_sample_size, SEEK_SET) < 0) {
+				return -1;
+			}
 		}
 	}
 
