@@ -350,6 +350,7 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 	struct xm_instrument xi;
 	struct xm_sample_header xsh[16];
 	int sample_num = 0;
+	long total_sample_size;
 	int i, j;
 	uint8 buf[208];
 
@@ -571,7 +572,7 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 			xxs->flg |= xsh[j].type & XM_LOOP_PINGPONG ? XMP_SAMPLE_LOOP | XMP_SAMPLE_LOOP_BIDIR : 0;
 		}
 
-		long total_sample_size = 0;
+		total_sample_size = 0;
 		for (j = 0; j < xxi->nsm; j++) {
 			struct xmp_subinstrument *sub = &xxi->sub[j];
 			int flags;
