@@ -23,6 +23,8 @@ Stable versions
 	- fix PTM loader issues
 	- fix MED4 invalid sample load error
 	- fix NNA and DCT/DCA issues
+	Fix problems reported by Dennis Mulleneers:
+	- handle XM 16-bit samples with odd in-file data
 	Other changes:
 	- fix double free in case of ADPCM sample load error
 	- code refactoring and cleanup

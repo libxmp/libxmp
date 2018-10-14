@@ -343,7 +343,7 @@ err:
 #define XM_INST_HEADER_SIZE 33
 #define XM_INST_SIZE 208
 
-static int load_instruments(struct module_data *m, int version, HIO_HANDLE * f)
+static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 {
 	struct xmp_module *mod = &m->mod;
 	struct xm_instrument_header xih;
@@ -362,6 +362,7 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE * f)
 		return -1;
 
 	for (i = 0; i < mod->ins; i++) {
+		long instr_pos = hio_tell(f);
 		struct xmp_instrument *xxi = &mod->xxi[i];
 
 		/* Modules converted with MOD2XM 1.0 always say we have 31
@@ -570,6 +571,7 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE * f)
 			xxs->flg |= xsh[j].type & XM_LOOP_PINGPONG ? XMP_SAMPLE_LOOP | XMP_SAMPLE_LOOP_BIDIR : 0;
 		}
 
+		long total_sample_size = 0;
 		for (j = 0; j < xxi->nsm; j++) {
 			struct xmp_subinstrument *sub = &xxi->sub[j];
 			int flags;
@@ -594,7 +596,15 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE * f)
 				if (libxmp_load_sample(m, f, flags, &mod->xxs[sub->sid], NULL) < 0) {
 					return -1;
 				}
+				total_sample_size += xsh[j].length;
 			}
+		}
+
+		/* Reposition correctly in case of 16-bit sample having odd in-file length.
+		 * See "Lead Lined for '99", reported by Dennis Mulleneers.
+		 */
+		if (hio_seek(f, instr_pos + xih.size + 40 * xih.samples + total_sample_size, SEEK_SET) < 0) {
+			return -1;
 		}
 	}
 
