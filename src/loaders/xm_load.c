@@ -596,17 +596,19 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 				if (libxmp_load_sample(m, f, flags, &mod->xxs[sub->sid], NULL) < 0) {
 					return -1;
 				}
-				total_sample_size += xsh[j].length;
+				if (flags & SAMPLE_FLAG_ADPCM) {
+					total_sample_size += 16 + ((xsh[j].length + 1) >> 1);
+				} else {
+					total_sample_size += xsh[j].length;
+				}
 			}
 		}
 
 		/* Reposition correctly in case of 16-bit sample having odd in-file length.
 		 * See "Lead Lined for '99", reported by Dennis Mulleneers.
 		 */
-		if (~flags & SAMPLE_FLAG_ADPCM) {
-			if (hio_seek(f, instr_pos + xih.size + 40 * xih.samples + total_sample_size, SEEK_SET) < 0) {
-				return -1;
-			}
+		if (hio_seek(f, instr_pos + xih.size + 40 * xih.samples + total_sample_size, SEEK_SET) < 0) {
+			return -1;
 		}
 	}
 
