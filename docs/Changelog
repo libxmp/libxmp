@@ -14,6 +14,8 @@ Stable versions
 	- fix lite build mod loader symbols
 	Changes by NoSuck:
 	- fix IT message length
+	Changes by Cameron Cawley:
+	- fix sanity check in Digital Symphony loader
 	Fix problems reported by Ralf Hoffmann:
 	- fix MMD3 instrument type sanity check
 	- fix strictness of MOD pattern data tester
