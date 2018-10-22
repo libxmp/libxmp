@@ -56,6 +56,7 @@ esac
 
 if test "${enable_static}" = yes; then
   AC_SUBST(STATIC,static)
+  CFLAGS="${CFLAGS} -DBUILDING_STATIC"
 fi
 if test "${enable_shared}" != no; then
   AC_CHECK_DEFINED(_WIN32,[
