@@ -1502,8 +1502,13 @@ int xmp_start_player(xmp_context opaque, int rate, int format)
 	p->loop_count = 0;
 	p->sequence = 0;
 
-	/* Unmute all channels and set default volume */
-	for (i = 0; i < XMP_MAX_CHANNELS; i++) {
+	/* Set default volume and mute status */
+	for (i = 0; i < mod->chn; i++) {
+		if (mod->xxc[i].flg & XMP_CHANNEL_MUTE)
+			p->channel_mute[i] = 1;
+		p->channel_vol[i] = 100;
+	}
+	for (i = mod->chn; i < XMP_MAX_CHANNELS; i++) {
 		p->channel_mute[i] = 0;
 		p->channel_vol[i] = 100;
 	}
