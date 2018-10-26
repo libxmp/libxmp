@@ -542,7 +542,8 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 	case FX_IT_BPM:		/* Set IT BPM */
 		if (MSN(fxp) == 0) {	/* T0x - Tempo slide down by x */
 			SET(TEMPO_SLIDE);
-			xc->tempo.slide = -LSN(fxp);
+			if (LSN(fxp))	/* T00 - Repeat previous slide */
+				xc->tempo.slide = -LSN(fxp);
 		} else if (MSN(fxp) == 1) {	/* T1x - Tempo slide up by x */
 			SET(TEMPO_SLIDE);
 			xc->tempo.slide = LSN(fxp);
