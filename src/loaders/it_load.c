@@ -1135,7 +1135,6 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		}
 
 		if (ifh.chpan[i] & 0x80) {	/* Channel mute */
-			ifh.chvol[i] = 0;
 			xxc->flg |= XMP_CHANNEL_MUTE;
 		}
 
