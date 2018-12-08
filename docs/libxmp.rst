@@ -1015,8 +1015,8 @@ as background music, and plays the sample when a key is pressed::
 
         xmp_end_player(ctx);
         xmp_release_module(ctx);
-        xmp_free_context(ctx);
 	xmp_end_smix(ctx);
+        xmp_free_context(ctx);
 
         SDL_CloseAudio();
         return 0;
