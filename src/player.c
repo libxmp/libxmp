@@ -1558,6 +1558,9 @@ int xmp_start_player(xmp_context opaque, int rate, int format)
 		goto err1;
 	}
 
+	/* Reset our buffer pointers */
+	xmp_play_buffer(opaque, NULL, 0, 0);
+
 #ifndef LIBXMP_CORE_PLAYER
 	for (i = 0; i < p->virt.virt_channels; i++) {
 		struct channel_data *xc = &p->xc_data[i];
