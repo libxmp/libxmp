@@ -558,3 +558,21 @@ int xmp_set_instrument_path(xmp_context opaque, char *path)
 
 	return 0;
 }
+
+int xmp_set_tempo_factor(xmp_context opaque, double val)
+{
+	struct context_data *ctx = (struct context_data *)opaque;
+	struct player_data *p = &ctx->p;
+	struct module_data *m = &ctx->m;
+	struct mixer_data *s = &ctx->s;
+	int ticksize;
+
+	val *= 10;
+	ticksize = s->freq * m->time_factor * m->rrate / p->bpm / 1000 * sizeof(int);
+	if (ticksize > XMP_MAX_FRAMESIZE) {
+		return -1;
+	}
+	m->time_factor = val;
+
+	return 0;
+}

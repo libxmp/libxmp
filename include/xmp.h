@@ -334,6 +334,7 @@ LIBXMP_EXPORT int         xmp_next_position   (xmp_context);
 LIBXMP_EXPORT int         xmp_prev_position   (xmp_context);
 LIBXMP_EXPORT int         xmp_set_position    (xmp_context, int);
 LIBXMP_EXPORT int         xmp_set_row         (xmp_context, int);
+LIBXMP_EXPORT int         xmp_set_tempo_factor(xmp_context, double);
 LIBXMP_EXPORT void        xmp_stop_module     (xmp_context);
 LIBXMP_EXPORT void        xmp_restart_module  (xmp_context);
 LIBXMP_EXPORT int         xmp_seek_time       (xmp_context, int);
