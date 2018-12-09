@@ -174,6 +174,37 @@ int xmp_set_position(xmp_context opaque, int pos)
 	return p->pos;
 }
 
+int xmp_set_row(xmp_context opaque, int row)
+{
+	struct context_data *ctx = (struct context_data *)opaque;
+	struct player_data *p = &ctx->p;
+	struct module_data *m = &ctx->m;
+	struct xmp_module *mod = &m->mod;
+	struct flow_control *f = &p->flow;
+	int pos = p->pos;
+	int pattern = mod->xxo[pos];
+
+	if (pos < 0 || pos >= mod->len) {
+		pos = 0;
+	}
+
+	if (ctx->state < XMP_STATE_PLAYING)
+		return -XMP_ERROR_STATE;
+
+	if (row >= mod->xxp[pattern]->rows)
+		return -XMP_ERROR_INVALID;
+
+	/* See set_position. */
+	if (p->pos < 0)
+		p->pos = 0;
+	p->ord = p->pos;
+	p->row = row;
+	p->frame = -1;
+	f->num_rows = mod->xxp[mod->xxo[p->ord]]->rows;
+
+	return row;
+}
+
 void xmp_stop_module(xmp_context opaque)
 {
 	struct context_data *ctx = (struct context_data *)opaque;
@@ -240,7 +271,7 @@ int xmp_channel_mute(xmp_context opaque, int chn, int status)
 	if (chn < 0 || chn >= XMP_MAX_CHANNELS) {
 		return -XMP_ERROR_INVALID;
 	}
-	
+
 	ret = p->channel_mute[chn];
 
 	if (status >= 2) {
@@ -264,7 +295,7 @@ int xmp_channel_vol(xmp_context opaque, int chn, int vol)
 	if (chn < 0 || chn >= XMP_MAX_CHANNELS) {
 		return -XMP_ERROR_INVALID;
 	}
-	
+
 	ret = p->channel_vol[chn];
 
 	if (vol >= 0 && vol <= 100) {
