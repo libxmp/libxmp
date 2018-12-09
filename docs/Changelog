@@ -1,7 +1,7 @@
 Stable versions
 ---------------
 
-4.4.2 ():
+4.5.0 ():
 	Changes by Ozkan Sezer:
 	- fix win64 compatibility in ptpopen
 	- fix build with C89 compilers
@@ -27,10 +27,14 @@ Stable versions
 	- fix NNA and DCT/DCA issues
 	Fix problems reported by Dennis Mulleneers:
 	- handle XM 16-bit samples with odd in-file data
+	Fix problems reported by Jay Garcia:
+	- fix smix sample allocation
+	- force reset of buffer state on player start
 	Other changes:
 	- fix double free in case of ADPCM sample load error
 	- code refactoring and cleanup
 	- accept WUZAMOD! Scream Tracker 2 modules
+	- add call to set the replay tempo multiplier
 
 4.4.1 (20161012):
 	Fix issues reported by Saga Musix:
