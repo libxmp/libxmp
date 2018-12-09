@@ -567,6 +567,10 @@ int xmp_set_tempo_factor(xmp_context opaque, double val)
 	struct mixer_data *s = &ctx->s;
 	int ticksize;
 
+	if (val <= 0.0) {
+		return -1;
+	}
+
 	val *= 10;
 	ticksize = s->freq * m->time_factor * m->rrate / p->bpm / 1000 * sizeof(int);
 	if (ticksize > XMP_MAX_FRAMESIZE) {
