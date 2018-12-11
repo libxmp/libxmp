@@ -59,14 +59,16 @@ fi
 if test "${enable_shared}" != no; then
   AC_CHECK_DEFINED(_WIN32,[
     AC_SUBST(SHARED,dll)
-    CFLAGS="${CFLAGS} -DBUILDING_DLL"
+    CFLAGS_SHARED="-DBUILDING_DLL"
   ],[
+    CFLAGS_SHARED="-fPIC"
     AC_CHECK_DEFINED(__APPLE__,[
       AC_SUBST(SHARED,dylib)
     ],[
       AC_SUBST(SHARED,shared)
     ])
   ])
+  AC_SUBST(CFLAGS_SHARED)
 fi
 
 XMP_TRY_COMPILE(whether compiler understands -Wall,
