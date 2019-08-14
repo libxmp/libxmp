@@ -1,7 +1,7 @@
 /*
    StoneCracker S404 algorithm data decompression routine
    (c) 2006 Jouni 'Mr.Spiv' Korhonen. The code is in public domain.
-  
+
    from shd:
    Some portability notes. We are using int32_t as a file size, and that fits
    all Amiga file sizes. size_t is of course the right choice.
@@ -108,10 +108,10 @@ static int checkS404File(uint32 *buf, /*size_t len,*/
   if (*sLen < 0)
     return -1;
   *oLen = readmem32b((uint8 *)&buf[2]); /* Depacked length */
-  if (*oLen < 0)
+  if (*oLen <= 0)
     return -1;
   *pLen = readmem32b((uint8 *)&buf[3]); /* Packed length */
-  if (*pLen < 0)
+  if (*pLen <= 6)
     return -1;
 
   return 0;
@@ -381,7 +381,8 @@ static int decrunch_s404(FILE *in, /* size_t s, */ FILE *out)
 
   if (fstat(fileno(in), &st))
     return -1;
-        
+  if (st.st_size <= 16)
+    return -1;
   src = buf = malloc(st.st_size);
   if (src == NULL)
     return -1;
@@ -395,7 +396,7 @@ static int decrunch_s404(FILE *in, /* size_t s, */ FILE *out)
   }
 
   /* Sanity check */
-  if (oLen < 0 || pLen < 0 || pLen + 16 < 0 || pLen + 16 >= st.st_size) {
+  if (pLen > st.st_size - 18) {
     goto error;
   }
 
