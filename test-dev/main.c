@@ -10,6 +10,9 @@
 #include "test.h"
 #include "../src/list.h"
 
+/* Hack to fix Windows builds. */
+#include "../src/win32.c"
+
 
 struct test {
 	struct list_head list;
