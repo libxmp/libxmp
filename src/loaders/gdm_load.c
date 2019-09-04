@@ -324,7 +324,8 @@ static int gdm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 			if (c & 0x20) {		/* note and sample follows */
 				k = hio_read8(f);
-				event->note = 12 + 12 * MSN(k & 0x7f) + LSN(k);
+				/* 0 is empty note */
+				event->note = k ? 12 + 12 * MSN(k & 0x7f) + LSN(k) : 0;
 				event->ins = hio_read8(f);
 				len -= 2;
 			}
