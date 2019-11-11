@@ -307,7 +307,7 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
     }
 
     mod->trk = mod->pat * mod->chn;
- 
+
     memcpy(mod->xxo, ih.pos, mod->len);
     for (i = 0; i < mod->len; i++) {
 	if (mod->xxo[i] == 0xff)
@@ -450,7 +450,7 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	xxi->aei.flg |= ii.env[0].flg & 0x04 ?  XMP_ENVELOPE_LOOP : 0;
 
 	/* Sanity check */
-	if (xxi->aei.npt >= 16) {
+	if (xxi->aei.npt > 16) {
 	    return -1;
 	}
 
