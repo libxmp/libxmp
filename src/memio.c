@@ -69,24 +69,29 @@ size_t mread(void *buf, size_t size, size_t num, MFILE *m)
 
 int mseek(MFILE *m, long offset, int whence)
 {
+	ptrdiff_t ofs = offset;
+
 	switch (whence) {
-	default:
 	case SEEK_SET:
-		if (m->size >= 0 && (offset > m->size || offset < 0))
-			return -1;
-		m->pos = offset;
-		return 0;
+		break;
 	case SEEK_CUR:
-		if (m->size >= 0 && (offset > CAN_READ(m) || offset < -m->pos))
-			return -1;
-		m->pos += offset;
-		return 0;
+		ofs += m->pos;
+		break;
 	case SEEK_END:
 		if (m->size < 0)
 			return -1;
-		m->pos = m->size + offset;
-		return 0;
+		ofs += m->size;
+		break;
+	default:
+		return -1;
 	}
+	if (m->size >= 0) {
+		if (ofs < 0) return -1;
+		if (ofs > m->size)
+			ofs = m->size;
+	}
+	m->pos = ofs;
+	return 0;
 }
 
 long mtell(MFILE *m)
