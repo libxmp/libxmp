@@ -3608,7 +3608,7 @@ static int start_decoder(vorb *f)
             c->lookup_values = val;
 	    /* Sanity check */
             if (val <= 0) {
-              return FALSE;
+              return error(f, VORBIS_invalid_setup);
             }
          } else {
             c->lookup_values = c->entries * c->dimensions;
@@ -3655,7 +3655,7 @@ static int start_decoder(vorb *f)
                   /* Sanity check */
                   if (div == 0) {
                     free(mults);
-                    return FALSE;
+                    return error(f, VORBIS_invalid_setup);
                   }
                }
             }
@@ -3682,11 +3682,11 @@ static int start_decoder(vorb *f)
             /* Sanity check */
             if (c->sparse) {
                if (c->lookup_values > c->sorted_entries * c->dimensions) {
-                  return FALSE;
+                  return error(f, VORBIS_invalid_setup);
                }
             } else {
                if (c->lookup_values > c->entries * c->dimensions) {
-                  return FALSE;
+                  return error(f, VORBIS_invalid_setup);
                }
             }
 
@@ -3791,7 +3791,7 @@ static int start_decoder(vorb *f)
 
       /* Sanity check */
       if (r->end - r->begin > 1024) {
-        return FALSE;
+        return error(f, VORBIS_invalid_setup);
       }
 
       r->part_size = get_bits(f,24)+1;
@@ -3818,7 +3818,7 @@ static int start_decoder(vorb *f)
 
       /* Sanity check */
       if (r->classbook >= f->codebook_count) {
-         return -1;
+         return error(f, VORBIS_invalid_setup);
       }
 
       // precompute the classifications[] array to avoid inner-loop mod/divide
