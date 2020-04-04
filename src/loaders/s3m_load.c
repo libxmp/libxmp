@@ -518,6 +518,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		struct xmp_instrument *xxi = &mod->xxi[i];
 		struct xmp_sample *xxs = &mod->xxs[i];
 		struct xmp_subinstrument *sub;
+		int load_sample_flags;
 
 		xxi->sub = calloc(sizeof(struct xmp_subinstrument), 1);
 		if (xxi->sub == NULL) {
@@ -589,7 +590,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		sih.loopbeg = readmem32l(buf + 20);	/* Loop begin */
 		sih.loopend = readmem32l(buf + 24);	/* Loop end */
 		sih.vol = buf[28];			/* Volume */
-		sih.pack = buf[30];			/* Packing type (not used) */
+		sih.pack = buf[30];			/* Packing type */
 		sih.flags = buf[31];			/* Loop/stereo/16bit flags */
 		sih.c2spd = readmem16l(buf + 32);	/* C4 speed */
 		memcpy(sih.name, buf + 48, 28);		/* Instrument name */
@@ -619,6 +620,11 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			xxs->flg |= XMP_SAMPLE_16BIT;
 		}
 
+		load_sample_flags = (sfh.ffi == 1) ? 0 : SAMPLE_FLAG_UNS;
+		if (sih.pack == 4) {
+			load_sample_flags = SAMPLE_FLAG_ADPCM;
+		}
+
 		sub->vol = sih.vol;
 		sih.magic = 0;
 
@@ -636,8 +642,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			goto err3;
 		}
 
-		ret = libxmp_load_sample(m, f, sfh.ffi == 1 ? 0 : SAMPLE_FLAG_UNS,
-								xxs, NULL);
+		ret = libxmp_load_sample(m, f, load_sample_flags, xxs, NULL);
 		if (ret < 0) {
 			goto err3;
 		}
