@@ -60,6 +60,7 @@ static int gdm_test(HIO_HANDLE *f, char *t, const int start)
 
 void fix_effect(uint8 *fxt, uint8 *fxp)
 {
+	int h, l;
 	switch (*fxt) {
 	case 0x00:			/* no effect */
 		*fxp = 0;
@@ -80,8 +81,48 @@ void fix_effect(uint8 *fxt, uint8 *fxp)
 	case 0x0b:
 	case 0x0c:
 	case 0x0d:
-	case 0x0e:
 	case 0x0f:			/* same as protracker */
+		break;
+	case 0x0e:
+		/* Convert some extended effects to their S3M equivalents. This is
+		 * necessary because the continue effects were left as the original
+		 * effect (e.g. FX_VOLSLIDE for the fine volume slides) by 2GDM!
+		 * Otherwise, these should be the same as protracker.
+		 */
+		h = MSN(*fxp);
+		l = LSN(*fxp);
+		switch(h) {
+			case EX_F_PORTA_UP:
+				*fxt = FX_PORTA_UP;
+				*fxp = l | 0xF0;
+				break;
+			case EX_F_PORTA_DN:
+				*fxt = FX_PORTA_DN;
+				*fxp = l | 0xF0;
+				break;
+			case 0x8:	/* extra fine portamento up */
+				*fxt = FX_PORTA_UP;
+				*fxp = l | 0xE0;
+				break;
+			case 0x9:	/* extra fine portamento down */
+				*fxt = FX_PORTA_DN;
+				*fxp = l | 0xE0;
+				break;
+			case EX_F_VSLIDE_UP:
+				/* Don't convert 0 as it would turn into volume slide down... */
+				if (l) {
+					*fxt = FX_VOLSLIDE;
+					*fxp = (l << 4) | 0xF;
+				}
+				break;
+			case EX_F_VSLIDE_DN:
+				/* Don't convert 0 as it would turn into volume slide up... */
+				if (l) {
+					*fxt = FX_VOLSLIDE;
+					*fxp = l | 0xF0;
+				}
+				break;
+		}
 		break;
 	case 0x10:			/* arpeggio */
 		*fxt = FX_S3M_ARPEGGIO;
@@ -367,7 +408,7 @@ static int gdm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			return -1;
 	}
 
-	m->quirk |= QUIRK_ARPMEM;
+	m->quirk |= QUIRK_ARPMEM | QUIRK_FINEFX;
 
 	return 0;
 }
