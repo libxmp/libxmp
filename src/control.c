@@ -121,6 +121,9 @@ static void set_position(struct context_data *ctx, int pos, int dir)
 			} else {
 				p->pos = pos;
 			}
+			f->jumpline = 0;
+			f->jump = -1;
+			f->pbreak = 0;
 		}
 	}
 }
