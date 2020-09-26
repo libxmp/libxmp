@@ -581,8 +581,12 @@ int xmp_load_module_from_file(xmp_context opaque, void *file, long size)
 	FILE *f = (FILE *)file;
 	int ret;
 
-	if ((h = hio_open_file(f)) == NULL)
+	if ((h = hio_open_file(f)) == NULL) {
+		/* Close the provided file since hio_close will close it
+		 * in the general case. */
+		fclose(f);
 		return -XMP_ERROR_SYSTEM;
+	}
 
 	if (ctx->state > XMP_STATE_UNLOADED)
 		xmp_release_module(opaque);
