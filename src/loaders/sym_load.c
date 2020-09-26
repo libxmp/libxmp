@@ -21,7 +21,12 @@
  */
 
 #include "loader.h"
+#ifndef LIBXMP_NO_DEPACKERS
 #include "depackers/readlzw.h"
+#else
+#include "depackers/readrle.c"
+#include "depackers/readlzw.c"
+#endif
 
 
 static int sym_test(HIO_HANDLE *, char *, const int);

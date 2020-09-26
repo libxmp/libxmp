@@ -1,3 +1,7 @@
+# To disable module depacker functionality:
+#	nmake -f Makefile.vc USE_DEPACKERS=0
+USE_DEPACKERS	= 1
+
 CC	= cl
 CFLAGS	= /O2 /Iinclude /Isrc /Isrc\win32 /DBUILDING_DLL /DWIN32 \
 	  /Dinline=__inline /DPATH_MAX=1024 /D_USE_MATH_DEFINES
@@ -5,7 +9,16 @@ LD	= link
 LDFLAGS	= /DLL /RELEASE /OUT:$(DLL)
 DLL	= libxmp.dll
 
+!if $(USE_DEPACKERS)==0
+CFLAGS  = $(CFLAGS) /DLIBXMP_NO_DEPACKERS
+!endif
+
 OBJS	= @OBJS@ src\win32\ptpopen.obj
+DEPACKER_OBJS	= @DEPACKER_OBJS@
+ALL_OBJS	= $(OBJS)
+!if $(USE_DEPACKERS)==1
+ALL_OBJS	= $(ALL_OBJS) $(DEPACKER_OBJS)
+!endif
 
 TEST	= test\md5.obj test\test.obj
 
@@ -14,11 +27,12 @@ TEST	= test\md5.obj test\test.obj
 
 all: $(DLL)
 
-$(DLL): $(OBJS)
-	$(LD) $(LDFLAGS) $(OBJS)
+$(DLL): $(ALL_OBJS)
+	$(LD) $(LDFLAGS) $(ALL_OBJS)
 
 clean:
 	del $(OBJS) $(DLL) *.lib *.exp
+	del $(DEPACKER_OBJS)
 
 check: $(TEST)
 	$(LD) /RELEASE /OUT:test\libxmp-test.exe $(TEST) libxmp.lib

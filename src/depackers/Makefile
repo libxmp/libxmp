@@ -11,7 +11,7 @@ DEPACKERS_DFILES = Makefile $(DEPACKERS_OBJS:.o=.c) readhuff.h readlzw.h \
 
 DEPACKERS_PATH	= src/depackers
 
-OBJS += $(addprefix $(DEPACKERS_PATH)/,$(DEPACKERS_OBJS))
+DEPACKER_OBJS	= $(addprefix $(DEPACKERS_PATH)/,$(DEPACKERS_OBJS))
 
 default-depackers::
 	$(MAKE) -C ..

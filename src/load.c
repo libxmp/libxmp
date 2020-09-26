@@ -36,7 +36,7 @@
 #include "hio.h"
 #include "tempfile.h"
 
-#ifndef LIBXMP_CORE_PLAYER
+#ifndef LIBXMP_NO_DEPACKERS
 #if !defined(HAVE_POPEN) && defined(WIN32)
 #include "win32/ptpopen.h"
 #define HAVE_POPEN 1
@@ -46,6 +46,8 @@
 #define pclose _pclose
 #define HAVE_POPEN 1
 #endif
+#endif
+#ifndef LIBXMP_CORE_PLAYER
 #include "md5.h"
 #include "extras.h"
 #endif
@@ -58,6 +60,10 @@ void libxmp_load_epilogue(struct context_data *);
 int  libxmp_prepare_scan(struct context_data *);
 
 #ifndef LIBXMP_CORE_PLAYER
+#define BUFLEN 16384
+#endif
+
+#ifndef LIBXMP_NO_DEPACKERS
 
 #include "depacker.h"
 
@@ -83,8 +89,6 @@ static struct depacker *depacker_list[] = {
 };
 
 int test_oxm		(FILE *);
-
-#define BUFLEN 16384
 
 #ifndef HAVE_POPEN
 static int execute_command(const char *cmd, const char *filename, FILE *t) {
@@ -228,7 +232,9 @@ static int decrunch(HIO_HANDLE **h, const char *filename, char **temp)
     err:
 	return -1;
 }
+#endif /* LIBXMP_NO_DEPACKERS */
 
+#ifndef LIBXMP_CORE_PLAYER
 static void set_md5sum(HIO_HANDLE *f, unsigned char *digest)
 {
 	unsigned char buf[BUFLEN];
@@ -289,7 +295,7 @@ int xmp_test_module(char *path, struct xmp_test_info *info)
 	char buf[XMP_NAME_SIZE];
 	int i;
 	int ret = -XMP_ERROR_FORMAT;
-#ifndef LIBXMP_CORE_PLAYER
+#ifndef LIBXMP_NO_DEPACKERS
 	char *temp = NULL;
 #endif
 
@@ -306,7 +312,7 @@ int xmp_test_module(char *path, struct xmp_test_info *info)
 	if ((h = hio_open(path, "rb")) == NULL)
 		return -XMP_ERROR_SYSTEM;
 
-#ifndef LIBXMP_CORE_PLAYER
+#ifndef LIBXMP_NO_DEPACKERS
 	if (decrunch(&h, path, &temp) < 0) {
 		ret = -XMP_ERROR_DEPACK;
 		goto err;
@@ -339,7 +345,7 @@ int xmp_test_module(char *path, struct xmp_test_info *info)
 
 			fclose(h->handle.file);
 
-#ifndef LIBXMP_CORE_PLAYER
+#ifndef LIBXMP_NO_DEPACKERS
 			unlink_temp_file(temp);
 #endif
 
@@ -352,7 +358,7 @@ int xmp_test_module(char *path, struct xmp_test_info *info)
 		}
 	}
 
-#ifndef LIBXMP_CORE_PLAYER
+#ifndef LIBXMP_NO_DEPACKERS
     err:
 	hio_close(h);
 	unlink_temp_file(temp);
@@ -470,6 +476,8 @@ int xmp_load_module(xmp_context opaque, char *path)
 #ifndef LIBXMP_CORE_PLAYER
 	struct module_data *m = &ctx->m;
 	long size;
+#endif
+#ifndef LIBXMP_NO_DEPACKERS
 	char *temp_name;
 #endif
 	HIO_HANDLE *h;
@@ -493,13 +501,15 @@ int xmp_load_module(xmp_context opaque, char *path)
 		return -XMP_ERROR_SYSTEM;
 	}
 
-#ifndef LIBXMP_CORE_PLAYER
+#ifndef LIBXMP_NO_DEPACKERS
 	D_(D_INFO "decrunch");
 	if (decrunch(&h, path, &temp_name) < 0) {
 		ret = -XMP_ERROR_DEPACK;
 		goto err;
 	}
+#endif
 
+#ifndef LIBXMP_CORE_PLAYER
 	size = hio_size(h);
 	if (size < 256) {		/* get size after decrunch */
 		ret = -XMP_ERROR_FORMAT;
@@ -530,7 +540,7 @@ int xmp_load_module(xmp_context opaque, char *path)
 	ret = load_module(opaque, h);
 	hio_close(h);
 
-#ifndef LIBXMP_CORE_PLAYER
+#ifndef LIBXMP_NO_DEPACKERS
 	unlink_temp_file(temp_name);
 #endif
 
@@ -539,7 +549,9 @@ int xmp_load_module(xmp_context opaque, char *path)
 #ifndef LIBXMP_CORE_PLAYER
     err:
 	hio_close(h);
+#ifndef LIBXMP_NO_DEPACKERS
 	unlink_temp_file(temp_name);
+#endif
 	return ret;
 #endif
 }
