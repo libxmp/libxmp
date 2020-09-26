@@ -578,7 +578,7 @@ int xmp_load_module_from_file(xmp_context opaque, void *file, long size)
 	struct context_data *ctx = (struct context_data *)opaque;
 	struct module_data *m = &ctx->m;
 	HIO_HANDLE *h;
-	FILE *f = fdopen(fileno((FILE *)file), "rb");
+	FILE *f = (FILE *)file;
 	int ret;
 
 	if ((h = hio_open_file(f)) == NULL)
