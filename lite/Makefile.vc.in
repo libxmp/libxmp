@@ -1,6 +1,6 @@
 CC	= cl
 CFLAGS	= /O2 /Iinclude\libxmp-lite /Isrc /DBUILDING_DLL /DWIN32 \
-          /Dinline=__inline /D_USE_MATH_DEFINES /DLIBXMP_CORE_PLAYER
+          /Dinline=__inline /D_USE_MATH_DEFINES /DLIBXMP_CORE_PLAYER /DLIBXMP_NO_DEPACKERS
 LD	= link
 LDFLAGS	= /DLL /RELEASE /OUT:$(DLL)
 DLL	= libxmp-lite.dll
