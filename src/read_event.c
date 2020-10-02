@@ -143,8 +143,11 @@ static void set_effect_defaults(struct context_data *ctx, int note,
 		} */
 #endif
 
+		/* TODO: should probably expand the LFO period size instead
+		 * of reducing the vibrato rate precision here.
+		 */
 		libxmp_lfo_set_depth(&xc->insvib.lfo, sub->vde);
-		libxmp_lfo_set_rate(&xc->insvib.lfo, sub->vra >> 2);
+		libxmp_lfo_set_rate(&xc->insvib.lfo, (sub->vra + 2) >> 2);
 		libxmp_lfo_set_waveform(&xc->insvib.lfo, sub->vwf);
 		xc->insvib.sweep = sub->vsw;
 

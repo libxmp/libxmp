@@ -353,7 +353,7 @@ static void dump_envelope(struct xmp_envelope *env, FILE *f)
 	int i;
 
 	/* dump envelope parameters */
-	fprintf(f, "%u %u %u %u %u %u %u\n",
+	fprintf(f, "%d %d %d %d %d %d %d\n",
 		env->flg, /* envelope flags */
 		env->npt, /* envelope number of points */
 		env->scl, /* envelope scaling */
@@ -365,7 +365,7 @@ static void dump_envelope(struct xmp_envelope *env, FILE *f)
 
 	if (env->npt > 0) {
 		for (i = 0; i < env->npt * 2; i++) {
-			fprintf(f, "%s%u", i ? " " : "", env->data[i]);
+			fprintf(f, "%s%d", i ? " " : "", env->data[i]);
 		}
 		fprintf(f, "\n");
 	}
@@ -417,11 +417,11 @@ void dump_module(struct xmp_module *mod, FILE *f)
 
 		/* Write mapping */
 		for (j = 0; j < XMP_MAX_KEYS; j++) {
-			fprintf(f, "%s%u", j ? " " : "", xxi->map[j].ins);
+			fprintf(f, "%s%d", j ? " " : "", xxi->map[j].ins);
 		}
 		fprintf(f, "\n");
 		for (j = 0; j < XMP_MAX_KEYS; j++) {
-			fprintf(f, "%s%u", j ? " " : "", xxi->map[j].xpo);
+			fprintf(f, "%s%d", j ? " " : "", xxi->map[j].xpo);
 		}
 		fprintf(f, "\n");
 
@@ -429,7 +429,7 @@ void dump_module(struct xmp_module *mod, FILE *f)
 		for (j = 0; j < xxi->nsm; j++) {
 			struct xmp_subinstrument *sub = &xxi->sub[j];
 
-			fprintf(f, "%u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u\n",
+			fprintf(f, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n",
 				sub->vol, /* subinst volume */
 				sub->gvl, /* subinst gl volume */
 				sub->pan, /* subinst pan */

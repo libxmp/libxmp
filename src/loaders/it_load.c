@@ -750,6 +750,7 @@ static int load_it_sample(struct module_data *m, int i, int start,
 
 	if (sample_mode) {
 		/* Create an instrument for each sample */
+		mod->xxi[i].vol = 64;
 		mod->xxi[i].sub[0].vol = ish.vol;
 		mod->xxi[i].sub[0].pan = 0x80;
 		mod->xxi[i].sub[0].sid = i;
@@ -782,7 +783,7 @@ static int load_it_sample(struct module_data *m, int i, int start,
 				sub->vol = ish.vol;
 				sub->gvl = ish.gvl;
 				sub->vra = ish.vis;	/* sample to sub-instrument vibrato */
-				sub->vde = ish.vid >> 1;
+				sub->vde = ish.vid << 1;
 				sub->vwf = ish.vit;
 				sub->vsw = (0xff - ish.vir) >> 1;
 
@@ -1090,10 +1091,6 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		m->period_type = PERIOD_LINEAR;
 	}
 
-	if (!sample_mode && ifh.cmwt >= 0x200) {
-		m->quirk |= QUIRK_INSVOL;
-	}
-
 	for (i = 0; i < 64; i++) {
 		struct xmp_channel *xxc = &mod->xxc[i];
 
@@ -1328,7 +1325,7 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	/* Format quirks */
 
-	m->quirk |= QUIRKS_IT | QUIRK_ARPMEM;
+	m->quirk |= QUIRKS_IT | QUIRK_ARPMEM | QUIRK_INSVOL;
 
 	if (ifh.flags & IT_LINK_GXX) {
 		m->quirk |= QUIRK_PRENV;
