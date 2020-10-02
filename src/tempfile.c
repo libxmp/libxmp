@@ -36,6 +36,7 @@
 #include <sys/stat.h>
 #endif
 
+#include "common.h" /* for libxmp_snprintf */
 #include "tempfile.h"
 
 #ifdef _WIN32
