@@ -146,10 +146,23 @@ void __inline CLIB_DECL D_(const char *text, ...) { do {} while (0); }
 #define unlink _unlink
 #endif
 #if defined(_WIN32) || defined(__WATCOMC__) /* in win32.c */
+#define USE_LIBXMP_SNPRINTF
+/* MSVC 2015+ has C99 compliant snprintf and vsnprintf implementations.
+ * If __USE_MINGW_ANSI_STDIO is defined for MinGW (which it is by default),
+ * compliant implementations will be used instead of the broken MSVCRT
+ * functions. Additionally, GCC may optimize some calls to those functions. */
+#if defined(_MSC_VER) && _MSC_VER >= 1900
+#undef USE_LIBXMP_SNPRINTF
+#endif
+#if defined(__MINGW32__) && defined(__USE_MINGW_ANSI_STDIO) && (__USE_MINGW_ANSI_STDIO != 0)
+#undef USE_LIBXMP_SNPRINTF
+#endif
+#ifdef USE_LIBXMP_SNPRINTF
 int libxmp_vsnprintf(char *, size_t, const char *, va_list);
 int libxmp_snprintf (char *, size_t, const char *, ...);
 #define snprintf  libxmp_snprintf
 #define vsnprintf libxmp_vsnprintf
+#endif
 #endif
 
 /* Quirks */
