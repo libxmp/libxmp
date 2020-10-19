@@ -231,10 +231,8 @@ static int far_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	    if (event->note || ins)
 		event->ins = ins + 1;
 
-	    vol = 16 * LSN(vol) + MSN(vol);
-
-	    if (vol)
-		event->vol = vol - 0x10;	/* ? */
+	    if (vol >= 0x01 && vol <= 0x10)
+		event->vol = (vol - 1) * 16 + 1;
 
 	    event->fxt = fx[MSN(fxb)];
 	    event->fxp = LSN(fxb);
