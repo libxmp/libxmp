@@ -106,10 +106,11 @@ static int pw_load(struct module_data *m, HIO_HANDLE *h, const int start)
 		fclose(temp);
 		goto err2;
 	}
-	
+
 	/* Module loading */
 
-	if ((f = hio_open_file(temp)) == NULL) {
+	if ((f = hio_open_file2(temp)) == NULL) {
+		fclose(temp);
 		goto err2;
 	}
 
@@ -134,7 +135,7 @@ static int pw_load(struct module_data *m, HIO_HANDLE *h, const int start)
 	if (memcmp(mh.magic, "M.K.", 4)) {
 		goto err3;
 	}
-		
+
 	mod->ins = 31;
 	mod->smp = mod->ins;
 	mod->chn = 4;

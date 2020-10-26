@@ -299,11 +299,10 @@ HIO_HANDLE *hio_open(const void *path, const char *mode)
 {
 	HIO_HANDLE *h;
 
-	h = (HIO_HANDLE *)malloc(sizeof (HIO_HANDLE));
+	h = (HIO_HANDLE *)calloc(1, sizeof (HIO_HANDLE));
 	if (h == NULL)
 		goto err;
 	
-	h->error = 0;
 	h->type = HIO_HANDLE_TYPE_FILE;
 	h->handle.file = fopen(path, mode);
 	if (h->handle.file == NULL)
@@ -327,11 +326,10 @@ HIO_HANDLE *hio_open_mem(const void *ptr, long size)
 {
 	HIO_HANDLE *h;
 
-	h = (HIO_HANDLE *)malloc(sizeof (HIO_HANDLE));
+	h = (HIO_HANDLE *)calloc(1, sizeof (HIO_HANDLE));
 	if (h == NULL)
 		return NULL;
 	
-	h->error = 0;
 	h->type = HIO_HANDLE_TYPE_MEMORY;
 	h->handle.mem = mopen(ptr, size);
 	h->size = size;
@@ -343,15 +341,24 @@ HIO_HANDLE *hio_open_file(FILE *f)
 {
 	HIO_HANDLE *h;
 
-	h = (HIO_HANDLE *)malloc(sizeof (HIO_HANDLE));
+	h = (HIO_HANDLE *)calloc(1, sizeof (HIO_HANDLE));
 	if (h == NULL)
 		return NULL;
 	
-	h->error = 0;
+	h->noclose = 1;
 	h->type = HIO_HANDLE_TYPE_FILE;
-	h->handle.file = f /*fdopen(fileno(f), "rb")*/;
+	h->handle.file = f;
 	h->size = get_size(f);
 
+	return h;
+}
+
+HIO_HANDLE *hio_open_file2(FILE *f)
+{
+	HIO_HANDLE *h = hio_open_file(f);
+	if (h != NULL) {
+		h->noclose = 0;
+	}
 	return h;
 }
 
@@ -361,7 +368,7 @@ int hio_close(HIO_HANDLE *h)
 
 	switch (HIO_HANDLE_TYPE(h)) {
 	case HIO_HANDLE_TYPE_FILE:
-		ret = fclose(h->handle.file);
+		ret = (h->noclose)? 0 : fclose(h->handle.file);
 		break;
 	case HIO_HANDLE_TYPE_MEMORY:
 		ret = mclose(h->handle.mem);
