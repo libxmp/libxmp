@@ -219,7 +219,7 @@ static int decrunch(HIO_HANDLE **h, const char *filename, char **temp)
 	}
 
 	hio_close(*h);
-	*h = hio_open_file(t);
+	*h = hio_open_file2(t);
 
 	return res;
 
@@ -578,10 +578,9 @@ int xmp_load_module_from_file(xmp_context opaque, void *file, long size)
 	struct context_data *ctx = (struct context_data *)opaque;
 	struct module_data *m = &ctx->m;
 	HIO_HANDLE *h;
-	FILE *f = fdopen(fileno((FILE *)file), "rb");
 	int ret;
 
-	if ((h = hio_open_file(f)) == NULL)
+	if ((h = hio_open_file((FILE *)file)) == NULL)
 		return -XMP_ERROR_SYSTEM;
 
 	if (ctx->state > XMP_STATE_UNLOADED)

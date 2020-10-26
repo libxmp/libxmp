@@ -153,7 +153,7 @@ static int alm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	mod->xxi[i].sub = calloc(sizeof (struct xmp_subinstrument), 1);
 	snprintf(filename, NAME_SIZE, "%s.%d", basename, i + 1);
-	s = hio_open_file(filename, "rb");
+	s = hio_open(filename, "rb");
 
 	if (s == NULL)
 	    continue;

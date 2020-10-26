@@ -359,7 +359,8 @@ int xmp_load_module_from_file(xmp_context c, FILE \*f, long size)
     :c: the player context handle.
  
     :f: the file stream. On return, the stream position is undefined.
- 
+      Caller is responsible for closing the file stream.
+
     :size: the size of the module, or 0 if the size is unknown or not
       specified. If size is set to 0 certain module formats won't be
       recognized, the MD5 digest will not be set, and module-specific
