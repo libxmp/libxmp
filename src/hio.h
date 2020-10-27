@@ -37,7 +37,7 @@ int	hio_error	(HIO_HANDLE *);
 HIO_HANDLE *hio_open	(const void *, const char *);
 HIO_HANDLE *hio_open_mem  (const void *, long);
 HIO_HANDLE *hio_open_file (FILE *);
-HIO_HANDLE *hio_open_file2 (FILE *);
+HIO_HANDLE *hio_open_file2 (FILE *);/* allows fclose()ing the file by libxmp */
 int	hio_close	(HIO_HANDLE *);
 long	hio_size	(HIO_HANDLE *);
 
