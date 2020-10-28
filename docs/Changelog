@@ -2,7 +2,23 @@ Stable versions
 ---------------
 
 4.5.0 ():
+	Changes by Alice Rowan:
+	- make xmp_set_position() consistently clear pattern break/jump vars
+	- fix volume event handling for FAR modules
+	- fix GDM loader to correctly handle empty notes
+	- fix GDM fine effects
+	- fix S3M ADPCM4 samples
+	- fix OctaMED 'tracker compatibility' tempos
+	- make it possible to disable module depacker functionality
+	Changes by viiri:
+	- fix samples corruption in STM modules
 	Changes by Ozkan Sezer:
+	- callers of xmp_load_module_from_file() are responsible for closing
+	  their own file.
+	- fix number of envelope points sanity check in IMF loader
+	- fix a seek issue with xmp_load_module_from_memory
+	- revise sanity checks to prevent oob reads in s404 depacker
+	- fix windows static library builds
 	- fix win64 compatibility in ptpopen
 	- fix build with C89 compilers
 	- fix issues related to visibility attributes
