@@ -622,6 +622,7 @@ static int get_chunk_ii(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	hio_read(buf, 1, 32, f);
 	buf[32] = 0;
 	strncpy(xxi->name, buf, 31);
+	xxi->name[31] = '\0';
 
 	D_(D_INFO "[%2X] %-32.32s %2d", data->i_index[i], xxi->name, xxi->nsm);
 
@@ -709,6 +710,7 @@ static int get_chunk_is(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	hio_read(buf, 1, 32, f);
 	buf[32] = 0;
 	strncpy(xxs->name, buf, 31);
+	xxs->name[31] = '\0';
 
 	hio_seek(f, 8, SEEK_CUR);		/* Sample filename */
 
@@ -764,21 +766,23 @@ static int get_chunk_i0(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	return -1;
 
     for (i = 0; i < mod->ins; i++) {
+	struct xmp_instrument *xxi = &mod->xxi[i];
 	struct xmp_subinstrument *sub;
 	struct xmp_sample *xxs = &mod->xxs[i];
 	int c5spd;
 
-	mod->xxi[i].nsm = 1;
+	xxi->nsm = 1;
 	if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 	    return -1;
 
-	sub = &mod->xxi[i].sub[0];
+	sub = &xxi->sub[0];
 	sub->sid = data->i_index[i] = data->s_index[i] = hio_read8(f);
 
 	hio_read(buf, 1, 32, f);
 	buf[32] = 0;
 	hio_seek(f, 8, SEEK_CUR);	/* Sample filename */
-	strncpy(mod->xxi[i].name, buf, 31);
+	strncpy(xxi->name, buf, 31);
+	xxi->name[31] = '\0';
 
 	c5spd = hio_read16l(f);
 

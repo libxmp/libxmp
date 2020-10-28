@@ -73,9 +73,10 @@ static int get_init(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	struct local_data *data = (struct local_data *)parm;
 	char buf[64];
 	int flags;
-	
+
 	hio_read(buf, 1, 64, f);
 	strncpy(mod->name, buf, 63);	/* ensure string terminator */
+	mod->name[63] = '\0';
 	libxmp_set_type(m, "Galaxy Music System 5.0");
 	flags = hio_read8(f);	/* bit 0: Amiga period */
 	if (~flags & 0x01)

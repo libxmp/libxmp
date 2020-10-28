@@ -78,7 +78,8 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	ver = hio_read8(f);
 
 	hio_read(buf, 1, 32, f);
-	strncpy(mod->name, (char *)buf, 32);
+	memcpy(mod->name, buf, 32);
+	mod->name[32] = '\0';
 	libxmp_set_type(m, "DSMI %d.%d AMF", ver / 10, ver % 10);
 
 	mod->ins = hio_read8(f);

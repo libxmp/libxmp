@@ -432,7 +432,8 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		return -1;
 	}
 
-	strncpy((char *)xxi->name, ii.name, 24);
+	strncpy((char *)xxi->name, ii.name, 31);
+	xxi->name[31] = '\0';
 
 	for (j = 0; j < 108; j++) {
 		xxi->map[j + 12].ins = ii.map[j];
