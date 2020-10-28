@@ -130,9 +130,11 @@ static int get_titl(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	char buf[40];
-	
+
 	hio_read(buf, 1, 40, f);
-	strncpy(mod->name, buf, size > 32 ? 32 : size);
+	size = size > 32 ? 32 : size;
+	strncpy(mod->name, buf, size);
+	mod->name[size] = '\0';
 
 	return 0;
 }

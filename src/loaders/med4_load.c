@@ -578,6 +578,7 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		type = (int16)hio_read16b(f);	/* instrument type */
 
 		strncpy((char *)xxi->name, temp_inst[i].name, 32);
+		xxi->name[31] = '\0';
 
 		D_(D_INFO "\n[%2X] %-32.32s %d", i, xxi->name, type);
 

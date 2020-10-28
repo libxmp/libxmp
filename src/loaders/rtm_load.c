@@ -226,8 +226,9 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			return -1;
 		}
 	}
-	
-	strncpy(mod->name, oh.name, 20);
+
+	strncpy(mod->name, oh.name, 32);
+	mod->name[32] = '\0';
 	snprintf(mod->type, XMP_NAME_SIZE, "%s RTM %x.%02x",
 				tracker_name, version >> 8, version & 0xff);
 	/* strncpy(m->author, composer, XMP_NAME_SIZE); */

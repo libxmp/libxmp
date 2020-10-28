@@ -57,13 +57,14 @@ static int psm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	uint32 p_ord, p_chn, p_pat, p_ins;
 	uint32 p_smp[64];
 	int type, ver /*, mode*/;
- 
+
 	LOAD_INIT();
 
 	hio_read32b(f);
 
 	hio_read(buf, 1, 60, f);
-	strncpy(mod->name, (char *)buf, 60);
+	memcpy(mod->name, (char *)buf, 59);
+	mod->name[59] = '\0';
 
 	type = hio_read8(f);		/* song type */
 	ver = hio_read8(f);		/* song version */
@@ -115,6 +116,7 @@ static int psm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	hio_seek(f, start + p_ins, SEEK_SET);
 	for (i = 0; i < mod->ins; i++) {
+		struct xmp_instrument *xxi = &mod->xxi[i];
 		uint16 flags, c2spd;
 		int finetune;
 
@@ -124,7 +126,8 @@ static int psm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		hio_read(buf, 1, 13, f);	/* sample filename */
 		hio_read(buf, 1, 24, f);	/* sample description */
 		buf[24] = 0;			/* add string termination */
-		strncpy((char *)mod->xxi[i].name, (char *)buf, 24);
+		strncpy(xxi->name, (char *)buf, 24);
+		xxi->name[24] = '\0';
 		p_smp[i] = hio_read32l(f);
 		hio_read32l(f);			/* memory location */
 		hio_read16l(f);			/* sample number */

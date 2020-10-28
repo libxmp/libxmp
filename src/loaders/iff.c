@@ -170,7 +170,7 @@ int libxmp_iff_register(iff_handle opaque, const char *id,
 	if (f == NULL)
 		return -1;
 
-	strncpy(f->id, id, 4);
+	memcpy(f->id, id, 4);
 	f->loader = loader;
 
 	list_add_tail(&f->list, &data->iff_list);

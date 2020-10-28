@@ -271,7 +271,7 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 
 	for (i = 0; i < mod->ins; i++) {
 		if (sfh.ins[i].volume && sfh.ins[i].length) {
-			hio_seek(f, start + sfh.ins[i].rsvd1 << 4, SEEK_SET);
+			hio_seek(f, start + (sfh.ins[i].rsvd1 << 4), SEEK_SET);
 			if (libxmp_load_sample(m, f, 0, &mod->xxs[i], NULL) < 0)
 				return -1;
 		} else {
