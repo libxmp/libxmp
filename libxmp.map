@@ -61,10 +61,10 @@ XMP_4.4 {
   global:
     xmp_set_player;
     xmp_get_player;
-    xmp_set_row;
 } XMP_4.3;
 
 XMP_4.5 {
   global:
+    xmp_set_row;
     xmp_set_tempo_factor;
 } XMP_4.4;
