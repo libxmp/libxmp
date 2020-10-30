@@ -36,7 +36,7 @@
 #include <unistd.h>
 #endif
 
-#include <fnmatch.h>
+#include "xfnmatch.h"
 
 /*
  * Handle special "module quirks" that can't be detected automatically

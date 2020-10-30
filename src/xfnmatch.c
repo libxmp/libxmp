@@ -42,7 +42,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-#include "fnmatch.h"
+#include "xfnmatch.h"
 
 #define	EOS	'\0'
 

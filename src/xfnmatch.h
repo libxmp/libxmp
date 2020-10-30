@@ -1,6 +1,10 @@
 /*	$OpenBSD: fnmatch.h,v 1.8 2005/12/13 00:35:22 millert Exp $	*/
 /*	$NetBSD: fnmatch.h,v 1.5 1994/10/26 00:55:53 cgd Exp $	*/
 
+#ifdef HAVE_FNMATCH
+#include <fnmatch.h>
+#else
+
 /*-
  * Copyright (c) 1992, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -57,3 +61,5 @@ int	 fnmatch(const char *, const char *, int);
 #endif
 
 #endif /* !_FNMATCH_H_ */
+
+#endif /* HAVE_FNMATCH */
