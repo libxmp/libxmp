@@ -1,6 +1,9 @@
+/*	$OpenBSD: fnmatch.h,v 1.8 2005/12/13 00:35:22 millert Exp $	*/
+/*	$NetBSD: fnmatch.h,v 1.5 1994/10/26 00:55:53 cgd Exp $	*/
+
 /*-
  * Copyright (c) 1992, 1993
- *      The Regents of the University of California.  All rights reserved.
+ *	The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -10,7 +13,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 4. Neither the name of the University nor the names of its contributors
+ * 3. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -25,20 +28,32 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
+ *
+ *	@(#)fnmatch.h	8.1 (Berkeley) 6/2/93
  */
 
-#ifndef _FNMATCH_H_
-#define _FNMATCH_H_
+#ifndef	_FNMATCH_H_
+#define	_FNMATCH_H_
 
-#define FNM_NOMATCH     1	/* Match failed. */
+#define	FNM_NOMATCH	1	/* Match failed. */
+#define	FNM_NOSYS	2	/* Function not supported (unused). */
 
-#define FNM_NOESCAPE    0x01	/* Disable backslash escaping. */
-#define FNM_PATHNAME    0x02	/* Slash must be matched by slash. */
-#define FNM_PERIOD      0x04	/* Period must be matched by period. */
-#define FNM_LEADING_DIR 0x08	/* Ignore /<tail> after Imatch. */
-#define FNM_CASEFOLD    0x10	/* Case insensitive search. */
-#define FNM_PREFIX_DIRS 0x20	/* Directory prefixes of pattern match too. */
+#define	FNM_NOESCAPE	0x01	/* Disable backslash escaping. */
+#define	FNM_PATHNAME	0x02	/* Slash must be matched by slash. */
+#define	FNM_PERIOD	0x04	/* Period must be matched by period. */
+#define	FNM_LEADING_DIR	0x08	/* Ignore /<tail> after Imatch. */
+#define	FNM_CASEFOLD	0x10	/* Case insensitive search. */
+#define	FNM_IGNORECASE	FNM_CASEFOLD
+#define	FNM_FILE_NAME	FNM_PATHNAME
 
-int fnmatch(const char *pattern, const char *string, int flags);
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
-#endif				/* !_FNMATCH_H_ */
+int	 fnmatch(const char *, const char *, int);
+
+#if defined(__cplusplus)
+}
+#endif
+
+#endif /* !_FNMATCH_H_ */
