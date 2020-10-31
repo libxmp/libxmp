@@ -95,6 +95,7 @@ TEST(test_read_mem_hio)
 	x = hio_eof(h);
 	fail_unless(x != 0, "read32b eof");
 
+	/* seek past end: */
 	x = hio_seek(h, 20, SEEK_CUR);
 	fail_unless(x == 0, "hio_seek");
 
