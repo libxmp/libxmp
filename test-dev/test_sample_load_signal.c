@@ -1,10 +1,10 @@
 #include "test.h"
 #include "../src/loaders/loader.h"
 
-struct xmp_sample xxs;
-
 TEST(test_sample_load_signal)
 {
+	static struct xmp_sample xxs;
+
 	int8  buffer0[10] = { 0, 1, 2, 3,  4,  5,  6, -7,  8, -29 };
 	uint8 conv_r0[10] = {
 		128, 129, 130, 131, 132, 133, 134, 121, 136, 99

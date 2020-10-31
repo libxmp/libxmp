@@ -21,7 +21,7 @@
 	return 0; }
 
 #define fail_unless(x, y) do { \
-	if (!(x)) { printf("%d: %s: ", __LINE__, y); exit(1); } \
+	if (!(x)) { printf("FAILED at %s:%d: %s\n", __FILE__, __LINE__, y); exit(1); } \
 } while (0)
 
 static inline int is_big_endian() {
@@ -34,6 +34,7 @@ int play_frame(struct context_data *);
 
 
 int compare_module(struct xmp_module *, FILE *);
+void dump_module(struct xmp_module *, FILE *);
 int compare_md5(unsigned char *, char *);
 int check_md5(char *, char *);
 int check_randomness(int *, int, double);
