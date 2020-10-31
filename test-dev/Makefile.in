@@ -15,7 +15,7 @@ GCLIB		= libxmp-gc.a
 #
 # Tests
 #
-
+#
 REPLAYERS	= mod ft2 st3 it
 
 QUIRKS		= 
@@ -358,7 +358,7 @@ TEST_PATH	= .
 SRC_PATH	= ../src
 
 TEST_INTERNAL	= win32.o hio.o load_helpers.o loaders/itsex.o dataio.o scan.o \
-		  loaders/sample.o loaders/common.o period.o fnmatch.o memio.o
+		  loaders/sample.o loaders/common.o period.o xfnmatch.o memio.o
 
 T_OBJS 		= $(addprefix $(TEST_PATH)/,$(TEST_OBJS)) \
 		  $(addprefix $(SRC_PATH)/,$(TEST_INTERNAL))
