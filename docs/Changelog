@@ -13,12 +13,14 @@ Stable versions
 	Changes by viiri:
 	- fix samples corruption in STM modules
 	Changes by Ozkan Sezer:
-	- callers of xmp_load_module_from_file() are responsible for closing
-	  their own file.
+	- explicitly document that callers of xmp_load_module_from_file()
+	  are responsible for closing their own file.
+	- remove nonportable use of fdopen in xmp_load_module_from_file()
 	- fix number of envelope points sanity check in IMF loader
 	- fix a seek issue with xmp_load_module_from_memory
 	- fix memory-io functions' error handling
 	- revise sanity checks to prevent oob reads in s404 depacker
+	- fix vorbis depacker to function properly on big endian systems
 	- fix windows static library builds
 	- fix win64 compatibility in ptpopen
 	- fix build with C89 compilers
