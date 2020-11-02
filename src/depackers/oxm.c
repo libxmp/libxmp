@@ -296,6 +296,17 @@ static int decrunch_oxm(FILE *f, FILE *fo)
 				if (pcm[j] == NULL) {
 					return -1;
 				}
+#ifdef WORDS_BIGENDIAN
+				if (res == 16) {
+				/* convert host-endian to little-endian */
+					uint16 *p = (uint16 *)pcm[j]; int k;
+					newlen /= 2;
+					for (k = 0; k < newlen; ++k, ++p) {
+						*p = ((*p & 0xFF) << 8) |
+						     ((*p >> 8) & 0xFF);
+					}
+				}
+#endif
 			}
 		}
 
