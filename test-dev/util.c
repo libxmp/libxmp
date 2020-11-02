@@ -302,8 +302,13 @@ int compare_module(struct xmp_module *mod, FILE *f)
 		MD5_CTX ctx;
 		int len = xxs->len;
 
-		if (xxs->flg & XMP_SAMPLE_16BIT)
+		if (xxs->flg & XMP_SAMPLE_16BIT) {
 			len *= 2;
+			/* Normalize data to little endian for the hash. */
+			if (is_big_endian()) {
+				convert_endian(xxs->data, xxs->len);
+			}
+		}
 
 		read_line(line, 1024, f);
 		x = strtoul(line, &s, 0);
@@ -482,8 +487,13 @@ void dump_module(struct xmp_module *mod, FILE *f)
 		MD5_CTX ctx;
 		int len = xxs->len;
 
-		if (xxs->flg & XMP_SAMPLE_16BIT)
+		if (xxs->flg & XMP_SAMPLE_16BIT) {
 			len *= 2;
+			/* Normalize data to little endian for the hash. */
+			if (is_big_endian()) {
+				convert_endian(xxs->data, xxs->len);
+			}
+		}
 
 		fprintf(f, "%u %u %u %u",
 			xxs->len, /* sample length */
