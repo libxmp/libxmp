@@ -59,7 +59,8 @@ static void _compare_mixer_data(char *mod, char *data, int loops, int ignore_rv)
 				&time, &row, &frame, &chan, &period,
 				&note, &ins, &vol, &pan, &pos0, &cutoff);
 
-			fail_unless(fi.time    == time,   "time mismatch");
+			/* Allow some error in values derived from floating point math. */
+			fail_unless(abs(fi.time - time) <= 1, "time mismatch");
 			fail_unless(fi.row     == row,    "row mismatch");
 			fail_unless(fi.frame   == frame,  "frame mismatch");
 			fail_unless(i          == chan,   "channel mismatch");
@@ -70,7 +71,7 @@ static void _compare_mixer_data(char *mod, char *data, int loops, int ignore_rv)
 				fail_unless(vi->vol == vol, "volume mismatch");
 				fail_unless(vi->pan == pan, "pan mismatch");
 			}
-			fail_unless(vi->pos0   == pos0,   "position mismatch");
+			fail_unless(abs(vi->pos0 - pos0) <= 1, "position mismatch");
 			if (num >= 11) {
 				fail_unless(vi->filter.cutoff == cutoff,
 							  "cutoff mismatch");
