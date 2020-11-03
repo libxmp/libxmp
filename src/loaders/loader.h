@@ -32,6 +32,7 @@ int	libxmp_alloc_pattern		(struct xmp_module *, int);
 int	libxmp_alloc_track		(struct xmp_module *, int, int);
 int	libxmp_alloc_tracks_in_pattern	(struct xmp_module *, int);
 int	libxmp_alloc_pattern_tracks	(struct xmp_module *, int, int);
+int	libxmp_alloc_pattern_tracks_long(struct xmp_module *, int, int);
 char	*libxmp_instrument_name		(struct xmp_module *, int, uint8 *, int);
 struct xmp_sample* libxmp_realloc_samples(struct xmp_sample *, int *, int);
 
