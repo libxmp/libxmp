@@ -138,7 +138,27 @@ int libxmp_alloc_tracks_in_pattern(struct xmp_module *mod, int num)
 int libxmp_alloc_pattern_tracks(struct xmp_module *mod, int num, int rows)
 {
 	/* Sanity check */
-	if (rows < 0 || rows > 256)
+	if (rows <= 0 || rows > 256)
+		return -1;
+
+	if (libxmp_alloc_pattern(mod, num) < 0)
+		return -1;
+
+	mod->xxp[num]->rows = rows;
+
+	if (libxmp_alloc_tracks_in_pattern(mod, num) < 0)
+		return -1;
+
+	return 0;
+}
+
+/* Some formats explicitly allow more than 256 rows (e.g. OctaMED). This function
+ * allows those formats to work without disrupting the sanity check for other formats.
+ */
+int libxmp_alloc_pattern_tracks_long(struct xmp_module *mod, int num, int rows)
+{
+	/* Sanity check */
+	if (rows <= 0 || rows > 32768)
 		return -1;
 
 	if (libxmp_alloc_pattern(mod, num) < 0)
