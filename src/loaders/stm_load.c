@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2016 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -161,7 +161,9 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	sfh.vermin = hio_read8(f);	/* Minor version number */
 	version = (100 * sfh.vermaj) + sfh.vermin;
 
-	if (version == 100 || version > 221) {
+	if (version != 110 &&
+	    version != 200 && version != 210 &&
+	    version != 220 && version != 221) {
 		D_(D_CRIT "Unknown version!");
 		return -1;
 	}
