@@ -9,6 +9,7 @@ Stable versions
 	- fix GDM fine effects
 	- fix S3M ADPCM4 samples
 	- fix OctaMED 'tracker compatibility' tempos
+	- ignore MED volume/slide effects with param of 0, fix speed bound.
 	- make it possible to disable module depacker functionality
 	Changes by viiri:
 	- fix samples corruption in STM modules
