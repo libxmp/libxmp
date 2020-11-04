@@ -86,20 +86,26 @@ void mmd_xlat_fx(struct xmp_event *event, int bpm_on, int bpmlen, int med_8ch,
 		 * chord sound or other special effect. Arpeggio works better
 		 * with some instruments than others.
 		 */
-		/* fall-through */
+		break;
 	case 0x01:
 		/* SLIDE UP 01
 		 * This slides the pitch of the current track up. It decreases
 		 * the period of the note by the amount of the argument on each
 		 * timing pulse. OctaMED-Pro can create slides automatically,
 		 * but you may want to use this function for special effects.
+		 * Note: a param of 0 does nothing and should be ignored.
 		 */
-		/* fall-through */
+		if (!event->fxp)
+			event->fxt = 0;
+		break;
 	case 0x02:
 		/* SLIDE DOWN 02
 		 * The same as SLIDE UP, but it slides down.
+		 * Note: a param of 0 does nothing and should be ignored.
 		 */
-		/* fall-through */
+		if (!event->fxp)
+			event->fxt = 0;
+		break;
 	case 0x03:
 		/* PORTAMENTO 03
 		 * Makes precise sliding easy.
@@ -148,9 +154,9 @@ void mmd_xlat_fx(struct xmp_event *event, int bpm_on, int bpmlen, int med_8ch,
 	case 0x09:
 		/* SECONDARY TEMPO 09
 		 * This sets the secondary tempo (the number of timing
-		 * pulses per note). The argument must be from 01 to 20.
+		 * pulses per note). The argument must be from 01 to 20 (hex).
 		 */
-		if (event->fxp >= 1 && event->fxp <= 20) {
+		if (event->fxp >= 0x01 && event->fxp <= 0x20) {
 			event->fxt = FX_SPEED;
 		} else {
 			event->fxt = event->fxp = 0;
@@ -237,12 +243,14 @@ void mmd_xlat_fx(struct xmp_event *event, int bpm_on, int bpmlen, int med_8ch,
 		 * Equivalent to ProTracker command E1x.
 		 * Lets you control the pitch with great accuracy. This
 		 * command changes only this occurrence of the note.
+		 * Note: a param of 0 does nothing and should be ignored.
 		 */
 		event->fxt = FX_F_PORTA_UP;
 		break;
 	case 0x12:
 		/* SLIDE DOWN (only once) 12
 		 * Equivalent to ProTracker command E2x.
+		 * Note: a param of 0 does nothing and should be ignored.
 		 */
 		event->fxt = FX_F_PORTA_DN;
 		break;
@@ -299,14 +307,16 @@ void mmd_xlat_fx(struct xmp_event *event, int bpm_on, int bpmlen, int med_8ch,
 		/* SLIDE VOLUME UP ONCE
 		 * Only once ProTracker command EAx. Lets volume slide
 		 * slowly once per line.
+		 * Note: a param of 0 does nothing and should be ignored.
 		 */
-		event->fxt = FX_F_VSLIDE_UP;
+		event->fxt = event->fxp ? FX_F_VSLIDE_UP : 0;
 		break;
 	case 0x1b:
-		/* VOLUME DOWN?
-		 * Only once ProTracker command EBx ?
+		/* SLIDE VOLUME DOWN ONCE
+		 * Only once ProTracker command EBx.
+		 * Note: a param of 0 does nothing and should be ignored.
 		 */
-		event->fxt = FX_F_VSLIDE_DN;
+		event->fxt = event->fxp ? FX_F_VSLIDE_DN : 0;
 		break;
 	case 0x1d:
 		/* JUMP TO NEXT BLOCK 1D
