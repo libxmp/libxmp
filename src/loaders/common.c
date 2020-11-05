@@ -364,3 +364,54 @@ void libxmp_set_type(struct module_data *m, const char *fmt, ...)
 	vsnprintf(m->mod.type, XMP_NAME_SIZE, fmt, ap);
 	va_end(ap);
 }
+
+static int schism_tracker_date(int year, int month, int day)
+{
+	int mm = (month + 9) % 12;
+	int yy = year - mm / 10;
+
+	yy = yy * 365 + (yy / 4) - (yy / 100) + (yy / 400);
+	mm = (mm * 306 + 5) / 10;
+
+	return yy + mm + (day - 1);
+}
+
+/* Generate a Schism Tracker version string.
+ * Schism Tracker versions are stored as follows:
+ *
+ * s_ver <= 0x50:		0.s_ver
+ * s_ver > 0x50, < 0xfff:	days from epoch=(s_ver - 0x50)
+ * s_ver = 0xfff:		days from epoch=l_ver
+ */
+void libxmp_schism_tracker_string(char *buf, size_t size, int s_ver, int l_ver)
+{
+	if (s_ver >= 0x50) {
+		/* time_t epoch_sec = 1256947200; */
+		int t = schism_tracker_date(2009, 10, 31);
+		int year, month, day, dayofyear;
+
+		if (s_ver == 0xfff) {
+			t += l_ver;
+		} else
+			t += s_ver - 0x50;
+
+		/* Date algorithm reimplemented from OpenMPT.
+		 */
+		year = (int)(((int64)t * 10000L + 14780) / 3652425);
+		dayofyear = t - (365 * year + (year / 4) - (year / 100) + (year / 400));
+		if (dayofyear < 0) {
+			year--;
+			dayofyear = t - (365 * year + (year / 4) - (year / 100) + (year / 400));
+		}
+		month = (100 * dayofyear + 52) / 3060;
+		day = dayofyear - (month * 306 + 5) / 10 + 1;
+
+		year += (month + 2) / 12;
+		month = (month + 2) % 12 + 1;
+
+		snprintf(buf, size, "Schism Tracker %04d-%02d-%02d",
+			year, month, day);
+	} else {
+		snprintf(buf, size, "Schism Tracker 0.%x", s_ver);
+	}
+}

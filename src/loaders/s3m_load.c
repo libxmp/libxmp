@@ -271,7 +271,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	sfh.mv = buf[51];			/* Master volume */
 	sfh.uc = buf[52];			/* Ultra click removal */
 	sfh.dp = buf[53];			/* Default pan positions if 0xfc */
-	/* 54-61 reserved */
+	memcpy(sfh.rsvd2, buf + 54, 8);		/* Reserved */
 	sfh.special = readmem16l(buf + 62);	/* Ptr to special custom data */
 	memcpy(sfh.chset, buf + 64, 32);	/* Channel settings */
 
@@ -418,9 +418,8 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		break;
 	case 4:
 		if (sfh.version != 0x4100) {
-			snprintf(tracker_name, 40, "Schism Tracker %d.%02x",
-				 (sfh.version & 0x0f00) >> 8,
-				 sfh.version & 0xff);
+			libxmp_schism_tracker_string(tracker_name, 40,
+				(sfh.version & 0x0fff), sfh.rsvd2[0] | (sfh.rsvd2[1] << 8));
 			break;
 		}
 		/* fall through */

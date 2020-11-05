@@ -150,7 +150,7 @@ darwin*)
   LIBS="${old_LIBS}"
   ;;
 esac
-AC_CHECK_FUNCS(popen mkstemp fnmatch umask localtime_r round powf)
+AC_CHECK_FUNCS(popen mkstemp fnmatch umask round powf)
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([libxmp.pc])
