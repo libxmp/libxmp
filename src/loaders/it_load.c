@@ -22,7 +22,6 @@
 
 #ifndef LIBXMP_CORE_DISABLE_IT
 
-#include <time.h>
 #include "loader.h"
 #include "it.h"
 #include "period.h"
@@ -40,23 +39,6 @@ const struct format_loader libxmp_loader_it = {
 	it_test,
 	it_load
 };
-
-#ifndef LIBXMP_CORE_PLAYER /* */
-#if defined(__WATCOMC__)
-#undef localtime_r
-#define localtime_r _localtime
-
-#elif !defined(HAVE_LOCALTIME_R) || defined(_WIN32)
-#undef localtime_r
-#define localtime_r libxmp_localtime_r
-static struct tm *libxmp_localtime_r(const time_t * timep, struct tm *result)
-{
-	/* Note: Win32 localtime() is thread-safe */
-	memcpy(result, localtime(timep), sizeof(struct tm));
-	return result;
-}
-#endif
-#endif /* ! LIBXMP_CORE_PLAYER */
 
 static int it_test(HIO_HANDLE * f, char *t, const int start)
 {
@@ -373,25 +355,10 @@ static void identify_tracker(struct module_data *m, struct it_file_header *ifh)
 		break;
 	default:
 		switch (ifh->cwt >> 12) {
-		case 0x1:{
-			uint16 cwtv = ifh->cwt & 0x0fff;
-			struct tm version;
-			time_t version_sec;
-
-			if (cwtv > 0x50) {
-				version_sec = ((cwtv - 0x050) * 86400) + 1254355200;
-				if (localtime_r(&version_sec, &version)) {
-					snprintf(tracker_name, 40,
-						 "Schism Tracker %04d-%02d-%02d",
-						 version.tm_year + 1900,
-						 version.tm_mon + 1,
-						 version.tm_mday);
-				}
-			} else {
-				snprintf(tracker_name, 40,
-					 "Schism Tracker 0.%x", cwtv);
-			}
-			break; }
+		case 0x1:
+			libxmp_schism_tracker_string(tracker_name, 40,
+				(ifh->cwt & 0x0fff), ifh->rsvd);
+			break;
 		case 0x5:
 			snprintf(tracker_name, 40, "OpenMPT %d.%02x",
 				 (ifh->cwt & 0x0f00) >> 8, ifh->cwt & 0xff);
