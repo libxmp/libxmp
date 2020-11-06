@@ -144,9 +144,9 @@ XMP_TRY_COMPILE(whether alloca() needs alloca.h,
 
 old_LIBS="${LIBS}"
 AC_CHECK_LIB(m,pow)
-dnl -lm not needed with darwin.
+dnl -lm not needed with darwin and mingw.
 case "${host_os}" in
-darwin*)
+darwin*|mingw*)
   LIBS="${old_LIBS}"
   ;;
 esac
