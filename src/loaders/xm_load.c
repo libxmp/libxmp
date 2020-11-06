@@ -678,7 +678,7 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		return -1;
 	}
 
-	if (hio_read(&xfh.order, len, 1, f) != 1) {	/* Pattern order table */
+	if (hio_read(xfh.order, len, 1, f) != 1) {	/* Pattern order table */
 		D_(D_CRIT "error reading orders");
 		return -1;
 	}

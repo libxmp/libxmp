@@ -411,9 +411,9 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     m->period_type = PERIOD_MODRNG;
 
-    hio_read(&mh.name, 20, 1, f);
+    hio_read(mh.name, 20, 1, f);
     for (i = 0; i < 31; i++) {
-	hio_read(&mh.ins[i].name, 22, 1, f);	/* Instrument name */
+	hio_read(mh.ins[i].name, 22, 1, f);	/* Instrument name */
 	mh.ins[i].size = hio_read16b(f);	/* Length in 16-bit words */
 	mh.ins[i].finetune = hio_read8(f);	/* Finetune (signed nibble) */
 	mh.ins[i].volume = hio_read8(f);	/* Linear playback volume */
@@ -430,7 +430,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
     }
     mh.len = hio_read8(f);
     mh.restart = hio_read8(f);
-    hio_read(&mh.order, 128, 1, f);
+    hio_read(mh.order, 128, 1, f);
     memset(magic, 0, 8);
     hio_read(magic, 1, 4, f);
     if (hio_error(f)) {

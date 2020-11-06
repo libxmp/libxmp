@@ -40,7 +40,7 @@ const struct format_loader libxmp_loader_it = {
 	it_load
 };
 
-static int it_test(HIO_HANDLE * f, char *t, const int start)
+static int it_test(HIO_HANDLE *f, char *t, const int start)
 {
 	if (hio_read32b(f) != MAGIC_IMPM)
 		return -1;
@@ -296,7 +296,7 @@ static int read_envelope(struct xmp_envelope *ei, struct it_envelope *env,
 	ei->lps = env->lpb;
 	ei->lpe = env->lpe;
 
-	if (ei->npt > 0 && ei->npt <= 25 /* XMP_MAX_ENV_POINTS */ ) {
+	if (ei->npt > 0 && ei->npt <= 25 /* XMP_MAX_ENV_POINTS */) {
 		for (i = 0; i < ei->npt; i++) {
 			ei->data[i * 2] = env->node[i].x;
 			ei->data[i * 2 + 1] = env->node[i].y;
@@ -413,13 +413,13 @@ static int load_old_it_instrument(struct xmp_instrument *xxi, HIO_HANDLE *f)
 	memcpy(i1h.name, buf + 32, 26);
 	fix_name(i1h.name, 26);
 
-	if (hio_read(&i1h.keys, 1, 240, f) != 240) {
+	if (hio_read(i1h.keys, 1, 240, f) != 240) {
 		return -1;
 	}
-	if (hio_read(&i1h.epoint, 1, 200, f) != 200) {
+	if (hio_read(i1h.epoint, 1, 200, f) != 200) {
 		return -1;
 	}
-	if (hio_read(&i1h.enode, 1, 50, f) != 50) {
+	if (hio_read(i1h.enode, 1, 50, f) != 50) {
 		return -1;
 	}
 
@@ -561,7 +561,7 @@ static int load_new_it_instrument(struct xmp_instrument *xxi, HIO_HANDLE *f)
 	i2h.mpr = buf[61];
 	i2h.mbnk = readmem16l(buf + 62);
 
-	if (hio_read(&i2h.keys, 1, 240, f) != 240) {
+	if (hio_read(i2h.keys, 1, 240, f) != 240) {
 		D_(D_CRIT "key map read error");
 		return -1;
 	}

@@ -113,8 +113,8 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     LOAD_INIT();
 
-    hio_read(&ufh.magic, 15, 1, f);
-    hio_read(&ufh.name, 32, 1, f);
+    hio_read(ufh.magic, 15, 1, f);
+    hio_read(ufh.name, 32, 1, f);
     ufh.msgsize = hio_read8(f);
 
     ver = ufh.magic[14] - '0';
@@ -143,8 +143,8 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 	    return -1;
 
-	hio_read(&uih.name, 32, 1, f);
-	hio_read(&uih.dosname, 12, 1, f);
+	hio_read(uih.name, 32, 1, f);
+	hio_read(uih.dosname, 12, 1, f);
 	uih.loop_start = hio_read32l(f);
 	uih.loopend = hio_read32l(f);
 	uih.sizestart = hio_read32l(f);
@@ -221,7 +221,7 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	    libxmp_c2spd_to_note(uih.c2spd, &mod->xxi[i].sub[0].xpo, &mod->xxi[i].sub[0].fin);
     }
 
-    hio_read(&ufh2.order, 256, 1, f);
+    hio_read(ufh2.order, 256, 1, f);
     ufh2.channels = hio_read8(f);
     ufh2.patterns = hio_read8(f);
 

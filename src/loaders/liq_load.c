@@ -243,11 +243,11 @@ static int liq_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     LOAD_INIT();
 
-    hio_read(&lh.magic, 14, 1, f);
-    hio_read(&lh.name, 30, 1, f);
-    hio_read(&lh.author, 20, 1, f);
+    hio_read(lh.magic, 14, 1, f);
+    hio_read(lh.name, 30, 1, f);
+    hio_read(lh.author, 20, 1, f);
     hio_read8(f);
-    hio_read(&lh.tracker, 20, 1, f);
+    hio_read(lh.tracker, 20, 1, f);
 
     lh.version = hio_read16l(f);
     lh.speed = hio_read16l(f);
@@ -361,7 +361,7 @@ static int liq_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	if (pmag != 0x4c500000)		/* LP\0\0 */
 	    return -1;
 	
-	hio_read(&lp.name, 30, 1, f);
+	hio_read(lp.name, 30, 1, f);
 	lp.rows = hio_read16l(f);
 	lp.size = hio_read32l(f);
 	lp.reserved = hio_read32l(f);
@@ -560,7 +560,7 @@ next_pattern:
 
 	sub = &xxi->sub[0];
 
-	hio_read (&b, 1, 4, f);
+	hio_read (b, 1, 4, f);
 
 	if (b[0] == '?' && b[1] == '?' && b[2] == '?' && b[3] == '?')
 	    continue;
@@ -568,9 +568,9 @@ next_pattern:
 	    return -1;
 
 	li.version = hio_read16l(f);
-	hio_read(&li.name, 30, 1, f);
-	hio_read(&li.editor, 20, 1, f);
-	hio_read(&li.author, 20, 1, f);
+	hio_read(li.name, 30, 1, f);
+	hio_read(li.editor, 20, 1, f);
+	hio_read(li.author, 20, 1, f);
 	li.hw_id = hio_read8(f);
 
 	li.length = hio_read32l(f);
@@ -590,8 +590,8 @@ next_pattern:
 	li.crc = hio_read32l(f);
 
 	li.midi_ch = hio_read8(f);
-	hio_read(&li.rsvd, 11, 1, f);
-	hio_read(&li.filename, 25, 1, f);
+	hio_read(li.rsvd, 11, 1, f);
+	hio_read(li.filename, 25, 1, f);
 
 	xxi->nsm = !!(li.length);
 	xxi->vol = 0x40;

@@ -306,7 +306,7 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		hio_read(mod->name, 1, a, f);
 	}
 
-	hio_read(&allowed_effects, 1, 8, f);
+	hio_read(allowed_effects, 1, 8, f);
 
 	MODULE_INFO();
 

@@ -104,7 +104,7 @@ static int sfx_13_20_load(struct module_data *m, HIO_HANDLE *f, const int nins,
 	if (sfx.delay < 178)	/* min value for 10000bpm */
 		return -1;
 
-	hio_read(&sfx.unknown, 14, 1, f);
+	hio_read(sfx.unknown, 14, 1, f);
 
 	if (sfx.magic != MAGIC_SONG)
 		return -1;
@@ -115,7 +115,7 @@ static int sfx_13_20_load(struct module_data *m, HIO_HANDLE *f, const int nins,
 	mod->bpm = 14565 * 122 / sfx.delay;
 
 	for (i = 0; i < mod->ins; i++) {
-		hio_read(&ins[i].name, 22, 1, f);
+		hio_read(ins[i].name, 22, 1, f);
 		ins[i].len = hio_read16b(f);
 		ins[i].finetune = hio_read8(f);
 		ins[i].volume = hio_read8(f);
@@ -125,7 +125,7 @@ static int sfx_13_20_load(struct module_data *m, HIO_HANDLE *f, const int nins,
 
 	sfx2.len = hio_read8(f);
 	sfx2.restart = hio_read8(f);
-	if (hio_read(&sfx2.order, 1, 128, f) != 128)
+	if (hio_read(sfx2.order, 1, 128, f) != 128)
 		return -1;
 
 	mod->len = sfx2.len;

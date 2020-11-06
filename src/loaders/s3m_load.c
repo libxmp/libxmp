@@ -247,7 +247,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		goto err;
 	}
 
-	memcpy(&sfh.name, buf, 28);		/* Song name */
+	memcpy(sfh.name, buf, 28);		/* Song name */
 	sfh.type = buf[30];			/* File type */
 	sfh.ordnum = readmem16l(buf + 32);	/* Number of orders (must be even) */
 	sfh.insnum = readmem16l(buf + 34);	/* Number of instruments */
@@ -560,7 +560,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			sub->xpo += 12;
 			ret =
 			    libxmp_load_sample(m, f, SAMPLE_FLAG_ADLIB, xxs,
-					(char *)&sah.reg);
+					(char *)sah.reg);
 			if (ret < 0)
 				goto err3;
 

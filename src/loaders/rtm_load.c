@@ -157,7 +157,7 @@ static int rtm_test(HIO_HANDLE *f, char *t, const int start)
 
 static int read_object_header(HIO_HANDLE *f, struct ObjectHeader *h, const char *id)
 {
-	hio_read(&h->id, 4, 1, f);
+	hio_read(h->id, 4, 1, f);
 	D_(D_WARN "object id: %02x %02x %02x %02x", h->id[0],
 					h->id[1], h->id[2], h->id[3]);
 
@@ -167,7 +167,7 @@ static int read_object_header(HIO_HANDLE *f, struct ObjectHeader *h, const char 
 	h->rc = hio_read8(f);
 	if (h->rc != 0x20)
 		return -1;
-	if (hio_read(&h->name, 1, 32, f) != 32)
+	if (hio_read(h->name, 1, 32, f) != 32)
 		return -1;
 	h->eof = hio_read8(f);
 	h->version = hio_read16l(f);
@@ -209,7 +209,7 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	rh.npattern = hio_read16l(f);
 	rh.speed = hio_read8(f);
 	rh.tempo = hio_read8(f);
-	hio_read(&rh.panning, 32, 1, f);
+	hio_read(rh.panning, 32, 1, f);
 	rh.extraDataSize = hio_read32l(f);
 
 	/* Sanity check */
@@ -350,7 +350,7 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			return -1;
 		}
 
-		libxmp_instrument_name(mod, i, (uint8 *)&oh.name, 32);
+		libxmp_instrument_name(mod, i, (uint8 *)oh.name, 32);
 
 		if (oh.headerSize == 0) {
 			D_(D_INFO "[%2X] %-26.26s %2d ", i,
@@ -361,7 +361,7 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		ri.nsample = hio_read8(f);
 		ri.flags = hio_read16l(f);	/* bit 0 : default panning enabled */
-		if (hio_read(&ri.table, 1, 120, f) != 120)
+		if (hio_read(ri.table, 1, 120, f) != 120)
 			return -1;
 
 		ri.volumeEnv.npoint = hio_read8(f);

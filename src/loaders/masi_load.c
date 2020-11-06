@@ -186,7 +186,7 @@ static int get_dsmp(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	sub = &xxi->sub[0];
 	xxs = &mod->xxs[i];
 
-	hio_read(&xxi->name, 1, 31, f);
+	hio_read(xxi->name, 1, 31, f);
 	hio_seek(f, 8, SEEK_CUR);
 	hio_read8(f);		/* insno */
 	hio_read8(f);
@@ -276,15 +276,15 @@ static int get_pbod(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 		}
 		while (rowlen > 0) {
 			flag = hio_read8(f);
-	
+
 			if (rowlen == 1)
 				break;
-	
+
 			chan = hio_read8(f);
 			rowlen -= 2;
-	
+
 			event = chan < mod->chn ? &EVENT(i, chan, r) : &dummy;
-	
+
 			if (flag & 0x80) {
 				uint8 note = hio_read8(f);
 				rowlen--;
@@ -299,12 +299,12 @@ static int get_pbod(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 				event->ins = hio_read8(f) + 1;
 				rowlen--;
 			}
-	
+
 			if (flag & 0x20) {
 				event->vol = hio_read8(f) / 2 + 1;
 				rowlen--;
 			}
-	
+
 			if (flag & 0x10) {
 				uint8 fxt = hio_read8(f);
 				uint8 fxp = hio_read8(f);
@@ -357,7 +357,7 @@ D_(D_CRIT "p%d r%d c%d: compressed event %02x %02x\n", i, r, chan, fxt, fxp);
 					fxp = (EX_F_PORTA_UP << 4) |
 						convert_porta(fxp, data->sinaria);
 					break;
-			    	case 0x0c:		/* portamento up */
+				case 0x0c:		/* portamento up */
 					fxt = FX_PORTA_UP;
 					fxp = convert_porta(fxp, data->sinaria);
 					break;
@@ -447,7 +447,7 @@ D_(D_CRIT "p%d r%d c%d: compressed event %02x %02x\n", i, r, chan, fxt, fxp);
 					hio_read8(f);
 					rowlen--;
 					break;
-			    	case 0x34:		/* pattern break */
+				case 0x34:		/* pattern break */
 					/* not used in MASI */
 					fxt = FX_BREAK;
 					break;

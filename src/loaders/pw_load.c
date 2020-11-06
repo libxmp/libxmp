@@ -118,9 +118,9 @@ static int pw_load(struct module_data *m, HIO_HANDLE *h, const int start)
 		goto err3;
 	}
 
-	hio_read(&mh.name, 20, 1, f);
+	hio_read(mh.name, 20, 1, f);
 	for (i = 0; i < 31; i++) {
-		hio_read(&mh.ins[i].name, 22, 1, f);
+		hio_read(mh.ins[i].name, 22, 1, f);
 		mh.ins[i].size = hio_read16b(f);
 		mh.ins[i].finetune = hio_read8(f);
 		mh.ins[i].volume = hio_read8(f);
@@ -129,8 +129,8 @@ static int pw_load(struct module_data *m, HIO_HANDLE *h, const int start)
 	}
 	mh.len = hio_read8(f);
 	mh.restart = hio_read8(f);
-	hio_read(&mh.order, 128, 1, f);
-	hio_read(&mh.magic, 4, 1, f);
+	hio_read(mh.order, 128, 1, f);
+	hio_read(mh.magic, 4, 1, f);
 
 	if (memcmp(mh.magic, "M.K.", 4)) {
 		goto err3;

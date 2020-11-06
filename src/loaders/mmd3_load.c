@@ -427,7 +427,7 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			if (offset < 0 || hio_seek(f, offset, SEEK_SET) < 0) {
 				return -1;
 			}
-			hio_read(&xxi->name, 40, 1, f);
+			hio_read(xxi->name, 40, 1, f);
 			D_(D_INFO "[%2x] %-40.40s %d", i, mod->xxi[i].name, instr.type);
 		}
 

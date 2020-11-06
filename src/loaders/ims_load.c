@@ -82,10 +82,10 @@ static int ims_test(HIO_HANDLE *f, char *t, const int start)
 
     smp_size = 0;
 
-    hio_read(&ih.title, 20, 1, f);
+    hio_read(ih.title, 20, 1, f);
 
     for (i = 0; i < 31; i++) {
-	if (hio_read(&ih.ins[i].name, 1, 20, f) < 20)
+	if (hio_read(ih.ins[i].name, 1, 20, f) < 20)
 	    return -1;
 
 	ih.ins[i].finetune = (int16)hio_read16b(f);
@@ -118,9 +118,9 @@ static int ims_test(HIO_HANDLE *f, char *t, const int start)
 
     ih.len = hio_read8(f);
     ih.zero = hio_read8(f);
-    hio_read(&ih.orders, 128, 1, f);
-    hio_read(&ih.magic, 4, 1, f);
-  
+    hio_read(ih.orders, 128, 1, f);
+    hio_read(ih.magic, 4, 1, f);
+
     if (ih.zero > 1)		/* not sure what this is */
 	return -1;
 
@@ -137,7 +137,7 @@ static int ims_test(HIO_HANDLE *f, char *t, const int start)
 
     if (pat > 0x7f || ih.len == 0 || ih.len > 0x7f)
 	return -1;
-   
+
     hio_seek(f, start + 0, SEEK_SET);
     libxmp_read_title(f, t, 20);
 
@@ -162,10 +162,10 @@ static int ims_load(struct module_data *m, HIO_HANDLE *f, const int start)
     mod->smp = mod->ins;
     smp_size = 0;
 
-    hio_read (&ih.title, 20, 1, f);
+    hio_read (ih.title, 20, 1, f);
 
     for (i = 0; i < 31; i++) {
-	hio_read (&ih.ins[i].name, 20, 1, f);
+	hio_read (ih.ins[i].name, 20, 1, f);
 	ih.ins[i].finetune = (int16)hio_read16b(f);
 	ih.ins[i].size = hio_read16b(f);
 	ih.ins[i].unknown = hio_read8(f);
@@ -181,9 +181,9 @@ static int ims_load(struct module_data *m, HIO_HANDLE *f, const int start)
         return -1;
     }
     ih.zero = hio_read8(f);
-    hio_read (&ih.orders, 128, 1, f);
-    hio_read (&ih.magic, 4, 1, f);
-  
+    hio_read (ih.orders, 128, 1, f);
+    hio_read (ih.magic, 4, 1, f);
+
     mod->len = ih.len;
     memcpy (mod->xxo, ih.orders, mod->len);
 

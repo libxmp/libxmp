@@ -134,14 +134,14 @@ static int far_load(struct module_data *m, HIO_HANDLE *f, const int start)
     LOAD_INIT();
 
     hio_read32b(f);			/* File magic: 'FAR\xfe' */
-    hio_read(&ffh.name, 40, 1, f);	/* Song name */
-    hio_read(&ffh.crlf, 3, 1, f);	/* 0x0d 0x0a 0x1A */
+    hio_read(ffh.name, 40, 1, f);	/* Song name */
+    hio_read(ffh.crlf, 3, 1, f);	/* 0x0d 0x0a 0x1A */
     ffh.headersize = hio_read16l(f);	/* Remaining header size in bytes */
     ffh.version = hio_read8(f);		/* Version MSN=major, LSN=minor */
-    hio_read(&ffh.ch_on, 16, 1, f);	/* Channel on/off switches */
+    hio_read(ffh.ch_on, 16, 1, f);	/* Channel on/off switches */
     hio_seek(f, 9, SEEK_CUR);		/* Current editing values */
     ffh.tempo = hio_read8(f);		/* Default tempo */
-    hio_read(&ffh.pan, 16, 1, f);	/* Channel pan definitions */
+    hio_read(ffh.pan, 16, 1, f);	/* Channel pan definitions */
     hio_read32l(f);			/* Grid, mode (for editor) */
     ffh.textlen = hio_read16l(f);	/* Length of embedded text */
 
@@ -152,7 +152,7 @@ static int far_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     hio_seek(f, ffh.textlen, SEEK_CUR);	/* Skip song text */
 
-    hio_read(&ffh2.order, 256, 1, f);	/* Orders */
+    hio_read(ffh2.order, 256, 1, f);	/* Orders */
     ffh2.patterns = hio_read8(f);	/* Number of stored patterns (?) */
     ffh2.songlen = hio_read8(f);	/* Song length in patterns */
     ffh2.restart = hio_read8(f);	/* Restart pos */
@@ -308,7 +308,7 @@ static int far_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 	    return -1;
 
-	hio_read(&fih.name, 32, 1, f);	/* Instrument name */
+	hio_read(fih.name, 32, 1, f);	/* Instrument name */
 	fih.length = hio_read32l(f);	/* Length of sample (up to 64Kb) */
 	fih.finetune = hio_read8(f);	/* Finetune (unsuported) */
 	fih.volume = hio_read8(f);	/* Volume (unsuported?) */

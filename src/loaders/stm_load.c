@@ -125,8 +125,8 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 
 	LOAD_INIT();
 
-	hio_read(&sfh.name, 20, 1, f);	/* ASCIIZ song name */
-	hio_read(&sfh.magic, 8, 1, f);	/* '!Scream!' */
+	hio_read(sfh.name, 20, 1, f);	/* ASCIIZ song name */
+	hio_read(sfh.magic, 8, 1, f);	/* '!Scream!' */
 	sfh.rsvd1 = hio_read8(f);	/* '\x1a' */
 	sfh.type = hio_read8(f);	/* 1=song, 2=module */
 	sfh.vermaj = hio_read8(f);	/* Major version number */
@@ -134,10 +134,10 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	sfh.tempo = hio_read8(f);	/* Playback tempo */
 	sfh.patterns = hio_read8(f);	/* Number of patterns */
 	sfh.gvol = hio_read8(f);	/* Global volume */
-	hio_read(&sfh.rsvd2, 13, 1, f);	/* Reserved */
+	hio_read(sfh.rsvd2, 13, 1, f);	/* Reserved */
 
 	for (i = 0; i < 31; i++) {
-		hio_read(&sfh.ins[i].name, 12, 1, f);	/* Instrument name */
+		hio_read(sfh.ins[i].name, 12, 1, f);	/* Instrument name */
 		sfh.ins[i].id = hio_read8(f);		/* Id=0 */
 		sfh.ins[i].idisk = hio_read8(f);	/* Instrument disk */
 		sfh.ins[i].rsvd1 = hio_read16l(f);	/* Reserved */

@@ -139,8 +139,8 @@ static int stx_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	LOAD_INIT();
 
-	hio_read(&sfh.name, 20, 1, f);
-	hio_read(&sfh.magic, 8, 1, f);
+	hio_read(sfh.name, 20, 1, f);
+	hio_read(sfh.magic, 8, 1, f);
 	sfh.psize = hio_read16l(f);
 	sfh.unknown1 = hio_read16l(f);
 	sfh.pp_pat = hio_read16l(f);
@@ -158,7 +158,7 @@ static int stx_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	sfh.unknown6 = hio_read16l(f);
 	sfh.unknown7 = hio_read16l(f);
 	sfh.unknown8 = hio_read16l(f);
-	hio_read(&sfh.magic2, 4, 1, f);
+	hio_read(sfh.magic2, 4, 1, f);
 
 	/* Sanity check */
 	if (sfh.patnum > 254 || sfh.insnum > 256 || sfh.ordnum > 256)
@@ -240,7 +240,7 @@ static int stx_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		hio_seek(f, start + (pp_ins[i] << 4), SEEK_SET);
 
 		sih.type = hio_read8(f);
-		hio_read(&sih.dosname, 13, 1, f);
+		hio_read(sih.dosname, 13, 1, f);
 		sih.memseg = hio_read16l(f);
 		sih.length = hio_read32l(f);
 		sih.loopbeg = hio_read32l(f);
@@ -251,12 +251,12 @@ static int stx_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		sih.flags = hio_read8(f);
 		sih.c2spd = hio_read16l(f);
 		sih.rsvd2 = hio_read16l(f);
-		hio_read(&sih.rsvd3, 4, 1, f);
+		hio_read(sih.rsvd3, 4, 1, f);
 		sih.int_gp = hio_read16l(f);
 		sih.int_512 = hio_read16l(f);
 		sih.int_last = hio_read32l(f);
-		hio_read(&sih.name, 28, 1, f);
-		hio_read(&sih.magic, 4, 1, f);
+		hio_read(sih.name, 28, 1, f);
+		hio_read(sih.magic, 4, 1, f);
 
 		mod->xxs[i].len = sih.length;
 		mod->xxs[i].lps = sih.loopbeg;

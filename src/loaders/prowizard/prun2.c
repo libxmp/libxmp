@@ -81,9 +81,9 @@ static int depack_pru2(HIO_HANDLE *in, FILE *out)
 			}
 
 			/* rol previous values */
-			memcpy(&v[0], &v[1], 4);
-			memcpy(&v[1], &v[2], 4);
-			memcpy(&v[2], &v[3], 4);
+			memcpy(v[0], v[1], 4);
+			memcpy(v[1], v[2], 4);
+			memcpy(v[2], v[3], 4);
 
 			memcpy(v[3], c, 4);
 		}

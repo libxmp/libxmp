@@ -82,9 +82,9 @@ static int mtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	LOAD_INIT();
 
-	hio_read(&mfh.magic, 3, 1, f);	/* "MTM" */
+	hio_read(mfh.magic, 3, 1, f);	/* "MTM" */
 	mfh.version = hio_read8(f);	/* MSN=major, LSN=minor */
-	hio_read(&mfh.name, 20, 1, f);	/* ASCIIZ Module name */
+	hio_read(mfh.name, 20, 1, f);	/* ASCIIZ Module name */
 	mfh.tracks = hio_read16l(f);	/* Number of tracks saved */
 	mfh.patterns = hio_read8(f);	/* Number of patterns saved */
 	mfh.modlen = hio_read8(f);	/* Module length */
@@ -106,7 +106,7 @@ static int mtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		return -1;
 	}
 
-	hio_read(&mfh.pan, 32, 1, f);	/* Pan positions for each channel */
+	hio_read(mfh.pan, 32, 1, f);	/* Pan positions for each channel */
 
 	if (hio_error(f)) {
 		return -1;
@@ -146,7 +146,7 @@ static int mtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		sub = &xxi->sub[0];
 
-		hio_read(&mih.name, 22, 1, f);	/* Instrument name */
+		hio_read(mih.name, 22, 1, f);	/* Instrument name */
 		mih.length = hio_read32l(f);	/* Instrument length in bytes */
 
 		if (mih.length > MAX_SAMPLE_SIZE)
@@ -200,7 +200,7 @@ static int mtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (i == 0)
 			continue;
 
-		if (hio_read(&mt, 3, 64, f) != 64)
+		if (hio_read(mt, 3, 64, f) != 64)
 			return -1;
 
 		for (j = 0; j < 64; j++) {

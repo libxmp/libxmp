@@ -161,11 +161,11 @@ static int hmn_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	 */
 	memset(mupp, 0, 31 * sizeof (struct mupp));
 
-	hio_read(&mh.name, 20, 1, f);
+	hio_read(mh.name, 20, 1, f);
 	num_mupp = 0;
 
 	for (i = 0; i < 31; i++) {
-		hio_read(&mh.ins[i].name, 22, 1, f);	/* Instrument name */
+		hio_read(mh.ins[i].name, 22, 1, f);	/* Instrument name */
 		if (memcmp(mh.ins[i].name, "Mupp", 4) == 0) {
 			mupp[i].prgon = 1;
 			mupp[i].pattno = mh.ins[i].name[4];
@@ -182,8 +182,8 @@ static int hmn_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	}
 	mh.len = hio_read8(f);
 	mh.restart = hio_read8(f);
-	hio_read(&mh.order, 128, 1, f);
-	hio_read(&mh.magic, 4, 1, f);
+	hio_read(mh.order, 128, 1, f);
+	hio_read(mh.magic, 4, 1, f);
 
 	mod->chn = 4;
 	mod->ins = 31;
