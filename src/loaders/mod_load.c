@@ -577,16 +577,17 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		(0x43c + mod->pat * 32 * 0x40 + smp_size) == (m->size & ~1)) {
 	mod->chn = 8;
 	tracker_id = TRACKER_MODSGRAVE;
-    }
-    /* Test for Protracker song files */
-    else if ((ptsong = (!strncmp((char *)magic, "M.K.", 4) &&
-		(0x43c + mod->pat * 0x400 == m->size)))) {
-	tracker_id = TRACKER_PROTRACKER;
-	goto skip_test;
-    }
-    /* something else */
-    else {
-        tracker_id = get_tracker_id(m, &mh, tracker_id);
+    } else {
+	/* Test for Protracker song files */
+	ptsong = !strncmp((char *)magic, "M.K.", 4) &&
+		 (0x43c + mod->pat * 0x400 == m->size);
+	if (ptsong) {
+		tracker_id = TRACKER_PROTRACKER;
+		goto skip_test;
+	} else {
+	/* something else */
+		tracker_id = get_tracker_id(m, &mh, tracker_id);
+	}
     }
 
 skip_test:
