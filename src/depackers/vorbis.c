@@ -23,13 +23,13 @@
 //   - cannot concatenate multiple vorbis streams
 //   - sample positions are 32-bit, limiting seekable 192Khz
 //       files to around 6 hours (Ogg supports 64-bit)
-// 
+//
 // All of these limitations may be removed in future versions.
 
 #ifdef HAVE_ALLOCA_H
 #include <alloca.h>
 #endif
-#ifdef WIN32
+#ifdef _WIN32
 #include <malloc.h>
 #endif
 

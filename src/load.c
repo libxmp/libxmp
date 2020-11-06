@@ -37,7 +37,7 @@
 #include "tempfile.h"
 
 #ifndef LIBXMP_NO_DEPACKERS
-#if !defined(HAVE_POPEN) && defined(WIN32)
+#if !defined(HAVE_POPEN) && defined(_WIN32)
 #include "win32/ptpopen.h"
 #define HAVE_POPEN 1
 #endif

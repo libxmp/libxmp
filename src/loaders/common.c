@@ -304,7 +304,7 @@ void libxmp_disable_continue_fx(struct xmp_event *event)
 }
 
 #ifndef LIBXMP_CORE_PLAYER
-#ifndef WIN32
+#ifndef _WIN32
 
 /* Given a directory, see if file exists there, ignoring case */
 
