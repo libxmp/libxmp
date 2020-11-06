@@ -53,7 +53,7 @@
 #endif
 
 
-extern struct format_loader *format_loader[];
+extern struct format_loader *format_loaders[];
 
 void libxmp_load_prologue(struct context_data *);
 void libxmp_load_epilogue(struct context_data *);
@@ -260,7 +260,7 @@ static char *get_dirname(char *name)
 	char *div, *dirname;
 	int len;
 
-	if ((div = strrchr(name, '/'))) {
+	if ((div = strrchr(name, '/')) != NULL) {
 		len = div - name + 1;
 		dirname = malloc(len + 1);
 		if (dirname != NULL) {
@@ -278,7 +278,7 @@ static char *get_basename(char *name)
 {
 	char *div, *basename;
 
-	if ((div = strrchr(name, '/'))) {
+	if ((div = strrchr(name, '/')) != NULL) {
 		basename = strdup(div + 1);
 	} else {
 		basename = strdup(name);
@@ -330,13 +330,13 @@ int xmp_test_module(char *path, struct xmp_test_info *info)
 		*info->type = 0;	/* reset type prior to testing */
 	}
 
-	for (i = 0; format_loader[i] != NULL; i++) {
+	for (i = 0; format_loaders[i] != NULL; i++) {
 		hio_seek(h, 0, SEEK_SET);
-		if (format_loader[i]->test(h, buf, 0) == 0) {
+		if (format_loaders[i]->test(h, buf, 0) == 0) {
 			int is_prowizard = 0;
 
 #ifndef LIBXMP_CORE_PLAYER
-			if (strcmp(format_loader[i]->name, "prowizard") == 0) {
+			if (strcmp(format_loaders[i]->name, "prowizard") == 0) {
 				hio_seek(h, 0, SEEK_SET);
 				pw_test_format(h, buf, 0, info);
 				is_prowizard = 1;
@@ -353,7 +353,7 @@ int xmp_test_module(char *path, struct xmp_test_info *info)
 				strncpy(info->name, buf, XMP_NAME_SIZE - 1);
 				info->name[XMP_NAME_SIZE - 1] = '\0';
 
-				strncpy(info->type, format_loader[i]->name,
+				strncpy(info->type, format_loaders[i]->name,
 							XMP_NAME_SIZE - 1);
 				info->type[XMP_NAME_SIZE - 1] = '\0';
 			}
@@ -383,19 +383,19 @@ static int load_module(xmp_context opaque, HIO_HANDLE *h)
 
 	D_(D_WARN "load");
 	test_result = load_result = -1;
-	for (i = 0; format_loader[i] != NULL; i++) {
+	for (i = 0; format_loaders[i] != NULL; i++) {
 		hio_seek(h, 0, SEEK_SET);
 
 		if (hio_error(h)) {
 			/* reset error flag */
 		}
 
-		D_(D_WARN "test %s", format_loader[i]->name);
-		test_result = format_loader[i]->test(h, NULL, 0);
+		D_(D_WARN "test %s", format_loaders[i]->name);
+		test_result = format_loaders[i]->test(h, NULL, 0);
 		if (test_result == 0) {
 			hio_seek(h, 0, SEEK_SET);
-			D_(D_WARN "load format: %s", format_loader[i]->name);
-			load_result = format_loader[i]->loader(m, h, 0);
+			D_(D_WARN "load format: %s", format_loaders[i]->name);
+			load_result = format_loaders[i]->loader(m, h, 0);
 			break;
 		}
 	}
