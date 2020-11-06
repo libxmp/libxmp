@@ -268,7 +268,7 @@ struct module_data {
 
 	char *dirname;			/* file dirname */
 	char *basename;			/* file basename */
-	char *filename;			/* Module file name */
+	const char *filename;		/* Module file name */
 	char *comment;			/* Comments, if any */
 	uint8 md5[16];			/* MD5 message digest */
 	int size;			/* File size */

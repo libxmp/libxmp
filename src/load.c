@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -255,10 +256,11 @@ static void set_md5sum(HIO_HANDLE *f, unsigned char *digest)
 	MD5Final(digest, &ctx);
 }
 
-static char *get_dirname(char *name)
+static char *get_dirname(const char *name)
 {
-	char *div, *dirname;
-	int len;
+	char *dirname;
+	const char *div;
+	ptrdiff_t len;
 
 	if ((div = strrchr(name, '/')) != NULL) {
 		len = div - name + 1;
@@ -274,9 +276,10 @@ static char *get_dirname(char *name)
 	return dirname;
 }
 
-static char *get_basename(char *name)
+static char *get_basename(const char *name)
 {
-	char *div, *basename;
+	const char *div;
+	char *basename;
 
 	if ((div = strrchr(name, '/')) != NULL) {
 		basename = strdup(div + 1);
@@ -288,7 +291,7 @@ static char *get_basename(char *name)
 }
 #endif /* LIBXMP_CORE_PLAYER */
 
-int xmp_test_module(char *path, struct xmp_test_info *info)
+int xmp_test_module(const char *path, struct xmp_test_info *info)
 {
 	HIO_HANDLE *h;
 	struct stat st;
@@ -473,7 +476,7 @@ static int load_module(xmp_context opaque, HIO_HANDLE *h)
 	return -XMP_ERROR_LOAD;
 }
 
-int xmp_load_module(xmp_context opaque, char *path)
+int xmp_load_module(xmp_context opaque, const char *path)
 {
 	struct context_data *ctx = (struct context_data *)opaque;
 #ifndef LIBXMP_CORE_PLAYER

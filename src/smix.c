@@ -172,7 +172,7 @@ int xmp_smix_channel_pan(xmp_context opaque, int chn, int pan)
 	return 0;
 }
 
-int xmp_smix_load_sample(xmp_context opaque, int num, char *path)
+int xmp_smix_load_sample(xmp_context opaque, int num, const char *path)
 {
 	struct context_data *ctx = (struct context_data *)opaque;
 	struct smix_data *smix = &ctx->smix;
