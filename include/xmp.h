@@ -278,7 +278,7 @@ struct xmp_module_info {
 	struct xmp_sequence *seq_data;	/* Pointer to sequence data */
 };
 
-struct xmp_channel_info {		/* Current channel information */
+struct xmp_channel_info {
 	unsigned int period;		/* Sample period (* 4096) */
 	unsigned int position;		/* Sample position */
 	short pitchbend;		/* Linear bend from base note*/
@@ -311,7 +311,7 @@ struct xmp_frame_info {			/* Current frame information */
 	int virt_used;			/* Used virtual channels */
 	int sequence;			/* Current sequence */
 
-	struct xmp_channel_info channel_info[XMP_MAX_CHANNELS];
+	struct xmp_channel_info channel_info[XMP_MAX_CHANNELS];		/* Current channel information */
 };
 
 
