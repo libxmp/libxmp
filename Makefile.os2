@@ -59,7 +59,7 @@ all: $(BLD_TARGET)
 
 # rely on symbol name, not ordinal: -irn switch of wlib is default, but -inn is not.
 $(DLLNAME): $(ALL_OBJ)
-	wlink NAM $@ SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE FIL {$(ALL_OBJ)} OPTION IMPF=$(EXPNAME)
+	wlink NAM $@ SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE OP QUIET FIL {$(ALL_OBJ)} OPTION IMPF=$(EXPNAME)
 	wlib -q -b -n -c -pa -s -t -zld -ii -io -inn $(LIBNAME) +$(DLLNAME)
 
 $(LIBSTATIC): $(ALL_OBJ)
