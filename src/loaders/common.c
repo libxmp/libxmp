@@ -317,8 +317,8 @@ int libxmp_check_filename_case(char *dir, char *name, char *new_name, int size)
 	dirfd = opendir(dir);
 	if (dirfd == NULL)
 		return 0;
- 
-	while ((d = readdir(dirfd))) {
+
+	while ((d = readdir(dirfd)) != NULL) {
 		if (!strcasecmp(d->d_name, name)) {
 			found = 1;
 			break;

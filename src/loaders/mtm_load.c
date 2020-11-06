@@ -207,7 +207,8 @@ static int mtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			struct xmp_event *e = &mod->xxt[i]->event[j];
 			uint8 *d = mt + j * 3;
 
-			if ((e->note = d[0] >> 2)) {
+			e->note = d[0] >> 2;
+			if (e->note) {
 				e->note += 37;
 			}
 			e->ins = ((d[0] & 0x3) << 4) + MSN(d[1]);

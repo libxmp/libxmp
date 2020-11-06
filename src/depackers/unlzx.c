@@ -850,7 +850,8 @@ static int extract_normal(FILE * in_file, struct LZXDecrData *decr)
 /* check if we have enough data and read some if not */
 		if (decr->src >= decr->src_end) {	/* have we exhausted the current read buffer? */
 		    temp = decr->read_buffer;
-		    if ((count = temp - decr->src + 16384)) {
+		    count = temp - decr->src + 16384;
+		    if (count) {
 			do {	/* copy the remaining overrun to the start of the buffer */
 			    *temp++ = *decr->src++;
 			} while (--count);
@@ -886,8 +887,8 @@ static int extract_normal(FILE * in_file, struct LZXDecrData *decr)
 
                 /* unpack some data */
 		if (decr->dest >= decr->buffer + 258 + 65536) {
-		    if ((count =
-			 decr->dest - decr->buffer - 65536)) {
+		    count = decr->dest - decr->buffer - 65536;
+		    if (count) {
 			temp = (decr->dest =
 				decr->buffer) + 65536;
 			do {	/* copy the overrun to the start of the buffer */
@@ -1033,8 +1034,10 @@ static int extract_archive(FILE * in_file, struct LZXDecrData *decr)
 	node->next = 0;
 	node->length = decr->unpack_size;
 	node->crc = decr->crc;
-	for (temp = 0; (node->filename[temp] = decr->header_filename[temp]);
-	     temp++) ;
+	for (temp = 0; ; temp++) {
+	    if (!(node->filename[temp] = decr->header_filename[temp]))
+		break;
+	}
 
 #if 0
 	if (decr->pack_size == 0) {
@@ -1083,7 +1086,7 @@ static int extract_archive(FILE * in_file, struct LZXDecrData *decr)
 
     /* free the filename list in case an error occured */
     temp_node = decr->filename_list;
-    while ((node = temp_node)) {
+    while ((node = temp_node) != NULL) {
 	temp_node = node->next;
 	free(node);
     }

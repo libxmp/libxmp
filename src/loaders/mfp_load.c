@@ -220,7 +220,8 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		/* handle .set filenames like in Kid Chaos*/
 		char *x;
 		if (strchr(m->basename, '-')) {
-			if ((x = strrchr(smp_filename, '-')))
+			x = strrchr(smp_filename, '-');
+			if (x != NULL)
 				strcpy(x, ".set");
 		}
 		if (stat(smp_filename, &st) < 0) {
