@@ -233,7 +233,7 @@ const unsigned int xmp_vercode
 
 .. _xmp_get_format_list():
 
-char \*\*xmp_get_format_list()
+const char \*const \*xmp_get_format_list()
 ``````````````````````````````
 
   Query the list of supported module formats.

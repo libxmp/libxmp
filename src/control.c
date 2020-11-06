@@ -529,7 +529,7 @@ int xmp_get_player__(xmp_context opaque, int parm)
 	return ret;
 }
 
-char **xmp_get_format_list()
+const char *const *xmp_get_format_list()
 {
 	return format_list();
 }

@@ -158,7 +158,7 @@ const struct format_loader *const format_loader[NUM_FORMATS + 2] = {
 
 static const char *_farray[NUM_FORMATS + NUM_PW_FORMATS + 1] = { NULL };
 
-char **format_list()
+const char *const *format_list()
 {
 	int count, i;
 
@@ -179,5 +179,5 @@ char **format_list()
 		_farray[count] = NULL;
 	}
 
-	return (char **)_farray;
+	return _farray;
 }

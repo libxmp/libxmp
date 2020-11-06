@@ -2,7 +2,7 @@
 
 TEST(test_api_get_format_list)
 {
-	char **list;
+	const char *const *list;
 	int i;
 
 	list = xmp_get_format_list();
