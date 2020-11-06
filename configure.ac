@@ -150,6 +150,7 @@ darwin*|mingw*)
   LIBS="${old_LIBS}"
   ;;
 esac
+AC_CHECK_HEADERS(dirent.h)
 AC_CHECK_FUNCS(popen mkstemp fnmatch umask round powf)
 
 AC_CONFIG_FILES([Makefile])

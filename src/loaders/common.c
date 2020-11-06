@@ -23,11 +23,25 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <stdarg.h>
-#ifdef __WATCOMC__
-#include <direct.h>
-#elif !defined(_WIN32)
+
+#ifndef LIBXMP_CORE_PLAYER
+#include <limits.h>
+#if defined(_WIN32)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#elif defined(__OS2__) || defined(__EMX__)
+#define INCL_DOS
+#define INCL_DOSERRORS
+#include <os2.h>
+#elif defined(__DJGPP__)
+#include <dos.h>
+#include <io.h>
+#elif defined(HAVE_DIRENT_H)
 #include <dirent.h>
 #endif
+#endif /* LIBXMP_CORE_PLAYER */
 
 #include "xmp.h"
 #include "common.h"
@@ -324,10 +338,48 @@ void libxmp_disable_continue_fx(struct xmp_event *event)
 }
 
 #ifndef LIBXMP_CORE_PLAYER
-#ifndef _WIN32
-
+/* libxmp_check_filename_case(): */
 /* Given a directory, see if file exists there, ignoring case */
 
+#if defined(_WIN32)
+int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
+{
+	char path[_MAX_PATH];
+	DWORD rc;
+	/* win32 is case-insensitive: directly probe the file. */
+	snprintf(path, sizeof(path), "%s/%s", dir, name);
+	rc = GetFileAttributesA(path);
+	if (rc == (DWORD)(-1)) return 0;
+	if (rc & FILE_ATTRIBUTE_DIRECTORY) return 0;
+	strncpy(new_name, name, size);
+	return 1;
+}
+#elif defined(__OS2__) || defined(__EMX__)
+int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
+{
+	char path[CCHMAXPATH];
+	FILESTATUS3 fs;
+	/* os/2 is case-insensitive: directly probe the file. */
+	snprintf(path, sizeof(path), "%s/%s", dir, name);
+	if (DosQueryPathInfo(path, FIL_STANDARD, &fs, sizeof(fs)) != NO_ERROR) return 0;
+	if (fs.attrFile & FILE_DIRECTORY) return 0;
+	strncpy(new_name, name, size);
+	return 1;
+}
+#elif defined(__DJGPP__)
+int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
+{
+	char path[256];
+	int attr;
+	/* dos is case-insensitive: directly probe the file. */
+	snprintf(path, sizeof(path), "%s/%s", dir, name);
+	attr = _chmod(path, 0);
+	if (attr == -1) return 0;
+	if (attr & (_A_SUBDIR|_A_VOLID)) return 0;
+	strncpy(new_name, name, size);
+	return 1;
+}
+#elif defined(HAVE_DIRENT_H)
 int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
 {
 	int found = 0;
@@ -352,16 +404,11 @@ int libxmp_check_filename_case(const char *dir, const char *name, char *new_name
 
 	return found;
 }
-
 #else
-
-/* FIXME: implement functionality for Win32 */
-
 int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
 {
 	return 0;
 }
-
 #endif
 
 void libxmp_get_instrument_path(struct module_data *m, char *path, int size)
