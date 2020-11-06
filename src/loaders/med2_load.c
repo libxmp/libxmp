@@ -194,7 +194,7 @@ int med2_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		libxmp_get_instrument_path(m, ins_path, 256);
 		found = libxmp_check_filename_case(ins_path,
-				(char *)mod->xxi[i].name, name, 256);
+					mod->xxi[i].name, name, 256);
 
 		if (found) {
 			snprintf(path, PATH_MAX, "%s/%s", ins_path, name);
@@ -207,7 +207,7 @@ int med2_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			mod->xxi[i].nsm = 1;
 		}
 
-		if (!strlen((char *)mod->xxi[i].name) && !mod->xxs[i].len) {
+		if (!strlen(mod->xxi[i].name) && !mod->xxs[i].len) {
 			if (s != NULL) {
 				hio_close(s);
 			}

@@ -328,7 +328,7 @@ void libxmp_disable_continue_fx(struct xmp_event *event)
 
 /* Given a directory, see if file exists there, ignoring case */
 
-int libxmp_check_filename_case(char *dir, char *name, char *new_name, int size)
+int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
 {
 	int found = 0;
 	DIR *dirfd;
@@ -357,7 +357,7 @@ int libxmp_check_filename_case(char *dir, char *name, char *new_name, int size)
 
 /* FIXME: implement functionality for Win32 */
 
-int libxmp_check_filename_case(char *dir, char *name, char *new_name, int size)
+int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
 {
 	return 0;
 }
