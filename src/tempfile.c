@@ -69,7 +69,7 @@ static int get_temp_dir(char *buf, size_t size)
 	return 0;
 }
 
-#elif defined __AMIGA__
+#elif defined LIBXMP_AMIGA
 
 static int get_temp_dir(char *buf, size_t size)
 {
