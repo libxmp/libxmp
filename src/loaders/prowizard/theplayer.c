@@ -205,10 +205,10 @@ static int theplayer_depack(HIO_HANDLE *in, FILE *out, int version)
 	return -1;
     }
 
-    memset(taddr, 0, 128 * 4 * 4);
-    memset(ptable, 0, 128);
-    memset(smp_size, 0, 31 * 4);
-    memset(isize, 0, 31 * sizeof(int));
+    memset(taddr, 0, sizeof(taddr));
+    memset(ptable, 0, sizeof(ptable));
+    memset(smp_size, 0, sizeof(smp_size));
+    memset(isize, 0, sizeof(isize));
     /*for (i = 0; i < 31; i++) {
 	PACK[i] = 0;
         DELTA[i] = 0;
@@ -324,7 +324,7 @@ static int theplayer_depack(HIO_HANDLE *in, FILE *out, int version)
 
     /* write pattern data */
     for (i = 0; i < npat; i++) {
-	memset(buf, 0, 1024);
+	memset(buf, 0, sizeof(buf));
 	for (j = 0; j < 64; j++) {
 	    for (k = 0; k < 4; k++)
 		memcpy(&buf[j * 16 + k * 4], &track(i, k, j), 4);

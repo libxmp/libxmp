@@ -24,10 +24,10 @@ static int depack_pm01(HIO_HANDLE *in, FILE *out)
 	int psize, size, ssize = 0;
 	int pat_ofs[128];
 
-	memset(ptable, 0, 128);
-	memset(pat_ofs, 0, 128 * 4);
-	memset(fin, 0, 31);
-	memset(oldins, 0, 4);
+	memset(ptable, 0, sizeof(ptable));
+	memset(pat_ofs, 0, sizeof(pat_ofs));
+	memset(fin, 0, sizeof(fin));
+	memset(oldins, 0, sizeof(oldins));
 
 	pw_write_zero(out, 20);			/* title */
 
@@ -83,7 +83,7 @@ static int depack_pm01(HIO_HANDLE *in, FILE *out)
 
 	/* read and XOR pattern data */
 	for (i = 0; i < npat; i++) {
-		memset(pdata, 0, 1024);
+		memset(pdata, 0, sizeof(pdata));
 		if (hio_read(pdata, 1, 1024, in) != 1024) {
 			return -1;
 		}

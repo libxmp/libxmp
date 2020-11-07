@@ -20,8 +20,8 @@ static int depack_skyt(HIO_HANDLE *in, FILE *out)
 	int trk_addr;
 	int size, ssize = 0;
 
-	memset(ptable, 0, 128);
-	memset(trkval, 0, 128 * 4);
+	memset(ptable, 0, sizeof(ptable));
+	memset(trkval, 0, sizeof(trkval));
 
 	pw_write_zero(out, 20);			/* write title */
 
@@ -68,7 +68,7 @@ static int depack_skyt(HIO_HANDLE *in, FILE *out)
 
 	/* track data */
 	for (i = 0; i < pat_pos; i++) {
-		memset(pat, 0, 1024);
+		memset(pat, 0, sizeof(pat));
 		for (j = 0; j < 4; j++) {
 			hio_seek(in, trk_addr + ((trkval[i][j] - 1)<<8), SEEK_SET);
 			for (k = 0; k < 64; k++) {

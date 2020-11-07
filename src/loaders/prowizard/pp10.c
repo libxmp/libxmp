@@ -20,7 +20,7 @@ static int depack_pp10(HIO_HANDLE *in, FILE *out)
 	int i, j, k;
 	int ntrk, size, ssize = 0;
 
-	memset(trk_num, 0, 128 * 4);
+	memset(trk_num, 0, sizeof(trk_num));
 
 	pw_write_zero(out, 20);				/* write title */
 
@@ -70,7 +70,7 @@ static int depack_pp10(HIO_HANDLE *in, FILE *out)
 
 	/* track/pattern data */
 	for (i = 0; i < len; i++) {
-		memset(pdata, 0, 1024);
+		memset(pdata, 0, sizeof(pdata));
 		for (j = 0; j < 4; j++) {
 			hio_seek(in, 762 + (trk_num[j][i] << 8), SEEK_SET);
 			for (k = 0; k < 64; k++) {

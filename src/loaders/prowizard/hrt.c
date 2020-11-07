@@ -17,7 +17,7 @@ static int depack_hrt(HIO_HANDLE *in, FILE *out)
 	int ssize = 0;
 	int i, j;
 
-	memset(buf, 0, 950);
+	memset(buf, 0, sizeof(buf));
 
 	hio_read(buf, 950, 1, in);			/* read header */
 	for (i = 0; i < 31; i++)		/* erase addresses */

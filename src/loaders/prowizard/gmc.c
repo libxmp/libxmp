@@ -21,7 +21,7 @@ static int depack_GMC(HIO_HANDLE *in, FILE *out)
 	long ssize = 0;
 	long i = 0, j = 0;
 
-	memset(ptable, 0, 128);
+	memset(ptable, 0, sizeof(ptable));
 
 	pw_write_zero(out, 20);			/* title */
 
@@ -69,7 +69,7 @@ static int depack_GMC(HIO_HANDLE *in, FILE *out)
 	/* pattern data */
 	hio_seek(in, 444, SEEK_SET);
 	for (i = 0; i <= max; i++) {
-		memset(tmp, 0, 1024);
+		memset(tmp, 0, sizeof(tmp));
 		hio_read(tmp, 1024, 1, in);
 		for (j = 0; j < 256; j++) {
 			switch (tmp[(j * 4) + 2] & 0x0f) {

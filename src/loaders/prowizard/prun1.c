@@ -20,8 +20,8 @@ static int depack_pru1 (HIO_HANDLE *in, FILE *out)
 	int ssize = 0;
 	int i, j;
 
-	memset(header, 0, 2048);
-	memset(ptable, 0, 128);
+	memset(header, 0, sizeof(header));
+	memset(ptable, 0, sizeof(ptable));
 
 	/* read and write whole header */
 	hio_read(header, 950, 1, in);
@@ -35,7 +35,7 @@ static int depack_pru1 (HIO_HANDLE *in, FILE *out)
 	/* read and write size of pattern list */
 	write8(out, npat = hio_read8(in));
 
-	memset(header, 0, 2048);
+	memset(header, 0, sizeof(header));
 
 	/* read and write ntk byte and pattern list */
 	hio_read(header, 129, 1, in);

@@ -257,14 +257,14 @@ static int ptm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		hio_seek(f, start + 16L * pfh.patseg[i], SEEK_SET);
 		r = 0;
 
-		memset(chn_ctrl, 0, 32);
+		memset(chn_ctrl, 0, sizeof(chn_ctrl));
 
 		while (r < 64) {
 
 			b = hio_read8(f);
 			if (!b) {
 				r++;
-				memset(chn_ctrl, 0, 32);
+				memset(chn_ctrl, 0, sizeof(chn_ctrl));
 				continue;
 			}
 

@@ -35,10 +35,10 @@ static int depack_emod (HIO_HANDLE *in, FILE *out)
 	long paddr[128];
 	long i = 0, j = 0, k = 0;
 
-	memset(iaddr, 0, 32 * 4);
-	memset(isize, 0, 32 * 4);
-	memset(paddr, 0, 128 * 4);
-	memset(nrow, 0, 128);
+	memset(iaddr, 0, sizeof(iaddr));
+	memset(isize, 0, sizeof(isize));
+	memset(paddr, 0, sizeof(paddr));
+	memset(nrow, 0, sizeof(nrow));
 
 	/* bypass ID's and chunk sizes */
 	fseek (in, 22, 0);
@@ -199,7 +199,7 @@ static int depack_emod (HIO_HANDLE *in, FILE *out)
 
 	/* pattern data */
 	for (i = 0; i <= Real_pat_max; i++) {
-		memset(Pattern, 0, 1024);
+		memset(Pattern, 0, sizeof(Pattern));
 		if (paddr[i] == 0l) {
 			fwrite (Pattern, 1024, 1, out);
 			printf ("-");
@@ -207,7 +207,7 @@ static int depack_emod (HIO_HANDLE *in, FILE *out)
 		}
 		fseek (in, paddr[i], 0);
 		for (j = 0; j <= nrow[i]; j++) {
-			memset(Row, 0, 16);
+			memset(Row, 0, sizeof(Row));
 			fread (Row, 16, 1, in);
 			for (k = 0; k < 4; k++) {
 				/* fxt */

@@ -891,7 +891,7 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 
 	r = 0;
 
-	memset(last_fxp, 0, 64);
+	memset(last_fxp, 0, sizeof(last_fxp));
 	memset(lastevent, 0, L_CHANNELS * sizeof(struct xmp_event));
 	memset(&dummy, 0, sizeof(struct xmp_event));
 

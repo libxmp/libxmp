@@ -33,9 +33,9 @@ static int depack_fuzz(HIO_HANDLE *in, FILE *out)
 	int lps, lsz;
 	int i, j, k, l;
 
-	memset(tidx, 0, 128 * 16);
-	memset(tidx_real, 0, 128 * 4);
-	memset(ord, 0, 128);
+	memset(tidx, 0, sizeof(tidx));
+	memset(tidx_real, 0, sizeof(tidx_real));
+	memset(ord, 0, sizeof(ord));
 
 	hio_read32b(in);			/* bypass ID */
 	hio_read16b(in);			/* bypass 2 unknown bytes */
@@ -140,8 +140,8 @@ static int depack_fuzz(HIO_HANDLE *in, FILE *out)
 	l = 2118 + len * 16;
 
 	for (i = 0; i < npat; i++) {
-		memset(data, 0, 1024);
-		memset(track, 0, 4 << 8);
+		memset(data, 0, sizeof(data));
+		memset(track, 0, sizeof(track));
 
 		hio_seek(in, l + (tidx_real[i][0] << 8), SEEK_SET);
 		hio_read(track[0], 256, 1, in);

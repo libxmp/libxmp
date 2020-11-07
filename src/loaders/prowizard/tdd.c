@@ -21,8 +21,8 @@ static int depack_tdd(HIO_HANDLE *in, FILE *out)
 	int saddr[31];
 	int ssizes[31];
 
-	memset(saddr, 0, 31 * 4);
-	memset(ssizes, 0, 31 * 4);
+	memset(saddr, 0, sizeof(saddr));
+	memset(ssizes, 0, sizeof(ssizes));
 
 	/* write ptk header */
 	pw_write_zero(out, 1080);
@@ -76,8 +76,8 @@ static int depack_tdd(HIO_HANDLE *in, FILE *out)
 
 	/* read/write pattern data */
 	for (i = 0; i <= pmax; i++) {
-		memset(tmp, 0, 1024);
-		memset(pat, 0, 1024);
+		memset(tmp, 0, sizeof(tmp));
+		memset(pat, 0, sizeof(pat));
 
 		if (hio_read(tmp, 1, 1024, in) != 1024) {
 			return -1;
