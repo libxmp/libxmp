@@ -22,6 +22,9 @@ matrix:
       dist: focal
 
     - os: linux
+      dist: bionic
+
+    - os: linux
       dist: precise
 
     # mingw32 cross compilation
