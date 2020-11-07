@@ -34,13 +34,13 @@ static int depack_pha(HIO_HANDLE *in, FILE *out)
 	int smp_addr;
 	short ocpt[4];
 
-	memset(paddr, 0, 128 * 4);
-	memset(paddr1, 0, 128 * 4);
-	memset(paddr2, 0, 128 * 4);
-	memset(pnum, 0, 128);
-	memset(pnum1, 0, 128);
-	memset(onote, 0, 4 * 4);
-	memset(ocpt, 0, 4 * 2);
+	memset(paddr, 0, sizeof(paddr));
+	memset(paddr1, 0, sizeof(paddr1));
+	memset(paddr2, 0, sizeof(paddr2));
+	memset(pnum, 0, sizeof(pnum));
+	memset(pnum1, 0, sizeof(pnum1));
+	memset(onote, 0, sizeof(onote));
+	memset(ocpt, 0, sizeof(ocpt));
 
 	pw_write_zero(out, 20);				/* title */
 
@@ -127,7 +127,7 @@ restart:
 	}
 
 	/* try to take care of unused patterns ... HARRRRRRD */
-	memset(paddr1, 0, 128 * 4);
+	memset(paddr1, 0, sizeof(paddr1));
 	j = 0;
 	k = paddr[0];
 	/* 120 ... leaves 8 unused ptk_tableible patterns .. */
@@ -148,7 +148,7 @@ restart:
 		}
 	}
 
-	memset(pnum, 0, 128);
+	memset(pnum, 0, sizeof(pnum));
 	pat_addr = 999999l;
 	for (i = 0; i < 128; i++) {
 		pnum[i] = pnum1[i];

@@ -47,7 +47,7 @@ static int depack_eu(HIO_HANDLE *in, FILE *out)
 
 	/* the track data now ... */
 	for (i = 0; i < npat; i++) {
-		memset(tmp, 0, 1024);
+		memset(tmp, 0, sizeof(tmp));
 		for (j = 0; j < 4; j++) {
 			hio_seek(in, trk_addr[i][j], SEEK_SET);
 			for (k = 0; k < 64; k++) {

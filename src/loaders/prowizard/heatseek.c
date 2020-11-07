@@ -23,8 +23,8 @@ static int depack_crb(HIO_HANDLE *in, FILE *out)
 	int i, j, k, l, m;
 	int size, ssize = 0;
 
-	memset(ptable, 0, 128);
-	memset(taddr, 0, 512 * 4);
+	memset(ptable, 0, sizeof(ptable));
+	memset(taddr, 0, sizeof(taddr));
 
 	pw_write_zero(out, 20);				/* write title */
 
@@ -56,7 +56,7 @@ static int depack_crb(HIO_HANDLE *in, FILE *out)
 
 	/* pattern data */
 	for (i = 0; i < pat_max; i++) {
-		memset(pat, 0, 1024);
+		memset(pat, 0, sizeof(pat));
 		for (j = 0; j < 4; j++) {
 			int x = hio_tell(in);
 			if (x < 0) {

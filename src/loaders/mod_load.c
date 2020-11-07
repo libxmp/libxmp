@@ -431,7 +431,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
     mh.len = hio_read8(f);
     mh.restart = hio_read8(f);
     hio_read(mh.order, 128, 1, f);
-    memset(magic, 0, 8);
+    memset(magic, 0, sizeof(magic));
     hio_read(magic, 1, 4, f);
     if (hio_error(f)) {
         return -1;

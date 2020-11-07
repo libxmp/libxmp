@@ -50,12 +50,12 @@ void Depack_PM20 (FILE * in, FILE * out)
 	// sprintf ( Depacked_OutName , "%ld.mod" , Cpt_Filename-1 );
 	// out = fdopen (fd_out, "w+b");
 
-	memset(pnum, 0, 128);
-	memset(pnum_tmp, 0, 128);
-	memset(pptr, 0, 64 << 8);
-	memset(Pattern, 0, 128 * 1024);
-	memset(paddr, 0, 128 * 4);
-	memset(paddr_tmp, 0, 128 * 4);
+	memset(pnum, 0, sizeof(pnum));
+	memset(pnum_tmp, 0, sizeof(pnum_tmp));
+	memset(pptr, 0, sizeof(pptr));
+	memset(Pattern, 0, sizeof(Pattern));
+	memset(paddr, 0, sizeof(paddr));
+	memset(paddr_tmp, 0, sizeof(paddr_tmp));
 	for (i = 0; i < 128; i++)
 		paddr_tmp2[i] = 9999l;
 

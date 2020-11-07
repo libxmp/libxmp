@@ -25,8 +25,8 @@ static int depack_xann(HIO_HANDLE *in, FILE *out)
 	int size, ssize = 0;
 	int lsize;
 
-	memset(ptable, 0, 128);
-	memset(pdata, 0, 1025);
+	memset(ptable, 0, sizeof(ptable));
+	memset(pdata, 0, sizeof(pdata));
 
 	pw_write_zero(out, 20);			/* title */
 

@@ -31,9 +31,9 @@ static int depack_pp21_pp30(HIO_HANDLE *in, FILE *out, int is_30)
 	int ssize;
 	int tabsize;		/* Reference Table Size */
 
-	memset(ptable, 0, 128);
-	memset(trk, 0, 4 * 128);
-	memset(tptr, 0, 512 * 64 * sizeof (int));
+	memset(ptable, 0, sizeof(ptable));
+	memset(trk, 0, sizeof(trk));
+	memset(tptr, 0, sizeof(tptr));
 
 	pw_write_zero(out, 20);			/* title */
 
@@ -97,7 +97,7 @@ static int depack_pp21_pp30(HIO_HANDLE *in, FILE *out, int is_30)
 	hio_read(tab, tabsize, 1, in);
 
 	for (i = 0; i < numpat; i++) {
-		memset(buf, 0, 1024);
+		memset(buf, 0, sizeof(buf));
 		for (j = 0; j < 64; j++) {
 			uint8 *b = buf + j * 16;
 			memcpy(b, tab + tptr[trk[0][i]][j] * 4, 4);

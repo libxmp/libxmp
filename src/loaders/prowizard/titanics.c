@@ -95,7 +95,7 @@ static int depack_titanics(HIO_HANDLE *in, FILE *out)
 
 		hio_seek(in, pat_addr_final[i], SEEK_SET);
 
-		memset(buf, 0, 1024);
+		memset(buf, 0, sizeof(buf));
 		x = hio_read8(in);
 
 		for (k = 0; k < 64; ) {			/* row number */

@@ -191,7 +191,7 @@ static int digi_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	    hio_read (chn_table, 1, 64, f);
 	} else {
 	    w = 64 * mod->chn;
-	    memset (chn_table, 0xff, 64);
+	    memset(chn_table, 0xff, sizeof(chn_table));
 	}
 
 	for (j = 0; j < 64; j++) {

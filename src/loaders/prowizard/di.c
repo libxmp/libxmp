@@ -48,8 +48,8 @@ static int depack_di(HIO_HANDLE *in, FILE *out)
 	int size, ssize;
 	int pos;
 
-	memset(ptable, 0, 128);
-	memset(paddr, 0, 256);
+	memset(ptable, 0, sizeof(ptable));
+	memset(paddr, 0, sizeof(paddr));
 
 	pw_write_zero(out, 20);			/* title */
 
@@ -74,7 +74,7 @@ static int depack_di(HIO_HANDLE *in, FILE *out)
 		write16b(out, hio_read16b(in));		/* loop size */
 	}
 
-	memset(tmp, 0, 50);
+	memset(tmp, 0, sizeof(tmp));
 	for (i = nins; i < 31; i++) {
 		fwrite(tmp, 30, 1, out);
 	}

@@ -22,9 +22,9 @@ static int depack_fuchs(HIO_HANDLE *in, FILE *out)
 	unsigned pat_size;
 	unsigned i;
 
-	memset(smp_len, 0, 16 * 4);
-	memset(loop_start, 0, 16 * 4);
-	memset(data, 0, 1080);
+	memset(smp_len, 0, sizeof(smp_len));
+	memset(loop_start, 0, sizeof(loop_start));
+	memset(data, 0, sizeof(data));
 
 	hio_read(data, 1, 10, in);		/* read/write title */
 	/*ssize =*/ hio_read32b(in);		/* read all sample data size */

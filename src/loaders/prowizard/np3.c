@@ -27,8 +27,8 @@ static int depack_np3(HIO_HANDLE *in, FILE *out)
 	int i, j, k;
 	int trk_start;
 
-	memset(ptable, 0, 128);
-	memset(trk_addr, 0, 128 * 4 * 4);
+	memset(ptable, 0, sizeof(ptable));
+	memset(trk_addr, 0, sizeof(trk_addr));
 
 	c1 = hio_read8(in);			/* read number of samples */
 	c2 = hio_read8(in);
@@ -95,7 +95,7 @@ static int depack_np3(HIO_HANDLE *in, FILE *out)
 	/* the track data now ... */
 	smp_addr = 0;
 	for (i = 0; i < npat; i++) {
-		memset(tmp, 0, 1024);
+		memset(tmp, 0, sizeof(tmp));
 		for (j = 0; j < 4; j++) {
 			int x;
 

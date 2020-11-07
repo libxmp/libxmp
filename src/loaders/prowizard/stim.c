@@ -41,12 +41,12 @@ static int depack_stim (uint8 *data, FILE * out)
 	int start = 0;
 	int w = start;	/* main pointer to prevent hio_read() */
 
-	memset(tmp, 0, 1025);
-	memset(ptable, 0, 128);
-	memset(pat, 0, 1025);
-	memset(paddr, 0, 64 * 4);
-	memset(idata_addr, 0, 31 * 4);
-	memset(isize, 0, 31 * 4);
+	memset(tmp, 0, sizeof(tmp));
+	memset(ptable, 0, sizeof(ptable));
+	memset(pat, 0, sizeof(pat));
+	memset(paddr, 0, sizeof(paddr));
+	memset(idata_addr, 0, sizeof(idata_addr));
+	memset(isize, 0, sizeof(isize));
 
 	/* write title */
 	for (i = 0; i < 20; i++)
@@ -144,7 +144,7 @@ static int depack_stim (uint8 *data, FILE * out)
 			taddr[k] = (c1 << 8) + c2;
 		}
 
-		memset(pat, 0, 1025);
+		memset(pat, 0, sizeof(pat));
 		for (k = 0; k < 4; k++) {
 			w = start + paddr[i] + taddr[k];
 			for (j = 0; j < 64; j++) {

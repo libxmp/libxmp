@@ -24,8 +24,8 @@ void Depack_PM (FILE * in, FILE * out)
 	if (Save_Status == BAD)
 		return;
 
-	memset(Header, 0, 2048);
-	memset(ptable, 0, 128);
+	memset(Header, 0, sizeof(Header));
+	memset(ptable, 0, sizeof(ptable));
 
 	// in = fdopen (fd_in, "rb");
 	// sprintf ( Depacked_OutName , "%ld.mod" , Cpt_Filename-1 );
@@ -48,7 +48,7 @@ void Depack_PM (FILE * in, FILE * out)
 	fwrite (&npat, 1, 1, out);
 	/*printf ( "Size of pattern list : %d\n" , npat ); */
 
-	memset(Header, 0, 2048);
+	memset(Header, 0, sizeof(Header));
 
 	/* read and write ntk byte and pattern list */
 	fread (Header, 129, 1, in);
