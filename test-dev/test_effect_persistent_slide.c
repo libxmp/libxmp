@@ -58,5 +58,8 @@ TEST(test_effect_persistent_slide)
 			fail_unless(PERIOD == k + j * 2, "slide down error");
 		}
 	}
+
+	xmp_release_module(opaque);
+	xmp_free_context(opaque);
 }
 END_TEST

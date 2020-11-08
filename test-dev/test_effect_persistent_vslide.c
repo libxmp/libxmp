@@ -107,5 +107,8 @@ TEST(test_effect_persistent_vslide)
 			}
 		}
 	}
+
+	xmp_release_module(opaque);
+	xmp_free_context(opaque);
 }
 END_TEST

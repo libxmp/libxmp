@@ -146,5 +146,8 @@ TEST(test_effect_okt_arpeggio)
 	check_arpeggio_okt5(opaque, 60, 0x05, 6);
 	check_arpeggio_okt5(opaque, 60, 0x50, 6);
 	check_arpeggio_okt5(opaque, 60, 0x35, 6);
+
+	xmp_release_module(opaque);
+	xmp_free_context(opaque);
 }
 END_TEST
