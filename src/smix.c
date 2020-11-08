@@ -25,6 +25,7 @@
 #include "period.h"
 #include "player.h"
 #include "hio.h"
+#include "loaders/loader.h"
 
 
 struct xmp_instrument *libxmp_get_instrument(struct context_data *ctx, int ins)

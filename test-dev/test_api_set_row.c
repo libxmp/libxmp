@@ -18,6 +18,7 @@ TEST(test_api_set_row)
 	fail_unless(ret == -XMP_ERROR_STATE, "state check error");
 
 	create_simple_module(ctx, 1, 1);
+	libxmp_free_scan(ctx);
 	set_order(ctx, 0, 0);
 
 	libxmp_prepare_scan(ctx);

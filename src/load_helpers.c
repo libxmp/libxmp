@@ -344,8 +344,23 @@ int libxmp_prepare_scan(struct context_data *ctx)
 		if (m->scan_cnt[i] == NULL)
 			return -XMP_ERROR_SYSTEM;
 	}
- 
+
 	return 0;
+}
+
+void libxmp_free_scan(struct context_data *ctx)
+{
+	struct module_data *m = &ctx->m;
+	struct xmp_module *mod = &m->mod;
+	int i;
+
+	if (m->scan_cnt) {
+		for (i = 0; i < mod->len; i++)
+			free(m->scan_cnt[i]);
+
+		free(m->scan_cnt);
+		m->scan_cnt = NULL;
+	}
 }
 
 /* Process player personality flags */

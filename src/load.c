@@ -347,7 +347,7 @@ int xmp_test_module(const char *path, struct xmp_test_info *info)
 			}
 #endif
 
-			fclose(h->handle.file);
+			hio_close(h);
 
 #ifndef LIBXMP_NO_DEPACKERS
 			unlink_temp_file(temp);
@@ -680,11 +680,7 @@ void xmp_release_module(xmp_context opaque)
 	}
 #endif
 
-	if (m->scan_cnt) {
-		for (i = 0; i < mod->len; i++)
-			free(m->scan_cnt[i]);
-		free(m->scan_cnt);
-	}
+	libxmp_free_scan(ctx);
 
 	free(m->comment);
 
