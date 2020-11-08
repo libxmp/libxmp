@@ -94,5 +94,8 @@ TEST(test_effect_note_slide_retrig)
 				fail_unless(vi->pos0 != 0, "sample position");
 		}
 	}
+
+	xmp_release_module(opaque);
+	xmp_free_context(opaque);
 }
 END_TEST

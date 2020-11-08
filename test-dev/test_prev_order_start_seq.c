@@ -39,5 +39,7 @@ TEST(test_prev_order_start_seq)
 	fail_unless(p->row == 0, "incorrect row");
 	fail_unless(p->frame == 0, "incorrect frame");
 
+	xmp_release_module(opaque);
+	xmp_free_context(opaque);
 }
 END_TEST

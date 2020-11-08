@@ -57,5 +57,8 @@ TEST(test_effect_fine_vibrato)
 		xmp_get_frame_info(opaque, &info);
 		fail_unless(PERIOD == vals[i], "fine vibrato error");
 	}
+
+	xmp_release_module(opaque);
+	xmp_free_context(opaque);
 }
 END_TEST

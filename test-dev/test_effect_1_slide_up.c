@@ -99,5 +99,8 @@ TEST(test_effect_1_slide_up)
 			fail_unless(PERIOD == k - 1, "extra fine slide error");
 		}
 	}
+
+	xmp_release_module(opaque);
+	xmp_free_context(opaque);
 }
 END_TEST

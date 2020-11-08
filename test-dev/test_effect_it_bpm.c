@@ -44,5 +44,8 @@ TEST(test_effect_it_bpm)
 		xmp_get_frame_info(opaque, &info);
 		fail_unless(info.bpm == vals[i], "tempo setting error");
 	}
+
+	xmp_release_module(opaque);
+	xmp_free_context(opaque);
 }
 END_TEST
