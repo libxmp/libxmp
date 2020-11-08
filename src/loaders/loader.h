@@ -48,6 +48,7 @@ void	libxmp_get_instrument_path	(struct module_data *, char *, int);
 void	libxmp_set_type			(struct module_data *, const char *, ...);
 int	libxmp_load_sample		(struct module_data *, HIO_HANDLE *, int,
 					 struct xmp_sample *, const void *);
+void	libxmp_free_sample		(struct xmp_sample *);
 void	libxmp_schism_tracker_string	(char *, size_t, int, int);
 
 extern uint8		libxmp_ord_xlat[];

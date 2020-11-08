@@ -36,6 +36,7 @@
 #include "list.h"
 #include "hio.h"
 #include "tempfile.h"
+#include "loaders/loader.h"
 
 #ifndef LIBXMP_NO_DEPACKERS
 #if !defined(HAVE_POPEN) && defined(_WIN32)
@@ -664,9 +665,7 @@ void xmp_release_module(xmp_context opaque)
 
 	if (mod->xxs != NULL) {
 		for (i = 0; i < mod->smp; i++) {
-			if (mod->xxs[i].data != NULL) {
-				free(mod->xxs[i].data - 4);
-			}
+			libxmp_free_sample(&mod->xxs[i]);
 		}
 		free(mod->xxs);
 		free(m->xtra);
@@ -675,9 +674,7 @@ void xmp_release_module(xmp_context opaque)
 #ifndef LIBXMP_CORE_DISABLE_IT
 	if (m->xsmp != NULL) {
 		for (i = 0; i < mod->smp; i++) {
-			if (m->xsmp[i].data != NULL) {
-				free(m->xsmp[i].data - 4);
-			}
+			libxmp_free_sample(&m->xsmp[i]);
 		}
 		free(m->xsmp);
 	}

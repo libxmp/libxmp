@@ -35,5 +35,8 @@ TEST(test_api_set_position)
 
 	ret = xmp_set_position(opaque, 3);
 	fail_unless(ret == -XMP_ERROR_INVALID, "return value error");
+
+	xmp_release_module(opaque);
+	xmp_free_context(opaque);
 }
 END_TEST

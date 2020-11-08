@@ -38,6 +38,8 @@ TEST(test_depack_vorbis)
 			fail_unless(abs(pcm16[i] - buf[i]) <= 1, "data error");
 	}
 
-
+	xmp_release_module(c);
+	xmp_free_context(c);
+	free(buf);
 }
 END_TEST

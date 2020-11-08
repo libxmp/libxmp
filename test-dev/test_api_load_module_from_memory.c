@@ -69,6 +69,8 @@ TEST(test_api_load_module_from_memory)
 	xmp_get_frame_info(ctx, &fi);
 	fail_unless(fi.total_time == 235520, "module duration");
 
+	xmp_release_module(ctx);
+	xmp_free_context(ctx);
 	free(buffer);
 }
 END_TEST

@@ -5,6 +5,7 @@
   s.len = (x); s.lps = (y); s.lpe = (z); s.flg = (w); s.data = NULL; \
 } while (0)
 
+#define CLEAR() do { libxmp_free_sample(&s); } while (0)
 
 TEST(test_sample_load_8bit)
 {
@@ -36,6 +37,7 @@ TEST(test_sample_load_8bit)
 	fail_unless(s.lps == 0, "didn't fix invalid loop start");
 	fail_unless(s.lpe == 0, "didn't fix invalid loop end");
 	fail_unless(s.flg == 0, "didn't reset loop flags");
+	CLEAR();
 
 	/* load sample with invalid loop */
 	SET(101, 50, 40, XMP_SAMPLE_LOOP | XMP_SAMPLE_LOOP_BIDIR);
@@ -45,6 +47,7 @@ TEST(test_sample_load_8bit)
 	fail_unless(s.lps == 0, "didn't fix invalid loop start");
 	fail_unless(s.lpe == 0, "didn't fix invalid loop end");
 	fail_unless(s.flg == 0, "didn't reset loop flags");
+	CLEAR();
 
 	/* load sample from file */
 	SET(101, 0, 102, 0);
@@ -55,6 +58,7 @@ TEST(test_sample_load_8bit)
 	fail_unless(memcmp(s.data, buffer, 101) == 0, "sample data error");
 	fail_unless(s.data[101] == s.data[100], "sample adjust error");
 	fail_unless(s.data[102] == s.data[101], "sample adjust error");
+	CLEAR();
 
 	/* load sample from file w/ loop */
 	SET(101, 20, 80, XMP_SAMPLE_LOOP);
@@ -63,6 +67,7 @@ TEST(test_sample_load_8bit)
 	fail_unless(s.data != NULL, "didn't allocate sample data");
 	fail_unless(s.data[80] == s.data[20], "sample adjust error");
 	fail_unless(s.data[81] == s.data[21], "sample adjust error");
+	CLEAR();
 
 	/* load sample from w/ bidirectional loop */
 	SET(101, 0, 102, XMP_SAMPLE_LOOP | XMP_SAMPLE_LOOP_BIDIR);
@@ -73,6 +78,8 @@ TEST(test_sample_load_8bit)
 	fail_unless(memcmp(s.data, buffer, 202) == 0, "sample unroll error");
 	fail_unless(s.data[202] == s.data[201], "sample adjust error");
 	fail_unless(s.data[203] == s.data[0], "sample adjust error");
+	CLEAR();
 
+	hio_close(f);
 }
 END_TEST

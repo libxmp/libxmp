@@ -304,9 +304,7 @@ int xmp_smix_release_sample(xmp_context opaque, int num)
 		return -XMP_ERROR_INVALID;
 	}
 
-	if (smix->xxs[num].data != NULL) {
-		free(smix->xxs[num].data - 4);
-	}
+	libxmp_free_sample(&smix->xxs[num]);
 	free(smix->xxi[num].sub);
 
 	smix->xxs[num].data = NULL;
