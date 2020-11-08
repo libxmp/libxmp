@@ -35,5 +35,7 @@ TEST(test_player_period_amiga)
 	fscanf(f, "%d %d", &p0, &p1);
 	//fail_unless(feof(f), "not end of data file");
 
+	xmp_release_module(opaque);
+	xmp_free_context(opaque);
 }
 END_TEST

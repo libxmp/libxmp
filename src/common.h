@@ -418,6 +418,7 @@ struct context_data {
 char	*libxmp_adjust_string	(char *);
 int	libxmp_exclude_match	(const char *);
 int	libxmp_prepare_scan	(struct context_data *);
+void	libxmp_free_scan	(struct context_data *);
 int	libxmp_scan_sequences	(struct context_data *);
 int	libxmp_get_sequence	(struct context_data *, int);
 int	libxmp_set_player_mode	(struct context_data *);
