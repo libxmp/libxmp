@@ -126,8 +126,7 @@ static int stm_test(HIO_HANDLE * f, char *t, const int start)
  * this in some songs to give the lead some character. However, when played
  * in ModPlug Tracker, this effect doesn't work the way it did back then.
  */
-
-static const uint8 fx[] = {
+static const uint8 fx[16] = {
 	FX_NONE,
 	FX_SPEED,	/* A - Set tempo to [INFO]. 60 normal. */
 	FX_JUMP,	/* B - Break pattern and jmp to order [INFO] */
@@ -138,7 +137,12 @@ static const uint8 fx[] = {
 	FX_TONEPORTA,	/* G - Slide to the note specified at speed [INFO] */
 	FX_VIBRATO,	/* H - Vibrato; Hi-nibble, speed. Lo-nibble, size */
 	FX_TREMOR,	/* I - Tremor; Hi-nibble, ontime. Lo-nibble, offtime */
-	FX_ARPEGGIO	/* J - Arpeggio */
+	FX_ARPEGGIO,	/* J - Arpeggio */
+	FX_NONE,
+	FX_NONE,
+	FX_NONE,
+	FX_NONE,
+	FX_NONE
 };
 
 static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
@@ -165,7 +169,7 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	if (version != 110 &&
 	    version != 200 && version != 210 &&
 	    version != 220 && version != 221) {
-		D_(D_CRIT "Unknown version!");
+		D_(D_CRIT "Unknown version: %d", version);
 		return -1;
 	}
 
@@ -186,11 +190,11 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		sfh.sub.v1.srate = hio_read16l(f);	/* Sample rate? */
 		sfh.sub.v1.tempo = hio_read8(f);	/* Playback tempo */
 		if ((sfh.sub.v1.channels = hio_read8(f)) != 4) {	/* Number of channels */
-			D_(D_CRIT "Wrong number of sound channels!");
+			D_(D_CRIT "Wrong number of sound channels: %d", sfh.sub.v1.channels);
 			return -1;
 		}
 		if ((sfh.sub.v1.psize = hio_read16l(f)) != 64) {	/* Pattern size */
-			D_(D_CRIT "Wrong number of rows per pattern!");
+			D_(D_CRIT "Wrong number of rows per pattern: %d", sfh.sub.v1.psize);
 			return -1;
 		}
 		sfh.sub.v1.rsvd2 = hio_read16l(f);	/* Reserved */
