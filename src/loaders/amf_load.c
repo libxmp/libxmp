@@ -205,13 +205,12 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	}
 
 	for (i = 0; i < mod->ins; i++) {
-		/*uint8 b;*/
 		int c2spd;
 
 		if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 			return -1;
 
-		/*b =*/ hio_read8(f);
+		hio_read8(f);
 
 		hio_read(buf, 1, 32, f);
 		libxmp_instrument_name(mod, i, buf, 32);
