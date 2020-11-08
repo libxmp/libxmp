@@ -35,5 +35,9 @@ TEST(test_depack_vorbis_8bit)
 			printf("%d %d\n", pcm8[i], buf[i]);
 			fail_unless(abs(pcm8[i] - buf[i]) <= 1, "data error");
 	}
+
+	xmp_release_module(c);
+	xmp_free_context(c);
+	free(buf);
 }
 END_TEST

@@ -26,5 +26,7 @@ TEST(test_api_seek_time)
 		fail_unless(ret == pos[i], "seek error");
 	}
 
+	xmp_release_module(ctx);
+	xmp_free_context(ctx);
 }
 END_TEST

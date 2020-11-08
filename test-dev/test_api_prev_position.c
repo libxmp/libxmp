@@ -41,5 +41,8 @@ TEST(test_api_prev_position)
 	fail_unless(ret == 1, "prev position error");
 	xmp_play_frame(opaque);
 	fail_unless(p->ord == 1, "didn't change to prev position");
+
+	xmp_release_module(opaque);
+	xmp_free_context(opaque);
 }
 END_TEST

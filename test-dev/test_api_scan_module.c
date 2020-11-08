@@ -31,5 +31,7 @@ TEST(test_api_scan_module)
 		xmp_get_frame_info(opaque, &info);
 		fail_unless(info.total_time == 5720, "total time error");
 	}
+
+	xmp_free_context(opaque);
 }
 END_TEST

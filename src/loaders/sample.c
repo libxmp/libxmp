@@ -409,9 +409,16 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 
 #ifndef LIBXMP_CORE_PLAYER
     err2:
-	free(xxs->data - 4);
-	xxs->data = NULL;	/* prevent double free in PCM load error */
+	libxmp_free_sample(xxs);
 #endif
     err:
 	return -1;
+}
+
+void libxmp_free_sample(struct xmp_sample *s)
+{
+    if (s->data) {
+	free(s->data - 4);
+	s->data = NULL;		/* prevent double free in PCM load error */
+    }
 }
