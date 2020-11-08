@@ -612,7 +612,7 @@ next_pattern:
 
 	/* FIXME: LDSS 1.0 have global vol == 0 ? */
 	/* if (li.gvl == 0) */
-	    li.gvl = 0x40;
+	li.gvl = 0x40;
 
 	sub->vol = li.vol;
 	sub->gvl = li.gvl;
