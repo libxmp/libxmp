@@ -70,7 +70,7 @@ int  libxmp_prepare_scan(struct context_data *);
 #include "depacker.h"
 
 static struct depacker *depacker_list[] = {
-#if defined __AMIGA__ && !defined __AROS__
+#if defined LIBXMP_AMIGA && !defined __AROS__
 	&libxmp_depacker_xfd,
 #endif
 	&libxmp_depacker_zip,
