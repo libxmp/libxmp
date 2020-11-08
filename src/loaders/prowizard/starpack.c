@@ -26,11 +26,11 @@ static int depack_starpack(HIO_HANDLE *in, FILE *out)
 	int tmp_ptr, tmp1, tmp2;
 	int smp_addr = 0;
 
-	memset(pnum, 0, 128);
-	memset(pnum_tmp, 0, 128);
-	memset(paddr, 0, 128 * 4);
-	memset(paddr_tmp, 0, 128 * 4);
-	memset(paddr_tmp2, 0, 128 * 4);
+	memset(pnum, 0, sizeof(pnum));
+	memset(pnum_tmp, 0, sizeof(pnum_tmp));
+	memset(paddr, 0, sizeof(paddr));
+	memset(paddr_tmp, 0, sizeof(paddr_tmp));
+	memset(paddr_tmp2, 0, sizeof(paddr_tmp2));
 
 	pw_move_data(out, in, 20);		/* title */
 
@@ -127,7 +127,7 @@ static int depack_starpack(HIO_HANDLE *in, FILE *out)
 			}
 	}
 
-	memset(pnum, 0, 128);
+	memset(pnum, 0, sizeof(pnum));
 	for (i = 0; i < pat_pos; i++) {
 		pnum[i] = pnum_tmp[i];
 	}
@@ -151,7 +151,7 @@ static int depack_starpack(HIO_HANDLE *in, FILE *out)
 	/* pattern data */
 	num_pat += 1;
 	for (i = 0; i < num_pat; i++) {
-		memset(buffer, 0, 1024);
+		memset(buffer, 0, sizeof(buffer));
 		for (j = 0; j < 64; j++) {
 			for (k = 0; k < 4; k++) {
 				uint8 c1, c2, c3, c4, c5;

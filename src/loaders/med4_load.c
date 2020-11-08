@@ -235,7 +235,7 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	/* read instrument names in temporary space */
 
 	num_ins = 0;
-	memset(&temp_inst, 0, sizeof(temp_inst));
+	memset(temp_inst, 0, sizeof(temp_inst));
 	for (i = 0; mask != 0 && i < 64; i++, mask <<= 1) {
 		uint8 c, size, buf[40];
 		uint16 loop_len = 0;

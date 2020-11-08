@@ -21,7 +21,8 @@ TEST(test_effect_ef_invert_loop)
 	set_quirk(ctx, QUIRK_PROTRACK, READ_EVENT_MOD);
 	h = hio_open("data/sample-square-8bit.raw", "rb");
 	fail_unless(h != NULL, "can't open sample file");
-	
+
+	libxmp_free_sample(&m->mod.xxs[0]);
 	m->mod.xxs[0].len = 40;
 	m->mod.xxs[0].lps = 0;
 	m->mod.xxs[0].lpe = 40;

@@ -32,6 +32,7 @@ int	libxmp_alloc_pattern		(struct xmp_module *, int);
 int	libxmp_alloc_track		(struct xmp_module *, int, int);
 int	libxmp_alloc_tracks_in_pattern	(struct xmp_module *, int);
 int	libxmp_alloc_pattern_tracks	(struct xmp_module *, int, int);
+int	libxmp_alloc_pattern_tracks_long(struct xmp_module *, int, int);
 char	*libxmp_instrument_name		(struct xmp_module *, int, uint8 *, int);
 struct xmp_sample* libxmp_realloc_samples(struct xmp_sample *, int *, int);
 
@@ -42,11 +43,13 @@ void	libxmp_set_xxh_defaults		(struct xmp_module *);
 void	libxmp_decode_protracker_event	(struct xmp_event *, uint8 *);
 void	libxmp_decode_noisetracker_event(struct xmp_event *, uint8 *);
 void	libxmp_disable_continue_fx	(struct xmp_event *);
-int	libxmp_check_filename_case	(char *, char *, char *, int);
+int	libxmp_check_filename_case	(const char *, const char *, char *, int);
 void	libxmp_get_instrument_path	(struct module_data *, char *, int);
 void	libxmp_set_type			(struct module_data *, const char *, ...);
 int	libxmp_load_sample		(struct module_data *, HIO_HANDLE *, int,
 					 struct xmp_sample *, const void *);
+void	libxmp_free_sample		(struct xmp_sample *);
+void	libxmp_schism_tracker_string	(char *, size_t, int, int);
 
 extern uint8		libxmp_ord_xlat[];
 extern const int	libxmp_arch_vol_table[];

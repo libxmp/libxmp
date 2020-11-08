@@ -98,13 +98,13 @@ static int digi_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     LOAD_INIT();
 
-    hio_read(&dh.id, 20, 1, f);
+    hio_read(dh.id, 20, 1, f);
 
-    hio_read(&dh.vstr, 4, 1, f);
+    hio_read(dh.vstr, 4, 1, f);
     dh.ver = hio_read8(f);
     dh.chn = hio_read8(f);
     dh.pack = hio_read8(f);
-    hio_read(&dh.unknown, 19, 1, f);
+    hio_read(dh.unknown, 19, 1, f);
     dh.pat = hio_read8(f);
     dh.len = hio_read8(f);
 
@@ -113,7 +113,7 @@ static int digi_load(struct module_data *m, HIO_HANDLE *f, const int start)
         return -1;
     }
 
-    hio_read(&dh.ord, 128, 1, f);
+    hio_read(dh.ord, 128, 1, f);
 
     for (i = 0; i < 31; i++)
 	dh.slen[i] = hio_read32b(f);
@@ -126,10 +126,10 @@ static int digi_load(struct module_data *m, HIO_HANDLE *f, const int start)
     for (i = 0; i < 31; i++)
 	dh.fin[i] = hio_read8s(f);
 
-    hio_read(&dh.title, 32, 1, f);
+    hio_read(dh.title, 32, 1, f);
 
     for (i = 0; i < 31; i++)
-        hio_read(&dh.insname[i], 30, 1, f);
+        hio_read(dh.insname[i], 30, 1, f);
 
     mod->ins = 31;
     mod->smp = mod->ins;
@@ -191,7 +191,7 @@ static int digi_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	    hio_read (chn_table, 1, 64, f);
 	} else {
 	    w = 64 * mod->chn;
-	    memset (chn_table, 0xff, 64);
+	    memset(chn_table, 0xff, sizeof(chn_table));
 	}
 
 	for (j = 0; j < 64; j++) {

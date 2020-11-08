@@ -21,7 +21,7 @@ static int depack_mp(HIO_HANDLE *in, FILE *out)
 	int i;
 	int size, ssize = 0;
 
-	memset(ptable, 0, 128);
+	memset(ptable, 0, sizeof(ptable));
 
 	pw_write_zero(out, 20);				/* title */
 

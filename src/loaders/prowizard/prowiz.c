@@ -15,7 +15,7 @@
 #include "prowiz.h"
 
 
-const struct pw_format *const pw_format[NUM_PW_FORMATS + 1] = {
+const struct pw_format *const pw_formats[NUM_PW_FORMATS + 1] = {
 	/* With signature */
 	&pw_ac1d,
 	&pw_fchs,
@@ -122,13 +122,13 @@ int pw_wizardry(HIO_HANDLE *file_in, FILE *file_out, const char **name)
   /**************************   SEARCH   ******************************/
   /********************************************************************/
 
-	for (i = 0; pw_format[i] != NULL; i++) {
-		D_("checking format: %s", pw_format[i]->name);
-		if (pw_format[i]->test(data, title, in_size) >= 0)
+	for (i = 0; pw_formats[i] != NULL; i++) {
+		D_("checking format: %s", pw_formats[i]->name);
+		if (pw_formats[i]->test(data, title, in_size) >= 0)
 			break;
 	}
 
-	if (pw_format[i] == NULL) {
+	if (pw_formats[i] == NULL) {
 		goto err2;
 	}
 
@@ -137,7 +137,7 @@ int pw_wizardry(HIO_HANDLE *file_in, FILE *file_out, const char **name)
 	}
 
 	hio_seek(file_in, 0, SEEK_SET);
-	if (pw_format[i]->depack(file_in, file_out) < 0) {
+	if (pw_formats[i]->depack(file_in, file_out) < 0) {
 		goto err2;
 	}
 
@@ -149,7 +149,7 @@ int pw_wizardry(HIO_HANDLE *file_in, FILE *file_out, const char **name)
 	free(data);
 
 	if (name != NULL) {
-		*name = pw_format[i]->name;
+		*name = pw_formats[i]->name;
 	}
 
 	return 0;
@@ -165,16 +165,16 @@ int pw_check(unsigned char *b, int s, struct xmp_test_info *info)
 	int i, res;
 	char title[21];
 
-	for (i = 0; pw_format[i] != NULL; i++) {
-		D_("checking format [%d]: %s", s, pw_format[i]->name);
-		res = pw_format[i]->test(b, title, s);
+	for (i = 0; pw_formats[i] != NULL; i++) {
+		D_("checking format [%d]: %s", s, pw_formats[i]->name);
+		res = pw_formats[i]->test(b, title, s);
 		if (res > 0) {
 			return res;
 		} else if (res == 0) {
-			D_("format ok: %s\n", pw_format[i]->name);
+			D_("format ok: %s\n", pw_formats[i]->name);
 			if (info != NULL) {
 				memcpy(info->name, title, 21);
-				strncpy(info->type, pw_format[i]->name,
+				strncpy(info->type, pw_formats[i]->name,
 							XMP_NAME_SIZE - 1);
 			}
 			return 0;

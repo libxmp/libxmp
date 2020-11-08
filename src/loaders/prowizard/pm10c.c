@@ -33,14 +33,14 @@ static int depack_p10c(HIO_HANDLE *in, FILE *out)
 	uint8 fin[31];
 	uint8 oldins[4];
 
-	memset(pnum, 0, 128);
-	memset(pnum1, 0, 128);
-	memset(pptr, 0, 64 << 8);
-	memset(pat, 0, 128 * 1024);
-	memset(fin, 0, 31);
-	memset(oldins, 0, 4);
-	memset(paddr, 0, 128 * 4);
-	memset(paddr1, 0, 128 * 4);
+	memset(pnum, 0, sizeof(pnum));
+	memset(pnum1, 0, sizeof(pnum1));
+	memset(pptr, 0, sizeof(pptr));
+	memset(pat, 0, sizeof(pat));
+	memset(fin, 0, sizeof(fin));
+	memset(oldins, 0, sizeof(oldins));
+	memset(paddr, 0, sizeof(paddr));
+	memset(paddr1, 0, sizeof(paddr1));
 
 	for (i = 0; i < 128; i++)
 		paddr2[i] = 9999L;

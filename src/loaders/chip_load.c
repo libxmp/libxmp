@@ -64,11 +64,11 @@ static int chip_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		goto err;
 	}
 
-	hio_read(&mh.name, 20, 1, f);
+	hio_read(mh.name, 20, 1, f);
 	hio_read16b(f);
 
 	for (i = 0; i < 31; i++) {
-		hio_read(&mh.ins[i].name, 22, 1, f);
+		hio_read(mh.ins[i].name, 22, 1, f);
 		mh.ins[i].size = hio_read16b(f);
 		mh.ins[i].finetune = hio_read8(f);
 		mh.ins[i].volume = hio_read8(f);
@@ -76,7 +76,7 @@ static int chip_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		mh.ins[i].loop_size = hio_read16b(f);
 	}
 
-	hio_read(&mh.magic, 4, 1, f);
+	hio_read(mh.magic, 4, 1, f);
 	mh.len = hio_read8(f);
 
 	/* Sanity check */

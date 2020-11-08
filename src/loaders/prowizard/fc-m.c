@@ -20,7 +20,7 @@ static int depack_fcm(HIO_HANDLE *in, FILE *out)
 	int i;
 	int size, ssize = 0;
 
-	memset(ptable, 0, 128);
+	memset(ptable, 0, sizeof(ptable));
 
 	hio_read32b(in);				/* bypass "FC-M" ID */
 	hio_read16b(in);				/* version number? */

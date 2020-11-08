@@ -45,5 +45,6 @@ TEST(test_api_smix_load_sample)
 	xmp_smix_release_sample(opaque, 0);
 
 	xmp_end_smix(opaque);
+	xmp_free_context(opaque);
 }
 END_TEST

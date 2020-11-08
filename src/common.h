@@ -1,17 +1,19 @@
 #ifndef LIBXMP_COMMON_H
 #define LIBXMP_COMMON_H
 
-#ifdef __AROS__
-#define __AMIGA__
-#endif
-
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 #include "xmp.h"
 
+#if defined(__MORPHOS__) || defined(__AROS__) || defined(AMIGAOS) || \
+    defined(__amigaos__) || defined(__amigaos4__) ||defined(__amigados__) || \
+    defined(AMIGA) || defined(_AMIGA) || defined(__AMIGA__)
+#define LIBXMP_AMIGA	1	/* to identify amiga platforms. */
+#endif
+
 #if (defined(__GNUC__) || defined(__clang__)) && defined(XMP_SYM_VISIBILITY)
-#if !defined(WIN32) && !defined(__ANDROID__) && !defined(__APPLE__) && !defined(__AMIGA__) && !defined(__MSDOS__) && !defined(B_BEOS_VERSION) && !defined(__ATHEOS__) && !defined(EMSCRIPTEN) && !defined(__MINT__)
+#if !defined(_WIN32) && !defined(__ANDROID__) && !defined(__APPLE__) && !defined(LIBXMP_AMIGA) && !defined(__MSDOS__) && !defined(B_BEOS_VERSION) && !defined(__ATHEOS__) && !defined(EMSCRIPTEN) && !defined(__MINT__)
 #define USE_VERSIONED_SYMBOLS
 #endif
 #endif
@@ -268,7 +270,7 @@ struct module_data {
 
 	char *dirname;			/* file dirname */
 	char *basename;			/* file basename */
-	char *filename;			/* Module file name */
+	const char *filename;		/* Module file name */
 	char *comment;			/* Comments, if any */
 	uint8 md5[16];			/* MD5 message digest */
 	int size;			/* File size */
@@ -416,6 +418,7 @@ struct context_data {
 char	*libxmp_adjust_string	(char *);
 int	libxmp_exclude_match	(const char *);
 int	libxmp_prepare_scan	(struct context_data *);
+void	libxmp_free_scan	(struct context_data *);
 int	libxmp_scan_sequences	(struct context_data *);
 int	libxmp_get_sequence	(struct context_data *, int);
 int	libxmp_set_player_mode	(struct context_data *);

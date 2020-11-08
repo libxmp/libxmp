@@ -20,10 +20,12 @@ TEST(test_sample_load_delta)
 	libxmp_load_sample(&m, NULL, SAMPLE_FLAG_NOLOAD | SAMPLE_FLAG_DIFF, &xxs, buffer0);
 	fail_unless(memcmp(xxs.data, conv_r0, 10) == 0,
 				"Invalid 8-bit conversion");
+	libxmp_free_sample(&xxs);
 
 	xxs.flg = XMP_SAMPLE_16BIT;
 	libxmp_load_sample(&m, NULL, SAMPLE_FLAG_NOLOAD | SAMPLE_FLAG_DIFF, &xxs, buffer1);
 	fail_unless(memcmp(xxs.data, conv_r1, 20) == 0,
 				"Invalid 16-bit conversion");
+	libxmp_free_sample(&xxs);
 }
 END_TEST

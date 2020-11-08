@@ -101,8 +101,8 @@ static int c669_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     LOAD_INIT();
 
-    hio_read(&sfh.marker, 2, 1, f);	/* 'if'=standard, 'JN'=extended */
-    hio_read(&sfh.message, 108, 1, f);	/* Song message */
+    hio_read(sfh.marker, 2, 1, f);	/* 'if'=standard, 'JN'=extended */
+    hio_read(sfh.message, 108, 1, f);	/* Song message */
     sfh.nos = hio_read8(f);		/* Number of samples (0-64) */
     sfh.nop = hio_read8(f);		/* Number of patterns (0-128) */
 
@@ -111,11 +111,11 @@ static int c669_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	return -1;
 
     sfh.loop = hio_read8(f);		/* Loop order number */
-    if (hio_read(&sfh.order, 1, 128, f) != 128)	/* Order list */
+    if (hio_read(sfh.order, 1, 128, f) != 128)	/* Order list */
 	return -1;
-    if (hio_read(&sfh.speed, 1, 128, f) != 128)	/* Tempo list for patterns */
+    if (hio_read(sfh.speed, 1, 128, f) != 128)	/* Tempo list for patterns */
 	return -1;
-    if (hio_read(&sfh.pbrk, 1, 128, f) != 128) 	/* Break list for patterns */
+    if (hio_read(sfh.pbrk, 1, 128, f) != 128) 	/* Break list for patterns */
 	return -1;
 
     mod->chn = 8;
@@ -162,7 +162,7 @@ static int c669_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	sub = &xxi->sub[0];
 
-	hio_read (&sih.name, 13, 1, f);		/* ASCIIZ instrument name */
+	hio_read (sih.name, 13, 1, f);		/* ASCIIZ instrument name */
 	sih.length = hio_read32l(f);		/* Instrument size */
 	sih.loop_start = hio_read32l(f);	/* Instrument loop start */
 	sih.loopend = hio_read32l(f);		/* Instrument loop end */
@@ -215,7 +215,7 @@ static int c669_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	for (j = 0; j < 64 * 8; j++) {
 	    event = &EVENT(i, j % 8, j / 8);
-	    hio_read(&ev, 1, 3, f);
+	    hio_read(ev, 1, 3, f);
 
 	    if ((ev[0] & 0xfe) != 0xfe) {
 		event->note = 1 + 36 + (ev[0] >> 2);

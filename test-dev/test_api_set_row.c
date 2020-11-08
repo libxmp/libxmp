@@ -18,6 +18,7 @@ TEST(test_api_set_row)
 	fail_unless(ret == -XMP_ERROR_STATE, "state check error");
 
 	create_simple_module(ctx, 1, 1);
+	libxmp_free_scan(ctx);
 	set_order(ctx, 0, 0);
 
 	libxmp_prepare_scan(ctx);
@@ -33,5 +34,7 @@ TEST(test_api_set_row)
 
 	ret = xmp_set_row(opaque, 64);
 	fail_unless(ret == -XMP_ERROR_INVALID, "return value error");
+
+	xmp_free_context(opaque);
 }
 END_TEST

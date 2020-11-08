@@ -505,9 +505,9 @@ void dump_module(struct xmp_module *mod, FILE *f)
 		MD5Init(&ctx);
 		if (len > 0 && xxs->data != NULL) {
 			MD5Update(&ctx, xxs->data, len);
-		} else {
+		} else if (len > 0) {
 			/* The data file for fracture.stm had this hash for empty samples... */
-			MD5Update(&ctx, "1", 1);
+			MD5Update(&ctx, (unsigned char *)"1", 1);
 		}
 		MD5Final(d, &ctx);
 		fprintf(f, " ");

@@ -70,6 +70,7 @@ TEST(test_api_play_buffer)
 	xmp_end_player(opaque);
 	xmp_release_module(opaque);
 	xmp_free_context(opaque);
+	free(ref_buffer);
 	fclose(f);
 }
 END_TEST

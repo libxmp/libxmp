@@ -1,7 +1,8 @@
 dnl AC_CONFIG_AUX_DIR(./scripts)
 AC_INIT
-AC_ARG_ENABLE(static, [  --enable-static         Build static library])
-AC_ARG_ENABLE(shared, [  --disable-shared        Don't build shared library])
+AC_ARG_ENABLE(depackers, [  --disable-depackers     Don't build depackers])
+AC_ARG_ENABLE(static,    [  --enable-static         Build static library])
+AC_ARG_ENABLE(shared,    [  --disable-shared        Don't build shared library])
 AC_SUBST(LD_VERSCRIPT)
 AC_SUBST(DARWIN_VERSION)
 AC_CANONICAL_HOST
@@ -136,6 +137,12 @@ XMP_TRY_COMPILE(whether compiler understands -Warray-bounds,
   int main(void){return 0;}],
   CFLAGS="${CFLAGS} -Wno-array-bounds")  
 
+if test "${enable_depackers}" != no; then
+  AC_SUBST(DEPACKER_OBJS,'$(DEPACKER_OBJS)')
+else
+  CFLAGS="${CFLAGS} -DLIBXMP_NO_DEPACKERS"
+fi
+
 XMP_TRY_COMPILE(whether alloca() needs alloca.h,
   ac_cv_c_flag_w_have_alloca_h,,[
   #include <alloca.h>
@@ -144,13 +151,14 @@ XMP_TRY_COMPILE(whether alloca() needs alloca.h,
 
 old_LIBS="${LIBS}"
 AC_CHECK_LIB(m,pow)
-dnl -lm not needed with darwin.
+dnl -lm not needed with darwin and mingw.
 case "${host_os}" in
-darwin*)
+darwin*|mingw*)
   LIBS="${old_LIBS}"
   ;;
 esac
-AC_CHECK_FUNCS(popen mkstemp fnmatch umask localtime_r round powf)
+AC_CHECK_HEADERS(dirent.h)
+AC_CHECK_FUNCS(popen mkstemp fnmatch umask round powf)
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([libxmp.pc])

@@ -42,11 +42,11 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
     int Unpacked_Sample_Data_Size;
     int x;
 
-    memset(taddr, 0, 128 * 4 * 4);
-    memset(tdata, 0, 512 << 8);
-    memset(ptable, 0, 128);
-    memset(smp_size, 0, 31 * 4);
-    memset(isize, 0, 31 * 2);
+    memset(taddr, 0, sizeof(taddr));
+    memset(tdata, 0, sizeof(tdata));
+    memset(ptable, 0, sizeof(ptable));
+    memset(smp_size, 0, sizeof(smp_size));
+    memset(isize, 0, sizeof(isize));
     for (i = 0; i < 31; i++) {
 	PACK[i] = 0;
 	/* DELTA[i] = 0;*/
@@ -484,7 +484,7 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
     /* write pattern data */
 
     for (i = 0; i < npat; i++) {
-	memset(tmp, 0, 1024);
+	memset(tmp, 0, sizeof(tmp));
 	for (j = 0; j < 64; j++) {
 	    for (k = 0; k < 4; k++)
 		memcpy(&tmp[j * 16 + k * 4], &tdata[k + i * 4][j * 4], 4);

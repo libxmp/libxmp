@@ -92,6 +92,7 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	int annotxt_offset;
 	int pos;
 	int bpm_on, bpmlen, med_8ch, hexvol;
+	char name[40];
 
 	LOAD_INIT();
 
@@ -348,7 +349,11 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			block.lines = hio_read8(f);
 		}
 
-		if (libxmp_alloc_pattern_tracks(mod, i, block.lines + 1) < 0)
+		/* Sanity check--Amiga OctaMED files have an upper bound of 3200 lines per block. */
+		if (block.lines + 1 > 3200)
+			return -1;
+
+		if (libxmp_alloc_pattern_tracks_long(mod, i, block.lines + 1) < 0)
 			return -1;
 
 		if (ver > 0) {		/* MMD1 */
@@ -451,11 +456,13 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (expdata_offset && i < expdata.i_ext_entries) {
 			struct xmp_instrument *xxi = &mod->xxi[i];
 			int offset = iinfo_offset + i * expdata.i_ext_entrsz;
-			
-			if (offset < 0 || hio_seek(f, offset, SEEK_SET) < 0) {
+
+			if (offset < 0 || hio_seek(f, start + offset, SEEK_SET) < 0) {
 				return -1;
 			}
-			hio_read(&xxi->name, 40, 1, f);
+			hio_read(name, 40, 1, f);
+			strncpy(xxi->name, name, 32);
+			xxi->name[31] = '\0';
 		}
 
 		D_(D_INFO "[%2x] %-40.40s %d", i, mod->xxi[i].name, instr.type);
@@ -464,7 +471,7 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (expdata_offset && i < expdata.s_ext_entries) {
 			int offset = expsmp_offset + i * expdata.s_ext_entrsz;
 
-			if (offset < 0 || hio_seek(f, offset, SEEK_SET) < 0) {
+			if (offset < 0 || hio_seek(f, start + offset, SEEK_SET) < 0) {
 				return -1;
 			}
 			exp_smp.hold = hio_read8(f);

@@ -100,13 +100,13 @@ static int fnk_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     LOAD_INIT();
 
-    hio_read(&ffh.marker, 4, 1, f);
-    hio_read(&ffh.info, 4, 1, f);
+    hio_read(ffh.marker, 4, 1, f);
+    hio_read(ffh.info, 4, 1, f);
     ffh.filesize = hio_read32l(f);
-    hio_read(&ffh.fmt, 4, 1, f);
+    hio_read(ffh.fmt, 4, 1, f);
     ffh.loop = hio_read8(f);
-    hio_read(&ffh.order, 256, 1, f);
-    hio_read(&ffh.pbrk, 128, 1, f);
+    hio_read(ffh.order, 256, 1, f);
+    hio_read(ffh.pbrk, 128, 1, f);
 
     for (i = 0; i < 128; i++) {
         if (ffh.pbrk[i] >= 64) {
@@ -115,7 +115,7 @@ static int fnk_load(struct module_data *m, HIO_HANDLE *f, const int start)
     }
 
     for (i = 0; i < 64; i++) {
-	hio_read(&ffh.fih[i].name, 19, 1, f);
+	hio_read(ffh.fih[i].name, 19, 1, f);
 	ffh.fih[i].loop_start = hio_read32l(f);
 	ffh.fih[i].length = hio_read32l(f);
 	ffh.fih[i].volume = hio_read8(f);
@@ -221,7 +221,7 @@ static int fnk_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	for (j = 0; j < 64 * mod->chn; j++) {
 	    event = &EVENT(i, j % mod->chn, j / mod->chn);
-	    hio_read(&ev, 1, 3, f);
+	    hio_read(ev, 1, 3, f);
 
 	    switch (ev[0] >> 2) {
 	    case 0x3f:

@@ -23,10 +23,10 @@ static int depack_kris(HIO_HANDLE *in, FILE *out)
 	int i, j, k;
 	int size, ssize = 0;
 
-	memset(tmp, 0, 1024);
-	memset(ptable, 0, 128);
-	memset(taddr, 0, 128 * 4 * 2);
-	memset(tdata, 0, 512 << 8);
+	memset(tmp, 0, sizeof(tmp));
+	memset(ptable, 0, sizeof(ptable));
+	memset(taddr, 0, sizeof(taddr));
+	memset(tdata, 0, sizeof(tdata));
 
 	pw_move_data(out, in, 20);			/* title */
 	hio_seek(in, 2, SEEK_CUR);
@@ -81,7 +81,7 @@ static int depack_kris(HIO_HANDLE *in, FILE *out)
 
 	/* Track data ... */
 	for (i = 0; i <= (maxtaddr / 256); i += 1) {
-		memset(tmp, 0, 1024);
+		memset(tmp, 0, sizeof(tmp));
 		hio_read(tmp, 256, 1, in);
 
 		for (j = 0; j < 64 * 4; j += 4) {
@@ -102,7 +102,7 @@ static int depack_kris(HIO_HANDLE *in, FILE *out)
 	}
 
 	for (i = 0; i <= max; i++) {
-		memset(tmp, 0, 1024);
+		memset(tmp, 0, sizeof(tmp));
 		for (j = 0; j < 64 * 4; j += 4) {
 			uint8 *p = &tmp[j * 4];
 

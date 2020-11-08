@@ -23,11 +23,25 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <stdarg.h>
-#ifdef __WATCOMC__
-#include <direct.h>
-#elif !defined(_WIN32)
+
+#ifndef LIBXMP_CORE_PLAYER
+#include <limits.h>
+#if defined(_WIN32)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#elif defined(__OS2__) || defined(__EMX__)
+#define INCL_DOS
+#define INCL_DOSERRORS
+#include <os2.h>
+#elif defined(__DJGPP__)
+#include <dos.h>
+#include <io.h>
+#elif defined(HAVE_DIRENT_H)
 #include <dirent.h>
 #endif
+#endif /* LIBXMP_CORE_PLAYER */
 
 #include "xmp.h"
 #include "common.h"
@@ -138,7 +152,27 @@ int libxmp_alloc_tracks_in_pattern(struct xmp_module *mod, int num)
 int libxmp_alloc_pattern_tracks(struct xmp_module *mod, int num, int rows)
 {
 	/* Sanity check */
-	if (rows < 0 || rows > 256)
+	if (rows <= 0 || rows > 256)
+		return -1;
+
+	if (libxmp_alloc_pattern(mod, num) < 0)
+		return -1;
+
+	mod->xxp[num]->rows = rows;
+
+	if (libxmp_alloc_tracks_in_pattern(mod, num) < 0)
+		return -1;
+
+	return 0;
+}
+
+/* Some formats explicitly allow more than 256 rows (e.g. OctaMED). This function
+ * allows those formats to work without disrupting the sanity check for other formats.
+ */
+int libxmp_alloc_pattern_tracks_long(struct xmp_module *mod, int num, int rows)
+{
+	/* Sanity check */
+	if (rows <= 0 || rows > 32768)
 		return -1;
 
 	if (libxmp_alloc_pattern(mod, num) < 0)
@@ -304,11 +338,49 @@ void libxmp_disable_continue_fx(struct xmp_event *event)
 }
 
 #ifndef LIBXMP_CORE_PLAYER
-#ifndef WIN32
-
+/* libxmp_check_filename_case(): */
 /* Given a directory, see if file exists there, ignoring case */
 
-int libxmp_check_filename_case(char *dir, char *name, char *new_name, int size)
+#if defined(_WIN32)
+int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
+{
+	char path[_MAX_PATH];
+	DWORD rc;
+	/* win32 is case-insensitive: directly probe the file. */
+	snprintf(path, sizeof(path), "%s/%s", dir, name);
+	rc = GetFileAttributesA(path);
+	if (rc == (DWORD)(-1)) return 0;
+	if (rc & FILE_ATTRIBUTE_DIRECTORY) return 0;
+	strncpy(new_name, name, size);
+	return 1;
+}
+#elif defined(__OS2__) || defined(__EMX__)
+int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
+{
+	char path[CCHMAXPATH];
+	FILESTATUS3 fs;
+	/* os/2 is case-insensitive: directly probe the file. */
+	snprintf(path, sizeof(path), "%s/%s", dir, name);
+	if (DosQueryPathInfo(path, FIL_STANDARD, &fs, sizeof(fs)) != NO_ERROR) return 0;
+	if (fs.attrFile & FILE_DIRECTORY) return 0;
+	strncpy(new_name, name, size);
+	return 1;
+}
+#elif defined(__DJGPP__)
+int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
+{
+	char path[256];
+	int attr;
+	/* dos is case-insensitive: directly probe the file. */
+	snprintf(path, sizeof(path), "%s/%s", dir, name);
+	attr = _chmod(path, 0);
+	if (attr == -1) return 0;
+	if (attr & (_A_SUBDIR|_A_VOLID)) return 0;
+	strncpy(new_name, name, size);
+	return 1;
+}
+#elif defined(HAVE_DIRENT_H)
+int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
 {
 	int found = 0;
 	DIR *dirfd;
@@ -317,8 +389,8 @@ int libxmp_check_filename_case(char *dir, char *name, char *new_name, int size)
 	dirfd = opendir(dir);
 	if (dirfd == NULL)
 		return 0;
- 
-	while ((d = readdir(dirfd))) {
+
+	while ((d = readdir(dirfd)) != NULL) {
 		if (!strcasecmp(d->d_name, name)) {
 			found = 1;
 			break;
@@ -332,16 +404,11 @@ int libxmp_check_filename_case(char *dir, char *name, char *new_name, int size)
 
 	return found;
 }
-
 #else
-
-/* FIXME: implement functionality for Win32 */
-
-int libxmp_check_filename_case(char *dir, char *name, char *new_name, int size)
+int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
 {
 	return 0;
 }
-
 #endif
 
 void libxmp_get_instrument_path(struct module_data *m, char *path, int size)
@@ -363,4 +430,55 @@ void libxmp_set_type(struct module_data *m, const char *fmt, ...)
 
 	vsnprintf(m->mod.type, XMP_NAME_SIZE, fmt, ap);
 	va_end(ap);
+}
+
+static int schism_tracker_date(int year, int month, int day)
+{
+	int mm = (month + 9) % 12;
+	int yy = year - mm / 10;
+
+	yy = yy * 365 + (yy / 4) - (yy / 100) + (yy / 400);
+	mm = (mm * 306 + 5) / 10;
+
+	return yy + mm + (day - 1);
+}
+
+/* Generate a Schism Tracker version string.
+ * Schism Tracker versions are stored as follows:
+ *
+ * s_ver <= 0x50:		0.s_ver
+ * s_ver > 0x50, < 0xfff:	days from epoch=(s_ver - 0x50)
+ * s_ver = 0xfff:		days from epoch=l_ver
+ */
+void libxmp_schism_tracker_string(char *buf, size_t size, int s_ver, int l_ver)
+{
+	if (s_ver >= 0x50) {
+		/* time_t epoch_sec = 1256947200; */
+		int t = schism_tracker_date(2009, 10, 31);
+		int year, month, day, dayofyear;
+
+		if (s_ver == 0xfff) {
+			t += l_ver;
+		} else
+			t += s_ver - 0x50;
+
+		/* Date algorithm reimplemented from OpenMPT.
+		 */
+		year = (int)(((int64)t * 10000L + 14780) / 3652425);
+		dayofyear = t - (365 * year + (year / 4) - (year / 100) + (year / 400));
+		if (dayofyear < 0) {
+			year--;
+			dayofyear = t - (365 * year + (year / 4) - (year / 100) + (year / 400));
+		}
+		month = (100 * dayofyear + 52) / 3060;
+		day = dayofyear - (month * 306 + 5) / 10 + 1;
+
+		year += (month + 2) / 12;
+		month = (month + 2) % 12 + 1;
+
+		snprintf(buf, size, "Schism Tracker %04d-%02d-%02d",
+			year, month, day);
+	} else {
+		snprintf(buf, size, "Schism Tracker 0.%x", s_ver);
+	}
 }

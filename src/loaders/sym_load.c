@@ -306,7 +306,7 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		hio_read(mod->name, 1, a, f);
 	}
 
-	hio_read(&allowed_effects, 1, 8, f);
+	hio_read(allowed_effects, 1, 8, f);
 
 	MODULE_INFO();
 
@@ -434,7 +434,7 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	for (i = 0; i < mod->ins; i++) {
 		uint8 buf[128];
 
-		memset(buf, 0, 128);
+		memset(buf, 0, sizeof(buf));
 		hio_read(buf, 1, sn[i] & 0x7f, f);
 		libxmp_instrument_name(mod, i, buf, 32);
 

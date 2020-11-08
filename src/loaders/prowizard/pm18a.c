@@ -31,12 +31,12 @@ static int depack_p18a(HIO_HANDLE *in, FILE *out)
 	uint8 fin[31];
 	uint8 oldins[4];
 
-	memset(pnum, 0, 128);
-	memset(pptr, 0, 64 << 8);
-	memset(pat, 0, 128 * 1024);
-	memset(fin, 0, 31);
-	memset(oldins, 0, 4);
-	memset(paddr, 0, 128 * 4);
+	memset(pnum, 0, sizeof(pnum));
+	memset(pptr, 0, sizeof(pptr));
+	memset(pat, 0, sizeof(pat));
+	memset(fin, 0, sizeof(fin));
+	memset(oldins, 0, sizeof(oldins));
+	memset(paddr, 0, sizeof(paddr));
 
 	pw_write_zero(out, 20);				/* title */
 

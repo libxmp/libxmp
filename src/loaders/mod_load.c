@@ -399,6 +399,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
     int ptkloop = 0;			/* Protracker loop */
     int tracker_id = TRACKER_PROTRACKER;
     int out_of_range = 0;
+    int maybe_wow = 1;
 
     LOAD_INIT();
 
@@ -410,25 +411,37 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     m->period_type = PERIOD_MODRNG;
 
-    hio_read(&mh.name, 20, 1, f);
+    hio_read(mh.name, 20, 1, f);
     for (i = 0; i < 31; i++) {
-	hio_read(&mh.ins[i].name, 22, 1, f);	/* Instrument name */
+	hio_read(mh.ins[i].name, 22, 1, f);	/* Instrument name */
 	mh.ins[i].size = hio_read16b(f);	/* Length in 16-bit words */
 	mh.ins[i].finetune = hio_read8(f);	/* Finetune (signed nibble) */
 	mh.ins[i].volume = hio_read8(f);	/* Linear playback volume */
 	mh.ins[i].loop_start = hio_read16b(f);	/* Loop start in 16-bit words */
 	mh.ins[i].loop_size = hio_read16b(f);	/* Loop size in 16-bit words */
 
+	/* Mod's Grave WOW files are converted from 669s and have default
+	 * finetune and volume.
+	 */
+	if (mh.ins[i].size && (mh.ins[i].finetune != 0 || mh.ins[i].volume != 64))
+	    maybe_wow = 0;
+
 	smp_size += 2 * mh.ins[i].size;
     }
     mh.len = hio_read8(f);
     mh.restart = hio_read8(f);
-    hio_read(&mh.order, 128, 1, f);
-    memset(magic, 0, 8);
+    hio_read(mh.order, 128, 1, f);
+    memset(magic, 0, sizeof(magic));
     hio_read(magic, 1, 4, f);
     if (hio_error(f)) {
         return -1;
     }
+
+    /* Mod's Grave WOW files always have a 0 restart byte; 6692WOW implements
+     * 669 repeating by inserting a pattern jump and ignores this byte.
+     */
+    if (mh.restart != 0)
+	maybe_wow = 0;
 
     for (i = 0; mod_magic[i].ch; i++) {
 	if (!(strncmp (magic, mod_magic[i].magic, 4))) {
@@ -547,25 +560,34 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
      *
      * Stefan Danes <sdanes@marvels.hacktic.nl> said:
      * This weird format is identical to '8CHN' but still uses the 'M.K.' ID.
-     * You can only test for WOW by calculating the size of the module for 8 
-     * channels and comparing this to the actual module length. If it's equal, 
+     * You can only test for WOW by calculating the size of the module for 8
+     * channels and comparing this to the actual module length. If it's equal,
      * the module is an 8 channel WOW.
+     *
+     * Addendum: very rarely, WOWs will have an odd length due to an extra byte,
+     * so round the filesize down in this check. False positive WOWs can be ruled
+     * out by checking the restart byte and sample volume (see above).
+     *
+     * Worst case if there are still issues with this, OpenMPT validates later
+     * patterns in potential WOW files (where sample data would be located in a
+     * regular M.K. MOD) to rule out false positives.
      */
 
-    if ((!strncmp(magic, "M.K.", 4) &&
-		(0x43c + mod->pat * 32 * 0x40 + smp_size == m->size))) {
+    if (!strncmp(magic, "M.K.", 4) && maybe_wow &&
+		(0x43c + mod->pat * 32 * 0x40 + smp_size) == (m->size & ~1)) {
 	mod->chn = 8;
 	tracker_id = TRACKER_MODSGRAVE;
-    }
-    /* Test for Protracker song files */
-    else if ((ptsong = (!strncmp((char *)magic, "M.K.", 4) &&
-		(0x43c + mod->pat * 0x400 == m->size)))) {
-	tracker_id = TRACKER_PROTRACKER;
-	goto skip_test;
-    }
-    /* something else */
-    else {
-        tracker_id = get_tracker_id(m, &mh, tracker_id);
+    } else {
+	/* Test for Protracker song files */
+	ptsong = !strncmp((char *)magic, "M.K.", 4) &&
+		 (0x43c + mod->pat * 0x400 == m->size);
+	if (ptsong) {
+		tracker_id = TRACKER_PROTRACKER;
+		goto skip_test;
+	} else {
+	/* something else */
+		tracker_id = get_tracker_id(m, &mh, tracker_id);
+	}
     }
 
 skip_test:
@@ -731,7 +753,7 @@ skip_test:
 
     /* Load samples */
 
-    if (m->filename && (x = strrchr(m->filename, '/')))
+    if (m->filename && (x = strrchr(m->filename, '/')) != NULL)
 	strncpy(pathname, m->filename, x - m->filename);
 
     D_(D_INFO "Stored samples: %d", mod->smp);
@@ -749,7 +771,7 @@ skip_test:
 	    char sn[256];
 	    snprintf(sn, XMP_NAME_SIZE, "%s%s", pathname, mod->xxi[i].name);
 	
-	    if ((s = hio_open(sn, "rb"))) {
+	    if ((s = hio_open(sn, "rb")) != NULL) {
 	        if (libxmp_load_sample(m, s, flags, &mod->xxs[i], NULL) < 0) {
 		    hio_close(s);
 		    return -1;

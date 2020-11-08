@@ -30,8 +30,8 @@ static int depack_ac1d(HIO_HANDLE *in, FILE *out)
 	/*int tsize1, tsize2, tsize3;*/
 	int i, j, k;
 
-	memset(paddr, 0, 128 * 4);
-	memset(psize, 0, 128 * 4);
+	memset(paddr, 0, sizeof(paddr));
+	memset(psize, 0, sizeof(psize));
 
 	npos = hio_read8(in);
 	ntk_byte = hio_read8(in);
@@ -80,7 +80,7 @@ static int depack_ac1d(HIO_HANDLE *in, FILE *out)
 		/*tsize2 =*/ hio_read32b(in);
 		/*tsize3 =*/ hio_read32b(in);
 
-		memset(tmp, 0, 1024);
+		memset(tmp, 0, sizeof(tmp));
 		for (k = 0; k < 4; k++) {
 			for (j = 0; j < 64; j++) {
 				int x = j * 16 + k * 4;

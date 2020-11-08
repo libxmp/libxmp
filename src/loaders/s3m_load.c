@@ -247,7 +247,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		goto err;
 	}
 
-	memcpy(&sfh.name, buf, 28);		/* Song name */
+	memcpy(sfh.name, buf, 28);		/* Song name */
 	sfh.type = buf[30];			/* File type */
 	sfh.ordnum = readmem16l(buf + 32);	/* Number of orders (must be even) */
 	sfh.insnum = readmem16l(buf + 34);	/* Number of instruments */
@@ -271,7 +271,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	sfh.mv = buf[51];			/* Master volume */
 	sfh.uc = buf[52];			/* Ultra click removal */
 	sfh.dp = buf[53];			/* Default pan positions if 0xfc */
-	/* 54-61 reserved */
+	memcpy(sfh.rsvd2, buf + 54, 8);		/* Reserved */
 	sfh.special = readmem16l(buf + 62);	/* Ptr to special custom data */
 	memcpy(sfh.chset, buf + 64, 32);	/* Channel settings */
 
@@ -418,9 +418,8 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		break;
 	case 4:
 		if (sfh.version != 0x4100) {
-			snprintf(tracker_name, 40, "Schism Tracker %d.%02x",
-				 (sfh.version & 0x0f00) >> 8,
-				 sfh.version & 0xff);
+			libxmp_schism_tracker_string(tracker_name, 40,
+				(sfh.version & 0x0fff), sfh.rsvd2[0] | (sfh.rsvd2[1] << 8));
 			break;
 		}
 		/* fall through */
@@ -561,7 +560,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			sub->xpo += 12;
 			ret =
 			    libxmp_load_sample(m, f, SAMPLE_FLAG_ADLIB, xxs,
-					(char *)&sah.reg);
+					(char *)sah.reg);
 			if (ret < 0)
 				goto err3;
 

@@ -35,8 +35,8 @@ void Depack_TP2 (FILE * in, FILE * out)
 	if (Save_Status == BAD)
 		return;
 
-	memset(Track_Address, 0, 128 * 4 * 4);
-	memset(pnum, 0, 128);
+	memset(Track_Address, 0, sizeof(Track_Address));
+	memset(pnum, 0, sizeof(pnum));
 
 	// sprintf ( Depacked_OutName , "%ld.mod" , Cpt_Filename-1 );
 	// out = fdopen (fd_out, "w+b");
@@ -88,7 +88,7 @@ void Depack_TP2 (FILE * in, FILE * out)
 		fwrite (&c2, 1, 1, out);
 
 	}
-	memset(tmp, 0, 30);
+	memset(tmp, 0, sizeof(tmp));
 	tmp[29] = 0x01;
 	while (i != 31) {
 		fwrite (tmp, 30, 1, out);
@@ -154,7 +154,7 @@ void Depack_TP2 (FILE * in, FILE * out)
 	/*printf ( "converting pattern data " ); */
 	for (i = 0; i <= PatMax; i++) {
 /*fprintf ( info , "\npattern %ld:\n\n" , i );*/
-		memset(Pattern, 0, 1024);
+		memset(Pattern, 0, sizeof(Pattern));
 		for (j = 0; j < 4; j++) {
 /*fprintf ( info , "track %ld: (at %ld)\n" , j , Track_Address[i][j]+Start_Pat_Address );*/
 			Where =

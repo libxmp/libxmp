@@ -78,7 +78,7 @@ static int depack_nru(HIO_HANDLE *in, FILE *out)
 	/* pattern data */
 	hio_seek(in, 0x043c, SEEK_SET);
 	for (i = 0; i < max_pat; i++) {
-		memset(pat_data, 0, 1025);
+		memset(pat_data, 0, sizeof(pat_data));
 		hio_read(tmp, 1024, 1, in);
 		for (j = 0; j < 256; j++) {
 			ins = (tmp[j * 4 + 3] >> 3) & 0x1f;

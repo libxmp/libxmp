@@ -40,10 +40,10 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 	struct smp ins;
 	uint32 id;
 
-	memset(track_addr, 0, 128 * 4 * 2);
-	memset(tr, 0, 512 << 8);
-	memset(SampleAddress, 0, 31 * 4);
-	memset(SampleSize, 0, 31 * 4);
+	memset(track_addr, 0, sizeof(track_addr));
+	memset(tr, 0, sizeof(tr));
+	memset(SampleAddress, 0, sizeof(SampleAddress));
+	memset(SampleSize, 0, sizeof(SampleSize));
 
 	id = hio_read32b(in);
 #if 0
@@ -151,7 +151,6 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 				if (c1 != 0x80) {
 					sample = ((c1 << 4) & 0x10) |
 							((c2 >> 4) & 0x0f);
-					memset(note, 0, 2);
 					mynote = c1 & 0x7f;
 					note[0] = ptk_table[mynote / 2][0];
 					note[1] = ptk_table[mynote / 2][1];
@@ -211,7 +210,6 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 
 					sample = ((c1 << 4) & 0x10) |
 						((c2 >> 4) & 0x0f);
-					memset(note, 0, 2);
 					mynote = c1 & 0x7f;
 					note[0] = ptk_table[mynote / 2][0];
 					note[1] = ptk_table[mynote / 2][1];
@@ -260,7 +258,7 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 
 	/* write pattern data */
 	for (i = 0; i < len; i++) {
-		memset(tmp, 0, 1024);
+		memset(tmp, 0, sizeof(tmp));
 		for (j = 0; j < 64; j++) {
 			for (k = 0; k < 4; k++) {
 				int x = j * 16 + k * 4;

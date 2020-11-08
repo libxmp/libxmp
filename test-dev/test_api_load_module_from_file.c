@@ -25,5 +25,7 @@ TEST(test_api_load_module_from_file)
 
 	state = xmp_get_player(ctx, XMP_PLAYER_STATE);
 	fail_unless(state == XMP_STATE_UNLOADED, "state error");
+
+	xmp_free_context(ctx);
 }
 END_TEST

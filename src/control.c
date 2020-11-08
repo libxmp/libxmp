@@ -529,7 +529,7 @@ int xmp_get_player__(xmp_context opaque, int parm)
 	return ret;
 }
 
-char **xmp_get_format_list()
+const char *const *xmp_get_format_list(void)
 {
 	return format_list();
 }
@@ -546,7 +546,7 @@ void xmp_inject_event(xmp_context opaque, int channel, struct xmp_event *e)
 	p->inject_event[channel]._flag = 1;
 }
 
-int xmp_set_instrument_path(xmp_context opaque, char *path)
+int xmp_set_instrument_path(xmp_context opaque, const char *path)
 {
 	struct context_data *ctx = (struct context_data *)opaque;
 	struct module_data *m = &ctx->m;

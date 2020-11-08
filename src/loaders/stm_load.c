@@ -154,8 +154,8 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 
 	LOAD_INIT();
 
-	hio_read(&sfh.name, 20, 1, f);	/* ASCIIZ song name */
-	hio_read(&sfh.magic, 8, 1, f);	/* '!Scream!' */
+	hio_read(sfh.name, 20, 1, f);	/* ASCIIZ song name */
+	hio_read(sfh.magic, 8, 1, f);	/* '!Scream!' */
 	sfh.rsvd1 = hio_read8(f);	/* '\x1a' */
 	sfh.type = hio_read8(f);	/* 1=song, 2=module */
 	sfh.vermaj = hio_read8(f);	/* Major version number */

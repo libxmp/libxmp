@@ -25,6 +25,7 @@
 #include "period.h"
 #include "player.h"
 #include "hio.h"
+#include "loaders/loader.h"
 
 
 struct xmp_instrument *libxmp_get_instrument(struct context_data *ctx, int ins)
@@ -172,7 +173,7 @@ int xmp_smix_channel_pan(xmp_context opaque, int chn, int pan)
 	return 0;
 }
 
-int xmp_smix_load_sample(xmp_context opaque, int num, char *path)
+int xmp_smix_load_sample(xmp_context opaque, int num, const char *path)
 {
 	struct context_data *ctx = (struct context_data *)opaque;
 	struct smix_data *smix = &ctx->smix;
@@ -304,9 +305,7 @@ int xmp_smix_release_sample(xmp_context opaque, int num)
 		return -XMP_ERROR_INVALID;
 	}
 
-	if (smix->xxs[num].data != NULL) {
-		free(smix->xxs[num].data - 4);
-	}
+	libxmp_free_sample(&smix->xxs[num]);
 	free(smix->xxi[num].sub);
 
 	smix->xxs[num].data = NULL;

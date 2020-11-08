@@ -25,9 +25,9 @@ static int depack_ksm(HIO_HANDLE *in, FILE *out)
 	int ssize = 0;
 	int i, j, k;
 
-	memset(plist, 0, 128);
-	memset(trknum, 0, 128 * 4);
-	memset(real_tnum, 0, 128 * 4);
+	memset(plist, 0, sizeof(plist));
+	memset(trknum, 0, sizeof(trknum));
+	memset(real_tnum, 0, sizeof(real_tnum));
 
 	/* title */
 	hio_seek(in, 2, SEEK_SET);
@@ -141,8 +141,8 @@ static int depack_ksm(HIO_HANDLE *in, FILE *out)
 
 	/* pattern data */
 	for (i = 0; i < c5; i++) {
-		memset(tmp, 0, 1024);
-		memset(tdata, 0, 192 * 4);
+		memset(tmp, 0, sizeof(tmp));
+		memset(tdata, 0, sizeof(tdata));
 
 		for (k = 0; k < 4; k++) {
 			hio_seek(in, 1536 + 192 * real_tnum[i][k], SEEK_SET);

@@ -21,9 +21,9 @@ static int depack_pru2(HIO_HANDLE *in, FILE *out)
 	int size, ssize = 0;
 	int i, j;
 
-	memset(header, 0, 2048);
-	memset(ptable, 0, 128);
-	memset(v, 0, 16);
+	memset(header, 0, sizeof(header));
+	memset(ptable, 0, sizeof(ptable));
+	memset(v, 0, sizeof(v));
 
 	pw_write_zero(out, 20);				/* title */
 
@@ -56,7 +56,7 @@ static int depack_pru2(HIO_HANDLE *in, FILE *out)
 	for (i = 0; i <= max; i++) {
 		for (j = 0; j < 256; j++) {
 			uint8 c[4];
-			memset(c, 0, 4);
+			memset(c, 0, sizeof(c));
 			header[0] = hio_read8(in);
 			if (header[0] == 0x80) {
 				write32b(out, 0);
@@ -81,9 +81,9 @@ static int depack_pru2(HIO_HANDLE *in, FILE *out)
 			}
 
 			/* rol previous values */
-			memcpy(&v[0], &v[1], 4);
-			memcpy(&v[1], &v[2], 4);
-			memcpy(&v[2], &v[3], 4);
+			memcpy(v[0], v[1], 4);
+			memcpy(v[1], v[2], 4);
+			memcpy(v[2], v[3], 4);
 
 			memcpy(v[3], c, 4);
 		}
