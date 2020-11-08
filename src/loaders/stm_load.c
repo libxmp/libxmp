@@ -46,6 +46,7 @@ struct stm_instrument_header {
 	uint16 paralen;		/* Length in paragraphs */
 };
 
+/* v1 format header based on disassembled ST2 */
 struct stm_file_subheader_v1 {
 	uint16 insnum;		/* Number of instruments */
 	uint16 ordnum;		/* Number of orders */
