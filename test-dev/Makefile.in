@@ -382,12 +382,12 @@ clean:
 utilities: gen_mixer_data gen_module_data
 
 gen_mixer_data: gen_mixer_data.o
-	@CMD='$(LD) -o $@ gen_mixer_data.o -L../lib -lxmp'; \
+	@CMD='$(LD) $(LDFLAGS) -o $@ gen_mixer_data.o -L../lib -lxmp'; \
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
 	eval $$CMD
 
 gen_module_data: gen_module_data.o util.o md5.o
-	@CMD='$(LD) -o $@ gen_module_data.o util.o md5.o -L../lib -lxmp'; \
+	@CMD='$(LD) $(LDFLAGS) -o $@ gen_module_data.o util.o md5.o -L../lib -lxmp $(LIBS)'; \
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
 	eval $$CMD
 
@@ -399,7 +399,7 @@ check: $(TEST_PATH)/all_tests.c $(TEST_PATH)/libxmp-tests
 	cd $(TEST_PATH); LD_LIBRARY_PATH=../lib DYLD_LIBRARY_PATH=../lib LIBRARY_PATH=../lib:$$LIBRARY_PATH PATH=$$PATH:../lib ./libxmp-tests
 
 $(TEST_PATH)/libxmp-tests: $(T_OBJS)
-	@CMD='$(LD) -o $@ $(T_OBJS) $(LIBS) -L../lib -lxmp'; \
+	@CMD='$(LD) $(LDFLAGS) -o $@ $(T_OBJS) $(LIBS) -L../lib -lxmp'; \
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
 	eval $$CMD
 
@@ -417,7 +417,7 @@ coverclean:
 	@rm -f $(GCOBJS) ../lib/$(GCLIB)
 
 $(TEST_PATH)/libxmp-covertest: $(GCT_OBJS) ../lib/$(GCLIB)
-	@CMD='$(LD) -o $@ $(LDFLAGS) $(GCT_OBJS) ../lib/$(GCLIB) -lgcov $(LIBS)'; \
+	@CMD='$(LD) $(LDFLAGS) -o $@ $(GCT_OBJS) ../lib/$(GCLIB) -lgcov $(LIBS)'; \
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
 	eval $$CMD
 
