@@ -138,10 +138,11 @@ XMP_TRY_COMPILE(whether compiler understands -Warray-bounds,
   CFLAGS="${CFLAGS} -Wno-array-bounds")  
 
 if test "${enable_depackers}" != no; then
-  AC_SUBST(DEPACKER_OBJS,'$(DEPACKER_OBJS)')
+  DEPACKER_OBJS='$(DEPACKER_OBJS)'
 else
   CFLAGS="${CFLAGS} -DLIBXMP_NO_DEPACKERS"
 fi
+AC_SUBST(DEPACKER_OBJS)
 
 XMP_TRY_COMPILE(whether alloca() needs alloca.h,
   ac_cv_c_flag_w_have_alloca_h,,[
