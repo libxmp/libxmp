@@ -77,7 +77,7 @@ struct stm_file_header {
 		struct stm_file_subheader_v1 v1;
 		struct stm_file_subheader_v2 v2;
 	} sub;
-	struct stm_instrument_header ins[31];
+	struct stm_instrument_header ins[32];
 };
 
 static int stm_test(HIO_HANDLE *, char *, const int);
@@ -173,6 +173,8 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		return -1;
 	}
 
+	// TODO: improve robustness of the loader against bad parameters
+
 	if (version >= 200) {
 		sfh.sub.v2.tempo = hio_read8(f);	/* Playback tempo */
 		sfh.sub.v2.patterns = hio_read8(f);	/* Number of patterns */
@@ -184,8 +186,14 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		mod->ins = 31;
 		mod->len = (version == 200) ? 64 : 128;
 	} else {
-		sfh.sub.v1.insnum = hio_read16l(f);	/* Number of instruments */
-		sfh.sub.v1.ordnum = hio_read16l(f);	/* Number of orders */
+		if ((sfh.sub.v1.insnum = hio_read16l(f)) > 32) {	/* Number of instruments */
+			D_(D_CRIT "Wrong number of instruments: %d (max 32)", sfh.sub.v1.insnum);
+			return -1;
+		}
+		if ((sfh.sub.v1.ordnum = hio_read16l(f)) > XMP_MAX_MOD_LENGTH) {	/* Number of orders */
+			D_(D_CRIT "Wrong number of orders: %d (max %d)", sfh.sub.v1.ordnum, XMP_MAX_MOD_LENGTH);
+			return -1;
+		}
 		sfh.sub.v1.patnum = hio_read16l(f);	/* Number of patterns */
 		sfh.sub.v1.srate = hio_read16l(f);	/* Sample rate? */
 		sfh.sub.v1.tempo = hio_read8(f);	/* Playback tempo */
