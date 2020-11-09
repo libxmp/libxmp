@@ -194,6 +194,7 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	int i, j, r, chn;
+	int patrows;
 	int patsize;
 	int info, counter, data;
 	int track_counter[32];
@@ -211,8 +212,13 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	for (i = 0; i < mod->pat; i++) {
 		chn = hio_read8(f);
 		hio_read8(f);		/* beat */
+		patrows = hio_read16l(f);
 
-		if (libxmp_alloc_pattern_tracks(mod, i, hio_read16l(f)) < 0)
+		/* Sanity check */
+		if (patrows > 512)
+			return -1;
+
+		if (libxmp_alloc_pattern_tracks_long(mod, i, patrows) < 0)
 			return -1;
 
 		patsize = hio_read32l(f);
