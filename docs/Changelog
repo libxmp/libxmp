@@ -10,10 +10,25 @@ Stable versions
 	- fix S3M ADPCM4 samples
 	- fix OctaMED 'tracker compatibility' tempos
 	- ignore MED volume/slide effects with param of 0, fix speed bound.
+	- improve MOD loader checks for Mod's Grave WOW files
+	- fix Schism Tracker version date calculation
+	- fix MED modules with pattern lengths > 256
+	- fix MED instrument corruption
+	- allow up to 512 rows in X-Tracker patterns
+	- fix the loading of several DigiBooster Pro modules with large
+	  sample chunks
+	- fix IT bug where Cxx on same row as SBx would not be ignored
+	- fix IT bug where Qxy would ignore the volume parameter
 	- make it possible to disable module depacker functionality
 	Changes by viiri:
 	- fix samples corruption in STM modules
+	- support more versions of STM modules
 	Changes by Ozkan Sezer:
+	- xmp_get_format_list() now returns const char* const*, not char**
+	  (no ABI change)
+	- xmp_test_module, xmp_load_module, xmp_set_instrument_path and
+	  xmp_smix_load_sample() now accept const char* path parameters
+	  (no ABI change)
 	- explicitly document that callers of xmp_load_module_from_file()
 	  are responsible for closing their own file.
 	- remove nonportable use of fdopen in xmp_load_module_from_file()
@@ -30,10 +45,17 @@ Stable versions
 	- fix warnings in configure script
 	- fix Watcom C build on OS/2
 	- fix Amiga build
+	- several code clean-ups
 	Changes by Carsten Teibes:
 	- fix lite build mod loader symbols
 	Changes by NoSuck:
-	- fix IT message length
+	- add new xmp_set_row() call to skip replay to the given row
+	- IT: T00 now repeats previous slide
+	- prevent clobbering of muted channels' volumes in IT modules
+	- clamp number of IT envelope nodes at load time
+	- fix IT message (comment) length miscalculation
+	- fix IT volume panning effect
+	- fix mute status on player creation
 	Changes by Cameron Cawley:
 	- fix sanity check in Digital Symphony loader
 	Fix problems reported by Ralf Hoffmann:
@@ -53,8 +75,9 @@ Stable versions
 	Other changes:
 	- fix double free in case of ADPCM sample load error
 	- code refactoring and cleanup
-	- accept WUZAMOD! Scream Tracker 2 modules
-	- add call to set the replay tempo multiplier
+	- add new xmp_set_tempo_factor() call to set the replay tempo
+	  multiplier
+	- fix loading xm instruments with more than 16 samples
 
 4.4.1 (20161012):
 	Fix issues reported by Saga Musix:
