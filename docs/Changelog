@@ -51,7 +51,6 @@ Stable versions
 	Changes by NoSuck:
 	- add new xmp_set_row() call to skip replay to the given row
 	- IT: T00 now repeats previous slide
-	- fix IT message length
 	- prevent clobbering of muted channels' volumes in IT modules
 	- clamp number of IT envelope nodes at load time
 	- fix IT message (comment) length miscalculation
