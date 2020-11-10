@@ -17,6 +17,8 @@ Stable versions
 	- allow up to 512 rows in X-Tracker patterns
 	- fix the loading of several DigiBooster Pro modules with large
 	  sample chunks
+	- fix IT bug where Cxx on same row as SBx would not be ignored
+	- fix IT bug where Qxy would ignore the volume parameter
 	- make it possible to disable module depacker functionality
 	Changes by viiri:
 	- fix samples corruption in STM modules
@@ -47,7 +49,14 @@ Stable versions
 	Changes by Carsten Teibes:
 	- fix lite build mod loader symbols
 	Changes by NoSuck:
+	- add new xmp_set_row() call to skip replay to the given row
+	- IT: T00 now repeats previous slide
 	- fix IT message length
+	- prevent clobbering of muted channels' volumes in IT modules
+	- clamp number of IT envelope nodes at load time
+	- fix IT message (comment) length miscalculation
+	- fix IT volume panning effect
+	- fix mute status on player creation
 	Changes by Cameron Cawley:
 	- fix sanity check in Digital Symphony loader
 	Fix problems reported by Ralf Hoffmann:
@@ -67,7 +76,8 @@ Stable versions
 	Other changes:
 	- fix double free in case of ADPCM sample load error
 	- code refactoring and cleanup
-	- add call to set the replay tempo multiplier
+	- add new xmp_set_tempo_factor() call to set the replay tempo
+	  multiplier
 	- fix loading xm instruments with more than 16 samples
 
 4.4.1 (20161012):
