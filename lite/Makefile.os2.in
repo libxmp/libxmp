@@ -34,7 +34,7 @@ CFLAGS+= $(DLLFLAGS)
 BLD_TARGET=$(DLLNAME)
 !endif
 
-OBJ=@OBJS@
+OBJS=@OBJS@
 
 #.SUFFIXES: .obj .c
 
@@ -45,15 +45,15 @@ OBJ=@OBJS@
 all: $(BLD_TARGET)
 
 # rely on symbol name, not ordinal: -irn switch of wlib is default, but -inn is not.
-$(DLLNAME): $(OBJ)
-	wlink NAM $@ SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE OP QUIET FIL {$(OBJ)} OPTION IMPF=$(EXPNAME)
+$(DLLNAME): $(OBJS)
+	wlink NAM $@ SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE OP QUIET FIL {$(OBJS)} OPTION IMPF=$(EXPNAME)
 	wlib -q -b -n -c -pa -s -t -zld -ii -io -inn $(LIBNAME) +$(DLLNAME)
 
-$(LIBSTATIC): $(OBJ)
-	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(OBJ)
+$(LIBSTATIC): $(OBJS)
+	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(OBJS)
 
 clean: .symbolic
-	rm -f $(OBJ)
+	rm -f $(OBJS)
 
 distclean: clean .symbolic
 	rm -f $(DLLNAME) $(EXPNAME) $(LIBNAME) $(LIBSTATIC)

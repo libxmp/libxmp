@@ -193,11 +193,11 @@ dist-prepare:
 
 vc-prepare:
 	@echo Generate Makefile.vc
-	@sed -e 's!@OBJS@!$(subst /,\\,$(OBJS:.o=.obj))!' -e 's!@DEPACKER_OBJS@!$(subst /,\\,$(DEPACKER_OBJS:.o=.obj))!' Makefile.vc.in > Makefile.vc
+	@sed -e 's!@OBJS@!$(subst /,\\,$(OBJS:.o=.obj))!' -e 's!@DOBJS@!$(subst /,\\,$(DEPACKER_OBJS:.o=.obj))!' Makefile.vc.in > Makefile.vc
 
 os2-prepare:
 	@echo Generate Makefile.os2
-	@sed -e 's!@OBJS@!$(OBJS:.o=.obj)!' -e 's!@DEPACKER_OBJS@!$(DEPACKER_OBJS:.o=.obj)!' Makefile.os2.in > Makefile.os2
+	@sed -e 's!@OBJS@!$(OBJS:.o=.obj)!' -e 's!@DOBJS@!$(DEPACKER_OBJS:.o=.obj)!' Makefile.os2.in > Makefile.os2
 
 dist-subdirs: $(addprefix dist-,$(DDIRS))
 	chmod -R u+w $(DIST)/*
