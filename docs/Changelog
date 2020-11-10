@@ -10,10 +10,23 @@ Stable versions
 	- fix S3M ADPCM4 samples
 	- fix OctaMED 'tracker compatibility' tempos
 	- ignore MED volume/slide effects with param of 0, fix speed bound.
+	- improve MOD loader checks for Mod's Grave WOW files
+	- fix Schism Tracker version date calculation
+	- fix MED modules with pattern lengths > 256
+	- fix MED instrument corruption
+	- allow up to 512 rows in X-Tracker patterns
+	- fix the loading of several DigiBooster Pro modules with large
+	  sample chunks
 	- make it possible to disable module depacker functionality
 	Changes by viiri:
 	- fix samples corruption in STM modules
+	- support more versions of STM modules
 	Changes by Ozkan Sezer:
+	- xmp_get_format_list() now returns const char* const*, not char**
+	  (no ABI change)
+	- xmp_test_module, xmp_load_module, xmp_set_instrument_path and
+	  xmp_smix_load_sample() now accept const char* path parameters
+	  (no ABI change)
 	- explicitly document that callers of xmp_load_module_from_file()
 	  are responsible for closing their own file.
 	- remove nonportable use of fdopen in xmp_load_module_from_file()
@@ -30,6 +43,7 @@ Stable versions
 	- fix warnings in configure script
 	- fix Watcom C build on OS/2
 	- fix Amiga build
+	- several code clean-ups
 	Changes by Carsten Teibes:
 	- fix lite build mod loader symbols
 	Changes by NoSuck:
@@ -53,8 +67,8 @@ Stable versions
 	Other changes:
 	- fix double free in case of ADPCM sample load error
 	- code refactoring and cleanup
-	- accept WUZAMOD! Scream Tracker 2 modules
 	- add call to set the replay tempo multiplier
+	- fix loading xm instruments with more than 16 samples
 
 4.4.1 (20161012):
 	Fix issues reported by Saga Musix:

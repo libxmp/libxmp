@@ -1,6 +1,35 @@
 Stable versions
 ---------------
 
+4.5.0 ():
+	- make xmp_set_position() consistently clear pattern break/jump vars
+	- xmp_get_format_list() now returns const char* const*, not char**
+	  (no ABI change)
+	- xmp_test_module, xmp_load_module, xmp_set_instrument_path and
+	  xmp_smix_load_sample() now accept const char* path parameters
+	  (no ABI change)
+	- explicitly document that callers of xmp_load_module_from_file()
+	  are responsible for closing their own file.
+	- remove nonportable use of fdopen in xmp_load_module_from_file()
+	- fix a seek issue with xmp_load_module_from_memory
+	- fix memory-io functions' error handling
+	- fix lite build mod loader symbols
+	- fix IT message length
+	- fix loading of XMLiTE XM modules
+	- handle XM 16-bit samples with odd in-file data
+	- fix smix sample allocation
+	- force reset of buffer state on player start
+	- code refactoring and cleanup
+	- add call to set the replay tempo multiplier
+	- fix loading xm instruments with more than 16 samples
+	- fix windows static library builds
+	- fix build with C89 compilers
+	- fix issues related to visibility attributes
+	- fix compatibility with old gcc, mingw, djgpp
+	- fix warnings in configure script
+	- fix Watcom C build on OS/2
+	- fix Amiga build
+
 4.4.1 (20161012):
 	- fix MacOS Tiger build issues (reported by Misty De Meo)
 	- fix sample loop corner case (reported by knight-ryu12)
