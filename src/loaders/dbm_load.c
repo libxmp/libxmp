@@ -321,21 +321,34 @@ static int get_smpl(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 static int get_venv(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
-	int i, j, nenv, ins;
+	int i, j, nenv, ins, flg, npt, sus, lps, lpe;
 
 	nenv = hio_read16b(f);
 
 	D_(D_INFO "Vol envelopes  : %d ", nenv);
 
 	for (i = 0; i < nenv; i++) {
-		ins = hio_read16b(f) - 1;
-		mod->xxi[ins].aei.flg = hio_read8(f) & 0x07;
-		mod->xxi[ins].aei.npt = hio_read8(f);
-		mod->xxi[ins].aei.sus = hio_read8(f);
-		mod->xxi[ins].aei.lps = hio_read8(f);
-		mod->xxi[ins].aei.lpe = hio_read8(f);
+		ins = hio_read16b(f);
+		flg = hio_read8(f) & 0x07;
+		npt = hio_read8(f);
+		sus = hio_read8(f);
+		lps = hio_read8(f);
+		lpe = hio_read8(f);
 		hio_read8(f);	/* 2nd sustain */
 		//hio_read8(f);	/* reserved */
+
+		ins--;
+		npt++; /* DBM stores the number of sections, not the number of points. */
+
+		/* Sanity check */
+		if (ins < 0 || ins >= mod->ins || npt > 32 || sus >= 32 || lps >= 32 || lpe >= 32)
+			return -1;
+
+		mod->xxi[ins].aei.flg = flg;
+		mod->xxi[ins].aei.npt = npt;
+		mod->xxi[ins].aei.sus = sus;
+		mod->xxi[ins].aei.lps = lps;
+		mod->xxi[ins].aei.lpe = lpe;
 
 		for (j = 0; j < 32; j++) {
 			mod->xxi[ins].aei.data[j * 2 + 0] = hio_read16b(f);
