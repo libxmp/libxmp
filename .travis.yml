@@ -39,15 +39,28 @@ matrix:
             - gcc-mingw-w64-x86-64
             - gcc-mingw-w64
 
-    - os: linux
-      dist: focal
-      compiler: clang
-      env: CFLAGS="-fsanitize=address" LDFLAGS="-fsanitize=address"
-      script: autoconf && ./configure && make && make check && (cd test-dev; autoconf && ./configure && make)
+    # windows with visual studio 2017
 
-    - os: linux
-      dist: focal
-      compiler: clang
-      env: CFLAGS="-fsanitize=memory" LDFLAGS="-fsanitize=memory"
-      script: autoconf && ./configure && make && make check && (cd test-dev; autoconf && ./configure && make)
+    - os: windows
+      language: c
+      compiler: cl
+      script:
+        - export PATH="C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\Current\Bin":$PATH
+        - nmake -f Makefile.vc
+        - nmake -f Makefile.vc check
+
+#
+#    #  no need to add LD_PRELOAD=$(clang -print-file-name=libclang_rt.asan-x86_64.so) ?
+
+#    - os: linux
+#      dist: focal
+#      compiler: clang
+#      env: CFLAGS="-fsanitize=address" LDFLAGS="-fsanitize=address"
+#      script: autoconf && ./configure && make && make check && (cd test-dev; autoconf && ./configure && make)
+#
+#    - os: linux
+#      dist: focal
+#      compiler: clang
+#      env: CFLAGS="-fsanitize=memory" LDFLAGS="-fsanitize=memory"
+#      script: autoconf && ./configure && make && make check && (cd test-dev; autoconf && ./configure && make)
 
