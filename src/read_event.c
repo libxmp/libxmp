@@ -464,7 +464,9 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 			/* No note */
 			if (sub != NULL) {
 				int p = mod->xxc[chn].pan - 128;
-				xc->volume = sub->vol;
+				if (key != XMP_KEY_FADE) {
+					xc->volume = sub->vol;
+				}
 
 				if (!HAS_QUIRK(QUIRK_FTMOD)) {
 					xc->pan.val = p + ((sub->pan - 128) *
@@ -481,11 +483,19 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 	if (ev.ins) {
 		SET(NEW_INS);
 		use_ins_vol = 1;
-		xc->fadeout = 0x10000;
 		xc->per_flags = 0;
+
 		RESET_NOTE(NOTE_RELEASE|NOTE_SUSEXIT);
 		if (!k00) {
 			RESET_NOTE(NOTE_FADEOUT);
+		}
+
+		/* Don't reset the fade counter if XM keyoff is used.
+		 * Fixes xyce-dans_la_rue.xm chn 0 patterns 0E/0F, see
+		 * https://github.com/libxmp/libxmp/issues/152 for details.
+		 */
+		if (key != XMP_KEY_FADE) {
+			xc->fadeout = 0x10000;
 		}
 
 		if (IS_VALID_INSTRUMENT(ins - 1)) {
