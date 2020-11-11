@@ -258,6 +258,56 @@ int libxmp_test_name(uint8 *s, int n)
 	return 0;
 }
 
+int libxmp_copy_name_for_fopen(char *dest, const char *name, int n)
+{
+	int converted_colon = 0;
+	int i;
+
+	/* libxmp_copy_adjust, but make sure the filename won't do anything
+	 * malicious when given to fopen. This should only be used on song files.
+	 */
+	if (!strcmp(name, ".") || strstr(name, "..") ||
+	    name[0] == '\\' || name[0] == '/' || name[0] == ':')
+		return -1;
+
+
+	for (i = 0; i < n - 1; i++) {
+		uint8 t = name[i];
+		if (!t)
+			break;
+
+		/* Reject non-ASCII symbols as they have poorly defined behavior.
+		 */
+		if (t < 32 || t >= 0x7f)
+			return -1;
+
+		/* Reject anything resembling a Windows-style root path. Allow
+		 * converting a single : to / so things like ST-01:samplename
+		 * work. (Leave the : as-is on Amiga.)
+		 */
+		if (i > 0 && t == ':' && !converted_colon) {
+			uint8 t2 = name[i + 1];
+			if (!t2 || t2 == '/' || t2 == '\\')
+				return -1;
+
+			converted_colon = 1;
+#ifndef LIBXMP_AMIGA
+			dest[i] = '/';
+			continue;
+#endif
+		}
+
+		if (dest[i] == '\\') {
+			dest[i] = '/';
+			continue;
+		}
+
+		dest[i] = t;
+	}
+	dest[i] = '\0';
+	return 0;
+}
+
 /*
  * Honor Noisetracker effects:
  *

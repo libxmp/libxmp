@@ -37,6 +37,7 @@ char	*libxmp_instrument_name		(struct xmp_module *, int, uint8 *, int);
 struct xmp_sample* libxmp_realloc_samples(struct xmp_sample *, int *, int);
 
 char	*libxmp_copy_adjust		(char *, uint8 *, int);
+int	libxmp_copy_name_for_fopen	(char *, const char *, int);
 int	libxmp_test_name		(uint8 *, int);
 void	libxmp_read_title		(HIO_HANDLE *, char *, int);
 void	libxmp_set_xxh_defaults		(struct xmp_module *);

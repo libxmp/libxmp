@@ -392,8 +392,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
     struct xmp_event *event;
     struct mod_header mh;
     uint8 mod_event[4];
-    char pathname[PATH_MAX] = "";
-    const char *x, *tracker = "";
+    const char *tracker = "";
     int detected = 0;
     char magic[8], idbuffer[32];
     int ptkloop = 0;			/* Protracker loop */
@@ -753,9 +752,6 @@ skip_test:
 
     /* Load samples */
 
-    if (m->filename && (x = strrchr(m->filename, '/')) != NULL)
-	strncpy(pathname, m->filename, x - m->filename);
-
     D_(D_INFO "Stored samples: %d", mod->smp);
 
     for (i = 0; i < mod->smp; i++) {
@@ -768,9 +764,18 @@ skip_test:
 
 	if (ptsong) {
 	    HIO_HANDLE *s;
-	    char sn[256];
-	    snprintf(sn, XMP_NAME_SIZE, "%s%s", pathname, mod->xxi[i].name);
-	
+	    char sn[PATH_MAX];
+	    char tmpname[32];
+	    const char *instname = mod->xxi[i].name;
+
+	    if (!instname[0] || !m->dirname)
+		continue;
+
+	    if (libxmp_copy_name_for_fopen(tmpname, instname, 32))
+		continue;
+
+	    snprintf(sn, PATH_MAX, "%s%s", m->dirname, tmpname);
+
 	    if ((s = hio_open(sn, "rb")) != NULL) {
 	        if (libxmp_load_sample(m, s, flags, &mod->xxs[i], NULL) < 0) {
 		    hio_close(s);

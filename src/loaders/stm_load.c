@@ -20,11 +20,7 @@
  * THE SOFTWARE.
  */
 
-#ifdef __native_client__
-#include <sys/syslimits.h>
-#else
 #include <limits.h>
-#endif
 #include "loader.h"
 #include "period.h"
 
@@ -91,10 +87,13 @@ const struct format_loader libxmp_loader_stm = {
 
 static int stm_test(HIO_HANDLE * f, char *t, const int start)
 {
-	char buf[8];
+	uint8 buf[8];
 
 	hio_seek(f, start + 20, SEEK_SET);
 	if (hio_read(buf, 1, 8, f) < 8)
+		return -1;
+
+	if (libxmp_test_name(buf, 8))	/* Tracker name should be ASCII */
 		return -1;
 
 	if (hio_read8(f) != 0x1a)
@@ -153,8 +152,6 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	uint8 b;
 	uint16 version;
 	int i, j;
-	char pathname[PATH_MAX] = "";
-	const char *x;
 
 	LOAD_INIT();
 
@@ -352,30 +349,37 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	/* Read samples */
 	D_(D_INFO "Stored samples: %d", mod->smp);
 
-    	if (m->filename && (x = strrchr(m->filename, '/')))
-	    strncpy(pathname, m->filename, x - m->filename);
-
 	for (i = 0; i < mod->ins; i++) {
-		if (sfh.ins[i].volume && sfh.ins[i].length) {
-			if (sfh.type == STM_TYPE_SONG) {
-			    HIO_HANDLE *s;
-			    char sn[256];
-			    snprintf(sn, XMP_NAME_SIZE, "%s%s", pathname, mod->xxi[i].name);
-	
-			    if ((s = hio_open(sn, "rb"))) {
-			        if (libxmp_load_sample(m, s, SAMPLE_FLAG_UNS, &mod->xxs[i], NULL) < 0) {
-				    hio_close(s);
-				    return -1;
+		if (!sfh.ins[i].volume || !sfh.ins[i].length) {
+			mod->xxi[i].nsm = 0;
+			continue;
+		}
+
+		if (sfh.type == STM_TYPE_SONG) {
+			HIO_HANDLE *s;
+			char sn[PATH_MAX];
+			char tmpname[32];
+			const char *instname = mod->xxi[i].name;
+
+			if (!instname[0] || !m->dirname)
+				continue;
+
+			if (libxmp_copy_name_for_fopen(tmpname, instname, 32))
+				continue;
+
+			snprintf(sn, PATH_MAX, "%s%s", m->dirname, tmpname);
+
+			if ((s = hio_open(sn, "rb"))) {
+				if (libxmp_load_sample(m, s, SAMPLE_FLAG_UNS, &mod->xxs[i], NULL) < 0) {
+					hio_close(s);
+					return -1;
 				}
 				hio_close(s);
-		    	    }
-			} else {
-				hio_seek(f, start + (sfh.ins[i].rsvd1 << 4), SEEK_SET);
-				if (libxmp_load_sample(m, f, 0, &mod->xxs[i], NULL) < 0)
-				    return -1;
 			}
 		} else {
-			mod->xxi[i].nsm = 0;
+			hio_seek(f, start + (sfh.ins[i].rsvd1 << 4), SEEK_SET);
+			if (libxmp_load_sample(m, f, 0, &mod->xxs[i], NULL) < 0)
+				return -1;
 		}
 	}
 
