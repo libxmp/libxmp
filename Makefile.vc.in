@@ -3,7 +3,7 @@
 USE_DEPACKERS	= 1
 
 CC	= cl
-CFLAGS	= /O2 /Iinclude /Isrc /Isrc\win32 /DBUILDING_DLL /DWIN32 \
+CFLAGS	= /O2 /W3 /Iinclude /Isrc /Isrc\win32 /DBUILDING_DLL /DWIN32 \
 	  /Dinline=__inline /DPATH_MAX=1024 /D_USE_MATH_DEFINES
 LD	= link
 LDFLAGS	= /DLL /RELEASE /OUT:$(DLL)
@@ -23,7 +23,7 @@ ALL_OBJS	= $(ALL_OBJS) $(DEPACKER_OBJS)
 TEST	= test\md5.obj test\test.obj
 
 .c.obj:
-	$(CC) /c $(CFLAGS) /Fo$*.obj $<
+	@$(CC) /c /nologo $(CFLAGS) /Fo$*.obj $<
 
 all: $(DLL)
 
