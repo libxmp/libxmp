@@ -44,9 +44,9 @@ dist-makefile:
 
 dist-dist:
 	(cd  $(DIST); autoconf; ./configure)
-	$(MAKE) -C $(DIST) dist distcheck || false
+	$(MAKE) -C $(DIST) dist distcheck
 
 check-no-it:
 	(cd  $(DIST); autoconf; ./configure --disable-it)
-	$(MAKE) -C $(DIST) || false
+	$(MAKE) -C $(DIST)
 

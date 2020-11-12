@@ -16,14 +16,14 @@ jobs:
           autoconf
           ./configure
       - name: Create distribution package
-        run: make dist
+        run: make dist DIST="libxmp-$(git rev-parse --short HEAD)"
       - name: Test distribution package
-        run: make distcheck
+        run: make distcheck DIST="libxmp-$(git rev-parse --short HEAD)"
       - name: Create lite package
-        run: make -f Makefile.lite
+        run: make -f Makefile.lite DIST="libxmp-lite-$(git rev-parse --short HEAD)"
       - name: Archive dist packages
         uses: actions/upload-artifact@v2
         with:
-          name: dist-package
+          name: dist-packages
           path: |
             libxmp-*.tar.gz
