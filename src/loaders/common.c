@@ -297,7 +297,7 @@ int libxmp_copy_name_for_fopen(char *dest, const char *name, int n)
 #endif
 		}
 
-		if (dest[i] == '\\') {
+		if (t == '\\') {
 			dest[i] = '/';
 			continue;
 		}
