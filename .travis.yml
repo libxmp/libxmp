@@ -39,19 +39,25 @@ matrix:
             - gcc-mingw-w64-x86-64
             - gcc-mingw-w64
 
-    # windows with visual studio 2017
+    # windows with visual studio 2017, x86 and x64
 
     - os: windows
       language: c
       compiler: cl
       script:
-        - export PATH="C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\Current\Bin":$PATH
-        - nmake -f Makefile.vc
-        - nmake -f Makefile.vc check
+        - cmd.exe //C 'C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvarsall.bat' x86 '&&' nmake -f Makefile.vc
+        - cmd.exe //C 'C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvarsall.bat' x86 '&&' nmake -f Makefile.vc check
 
+    - os: windows
+      language: c
+      compiler: cl
+      script:
+        - cmd.exe //C 'C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvarsall.bat' amd64 '&&' nmake -f Makefile.vc
+        - cmd.exe //C 'C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvarsall.bat' amd64 '&&' nmake -f Makefile.vc check
+
+# FIXME: temporarily disabled
+# no need to add LD_PRELOAD=$(clang -print-file-name=libclang_rt.asan-x86_64.so) ?
 #
-#    #  no need to add LD_PRELOAD=$(clang -print-file-name=libclang_rt.asan-x86_64.so) ?
-
 #    - os: linux
 #      dist: focal
 #      compiler: clang
