@@ -1,0 +1,23 @@
+name: Regression tests (focal)
+
+on:
+  # Only run on pull requests: not pushes
+  pull_request:
+    branches: [ "master", "release/**" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Create and run configure script
+        run: |
+          autoconf
+          ./configure
+      - name: Build library
+        run: make
+      - name: Run quick test
+        run: make check 
+      - name: Run regression tests
+        run: make devcheck

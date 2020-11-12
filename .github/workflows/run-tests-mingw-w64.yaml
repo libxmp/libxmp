@@ -1,0 +1,22 @@
+name: Regression tests (mingw)
+
+on:
+  # Only run on pull requests: not pushes
+  pull_request:
+    branches: [ "master", "release/**" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          sudo apt install gcc-mingw-w64-base binutils-mingw-w64-x86-64 gcc-mingw-w64 gcc-mingw-w64-x86-64
+      - name: Create and run configure script
+        run: |
+          autoconf
+          ./configure --host=x86_64-w64-mingw32
+      - name: Build library
+        run: make
