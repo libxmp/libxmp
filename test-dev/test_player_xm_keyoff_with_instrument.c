@@ -40,10 +40,10 @@ TEST(test_player_xm_keyoff_with_instrument)
 
  	create_simple_module(ctx, 2, 2);
 	set_instrument_volume(ctx, 0, 0, 64);
-	set_instrument_fadeout(ctx, 0, 1180);
+	set_instrument_fadeout(ctx, 0, 0x400);
 	new_event(ctx, 0, 0, 0, 60, 1, 0, FX_SPEED, 2, 0, 0);
-	new_event(ctx, 0, 1, 0, 0, 0, 0, FX_VOLSLIDE, 4, 0, 0);
-	new_event(ctx, 0, 2, 0, 0, 0, 0, FX_VOLSLIDE, 4, 0, 0);
+	new_event(ctx, 0, 1, 0, 0, 0, 0, FX_VOLSLIDE, 8, 0, 0);
+	new_event(ctx, 0, 2, 0, 0, 0, 0, FX_VOLSLIDE, 8, 0, 0);
 	new_event(ctx, 0, 3, 0, XMP_KEY_FADE, 1, 0, 0, 0, 0, 0);
 	new_event(ctx, 0, 40, 0, XMP_KEY_FADE, 1, 0, 0, 0, 0, 0);
 	set_quirk(ctx, QUIRKS_FT2, READ_EVENT_FT2);
@@ -66,19 +66,19 @@ TEST(test_player_xm_keyoff_with_instrument)
 	/* Row 2 */
 	xmp_play_frame(opaque);
 	xmp_get_frame_info(opaque, &fi);
-	fail_unless(fi.channel_info[0].volume == 60, "volume");
+	fail_unless(fi.channel_info[0].volume == 56, "volume");
 	xmp_play_frame(opaque);
 
-	/* Row 3: keyoff */
+	/* Row 3: keyoff with instrument */
 	xmp_play_frame(opaque);
 	xmp_get_frame_info(opaque, &fi);
 	fail_unless(fi.channel_info[0].note == 59, "set note");
-	fail_unless(fi.channel_info[0].volume == 54, "volume");
+	fail_unless(fi.channel_info[0].volume == 63, "volume");
 	xmp_play_frame(opaque);
 
 	/* Rows 4 - 63: fadeout continues */
 	for (i = 5; i < 64; i++) {
-		int vol = 54 - (i - 5) * 2;
+		int vol = 63 - (i - 5) * 2;
 		xmp_play_frame(opaque);
 		fail_unless(fi.channel_info[0].volume == (vol > 0 ? vol : 0) , "volume");
 		xmp_get_frame_info(opaque, &fi);

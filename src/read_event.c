@@ -464,9 +464,7 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 			/* No note */
 			if (sub != NULL) {
 				int p = mod->xxc[chn].pan - 128;
-				if (key != XMP_KEY_FADE) {
-					xc->volume = sub->vol;
-				}
+				xc->volume = sub->vol;
 
 				if (!HAS_QUIRK(QUIRK_FTMOD)) {
 					xc->pan.val = p + ((sub->pan - 128) *
