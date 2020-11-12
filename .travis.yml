@@ -41,13 +41,13 @@ matrix:
 
     - os: linux
       dist: focal
-      compiler: clang
+      compiler: gcc
       env: CFLAGS="-fsanitize=address" LDFLAGS="-fsanitize=address"
       script: autoconf && ./configure && make && make check && (cd test-dev; autoconf && ./configure && make)
 
     - os: linux
       dist: focal
-      compiler: clang
+      compiler: gcc
       env: CFLAGS="-fsanitize=memory" LDFLAGS="-fsanitize=memory"
       script: autoconf && ./configure && make && make check && (cd test-dev; autoconf && ./configure && make)
 
