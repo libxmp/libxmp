@@ -39,16 +39,15 @@ matrix:
             - gcc-mingw-w64-x86-64
             - gcc-mingw-w64
 
-    # FIXME:
-    #- os: linux
-    #  dist: focal
-    #  compiler: clang
-    #  env: CFLAGS="-fsanitize=address" LD_LIBRARY_PATH=$(clang -print-file-name=libclang_rt.asan-x86_64.so) 
-    #  script: autoconf && ./configure && make && make check && (cd test-dev; autoconf && ./configure && make)
+    - os: linux
+      dist: focal
+      compiler: clang
+      env: CFLAGS="-fsanitize=address" LDFLAGS="-fsanitize=address"
+      script: autoconf && ./configure && make && make check && (cd test-dev; autoconf && ./configure && make)
 
-    #- os: linux
-    #  dist: focal
-    #  compiler: clang
-    #  env: CFLAGS="-fsanitize=memory"
-    #  script: autoconf && ./configure && make && make check && (cd test-dev; autoconf && ./configure && make)
+    - os: linux
+      dist: focal
+      compiler: clang
+      env: CFLAGS="-fsanitize=memory" LDFLAGS="-fsanitize=memory"
+      script: autoconf && ./configure && make && make check && (cd test-dev; autoconf && ./configure && make)
 
