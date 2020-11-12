@@ -54,6 +54,16 @@ cygwin* | *djgpp | mint* | amigaos* |aros* | morphos*)
   ;;
 esac
 
+case "${host_os}" in
+dnl Skip this on platforms where it is just simply busted.
+openbsd*) ;;
+ darwin*) LDFLAGS="$LDFLAGS -Wl,-undefined,error" ;;
+       *) save_LDFLAGS="$LDFLAGS"
+          LDFLAGS="$LDFLAGS -Wl,--no-undefined"
+          AC_TRY_LINK([],[],[],[LDFLAGS="$save_LDFLAGS"])
+          ;;
+esac
+
 if test "${enable_static}" = yes; then
   AC_SUBST(STATIC,static)
 fi
