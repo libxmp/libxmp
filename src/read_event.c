@@ -477,16 +477,22 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 		}
 	}
 
-	/* Do this regardless if the instrument is invalid or not */
-	if (ev.ins) {
+	/* Do this regardless if the instrument is invalid or not -- unless
+	 * XM keyoff is used. Fixes xyce-dans_la_rue.xm chn 0 patterns 0E/0F and
+	 * chn 10 patterns 0D/0E, see https://github.com/libxmp/libxmp/issues/152
+	 * for details.
+         */
+	if (ev.ins && key != XMP_KEY_FADE) {
 		SET(NEW_INS);
 		use_ins_vol = 1;
-		xc->fadeout = 0x10000;
 		xc->per_flags = 0;
+
 		RESET_NOTE(NOTE_RELEASE|NOTE_SUSEXIT);
 		if (!k00) {
 			RESET_NOTE(NOTE_FADEOUT);
 		}
+
+		xc->fadeout = 0x10000;
 
 		if (IS_VALID_INSTRUMENT(ins - 1)) {
 			if (!is_toneporta)
