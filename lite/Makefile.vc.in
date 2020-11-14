@@ -1,5 +1,5 @@
 CC	= cl
-CFLAGS	= /O2 /Iinclude\libxmp-lite /Isrc /DBUILDING_DLL /DWIN32 \
+CFLAGS	= /O2 /W3 /Iinclude\libxmp-lite /Isrc /DBUILDING_DLL /DWIN32 \
           /Dinline=__inline /D_USE_MATH_DEFINES /DLIBXMP_CORE_PLAYER /DLIBXMP_NO_DEPACKERS
 LD	= link
 LDFLAGS	= /DLL /RELEASE /OUT:$(DLL)
@@ -10,7 +10,7 @@ OBJS	= @OBJS@
 TEST	= test\md5.obj test\test.obj
 
 .c.obj:
-	$(CC) /c $(CFLAGS) /Fo$*.obj $<
+	$(CC) /c /nologo $(CFLAGS) /Fo$*.obj $<
 
 all: $(DLL)
 
