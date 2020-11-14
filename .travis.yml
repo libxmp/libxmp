@@ -55,18 +55,16 @@ matrix:
         - cmd.exe //C 'C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvarsall.bat' amd64 '&&' nmake -f Makefile.vc
         - cmd.exe //C 'C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvarsall.bat' amd64 '&&' nmake -f Makefile.vc check
 
-# FIXME: temporarily disabled
-# no need to add LD_PRELOAD=$(clang -print-file-name=libclang_rt.asan-x86_64.so) ?
-#
-#    - os: linux
-#      dist: focal
-#      compiler: clang
-#      env: CFLAGS="-fsanitize=address" LDFLAGS="-fsanitize=address"
-#      script: autoconf && ./configure && make && make check && (cd test-dev; autoconf && ./configure && make)
-#
-#    - os: linux
-#      dist: focal
-#      compiler: clang
-#      env: CFLAGS="-fsanitize=memory" LDFLAGS="-fsanitize=memory"
-#      script: autoconf && ./configure && make && make check && (cd test-dev; autoconf && ./configure && make)
+    # clang sanitizers
 
+    - os: linux
+      dist: focal
+      compiler: clang
+      env: CFLAGS="-fsanitize=address" LDFLAGS="-fsanitize=address"
+      script: autoconf && ./configure && make && make check && (cd test-dev; autoconf && ./configure && make)
+
+    - os: linux
+      dist: focal
+      compiler: clang
+      env: CFLAGS="-fsanitize=memory" LDFLAGS="-fsanitize=memory"
+      script: autoconf && ./configure && make && make check && (cd test-dev; autoconf && ./configure && make)
