@@ -50,7 +50,7 @@ static int mmd_convert_tempo(int tempo, int bpm_on, int med_8ch)
 		195, 97, 65, 49, 39, 32, 28, 24, 22, 20
 	};
 	const int tempos_8ch[10] = {
-		47, 43, 40, 37, 35, 32, 30, 29, 27, 26
+		179, 164, 152, 141, 131, 123, 116, 110, 104, 99
 	};
 
 	if (tempo > 0) {
@@ -60,6 +60,11 @@ static int mmd_convert_tempo(int tempo, int bpm_on, int med_8ch)
 		 * accurately (to techies: by changing the size of the mix buffer).
 		 * This can be done with the left tempo gadget (values 1-10; the
 		 * lower, the faster). Values 11-240 are equivalent to 10.
+		 *
+		 * NOTE: the tempos used for this are directly from OctaMED
+		 * Soundstudio 2, but in older versions the playback speeds
+		 * differed slightly between NTSC and PAL. This table seems to
+		 * have been intended to be a compromise between the two.
 		 */
 		if (med_8ch) {
 			tempo = tempo > 10 ? 10 : tempo;
@@ -741,10 +746,12 @@ void mmd_set_bpm(struct module_data *m, int med_8ch, int deftempo,
 
 	mod->bpm = mmd_convert_tempo(deftempo, bpm_on, med_8ch);
 
-	/* 8-channel mode completely overrides BPM mode timing.
+	/* 8-channel mode completely overrides regular timing.
 	 * See mmd_convert_tempo for more info.
 	 */
-	if (bpm_on && !med_8ch) {
+	if (med_8ch) {
+		m->time_factor = DEFAULT_TIME_FACTOR;
+	} else if (bpm_on) {
 		m->time_factor = DEFAULT_TIME_FACTOR * 4 / bpmlen;
 	}
 }
