@@ -383,6 +383,7 @@ static int dbm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		return -1;
 
 	m->c4rate = C4_NTSC_RATE;
+	m->quirk |= QUIRK_FINEFX;
 
 	/* IFF chunk IDs */
 	ret = libxmp_iff_register(handle, "INFO", get_info);
