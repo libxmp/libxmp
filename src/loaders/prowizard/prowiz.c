@@ -118,9 +118,7 @@ int pw_wizardry(HIO_HANDLE *file_in, FILE *file_out, const char **name)
 	}
 
 
-  /********************************************************************/
   /**************************   SEARCH   ******************************/
-  /********************************************************************/
 
 	for (i = 0; pw_formats[i] != NULL; i++) {
 		D_("checking format: %s", pw_formats[i]->name);
@@ -132,10 +130,7 @@ int pw_wizardry(HIO_HANDLE *file_in, FILE *file_out, const char **name)
 		goto err2;
 	}
 
-	if (hio_error(file_in)) {
-		/* reset error flag */
-	}
-
+	hio_error(file_in); /* reset error flag */
 	hio_seek(file_in, 0, SEEK_SET);
 	if (pw_formats[i]->depack(file_in, file_out) < 0) {
 		goto err2;

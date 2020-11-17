@@ -65,45 +65,45 @@ sound file::
     #include <stdio.h>
     #include <stdlib.h>
     #include <xmp.h>
-    
+
     int main(int argc, char **argv)
     {
         xmp_context c;
         struct xmp_frame_info mi;
         FILE *f;
-    
+
         /* The output raw file */
         f = fopen("out.raw", "wb");
         if (f == NULL) {
             fprintf(stderr, "can't open output file\n");
             exit(EXIT_FAILURE);
         }
-    
+
         /* Create the player context */
         c = xmp_create_context();
-    
+
         /* Load our module */
         if (xmp_load_module(c, argv[1]) != 0) {
             fprintf(stderr, "can't load module\n");
             exit(EXIT_FAILURE);
         }
-    
+
         /* Play the module */
         xmp_start_player(c, 44100, 0);
         while (xmp_play_frame(c) == 0) {
             xmp_get_frame_info(c, &mi);
-    
+
             if (mi.loop_count > 0)    /* exit before looping */
                 break;
-    
+
             fwrite(mi.buffer, mi.buffer_size, 1, f);  /* write audio data */
         }
         xmp_end_player(c);
         xmp_release_module(c);        /* unload module */
         xmp_free_context(c);          /* destroy the player context */
-    
+
         fclose(f);
-    
+
         exit(EXIT_SUCCESS);
     }
 
@@ -177,7 +177,7 @@ data. The module will play when ``SDL_PauseAudio(0)`` is called::
 
     int main(int argc, char **argv)
     {
-	xmp_context ctx;
+        xmp_context ctx;
 
         if ((ctx = xmp_create_context()) == NULL)
                 return 1;
@@ -188,7 +188,7 @@ data. The module will play when ``SDL_PauseAudio(0)`` is called::
 
         SDL_PauseAudio(0);
 
-        sleep(10);              // Do something important here
+        sleep(10); /* Do something important here */
 
         SDL_PauseAudio(1);
 
@@ -279,10 +279,10 @@ int xmp_test_module(char \*path, struct xmp_test_info \*test_info)
 
   Test if a file is a valid module. Testing a file does not affect the
   current player context or any currently loaded module.
- 
+
   **Parameters:**
     :path: pathname of the module to test.
- 
+
     :test_info: NULL, or a pointer to a structure used to retrieve the
       module title and format if the file is a valid module.
       ``struct xmp_test_info`` is defined as::
@@ -291,7 +291,7 @@ int xmp_test_module(char \*path, struct xmp_test_info \*test_info)
             char name[XMP_NAME_SIZE];      /* Module title */
             char type[XMP_NAME_SIZE];      /* Module format */
         };
- 
+
   **Returns:**
     0 if the file is a valid module, or a negative error code
     in case of error. Error codes can be ``-XMP_ERROR_FORMAT`` in case of an
@@ -372,9 +372,9 @@ int xmp_load_module(xmp_context c, char \*path)
 
   **Parameters:**
     :c: the player context handle.
- 
+
     :path: pathname of the module to load.
- 
+
   **Returns:**
     0 if sucessful, or a negative error code in case of error.
     Error codes can be ``-XMP_ERROR_FORMAT`` in case of an unrecognized file
@@ -393,15 +393,15 @@ int xmp_load_module_from_memory(xmp_context c, void \*mem, long size)
 
   **Parameters:**
     :c: the player context handle.
- 
+
     :mem: a pointer to the module file image in memory. Multi-file modules
       or compressed modules can't be loaded from memory.
- 
+
     :size: the size of the module, or 0 if the size is unknown or not
       specified. If size is set to 0 certain module formats won't be
       recognized, the MD5 digest will not be set, and module-specific
       quirks won't be applied.
- 
+
   **Returns:**
     0 if sucessful, or a negative error code in case of error.
     Error codes can be ``-XMP_ERROR_FORMAT`` in case of an unrecognized file
@@ -419,7 +419,7 @@ int xmp_load_module_from_file(xmp_context c, FILE \*f, long size)
 
   **Parameters:**
     :c: the player context handle.
- 
+
     :f: the file stream. On return, the stream position is undefined.
       Caller is responsible for closing the file stream.
 
@@ -457,17 +457,17 @@ void xmp_scan_module(xmp_context c)
 
   **Parameters:**
     :c: the player context handle.
- 
+
 .. _xmp_get_module_info():
 
 void xmp_get_module_info(xmp_context c, struct xmp_module_info \*info)
 ``````````````````````````````````````````````````````````````````````
 
   Retrieve current module data.
- 
+
   **Parameters:**
     :c: the player context handle.
- 
+
     :info: pointer to structure containing the module data.
       ``struct xmp_module_info`` is defined as follows::
 
@@ -520,7 +520,7 @@ int xmp_start_player(xmp_context c, int rate, int format)
 
   **Parameters:**
     :c: the player context handle.
- 
+
     :rate: the sampling rate to use, in Hz (typically 44100). Valid values
        range from 8kHz to 48kHz.
 
@@ -545,7 +545,7 @@ int xmp_play_frame(xmp_context c)
 
   Play one frame of the module. Modules usually play at 50 frames per second.
   Use `xmp_get_frame_info()`_ to retrieve the buffer containing audio data.
- 
+
   **Parameters:**
     :c: the player context handle.
 
@@ -588,10 +588,10 @@ void xmp_get_frame_info(xmp_context c, struct xmp_frame_info \*info)
 ````````````````````````````````````````````````````````````````````
 
   Retrieve the current frame data.
- 
+
   **Parameters:**
     :c: the player context handle.
- 
+
     :info: pointer to structure containing current frame data.
       ``struct xmp_frame_info`` is defined as follows::
 
@@ -614,7 +614,7 @@ void xmp_get_frame_info(xmp_context c, struct xmp_frame_info \*info)
             int virt_channels;  /* Number of virtual channels */
             int virt_used;      /* Used virtual channels */
             int sequence;       /* Current sequence */
-        
+
             struct xmp_channel_info {     /* Current channel information */
                 unsigned int period;      /* Sample period */
                 unsigned int position;    /* Sample position */
@@ -633,14 +633,14 @@ void xmp_get_frame_info(xmp_context c, struct xmp_frame_info \*info)
       `xmp_play_frame()`_ is called. Fields ``buffer`` and ``buffer_size``
       contain the pointer to the sound buffer PCM data and its size. The
       buffer size will be no larger than ``XMP_MAX_FRAMESIZE``.
- 
+
 .. _xmp_end_player():
 
 void xmp_end_player(xmp_context c)
 ``````````````````````````````````
 
   End module replay and release player memory.
- 
+
   **Parameters:**
     :c: the player context handle.
 
@@ -657,10 +657,10 @@ int xmp_next_position(xmp_context c)
 ````````````````````````````````````
 
   Skip replay to the start of the next position.
- 
+
   **Parameters:**
     :c: the player context handle.
- 
+
   **Returns:**
     The new position index, or ``-XMP_ERROR_STATE`` if the player is not
     in playing state.
@@ -671,7 +671,7 @@ int xmp_prev_position(xmp_context c)
 ````````````````````````````````````
 
   Skip replay to the start of the previous position.
- 
+
   **Parameters:**
     :c: the player context handle.
 
@@ -685,12 +685,12 @@ int xmp_set_position(xmp_context c, int pos)
 ````````````````````````````````````````````
 
   Skip replay to the start of the given position.
- 
+
   **Parameters:**
     :c: the player context handle.
- 
+
     :pos: the position index to set.
- 
+
   **Returns:**
     The new position index, ``-XMP_ERROR_INVALID`` of the new position is
     invalid or ``-XMP_ERROR_STATE`` if the player is not in playing state.
@@ -717,7 +717,7 @@ void xmp_stop_module(xmp_context c)
 ```````````````````````````````````
 
   Stop the currently playing module.
- 
+
   **Parameters:**
     :c: the player context handle.
 
@@ -737,10 +737,10 @@ int xmp_seek_time(xmp_context c, int time)
 ``````````````````````````````````````````
 
   Skip replay to the specified time.
- 
+
   **Parameters:**
     :c: the player context handle.
- 
+
     :time: time to seek in milliseconds.
 
   **Returns:**
@@ -753,15 +753,15 @@ int xmp_channel_mute(xmp_context c, int chn, int status)
 ````````````````````````````````````````````````````````````
 
   Mute or unmute the specified channel.
- 
+
   **Parameters:**
     :c: the player context handle.
- 
+
     :chn: the channel to mute or unmute.
- 
+
     :status: 0 to mute channel, 1 to unmute or -1 to query the
       current channel status.
- 
+
   **Returns:**
     The previous channel status, or ``-XMP_ERROR_STATE`` if the player is not
     in playing state.
@@ -772,15 +772,15 @@ int xmp_channel_vol(xmp_context c, int chn, int vol)
 ````````````````````````````````````````````````````````
 
   Set or retrieve the volume of the specified channel.
- 
+
   **Parameters:**
     :c: the player context handle.
- 
+
     :chn: the channel to set or get volume.
- 
+
     :vol: a value from 0-100 to set the channel volume, or -1 to retrieve
       the current volume.
- 
+
   **Returns:**
     The previous channel volume, or ``-XMP_ERROR_STATE`` if the player is not
     in playing state.
@@ -831,9 +831,9 @@ int xmp_set_instrument_path(xmp_context c, char \*path)
 
   **Parameters:**
     :c: the player context handle.
- 
+
     :path: the path to retrieve instrument files.
- 
+
   **Returns:**
     0 if the instrument path was correctly set, or ``-XMP_ERROR_SYSTEM``
     in case of error (the system error code is set in ``errno``).
@@ -844,10 +844,10 @@ int xmp_get_player(xmp_context c, int param)
 ````````````````````````````````````````````
 
   Retrieve current value of the specified player parameter.
- 
+
   **Parameters:**
     :c: the player context handle.
- 
+
     :param: player parameter to get.
       Valid parameters are::
 
@@ -894,7 +894,7 @@ int xmp_set_player(xmp_context c, int param, int val)
 `````````````````````````````````````````````````````
 
   Set player parameter with the specified value.
- 
+
   **Parameters:**
     :param: player parameter to set.
       Valid parameters are::
@@ -915,7 +915,7 @@ int xmp_set_player(xmp_context c, int param, int val)
     :val: the value to set. Valid values depend on the parameter being set.
 
     **Valid values:**
- 
+
     * Amplification factor: ranges from 0 to 3. Default value is 1.
 
     * Stereo mixing: percentual left/right channel separation.  Default is 70.
@@ -932,7 +932,7 @@ int xmp_set_player(xmp_context c, int param, int val)
           XMP_DSP_ALL         /* All effects */
 
     * Player flags: tweakable player parameters. Valid flags are::
-        
+
           XMP_FLAGS_VBLANK    /* Use vblank timing */
           XMP_FLAGS_FX9BUG    /* Emulate Protracker 2.x FX9 bug */
           XMP_FLAGS_FIXLOOP   /* Make sample loop value / 2 */
@@ -944,7 +944,7 @@ int xmp_set_player(xmp_context c, int param, int val)
     * *[Added in libxmp 4.1]* Sample control: Valid values are::
 
           XMP_SMPCTL_SKIP     /* Don't load samples */
- 
+
     * Disabling sample loading when loading a module allows allows
       computation of module duration without decompressing and
       loading large sample data, and is useful when duration information
@@ -1063,20 +1063,20 @@ as background music, and plays the sample when a key is pressed::
     int main(int argc, char **argv)
     {
         SDL_Event event;
-	xmp_context ctx;
+        xmp_context ctx;
 
         if ((ctx = xmp_create_context()) == NULL)
                 return 1;
 
-	video_init();
+        video_init();
         sound_init(ctx, 44100, 2);
 
         xmp_start_smix(ctx, 1, 1);
-	xmp_smix_load_sample(ctx, 0, "blip.wav");
+        xmp_smix_load_sample(ctx, 0, "blip.wav");
 
         xmp_load_module(ctx, "music.mod");
         xmp_start_player(ctx, 44100, 0);
-	xmp_set_player(ctx, XMP_PLAYER_VOLUME, 40);
+        xmp_set_player(ctx, XMP_PLAYER_VOLUME, 40);
 
         SDL_PauseAudio(0);
 
@@ -1085,16 +1085,16 @@ as background music, and plays the sample when a key is pressed::
                 if (event.type == SDL_KEYDOWN) {
                     if (event.key.keysym.sym == SDLK_ESCAPE)
                         break;
-	            xmp_smix_play_sample(ctx, 0, 60, 64, 0);
+                    xmp_smix_play_sample(ctx, 0, 60, 64, 0);
                 }
-	    }
+            }
         }
 
         SDL_PauseAudio(1);
 
         xmp_end_player(ctx);
         xmp_release_module(ctx);
-	xmp_end_smix(ctx);
+        xmp_end_smix(ctx);
         xmp_free_context(ctx);
 
         SDL_CloseAudio();
@@ -1115,11 +1115,11 @@ int xmp_start_smix(xmp_context c, int nch, int nsmp)
 
   **Parameters:**
     :c: the player context handle.
- 
+
     :nch: number of reserved sound mixer channels (1 to 64).
- 
+
     :nsmp: number of external samples.
- 
+
   **Returns:**
     0 if the external sample mixer system was correctly initialized,
     ``-XMP_ERROR_INVALID`` in case of invalid parameters, ``-XMP_ERROR_STATE``
@@ -1136,7 +1136,7 @@ int xmp_smix_play_instrument(xmp_context c, int ins, int note, int vol, int chn)
 
   **Parameters:**
     :c: the player context handle.
- 
+
     :ins: the instrument to play.
 
     :note: the note number to play (60 = middle C).
@@ -1162,7 +1162,7 @@ int xmp_smix_play_sample(xmp_context c, int ins, int vol, int chn)
 
   **Parameters:**
     :c: the player context handle.
- 
+
     :ins: the sample to play.
 
     :vol: the volume to use (0 to the maximum volume value used by the
@@ -1184,7 +1184,7 @@ int xmp_smix_channel_pan(xmp_context c, int chn, int pan)
 
   **Parameters:**
     :c: the player context handle.
- 
+
     :chn: the reserved channel number.
 
     :pan: the pan value to set (0 to 255).
@@ -1203,7 +1203,7 @@ int xmp_smix_load_sample(xmp_context c, int num, char \*path)
 
   **Parameters:**
     :c: the player context handle.
- 
+
     :num: the slot number of the external sample to load.
 
     :path: pathname of the file to load.

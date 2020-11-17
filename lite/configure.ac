@@ -54,13 +54,20 @@ cygwin* | *djgpp | mint* | amigaos* |aros* | morphos*)
   ;;
 esac
 
+AC_CHECK_DEFINED(__clang__)
+
 case "${host_os}" in
 dnl Skip this on platforms where it is just simply busted.
 openbsd*) ;;
  darwin*) LDFLAGS="$LDFLAGS -Wl,-undefined,error" ;;
-       *) save_LDFLAGS="$LDFLAGS"
-          LDFLAGS="$LDFLAGS -Wl,--no-undefined"
-          AC_TRY_LINK([],[],[],[LDFLAGS="$save_LDFLAGS"])
+          dnl For whatever reason, the Clang sanitizers and --no-undefined for
+          dnl shared libraries are incompatible.
+       *) if test "$ac_cv_defined___clang__" = "no" || test "${LDFLAGS#*fsanitize}" = "$LDFLAGS"
+          then
+            save_LDFLAGS="$LDFLAGS"
+            LDFLAGS="$LDFLAGS -Wl,--no-undefined"
+            AC_TRY_LINK([],[],[],[LDFLAGS="$save_LDFLAGS"])
+          fi
           ;;
 esac
 
