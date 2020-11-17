@@ -110,9 +110,15 @@ int main()
 
 	printf(" pass\n");
 
+	xmp_release_module(c);
+	xmp_free_context(c);
 	exit(0);
 
     err:
 	printf(" fail\n");
+	if (c) {
+		xmp_release_module(c);
+		xmp_free_context(c);
+	}
 	exit(1);
 }
