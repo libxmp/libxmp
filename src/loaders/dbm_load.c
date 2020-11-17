@@ -54,6 +54,22 @@ static int dbm_test(HIO_HANDLE * f, char *t, const int start)
 
 struct local_data {
 	int have_song;
+	int maj_version;
+	int min_version;
+};
+
+struct dbm_envelope {
+	int ins;
+	int flg;
+	int npt;
+	int sus;
+	int lps;
+	int lpe;
+	int sus2;
+	struct dbm_envelope_node {
+		uint16 position;
+		int16 value;
+	} nodes[32];
 };
 
 
@@ -318,41 +334,98 @@ static int get_smpl(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
+static int read_envelope(struct xmp_module *mod, struct dbm_envelope *env, HIO_HANDLE *f)
+{
+	int i;
+
+	env->ins  = (int)hio_read16b(f) - 1;
+	env->flg  = hio_read8(f) & 0x7;
+	env->npt  = (int)hio_read8(f) + 1; /* DBM counts sections, not points. */
+	env->sus  = hio_read8(f);
+	env->lps  = hio_read8(f);
+	env->lpe  = hio_read8(f);
+	env->sus2 = hio_read8(f);
+
+	/* The format document claims there should be a reserved byte here but
+	 * no DigiBooster Pro module actually has this. The revised document
+	 * on the DigiBooster 3 website is corrected.
+	 */
+
+	/* Sanity check */
+	if (env->ins < 0 || env->ins >= mod->ins || env->npt > 32 ||
+	    env->sus >= 32 || env->lps >= 32 || env->lpe >= 32)
+		return -1;
+
+	for (i = 0; i < 32; i++) {
+		env->nodes[i].position	= hio_read16b(f);
+		env->nodes[i].value	= (int16)hio_read16b(f);
+	}
+
+	return 0;
+}
+
 static int get_venv(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
-	int i, j, nenv, ins, flg, npt, sus, lps, lpe;
+	struct dbm_envelope env;
+	int i, j, nenv, ins;
 
 	nenv = hio_read16b(f);
 
 	D_(D_INFO "Vol envelopes  : %d ", nenv);
 
 	for (i = 0; i < nenv; i++) {
-		ins = hio_read16b(f);
-		flg = hio_read8(f) & 0x07;
-		npt = hio_read8(f);
-		sus = hio_read8(f);
-		lps = hio_read8(f);
-		lpe = hio_read8(f);
-		hio_read8(f);	/* 2nd sustain */
-		//hio_read8(f);	/* reserved */
-
-		ins--;
-		npt++; /* DBM stores the number of sections, not the number of points. */
-
-		/* Sanity check */
-		if (ins < 0 || ins >= mod->ins || npt > 32 || sus >= 32 || lps >= 32 || lpe >= 32)
+		if (read_envelope(mod, &env, f) != 0)
 			return -1;
 
-		mod->xxi[ins].aei.flg = flg;
-		mod->xxi[ins].aei.npt = npt;
-		mod->xxi[ins].aei.sus = sus;
-		mod->xxi[ins].aei.lps = lps;
-		mod->xxi[ins].aei.lpe = lpe;
+		ins = env.ins;
+		mod->xxi[ins].aei.flg = env.flg;
+		mod->xxi[ins].aei.npt = env.npt;
+		mod->xxi[ins].aei.sus = env.sus;
+		mod->xxi[ins].aei.lps = env.lps;
+		mod->xxi[ins].aei.lpe = env.lpe;
 
 		for (j = 0; j < 32; j++) {
-			mod->xxi[ins].aei.data[j * 2 + 0] = hio_read16b(f);
-			mod->xxi[ins].aei.data[j * 2 + 1] = hio_read16b(f);
+			mod->xxi[ins].aei.data[j * 2 + 0] = env.nodes[j].position;
+			mod->xxi[ins].aei.data[j * 2 + 1] = env.nodes[j].value;
+		}
+	}
+
+	return 0;
+}
+
+static int get_penv(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+{
+	struct xmp_module *mod = &m->mod;
+	struct local_data *data = (struct local_data *)parm;
+	struct dbm_envelope env;
+	int i, j, nenv, ins;
+
+	nenv = hio_read16b(f);
+
+	D_(D_INFO "Pan envelopes  : %d ", nenv);
+
+	for (i = 0; i < nenv; i++) {
+		if (read_envelope(mod, &env, f) != 0)
+			return -1;
+
+		ins = env.ins;
+		mod->xxi[ins].pei.flg = env.flg;
+		mod->xxi[ins].pei.npt = env.npt;
+		mod->xxi[ins].pei.sus = env.sus;
+		mod->xxi[ins].pei.lps = env.lps;
+		mod->xxi[ins].pei.lpe = env.lpe;
+
+		for (j = 0; j < 32; j++) {
+			/* DigiBooster Pro 2 stores the pan value between 0 and 64.
+			 * DigiBooster 3 stores it from -128 to 128 (Krashan - M2.dbm).
+			 */
+			if (data->maj_version >= 3) {
+				env.nodes[j].value = env.nodes[j].value / 4 + 32;
+			}
+
+			mod->xxi[ins].pei.data[j * 2 + 0] = env.nodes[j].position;
+			mod->xxi[ins].pei.data[j * 2 + 1] = env.nodes[j].value;
 		}
 	}
 
@@ -374,6 +447,8 @@ static int dbm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	data.have_song = 0;
 	version = hio_read16b(f);
+	data.maj_version = version >> 8;
+	data.min_version = version & 0xFF;
 
 	hio_seek(f, 10, SEEK_CUR);
 	hio_read(name, 1, 44, f);
@@ -392,13 +467,14 @@ static int dbm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	ret |= libxmp_iff_register(handle, "PATT", get_patt);
 	ret |= libxmp_iff_register(handle, "SMPL", get_smpl);
 	ret |= libxmp_iff_register(handle, "VENV", get_venv);
+	ret |= libxmp_iff_register(handle, "PENV", get_penv);
 
 	if (ret != 0)
 		return -1;
 
 	strncpy(mod->name, name, XMP_NAME_SIZE);
 	snprintf(mod->type, XMP_NAME_SIZE, "DigiBooster Pro %d.%02x DBM0",
-					version >> 8, version & 0xff);
+					data.maj_version, data.min_version);
 
 	MODULE_INFO();
 
