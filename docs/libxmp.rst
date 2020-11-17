@@ -299,6 +299,74 @@ int xmp_test_module(char \*path, struct xmp_test_info \*test_info)
     and uncompression failed, or ``-XMP_ERROR_SYSTEM`` in case of system error
     (the system error code is set in ``errno``).
 
+.. xmp_test_module_from_memory():
+
+int xmp_test_module_from_memory(void \*mem, long size, struct xmp_test_info \*test_info)
+````````````````````````````````````````````````````````````````````````````````````````
+
+  *[Added in libxmp 4.5]* Test if a memory buffer is a valid module. Testing
+  memory does not affect the current player context or any currently loaded
+  module.
+
+  **Parameters:**
+    :mem: a pointer to the module file image in memory. Multi-file modules
+      or compressed modules can't be tested in memory.
+
+    :size: the size of the module, or 0 if the size is unknown or not
+      specified. If size is set to 0 certain module formats won't be
+      recognized, the MD5 digest will not be set, and module-specific
+      quirks won't be applied.
+
+    :test_info: NULL, or a pointer to a structure used to retrieve the
+      module title and format if the memory buffer is a valid module.
+      ``struct xmp_test_info`` is defined as::
+
+        struct xmp_test_info {
+            char name[XMP_NAME_SIZE];      /* Module title */
+            char type[XMP_NAME_SIZE];      /* Module format */
+        };
+
+  **Returns:**
+    0 if the memory buffer is a valid module, or a negative error code
+    in case of error. Error codes can be ``-XMP_ERROR_FORMAT`` in case of an
+    unrecognized file format or ``-XMP_ERROR_SYSTEM`` in case of system error
+    (the system error code is set in ``errno``).
+
+.. xmp_test_module_from_file():
+
+int xmp_test_module_from_file(FILE \*f, long size, struct xmp_test_info \*test_info)
+````````````````````````````````````````````````````````````````````````````````````````
+
+  *[Added in libxmp 4.5]* Test if a modle from a stream is a valid module.
+  Testing streams does not affect the current player context or any
+  currently loaded module.
+
+  **Parameters:**
+    :f: the file stream. Compressed modules that need an external depacker
+      can't be tested from a file stream. On return, the stream position is
+      undefined.
+
+    :size: the size of the module, or 0 if the size is unknown or not
+      specified. If size is set to 0 certain module formats won't be
+      recognized, the MD5 digest will not be set, and module-specific
+      quirks won't be applied.
+
+    :test_info: NULL, or a pointer to a structure used to retrieve the
+      module title and format if the memory buffer is a valid module.
+      ``struct xmp_test_info`` is defined as::
+
+        struct xmp_test_info {
+            char name[XMP_NAME_SIZE];      /* Module title */
+            char type[XMP_NAME_SIZE];      /* Module format */
+        };
+
+  **Returns:**
+    0 if the stream is a valid module, or a negative error code
+    in case of error. Error codes can be ``-XMP_ERROR_FORMAT`` in case of an
+    unrecognized file format, ``-XMP_ERROR_DEPACK`` if the stream is compressed
+    and uncompression failed, or ``-XMP_ERROR_SYSTEM`` in case of system error
+    (the system error code is set in ``errno``).
+
 .. _xmp_load_module():
 
 int xmp_load_module(xmp_context c, char \*path)
