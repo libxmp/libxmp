@@ -67,4 +67,6 @@ XMP_4.5 {
   global:
     xmp_set_row;
     xmp_set_tempo_factor;
+    xmp_test_module_from_file;
+    xmp_test_module_from_memory;
 } XMP_4.4;

@@ -63,6 +63,9 @@ Stable versions
 	- fix mute status on player creation
 	Changes by Cameron Cawley:
 	- fix sanity check in Digital Symphony loader
+	Changes by Ghabry:
+	- add xmp_test_module_from_memory and xmp_test_module_from_file
+	  calls to api
 	Fix problems reported by Ralf Hoffmann:
 	- fix MMD3 instrument type sanity check
 	- fix strictness of MOD pattern data tester
