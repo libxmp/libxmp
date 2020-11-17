@@ -19,6 +19,8 @@ Stable versions
 	- add new xmp_set_row() call to skip replay to the given row
 	- add new xmp_set_tempo_factor() call to set the replay tempo
 	  multiplier
+	- add xmp_test_module_from_memory and xmp_test_module_from_file
+	  calls to api
 	- IT: T00 now repeats previous slide
 	- prevent clobbering of muted channels' volumes in IT modules
 	- clamp number of IT envelope nodes at load time
