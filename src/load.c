@@ -299,13 +299,48 @@ static char *get_basename(const char *name)
 }
 #endif /* LIBXMP_CORE_PLAYER */
 
+static int test_module(struct xmp_test_info *info, HIO_HANDLE *h)
+{
+	char buf[XMP_NAME_SIZE];
+	int i;
+
+	if (info != NULL) {
+		*info->name = 0;	/* reset name prior to testing */
+		*info->type = 0;	/* reset type prior to testing */
+	}
+
+	for (i = 0; format_loaders[i] != NULL; i++) {
+		hio_seek(h, 0, SEEK_SET);
+		if (format_loaders[i]->test(h, buf, 0) == 0) {
+			int is_prowizard = 0;
+
+#ifndef LIBXMP_CORE_PLAYER
+			if (strcmp(format_loaders[i]->name, "prowizard") == 0) {
+				hio_seek(h, 0, SEEK_SET);
+				pw_test_format(h, buf, 0, info);
+				is_prowizard = 1;
+			}
+#endif
+
+			if (info != NULL && !is_prowizard) {
+				strncpy(info->name, buf, XMP_NAME_SIZE - 1);
+				info->name[XMP_NAME_SIZE - 1] = '\0';
+
+				strncpy(info->type, format_loaders[i]->name,
+							XMP_NAME_SIZE - 1);
+				info->type[XMP_NAME_SIZE - 1] = '\0';
+			}
+			return 0;
+		}
+	}
+	return -XMP_ERROR_FORMAT;
+}
+
 int xmp_test_module(const char *path, struct xmp_test_info *info)
 {
 	HIO_HANDLE *h;
 	struct stat st;
-	char buf[XMP_NAME_SIZE];
-	int i;
-	int ret = -XMP_ERROR_FORMAT;
+	int ret;
 #ifndef LIBXMP_NO_DEPACKERS
 	char *temp = NULL;
 #endif
@@ -336,41 +371,7 @@ int xmp_test_module(const char *path, struct xmp_test_info *info)
 	}
 #endif
 
-	if (info != NULL) {
-		*info->name = 0;	/* reset name prior to testing */
-		*info->type = 0;	/* reset type prior to testing */
-	}
-
-	for (i = 0; format_loaders[i] != NULL; i++) {
-		hio_seek(h, 0, SEEK_SET);
-		if (format_loaders[i]->test(h, buf, 0) == 0) {
-			int is_prowizard = 0;
-
-#ifndef LIBXMP_CORE_PLAYER
-			if (strcmp(format_loaders[i]->name, "prowizard") == 0) {
-				hio_seek(h, 0, SEEK_SET);
-				pw_test_format(h, buf, 0, info);
-				is_prowizard = 1;
-			}
-#endif
-
-			hio_close(h);
-
-#ifndef LIBXMP_NO_DEPACKERS
-			unlink_temp_file(temp);
-#endif
-
-			if (info != NULL && !is_prowizard) {
-				strncpy(info->name, buf, XMP_NAME_SIZE - 1);
-				info->name[XMP_NAME_SIZE - 1] = '\0';
-
-				strncpy(info->type, format_loaders[i]->name,
-							XMP_NAME_SIZE - 1);
-				info->type[XMP_NAME_SIZE - 1] = '\0';
-			}
-			return 0;
-		}
-	}
+	ret = test_module(info, h);
 
 #ifndef LIBXMP_NO_DEPACKERS
     err:
@@ -385,9 +386,7 @@ int xmp_test_module(const char *path, struct xmp_test_info *info)
 int xmp_test_module_from_memory(void *mem, long size, struct xmp_test_info *info)
 {
 	HIO_HANDLE *h;
-	char buf[XMP_NAME_SIZE];
-	int i;
-	int ret = -XMP_ERROR_FORMAT;
+	int ret;
 
 	/* Use size < 0 for unknown/undetermined size */
 	if (size == 0)
@@ -396,67 +395,24 @@ int xmp_test_module_from_memory(void *mem, long size, struct xmp_test_info *info
 	if ((h = hio_open_mem(mem, size)) == NULL)
 		return -XMP_ERROR_SYSTEM;
 
-#ifndef LIBXMP_CORE_PLAYER
-	/* get size */
-	if (hio_size(h) < 256) {	/* set minimum valid module size */
-		ret = -XMP_ERROR_FORMAT;
-		goto err;
-	}
-#endif
+	ret = test_module(info, h);
 
-	if (info != NULL) {
-		*info->name = 0;	/* reset name prior to testing */
-		*info->type = 0;	/* reset type prior to testing */
-	}
-
-	for (i = 0; format_loader[i] != NULL; i++) {
-		hio_seek(h, 0, SEEK_SET);
-		if (format_loader[i]->test(h, buf, 0) == 0) {
-			int is_prowizard = 0;
-
-#ifndef LIBXMP_CORE_PLAYER
-			if (strcmp(format_loader[i]->name, "prowizard") == 0) {
-				hio_seek(h, 0, SEEK_SET);
-				pw_test_format(h, buf, 0, info);
-				is_prowizard = 1;
-			}
-#endif
-
-			hio_close(h);
-
-			if (info != NULL && !is_prowizard) {
-				strncpy(info->name, buf, XMP_NAME_SIZE - 1);
-				strncpy(info->type, format_loader[i]->name,
-							XMP_NAME_SIZE - 1);
-			}
-			return 0;
-		}
-	}
-
-#ifndef LIBXMP_CORE_PLAYER
-    err:
 	hio_close(h);
-#else
-	hio_close(h);
-#endif
 	return ret;
 }
 
-int xmp_test_module_from_file(void *file, long size, struct xmp_test_info *info)
+int xmp_test_module_from_file(void *file, struct xmp_test_info *info)
 {
 	HIO_HANDLE *h;
-	char buf[XMP_NAME_SIZE];
-	int i;
-	int ret = -XMP_ERROR_FORMAT;
-#ifndef LIBXMP_CORE_PLAYER
+	int ret;
+#ifndef LIBXMP_NO_DEPACKERS
 	char *temp = NULL;
 #endif
-	FILE *f = fdopen(fileno((FILE *)file), "rb");
 
-	if ((h = hio_open_file(f)) == NULL)
+	if ((h = hio_open_file((FILE *)file)) == NULL)
 		return -XMP_ERROR_SYSTEM;
 
-#ifndef LIBXMP_CORE_PLAYER
+#ifndef LIBXMP_NO_DEPACKERS
 	if (decrunch(&h, NULL, &temp) < 0) {
 		ret = -XMP_ERROR_DEPACK;
 		goto err;
@@ -469,40 +425,9 @@ int xmp_test_module_from_file(void *file, long size, struct xmp_test_info *info)
 	}
 #endif
 
-	if (info != NULL) {
-		*info->name = 0;	/* reset name prior to testing */
-		*info->type = 0;	/* reset type prior to testing */
-	}
+	ret = test_module(info, h);
 
-	for (i = 0; format_loader[i] != NULL; i++) {
-		hio_seek(h, 0, SEEK_SET);
-		if (format_loader[i]->test(h, buf, 0) == 0) {
-			int is_prowizard = 0;
-
-#ifndef LIBXMP_CORE_PLAYER
-			if (strcmp(format_loader[i]->name, "prowizard") == 0) {
-				hio_seek(h, 0, SEEK_SET);
-				pw_test_format(h, buf, 0, info);
-				is_prowizard = 1;
-			}
-#endif
-
-			fclose(h->handle.file);
-
-#ifndef LIBXMP_CORE_PLAYER
-			unlink_temp_file(temp);
-#endif
-
-			if (info != NULL && !is_prowizard) {
-				strncpy(info->name, buf, XMP_NAME_SIZE - 1);
-				strncpy(info->type, format_loader[i]->name,
-							XMP_NAME_SIZE - 1);
-			}
-			return 0;
-		}
-	}
-
-#ifndef LIBXMP_CORE_PLAYER
+#ifndef LIBXMP_NO_DEPACKERS
     err:
 	hio_close(h);
 	unlink_temp_file(temp);

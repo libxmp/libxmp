@@ -11,7 +11,7 @@ static int test_module_from_file_helper(const char* filename, struct xmp_test_in
 
 	f = fopen(filename, "rb");
 	fail_unless(f != NULL, "open file");
-	ret = xmp_test_module_from_file(f, 0, tinfo);
+	ret = xmp_test_module_from_file(f, tinfo);
 	fclose(f);
 	return ret;
 }

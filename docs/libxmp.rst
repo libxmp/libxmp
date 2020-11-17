@@ -314,8 +314,7 @@ int xmp_test_module_from_memory(void \*mem, long size, struct xmp_test_info \*te
 
     :size: the size of the module, or 0 if the size is unknown or not
       specified. If size is set to 0 certain module formats won't be
-      recognized, the MD5 digest will not be set, and module-specific
-      quirks won't be applied.
+      recognized.
 
     :test_info: NULL, or a pointer to a structure used to retrieve the
       module title and format if the memory buffer is a valid module.
@@ -334,22 +333,17 @@ int xmp_test_module_from_memory(void \*mem, long size, struct xmp_test_info \*te
 
 .. xmp_test_module_from_file():
 
-int xmp_test_module_from_file(FILE \*f, long size, struct xmp_test_info \*test_info)
-````````````````````````````````````````````````````````````````````````````````````````
+int xmp_test_module_from_file(FILE \*f, struct xmp_test_info \*test_info)
+`````````````````````````````````````````````````````````````````````````
 
-  *[Added in libxmp 4.5]* Test if a modle from a stream is a valid module.
+  *[Added in libxmp 4.5]* Test if a module from a stream is a valid module.
   Testing streams does not affect the current player context or any
   currently loaded module.
 
   **Parameters:**
     :f: the file stream. Compressed modules that need an external depacker
       can't be tested from a file stream. On return, the stream position is
-      undefined.
-
-    :size: the size of the module, or 0 if the size is unknown or not
-      specified. If size is set to 0 certain module formats won't be
-      recognized, the MD5 digest will not be set, and module-specific
-      quirks won't be applied.
+      undefined. Caller is responsible for closing the file stream.
 
     :test_info: NULL, or a pointer to a structure used to retrieve the
       module title and format if the memory buffer is a valid module.
