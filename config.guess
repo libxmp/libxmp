@@ -138,9 +138,7 @@ UNAME_VERSION=`(uname -v) 2>/dev/null` || UNAME_VERSION=unknown
 
 case "$UNAME_SYSTEM" in
 Linux|GNU|GNU/*)
-	# If the system lacks a compiler, then just pick glibc.
-	# We could probably try harder.
-	LIBC=gnu
+	LIBC=unknown
 
 	set_cc_for_build
 	cat <<-EOF > "$dummy.c"
@@ -149,16 +147,30 @@ Linux|GNU|GNU/*)
 	LIBC=uclibc
 	#elif defined(__dietlibc__)
 	LIBC=dietlibc
+	#elif defined(__GLIBC__)
+	LIBC=gnu
 	#else
 	#include <stdarg.h>
+	/* First heuristic to detect musl libc.  */
 	#ifdef __DEFINED_va_list
 	LIBC=musl
-	#else
-	LIBC=gnu
 	#endif
 	#endif
 	EOF
 	eval "`$CC_FOR_BUILD -E "$dummy.c" 2>/dev/null | grep '^LIBC' | sed 's, ,,g'`"
+
+	# Second heuristic to detect musl libc.
+	if [ "$LIBC" = unknown ] &&
+	   command -v ldd >/dev/null &&
+	   ldd --version 2>&1 | grep -q ^musl; then
+		LIBC=musl
+	fi
+
+	# If the system lacks a compiler, then just pick glibc.
+	# We could probably try harder.
+	if [ "$LIBC" = unknown ]; then
+		LIBC=gnu
+	fi
 	;;
 esac
 
