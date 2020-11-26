@@ -53,7 +53,7 @@ API		= get_format_list create_context free_context \
 		  load_module_from_file \
 		  test_module_from_file test_module_from_memory \
 		  start_player play_buffer \
-		  set_position prev_position set_row \
+		  set_position prev_position set_position_midfx set_row \
 		  set_player stop_module restart_module seek_time \
 		  channel_mute channel_vol inject_event scan_module
 
