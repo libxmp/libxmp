@@ -251,15 +251,64 @@ PLAYER		= read_event scan period_amiga period_mod_range pan \
 		  invalid_period invalid_mod_length invalid_mod_channels \
 		  it_noteoff_nosuck mdl_period
 
-LOADER		= ust ac1d unic unic2 nst flt flt8 wow wow_extra mtm it it_oldins \
-		  xm102 j2b okt 669 s3m stm stm_v1 stx sfx masi imf ptm far asylum \
-		  dsmi stim pt36 psm rtm ice dbm dbm_penv dbm_venv mdl0 mdl mgt liq liq_no \
-		  emod chiptracker gdm dtm abk mfp np1 np2 np3 nru p60 crb \
-		  6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
-		  mod_invalid xm_adpcm xm_xmlite xm_short xm_instsamples \
-		  med3 med4 mmd0 mmd3 \
-		  mmd_iff3oct m15 m15_invalid m15_invalid2 m15_short_rip fnk \
-		  ult pru1 pru2 ksm di pm10 pm18 xann tp3 titanics fuchs ims
+LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
+		  mod_invalid \
+		  nst \
+		  ust \
+		  wow wow_extra \
+		  m15 m15_invalid m15_invalid2 m15_short_rip \
+		  s3m s3m_adpcm s3m_schism \
+		  xm102 xm_adpcm xm_xmlite xm_short xm_instsamples \
+		  it it_oldins it_schism \
+		  669 \
+		  abk \
+		  asylum \
+		  chiptracker \
+		  dbm dbm_penv dbm_venv \
+		  dsmi \
+		  dtm \
+		  emod \
+		  far \
+		  flt flt8 \
+		  fnk \
+		  gdm \
+		  ice \
+		  imf \
+		  ims \
+		  j2b \
+		  liq liq_no \
+		  masi \
+		  mdl0 mdl \
+		  med3 med4 \
+		  mmd0 mmd0_compattempo mmd1_longpat \
+		  mmd3 mmd_iff3oct \
+		  mfp \
+		  mgt \
+		  mtm \
+		  okt \
+		  psm \
+		  ptm \
+		  pt36 \
+		  rtm \
+		  sfx \
+		  stim \
+		  stm stm_v1 \
+		  stx \
+		  ult \
+		  ac1d \
+		  crb \
+		  di \
+		  fuchs \
+		  ksm \
+		  np1 np2 np3 \
+		  nru \
+		  p60 \
+		  pm10 pm18 \
+		  pru1 pru2 \
+		  titanics \
+		  tp3 \
+		  unic unic2 \
+		  xann
 
 PROBLEMATIC	= length_data_jack \
 		  length_condom_corruption \
