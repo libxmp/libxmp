@@ -286,6 +286,7 @@ test_effect_fine_vibrato
 test_effect_it_panslide
 test_effect_it_vcol_g
 test_effect_it_break_to_row
+test_effect_it_multi_retrig
 test_effect_pastnote_cut
 test_effect_pastnote_off
 test_effect_pastnote_fade
