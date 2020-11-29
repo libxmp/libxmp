@@ -1158,8 +1158,14 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 				SET_NOTE(NOTE_RELEASE);
 			}
 			SET(KEY_OFF);
+			/* Use instrument volume if an instrument was explicitly
+			 * provided on this row (see OpenMPT NoteOffInstr.it row 4).
+			 * However, never reset the envelope (see OpenMPT wnoteoff.it).
+			 */
 			reset_env = 0;
-			use_ins_vol = 0;
+			if (!ev.ins) {
+				use_ins_vol = 0;
+			}
 		} else {
 			/* portamento_after_keyoff.it test case */
 			/* also see suburban_streets o13 c45 */
@@ -1308,13 +1314,12 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 			RESET_NOTE(NOTE_CUT);
 		}
 	}
-	
+
 	/* Process new volume */
 	if (ev.vol && (!TEST_NOTE(NOTE_CUT) || ev.ins != 0)) {
-		if (key != XMP_KEY_OFF) {    /* See OpenMPT NoteOffInstr.it */
-			xc->volume = ev.vol - 1;
-			SET(NEW_VOL);
-		}
+		/* Do this even for XMP_KEY_OFF (see OpenMPT NoteOffInstr.it row 4). */
+		xc->volume = ev.vol - 1;
+		SET(NEW_VOL);
 	}
 
 	/* IT: always reset sample offset */
