@@ -2,6 +2,7 @@ Stable versions
 ---------------
 
 4.5.0 ():
+	- fix xmp_set_position et al. when used during loops, pattern delay
 	- make xmp_set_position() consistently clear pattern break/jump vars
 	- xmp_get_format_list() now returns const char* const*, not char**
 	  (no ABI change)
@@ -29,6 +30,7 @@ Stable versions
 	- fix IT bug where Cxx on same row as SBx would not be ignored
 	- fix IT bug where Qxy would ignore the volume parameter
 	- fix IT sample global volume and sample vibrato
+	- fix two IT bugs related to note off and volume handling
 	- fix mute status on player creation
 	- fix loading of XMLiTE XM modules
 	- fix XM keyoff with instrument
