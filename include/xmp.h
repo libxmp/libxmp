@@ -26,9 +26,16 @@ extern "C" {
 #elif defined(__SUNPRO_C) && defined(XMP_LDSCOPE_GLOBAL)
 # define LIBXMP_EXPORT __global
 #elif defined(EMSCRIPTEN)
+# include <emscripten.h>
 # define LIBXMP_EXPORT EMSCRIPTEN_KEEPALIVE
 #else
 # define LIBXMP_EXPORT
+#endif
+
+#if defined(EMSCRIPTEN) /* Don't apply this attribute to extern variables */
+# define LIBXMP_EXPORT_VAR
+#else
+# define LIBXMP_EXPORT_VAR LIBXMP_EXPORT
 #endif
 
 #define XMP_NAME_SIZE		64	/* Size of module name and type */
@@ -317,8 +324,8 @@ struct xmp_frame_info {			/* Current frame information */
 
 typedef char *xmp_context;
 
-LIBXMP_EXPORT extern const char *xmp_version;
-LIBXMP_EXPORT extern const unsigned int xmp_vercode;
+LIBXMP_EXPORT_VAR extern const char *xmp_version;
+LIBXMP_EXPORT_VAR extern const unsigned int xmp_vercode;
 
 LIBXMP_EXPORT xmp_context xmp_create_context  (void);
 LIBXMP_EXPORT void        xmp_free_context    (xmp_context);
