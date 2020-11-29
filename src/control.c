@@ -124,6 +124,10 @@ static void set_position(struct context_data *ctx, int pos, int dir)
 			f->jumpline = 0;
 			f->jump = -1;
 			f->pbreak = 0;
+			f->loop_chn = 0;
+			f->delay = 0;
+			f->rowdelay = 0;
+			f->rowdelay_set = 0;
 		}
 	}
 }
