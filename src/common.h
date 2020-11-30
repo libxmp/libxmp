@@ -8,6 +8,7 @@
 
 #undef  LIBXMP_EXPORT_VAR
 #if defined(EMSCRIPTEN)
+#include <emscripten.h>
 #define LIBXMP_EXPORT_VAR EMSCRIPTEN_KEEPALIVE
 #else
 #define LIBXMP_EXPORT_VAR
