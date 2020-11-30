@@ -28,13 +28,12 @@ extern "C" {
 #elif defined(EMSCRIPTEN)
 # include <emscripten.h>
 # define LIBXMP_EXPORT EMSCRIPTEN_KEEPALIVE
+# define LIBXMP_EXPORT_VAR
 #else
 # define LIBXMP_EXPORT
 #endif
 
-#if defined(EMSCRIPTEN) /* Don't apply this attribute to extern variables */
-# define LIBXMP_EXPORT_VAR
-#else
+#if !defined (LIBXMP_EXPORT_VAR)
 # define LIBXMP_EXPORT_VAR LIBXMP_EXPORT
 #endif
 

@@ -6,6 +6,13 @@
 #include <string.h>
 #include "xmp.h"
 
+#undef  LIBXMP_EXPORT_VAR
+#if defined(EMSCRIPTEN)
+#define LIBXMP_EXPORT_VAR EMSCRIPTEN_KEEPALIVE
+#else
+#define LIBXMP_EXPORT_VAR
+#endif
+
 #if defined(__MORPHOS__) || defined(__AROS__) || defined(AMIGAOS) || \
     defined(__amigaos__) || defined(__amigaos4__) ||defined(__amigados__) || \
     defined(AMIGA) || defined(_AMIGA) || defined(__AMIGA__)
