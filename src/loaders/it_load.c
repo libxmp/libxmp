@@ -56,7 +56,7 @@ static int it_test(HIO_HANDLE *f, char *t, const int start)
 #define L_CHANNELS 64
 
 
-static const uint8 fx[] = {
+static const uint8 fx[32] = {
 	/*   */ FX_NONE,
 	/* A */ FX_S3M_SPEED,
 	/* B */ FX_JUMP,
@@ -83,7 +83,12 @@ static const uint8 fx[] = {
 	/* W */ FX_GVOL_SLIDE,
 	/* X */ FX_SETPAN,
 	/* Y */ FX_PANBRELLO,
-	/* Z */ FX_FLT_CUTOFF
+	/* Z */ FX_FLT_CUTOFF,
+	/* ? */ FX_NONE,
+	/* ? */ FX_NONE,
+	/* ? */ FX_NONE,
+	/* ? */ FX_NONE,
+	/* ? */ FX_NONE
 };
 
 
