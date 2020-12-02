@@ -79,7 +79,7 @@ static int no_test(HIO_HANDLE *f, char *t, const int start)
 }
 
 
-static const uint8 fx[] = {
+static const uint8 fx[15] = {
 	FX_ARPEGGIO,
 	0,
 	FX_BREAK,

@@ -129,7 +129,7 @@ static int imf_test(HIO_HANDLE *f, char *t, const int start)
 
 
 /* Effect conversion table */
-static const uint8 fx[] = {
+static const uint8 fx[36] = {
 	NONE,
 	FX_S3M_SPEED,
 	FX_S3M_BPM,
@@ -173,6 +173,12 @@ static const uint8 fx[] = {
 static void xlat_fx (int c, uint8 *fxt, uint8 *fxp)
 {
     uint8 h = MSN (*fxp), l = LSN (*fxp);
+
+    if (*fxt >= ARRAY_SIZE(fx)) {
+	D_(D_WARN "invalid effect %#02x", *fxt);
+	*fxt = *fxp = 0;
+	return;
+    }
 
     switch (*fxt = fx[*fxt]) {
     case FX_IMF_FPORTA_UP:
