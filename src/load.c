@@ -469,8 +469,7 @@ static int load_module(xmp_context opaque, HIO_HANDLE *h)
 #endif
 
 	if (test_result < 0) {
-		free(m->basename);
-		free(m->dirname);
+		xmp_release_module(opaque);
 		return -XMP_ERROR_FORMAT;
 	}
 
@@ -601,6 +600,10 @@ int xmp_load_module(xmp_context opaque, const char *path)
 
 	m->filename = path;	/* For ALM, SSMT, etc */
 	m->size = size;
+#else
+	ctx->m.filename = NULL;
+	ctx->m.dirname = NULL;
+	ctx->m.basename = NULL;
 #endif
 
 	ret = load_module(opaque, h);
@@ -705,6 +708,7 @@ void xmp_release_module(xmp_context opaque)
 			free(mod->xxt[i]);
 		}
 		free(mod->xxt);
+		mod->xxt = NULL;
 	}
 
 	if (mod->xxp != NULL) {
@@ -712,6 +716,7 @@ void xmp_release_module(xmp_context opaque)
 			free(mod->xxp[i]);
 		}
 		free(mod->xxp);
+		mod->xxp = NULL;
 	}
 
 	if (mod->xxi != NULL) {
@@ -720,6 +725,7 @@ void xmp_release_module(xmp_context opaque)
 			free(mod->xxi[i].extra);
 		}
 		free(mod->xxi);
+		mod->xxi = NULL;
 	}
 
 	if (mod->xxs != NULL) {
@@ -728,6 +734,8 @@ void xmp_release_module(xmp_context opaque)
 		}
 		free(mod->xxs);
 		free(m->xtra);
+		mod->xxs = NULL;
+		m->xtra = NULL;
 	}
 
 #ifndef LIBXMP_CORE_DISABLE_IT
@@ -736,16 +744,20 @@ void xmp_release_module(xmp_context opaque)
 			libxmp_free_sample(&m->xsmp[i]);
 		}
 		free(m->xsmp);
+		m->xsmp = NULL;
 	}
 #endif
 
 	libxmp_free_scan(ctx);
 
 	free(m->comment);
+	m->comment = NULL;
 
 	D_("free dirname/basename");
 	free(m->dirname);
 	free(m->basename);
+	m->basename = NULL;
+	m->dirname = NULL;
 }
 
 void xmp_scan_module(xmp_context opaque)
