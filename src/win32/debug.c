@@ -6,7 +6,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
-void _D(const char *format, ...)
+void D_(const char *format, ...)
 {
 	va_list argptr;
 
