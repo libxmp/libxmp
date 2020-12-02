@@ -101,7 +101,7 @@ static int far_test(HIO_HANDLE *f, char *t, const int start)
 #define FX_FAR_PORTA_UP		0xf9
 #define FX_FAR_PORTA_DN		0xf8
 
-static const uint8 fx[] = {
+static const uint8 fx[16] = {
     NONE,
     FX_FAR_PORTA_UP,		/* 0x1?  Pitch Adjust */
     FX_FAR_PORTA_DN,		/* 0x2?  Pitch Adjust */

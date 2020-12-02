@@ -65,7 +65,7 @@ struct local_data {
 	int sample;
 };
 
-static const int fx[] = {
+static const int fx[32] = {
 	NONE,
 	FX_PORTA_UP,		/*  1 */
 	FX_PORTA_DN,		/*  2 */
@@ -260,7 +260,7 @@ static int get_pbod(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 		}
 
 		fxt = hio_read8(f);
-		if (fxt >= 32) {
+		if (fxt >= ARRAY_SIZE(fx)) {
 			return -1;
 		}
 		e->fxt = fx[fxt];

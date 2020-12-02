@@ -80,7 +80,7 @@ struct c669_instrument_header {
 
 /* Effects bug fixed by Miod Vallat <miodrag@multimania.com> */
 
-static const uint8 fx[] = {
+static const uint8 fx[6] = {
     FX_669_PORTA_UP,
     FX_669_PORTA_DN,
     FX_669_TPORTA,
@@ -226,7 +226,7 @@ static int c669_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		event->vol = (LSN(ev[1]) << 2) + 1;
 
 	    if (ev[2] != 0xff) {
-		if (MSN(ev[2]) > 5)
+		if (MSN(ev[2]) >= ARRAY_SIZE(fx))
 		    continue;
 
 		event->fxt = fx[MSN(ev[2])];

@@ -113,7 +113,7 @@ static int s3m_test(HIO_HANDLE *f, char *t, const int start)
 	} while (0)
 
 /* Effect conversion table */
-static const uint8 fx[] = {
+static const uint8 fx[27] = {
 	NONE,
 	FX_S3M_SPEED,		/* Axx  Set speed to xx (the default is 06) */
 	FX_JUMP,		/* Bxx  Jump to order xx (hexadecimal) */
@@ -148,7 +148,7 @@ static void xlat_fx(int c, struct xmp_event *e)
 {
 	uint8 h = MSN(e->fxp), l = LSN(e->fxp);
 
-	if (e->fxt > 26) {
+	if (e->fxt >= ARRAY_SIZE(fx)) {
 		D_(D_WARN "invalid effect %02x", e->fxt);
 		e->fxt = e->fxp = 0;
 		return;

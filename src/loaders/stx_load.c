@@ -115,12 +115,17 @@ static int stx_test(HIO_HANDLE * f, char *t, const int start)
 
 #define FX_NONE 0xff
 
-static const uint8 fx[] = {
-	FX_NONE, FX_SPEED,
-	FX_JUMP, FX_BREAK,
-	FX_VOLSLIDE, FX_PORTA_DN,
-	FX_PORTA_UP, FX_TONEPORTA,
-	FX_VIBRATO, FX_TREMOR,
+static const uint8 fx[11] = {
+	FX_NONE,
+	FX_SPEED,
+	FX_JUMP,
+	FX_BREAK,
+	FX_VOLSLIDE,
+	FX_PORTA_DN,
+	FX_PORTA_UP,
+	FX_TONEPORTA,
+	FX_VIBRATO,
+	FX_TREMOR,
 	FX_ARPEGGIO
 };
 
@@ -334,7 +339,7 @@ static int stx_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			if (b & S3M_FX_FOLLOWS) {
 				int t = hio_read8(f);
 				int p = hio_read8(f);
-				if (t <= 10) {
+				if (t < ARRAY_SIZE(fx)) {
 					event->fxt = fx[t];
 					event->fxp = p;
 					switch (event->fxt) {

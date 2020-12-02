@@ -113,7 +113,7 @@ static int liq_test(HIO_HANDLE *f, char *t, const int start)
 #define NONE 0xff
 
 
-static const uint8 fx[] = {
+static const uint8 fx[25] = {
 	FX_ARPEGGIO,
 	FX_S3M_BPM,
 	FX_BREAK,
@@ -146,6 +146,12 @@ static const uint8 fx[] = {
 static void xlat_fx(int c, struct xmp_event *e)
 {
     uint8 h = MSN (e->fxp), l = LSN (e->fxp);
+
+    if (e->fxt >= ARRAY_SIZE(fx)) {
+	D_(D_WARN "invalid effect %#02x", e->fxt);
+	e->fxt = e->fxp = 0;
+	return;
+    }
 
     switch (e->fxt = fx[e->fxt]) {
     case FX_EXTENDED:			/* Extended effects */
