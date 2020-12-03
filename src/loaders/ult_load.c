@@ -277,6 +277,11 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	    if (cnt == 0)
 		cnt++;
 
+	    if (j + cnt > 64 * mod->pat) {
+		D_(D_WARN "invalid track data packing");
+		return -1;
+	    }
+
 	    for (k = 0; k < cnt; k++, j++) {
 		event = &EVENT (j >> 6, i , j & 0x3f);
 		memset(event, 0, sizeof (struct xmp_event));
