@@ -102,7 +102,7 @@ static int mtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		return -1;
 
 	mfh.channels = hio_read8(f);	/* Number of tracks per pattern */
-	if (mfh.channels > XMP_MAX_CHANNELS) {
+	if (mfh.channels > MIN(32, XMP_MAX_CHANNELS)) {
 		return -1;
 	}
 
