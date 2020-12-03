@@ -319,6 +319,7 @@ PROBLEMATIC	= length_data_jack \
 		  length_ode2ptk
 
 FUZZER		= it_dca_3 \
+		  abk_0_instruments \
 		  fnk_patterns_bound \
 		  mdl_duplicate_chunk \
 		  mdl_invalid_run \
