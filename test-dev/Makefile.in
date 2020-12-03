@@ -321,6 +321,7 @@ PROBLEMATIC	= length_data_jack \
 FUZZER		= it_dca_3 \
 		  fnk_patterns_bound \
 		  mdl_duplicate_chunk \
+		  mdl_invalid_run \
 		  med4_instrument_name \
 		  mtm_channels_bound \
 		  psm_samples_bound \
