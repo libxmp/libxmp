@@ -370,6 +370,11 @@ static int get_chunk_in(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     struct xmp_module *mod = &m->mod;
     int i;
 
+    /* Sanity check */
+    if (mod->len) {
+	return -1;
+    }
+
     hio_read(mod->name, 1, 32, f);
     hio_seek(f, 20, SEEK_CUR);
 
@@ -474,6 +479,11 @@ static int get_chunk_tr(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     struct xmp_module *mod = &m->mod;
     int i, j, k, row, len, max_trk;
     struct xmp_track *track;
+
+    /* Sanity check */
+    if (mod->trk) {
+	return -1;
+    }
 
     mod->trk = hio_read16l(f) + 1;
 
@@ -608,6 +618,11 @@ static int get_chunk_ii(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     int map, last_map;
     char buf[40];
 
+    /* Sanity check */
+    if (mod->ins) {
+	return -1;
+    }
+
     mod->ins = hio_read8(f);
     D_(D_INFO "Instruments: %d", mod->ins);
 
@@ -690,6 +705,11 @@ static int get_chunk_is(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     char buf[64];
     uint8 x;
 
+    /* Sanity check */
+    if (mod->smp) {
+	return -1;
+    }
+
     mod->smp = hio_read8(f);
     if ((mod->xxs = calloc(sizeof (struct xmp_sample), mod->smp)) == NULL)
 	return -1;
@@ -754,6 +774,11 @@ static int get_chunk_i0(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     int i;
     char buf[64];
     uint8 x;
+
+    /* Sanity check */
+    if (mod->smp || mod->ins) {
+	return -1;
+    }
 
     mod->ins = mod->smp = hio_read8(f);
 
@@ -894,6 +919,11 @@ static int get_chunk_ve(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     struct local_data *data = (struct local_data *)parm;
     int i;
 
+    /* Sanity check */
+    if (data->v_env) {
+	return -1;
+    }
+
     if ((data->v_envnum = hio_read8(f)) == 0)
 	return 0;
 
@@ -916,6 +946,11 @@ static int get_chunk_pe(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     struct local_data *data = (struct local_data *)parm;
     int i;
 
+    /* Sanity check */
+    if (data->p_env) {
+	return -1;
+    }
+
     if ((data->p_envnum = hio_read8(f)) == 0)
 	return 0;
 
@@ -937,6 +972,11 @@ static int get_chunk_fe(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 {
     struct local_data *data = (struct local_data *)parm;
     int i;
+
+    /* Sanity check */
+    if (data->f_env) {
+	return -1;
+    }
 
     if ((data->f_envnum = hio_read8(f)) == 0)
 	return 0;
