@@ -101,6 +101,11 @@ static int depack_di(HIO_HANDLE *in, FILE *out)
 			max = ptable[i];
 	}
 
+	/* Sanity check */
+	if (max >= 128) {
+		return -1;
+	}
+
 	write32b(out, PW_MOD_MAGIC);
 
 	hio_seek(in, pos, SEEK_SET);

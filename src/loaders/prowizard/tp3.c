@@ -73,6 +73,11 @@ static int depack_tp23(HIO_HANDLE *in, FILE *out, int ver)
 			npat = pnum[i];
 	}
 
+	/* Sanity check */
+	if (npat >= 128) {
+		return -1;
+	}
+
 	/* read tracks addresses */
 	/* bypass 4 bytes or not ?!? */
 	/* Here, I choose not :) */
