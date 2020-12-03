@@ -137,6 +137,11 @@ static int fnk_load(struct module_data *m, HIO_HANDLE *f, const int start)
     }
     mod->pat++;
 
+    /* Sanity check */
+    if (mod->pat > 128) {
+	return -1;
+    }
+
     mod->len = i;
     memcpy (mod->xxo, ffh.order, mod->len);
 

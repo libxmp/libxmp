@@ -134,9 +134,14 @@ restart:
 	for (i = 0; i < 120; i++) {
 		paddr1[j] = paddr2[i];
 		j += 1;
+		if (j >= 128)
+			break;
+
 		if ((paddr2[i + 1] - paddr2[i]) > 1024) {
 			paddr1[j] = paddr2[i] + 1024;
 			j += 1;
+			if (j >= 128)
+				break;
 		}
 	}
 

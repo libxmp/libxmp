@@ -55,7 +55,7 @@ static int psm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	struct xmp_event *event;
 	uint8 buf[1024];
 	uint32 p_ord, p_chn, p_pat, p_ins;
-	uint32 p_smp[64];
+	uint32 p_smp[256];
 	int type, ver /*, mode*/;
 
 	LOAD_INIT();

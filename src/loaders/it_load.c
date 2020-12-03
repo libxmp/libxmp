@@ -521,7 +521,7 @@ static int load_new_it_instrument(struct xmp_instrument *xxi, HIO_HANDLE *f)
 	int inst_map[120], inst_rmap[XMP_MAX_KEYS];
 	struct it_instrument2_header i2h;
 	struct it_envelope env;
-	int dca2nna[] = { 0, 2, 3 };
+	int dca2nna[] = { 0, 2, 3, 3 /* Northern Sky (cj-north.it) has this... */ };
 	int c, k, j;
 	uint8 buf[64];
 
