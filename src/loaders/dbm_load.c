@@ -53,7 +53,13 @@ static int dbm_test(HIO_HANDLE * f, char *t, const int start)
 
 
 struct local_data {
+	int have_info;
 	int have_song;
+	int have_patt;
+	int have_smpl;
+	int have_inst;
+	int have_venv;
+	int have_penv;
 	int maj_version;
 	int min_version;
 };
@@ -76,13 +82,15 @@ struct dbm_envelope {
 static int get_info(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
+	struct local_data *data = (struct local_data *)parm;
 	int val;
 
 	/* Sanity check */
-	if (mod->ins != 0) {
+	if (data->have_info || size < 10) {
 		return -1;
 	}
- 
+	data->have_info = 1;
+
 	val = hio_read16b(f);
 	if (val < 0 || val > 255) {
 		D_(D_CRIT "Invalid number of instruments: %d", val);
@@ -137,13 +145,14 @@ static int get_song(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	int i;
 	char buffer[50];
 
-	if (data->have_song)
+	/* Sanity check */
+	if (data->have_song || size < 46) {
 		return 0;
-
+	}
 	data->have_song = 1;
 
 	hio_read(buffer, 44, 1, f);
-	D_(D_INFO "Song name: %s", buffer);
+	D_(D_INFO "Song name: %.44s", buffer);
 
 	mod->len = hio_read16b(f);
 	D_(D_INFO "Song length: %d patterns", mod->len);
@@ -162,9 +171,16 @@ static int get_song(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
+	struct local_data *data = (struct local_data *)parm;
 	int i;
 	int c2spd, flags, snum;
 	uint8 buffer[50];
+
+	/* Sanity check */
+	if (data->have_inst || size < 50 * mod->ins) {
+		return -1;
+	}
+	data->have_inst = 1;
 
 	D_(D_INFO "Instruments: %d", mod->ins);
 
@@ -176,14 +192,17 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 		hio_read(buffer, 30, 1, f);
 		libxmp_instrument_name(mod, i, buffer, 30);
 		snum = hio_read16b(f);
-		if (snum == 0 || snum > mod->smp)
+		if (snum == 0 || snum > mod->smp) {
+			/* Skip remaining data for this instrument. */
+			hio_seek(f, 18, SEEK_CUR);
 			continue;
+		}
 
 		mod->xxi[i].sub[0].sid = --snum;
 		mod->xxi[i].sub[0].vol = hio_read16b(f);
 		c2spd = hio_read32b(f);
 		mod->xxs[snum].lps = hio_read32b(f);
-		mod->xxs[snum].lpe = mod->xxs[i].lps + hio_read32b(f);
+		mod->xxs[snum].lpe = mod->xxs[snum].lps + hio_read32b(f);
 		mod->xxi[i].sub[0].pan = 0x80 + (int16)hio_read16b(f);
 		if (mod->xxi[i].sub[0].pan > 0xff)
 			mod->xxi[i].sub[0].pan = 0xff;
@@ -204,9 +223,16 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
+	struct local_data *data = (struct local_data *)parm;
 	int i, c, r, n, sz;
 	struct xmp_event *event, dummy;
 	uint8 x;
+
+	/* Sanity check */
+	if (data->have_patt) {
+		return -1;
+	}
+	data->have_patt = 1;
 
 	if (libxmp_init_pattern(mod) < 0)
 		return -1;
@@ -298,7 +324,14 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 static int get_smpl(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
+	struct local_data *data = (struct local_data *)parm;
 	int i, flags;
+
+	/* Sanity check */
+	if (data->have_smpl) {
+		return -1;
+	}
+	data->have_smpl = 1;
 
 	D_(D_INFO "Stored samples: %d", mod->smp);
 
@@ -315,7 +348,7 @@ static int get_smpl(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 			hio_seek(f, mod->xxs[i].len, SEEK_CUR);
 			continue;
 		}
-		
+
 		if (libxmp_load_sample(m, f, SAMPLE_FLAG_BIGEND, &mod->xxs[i], NULL) < 0)
 			return -1;
 
@@ -367,8 +400,15 @@ static int read_envelope(struct xmp_module *mod, struct dbm_envelope *env, HIO_H
 static int get_venv(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
+	struct local_data *data = (struct local_data *)parm;
 	struct dbm_envelope env;
 	int i, j, nenv, ins;
+
+	/* Sanity check */
+	if (data->have_venv) {
+		return -1;
+	}
+	data->have_venv = 1;
 
 	nenv = hio_read16b(f);
 
@@ -400,6 +440,12 @@ static int get_penv(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	struct local_data *data = (struct local_data *)parm;
 	struct dbm_envelope env;
 	int i, j, nenv, ins;
+
+	/* Sanity check */
+	if (data->have_penv) {
+		return -1;
+	}
+	data->have_penv = 1;
 
 	nenv = hio_read16b(f);
 
@@ -436,7 +482,7 @@ static int dbm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 {
 	struct xmp_module *mod = &m->mod;
 	iff_handle handle;
-	char name[44];
+	char name[XMP_NAME_SIZE];
 	uint16 version;
 	int i, ret;
 	struct local_data data;
@@ -445,13 +491,14 @@ static int dbm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	hio_read32b(f);		/* DBM0 */
 
-	data.have_song = 0;
+	memset(&data, 0, sizeof(struct local_data));
 	version = hio_read16b(f);
 	data.maj_version = version >> 8;
 	data.min_version = version & 0xFF;
 
 	hio_seek(f, 10, SEEK_CUR);
 	hio_read(name, 1, 44, f);
+	name[44] = '\0';
 
 	handle = libxmp_iff_new();
 	if (handle == NULL)

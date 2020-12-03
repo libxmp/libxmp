@@ -320,6 +320,8 @@ PROBLEMATIC	= length_data_jack \
 
 FUZZER		= it_dca_3 \
 		  abk_0_instruments \
+		  dbm_invalid_instruments \
+		  dbm_name_buffer_overflow \
 		  fnk_patterns_bound \
 		  mdl_duplicate_chunk \
 		  mdl_invalid_run \
