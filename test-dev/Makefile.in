@@ -324,6 +324,7 @@ FUZZER		= it_dca_3 \
 		  dbm_name_buffer_overflow \
 		  fnk_patterns_bound \
 		  gal4_env_point_bound \
+		  gal5_channels_bound \
 		  mdl_duplicate_chunk \
 		  mdl_invalid_run \
 		  med3_invalid_pattern \
