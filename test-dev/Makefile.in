@@ -326,6 +326,7 @@ FUZZER		= it_dca_3 \
 		  mdl_duplicate_chunk \
 		  mdl_invalid_run \
 		  med4_instrument_name \
+		  mmd1_channel_count \
 		  mtm_channels_bound \
 		  psm_samples_bound \
 		  ult_channels_bound \
