@@ -103,6 +103,7 @@ static int unpack_block(struct module_data *m, uint16 bnum, uint8 *from, uint16 
 	uint16 fromn = 0, lmsk;
 	uint8 *fromst = from + 16, bcnt, *tmpto;
 	uint8 *patbuf, *to;
+	uint32 nibs_left = convsz * 2;
 	int i, j, trkn = mod->chn;
 
 	/*from += 16;*/
@@ -118,10 +119,10 @@ static int unpack_block(struct module_data *m, uint16 bnum, uint8 *from, uint16 
 		}
 
 		if (*lmptr & MASK) {
-			if (trkn / 2 > convsz) {
+			if (trkn / 4 > nibs_left) {
 				goto err2;
-			}	
-			convsz -= trkn / 2;
+			}
+			nibs_left -= trkn / 4;
 
 			lmsk = get_nibbles(fromst, &fromn, (uint8)(trkn / 4));
 			lmsk <<= (16 - trkn);
@@ -129,6 +130,10 @@ static int unpack_block(struct module_data *m, uint16 bnum, uint8 *from, uint16 
 
 			for (bcnt = 0; bcnt < trkn; bcnt++) {
 				if (lmsk & 0x8000) {
+					if (nibs_left < 3) {
+						goto err2;
+					}
+					nibs_left -= 3;
 					*tmpto = (uint8)get_nibbles(fromst,
 						&fromn,2);
 					*(tmpto + 1) = (get_nibble(fromst,
@@ -140,10 +145,10 @@ static int unpack_block(struct module_data *m, uint16 bnum, uint8 *from, uint16 
 		}
 
 		if (*fxptr & MASK) {
-			if (trkn / 2 > convsz) {
+			if (trkn / 4 > nibs_left) {
 				goto err2;
-			}	
-			convsz -= trkn / 2;
+			}
+			nibs_left -= trkn / 4;
 
 			lmsk = get_nibbles(fromst,&fromn,(uint8)(trkn / 4));
 			lmsk <<= (16 - trkn);
@@ -151,6 +156,10 @@ static int unpack_block(struct module_data *m, uint16 bnum, uint8 *from, uint16 
 
 			for (bcnt = 0; bcnt < trkn; bcnt++) {
 				if (lmsk & 0x8000) {
+					if (nibs_left < 3) {
+						goto err2;
+					}
+					nibs_left -= 3;
 					*(tmpto+1) |= get_nibble(fromst,
 							&fromn);
 					*(tmpto+2) = (uint8)get_nibbles(fromst,

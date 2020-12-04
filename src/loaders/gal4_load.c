@@ -265,20 +265,26 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	mod->xxi[i].aei.lpe = LSN(val);
 	mod->xxi[i].pei.lpe = MSN(val);
 
-	if (mod->xxi[i].aei.npt <= 0 || mod->xxi[i].aei.npt >= XMP_MAX_ENV_POINTS)
+	if (mod->xxi[i].aei.npt <= 0 || mod->xxi[i].aei.npt > MIN(10, XMP_MAX_ENV_POINTS))
 		mod->xxi[i].aei.flg &= ~XMP_ENVELOPE_ON;
 
-	if (mod->xxi[i].pei.npt <= 0 || mod->xxi[i].pei.npt >= XMP_MAX_ENV_POINTS)
+	if (mod->xxi[i].pei.npt <= 0 || mod->xxi[i].pei.npt > MIN(10, XMP_MAX_ENV_POINTS))
 		mod->xxi[i].pei.flg &= ~XMP_ENVELOPE_ON;
 
 	hio_read(buf, 1, 30, f);		/* volume envelope points */;
 	for (j = 0; j < mod->xxi[i].aei.npt; j++) {
+		if (j >= 10) {
+			break;
+		}
 		mod->xxi[i].aei.data[j * 2] = readmem16l(buf + j * 3) / 16;
 		mod->xxi[i].aei.data[j * 2 + 1] = buf[j * 3 + 2];
 	}
 
 	hio_read(buf, 1, 30, f);		/* pan envelope points */;
 	for (j = 0; j < mod->xxi[i].pei.npt; j++) {
+		if (j >= 10) {
+			break;
+		}
 		mod->xxi[i].pei.data[j * 2] = readmem16l(buf + j * 3) / 16;
 		mod->xxi[i].pei.data[j * 2 + 1] = buf[j * 3 + 2];
 	}

@@ -307,7 +307,8 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	}
 
 	/* Sanity check */
-	if (mod->chn > XMP_MAX_CHANNELS) {
+	/* MMD0/MMD1 can't have more than 16 channels... */
+	if (mod->chn > MIN(16, XMP_MAX_CHANNELS)) {
 		return -1;
 	}
 
@@ -315,7 +316,7 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	libxmp_set_type(m, ver == 0 ? mod->chn > 4 ? "OctaMED 2.00 MMD0" :
 				"MED 2.10 MMD0" : "OctaMED 4.00 MMD1");
-	
+
 	MODULE_INFO();
 
 	D_(D_INFO "BPM mode: %s (length = %d)", bpm_on ? "on" : "off", bpmlen);

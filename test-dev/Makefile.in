@@ -318,6 +318,26 @@ PROBLEMATIC	= length_data_jack \
 		  length_roadblast \
 		  length_ode2ptk
 
+FUZZER		= it_dca_3 \
+		  abk_0_instruments \
+		  dbm_invalid_instruments \
+		  dbm_name_buffer_overflow \
+		  fnk_patterns_bound \
+		  gal4_env_point_bound \
+		  gal5_channels_bound \
+		  mdl_duplicate_chunk \
+		  mdl_invalid_run \
+		  med3_invalid_pattern \
+		  med4_instrument_name \
+		  mmd1_channel_count \
+		  mtm_channels_bound \
+		  psm_samples_bound \
+		  ult_channels_bound \
+		  ult_invalid_tracks \
+		  prowizard_di_patterns_bound \
+		  prowizard_pha_patterns_bound \
+		  prowizard_tp3_patterns_bound
+
 SYNTH		= #adlib #spectrum
 
 CASE1_TESTS	= $(addprefix new_note_no_ins_,$(REPLAYERS)) \
@@ -372,6 +392,8 @@ SYNTH_TESTS	= $(addprefix synth_,$(SYNTH))
 
 API_TESTS	= $(addprefix api_,$(API)) $(addprefix api_,$(API_SMIX))
 
+FUZZER_TESTS	= $(addprefix fuzzer_,$(FUZZER))
+
 PROBLEM_TESTS	= $(addprefix module_,$(PROBLEMATIC))
 
 TESTS		= $(READ_TESTS) \
@@ -397,6 +419,7 @@ TESTS		= $(READ_TESTS) \
 		  $(PLAYER_TESTS) \
 		  $(MIXER_TESTS) \
 		  $(SYNTH_TESTS) \
+		  $(FUZZER_TESTS) \
 		  $(PROBLEM_TESTS)
 
 TEST_NAMES	= $(addprefix test_,$(TESTS))

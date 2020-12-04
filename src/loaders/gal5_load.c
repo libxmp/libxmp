@@ -89,6 +89,10 @@ static int get_init(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	hio_read8(f);		/* unknown - 0x80 */
 	hio_read(data->chn_pan, 1, 64, f);
 
+	/* Sanity check */
+	if (mod->chn > XMP_MAX_CHANNELS)
+		return -1;
+
 	return 0;
 }
 

@@ -539,7 +539,7 @@ static int get_chunk_tr(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 		break;
 	    case 1:
 		/* Sanity check */
-		if (row + (j >> 2) > 255)
+		if (row < 1 || row + (j >> 2) > 255)
 		    goto err2;
 
 		for (k = 0; k <= (j >> 2); k++)

@@ -384,6 +384,9 @@ static struct abk_instrument* read_abk_insts(HIO_HANDLE *f, uint32 inst_section_
     uint16 i;
     struct abk_instrument *inst;
 
+    if (count < 1)
+        return NULL;
+
     inst = (struct abk_instrument*) malloc(count * sizeof(struct abk_instrument));
     memset(inst, 0, count * sizeof(struct abk_instrument));
 

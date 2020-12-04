@@ -225,6 +225,10 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
     ufh2.channels = hio_read8(f);
     ufh2.patterns = hio_read8(f);
 
+    if (hio_error(f)) {
+	return -1;
+    }
+
     for (i = 0; i < 256; i++) {
 	if (ufh2.order[i] == 0xff)
 	    break;
