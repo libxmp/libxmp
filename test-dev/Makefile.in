@@ -323,6 +323,7 @@ FUZZER		= it_dca_3 \
 		  dbm_invalid_instruments \
 		  dbm_name_buffer_overflow \
 		  fnk_patterns_bound \
+		  gal4_duplicate_instrument \
 		  gal4_env_point_bound \
 		  gal5_channels_bound \
 		  mdl_duplicate_chunk \

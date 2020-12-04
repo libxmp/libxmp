@@ -129,7 +129,7 @@ static int get_inst_cnt(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 
 	hio_read8(f);			/* 00 */
 	i = hio_read8(f) + 1;		/* instrument number */
-	
+
 	if (i > mod->ins)
 		mod->ins = i;
 
@@ -147,12 +147,12 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	int i, len, chan;
 	int rows, r;
 	uint8 flag;
-	
+
 	i = hio_read8(f);	/* pattern number */
 	len = hio_read32l(f);
-	
+
 	/* Sanity check */
-	if (i >= mod->pat || len <= 0) {
+	if (i >= mod->pat || len <= 0 || mod->xxp[i]) {
 		return -1;
 	}
 
@@ -218,6 +218,11 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 
 	hio_read8(f);		/* 00 */
 	i = hio_read8(f);		/* instrument number */
+
+	/* Sanity check */
+	if (i >= mod->ins || mod->xxi[i].nsm) {
+		return -1;
+	}
 
 	hio_read(mod->xxi[i].name, 1, 28, f);
 	mod->xxi[i].nsm = hio_read8(f);
