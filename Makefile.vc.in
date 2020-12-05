@@ -2,6 +2,10 @@
 #	nmake -f Makefile.vc USE_DEPACKERS=0
 USE_DEPACKERS	= 1
 
+# To disable ProWizard:
+#	nmake -f Makefile.vc USE_PROWIZARD=0
+USE_PROWIZARD	= 1
+
 CC	= cl
 CFLAGS	= /O2 /W3 /Iinclude /Isrc /Isrc\win32 /DBUILDING_DLL /DWIN32 \
 	  /Dinline=__inline /DPATH_MAX=1024 /D_USE_MATH_DEFINES
@@ -9,13 +13,21 @@ LD	= link
 LDFLAGS	= /DLL /RELEASE /OUT:$(DLL)
 DLL	= libxmp.dll
 
+!if $(USE_PROWIZARD)==0
+CFLAGS	= $(CFLAGS) /DLIBXMP_NO_PROWIZARD
+!endif
+
 !if $(USE_DEPACKERS)==0
 CFLAGS  = $(CFLAGS) /DLIBXMP_NO_DEPACKERS
 !endif
 
 OBJS	= @OBJS@ src\win32\ptpopen.obj
+PROWIZ_OBJS	= @POBJS@
 DEPACKER_OBJS	= @DOBJS@
 ALL_OBJS	= $(OBJS)
+!if $(USE_PROWIZARD)==1
+ALL_OBJS	= $(ALL_OBJS) $(PROWIZ_OBJS)
+!endif
 !if $(USE_DEPACKERS)==1
 ALL_OBJS	= $(ALL_OBJS) $(DEPACKER_OBJS)
 !endif

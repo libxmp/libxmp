@@ -9,10 +9,14 @@
 # To disable module depacker functionality:
 #	wmake -f Makefile.os2 USE_DEPACKERS=0
 #
+# To disable ProWizard functionality:
+#	wmake -f Makefile.os2 USE_PROWIZARD=0
+#
 !ifndef target
 target = dll
 !endif
 
+USE_PROWIZARD	= 1
 USE_DEPACKERS	= 1
 
 CC = wcc386
@@ -21,6 +25,9 @@ CFLAGS = -zq -bt=os2 -bm -fp5 -fpi87 -mf -oeatxh -w4 -ei -zp8
 # -5s  :  Pentium stack calling conventions.
 # -5r  :  Pentium register calling conventions.
 CFLAGS += -5s
+!ifeq USE_PROWIZARD 0
+CFLAGS += -DLIBXMP_NO_PROWIZARD
+!endif
 !ifeq USE_DEPACKERS 0
 CFLAGS += -DLIBXMP_NO_DEPACKERS
 !endif
@@ -43,8 +50,12 @@ BLD_TARGET=$(DLLNAME)
 !endif
 
 OBJS=@OBJS@
+PROWIZ_OBJS=@POBJS@
 DEPACKER_OBJS=@DOBJS@
 ALL_OBJS=$(OBJS)
+!ifeq USE_PROWIZARD 1
+ALL_OBJS+= $(PROWIZ_OBJS)
+!endif
 !ifeq USE_DEPACKERS 1
 ALL_OBJS+= $(DEPACKER_OBJS)
 !endif

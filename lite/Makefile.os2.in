@@ -16,7 +16,7 @@ CFLAGS = -zq -bt=os2 -bm -fp5 -fpi87 -mf -oeatxh -w4 -ei -zp8
 # -5s  :  Pentium stack calling conventions.
 # -5r  :  Pentium register calling conventions.
 CFLAGS += -5s
-CFLAGS += -DHAVE_ALLOCA_H -DHAVE_FNMATCH -DHAVE_MKSTEMP -DHAVE_UMASK -DLIBXMP_CORE_PLAYER -DLIBXMP_NO_DEPACKERS
+CFLAGS += -DHAVE_ALLOCA_H -DHAVE_FNMATCH -DHAVE_MKSTEMP -DHAVE_UMASK -DLIBXMP_CORE_PLAYER -DLIBXMP_NO_PROWIZARD -DLIBXMP_NO_DEPACKERS
 #CFLAGS += -DDEBUG
 CFLAGS += -I"src/os2" -I"include/libxmp-lite" -Isrc
 

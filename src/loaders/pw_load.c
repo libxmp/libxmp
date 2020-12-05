@@ -32,6 +32,8 @@
 #include "prowizard/prowiz.h"
 #include "tempfile.h"
 
+#ifndef LIBXMP_NO_PROWIZARD
+
 extern struct list_head *checked_format;
 
 static int pw_test(HIO_HANDLE *, char *, const int);
@@ -226,3 +228,5 @@ static int pw_load(struct module_data *m, HIO_HANDLE *h, const int start)
     err:
 	return -1;
 }
+
+#endif /* LIBXMP_NO_PROWIZARD */
