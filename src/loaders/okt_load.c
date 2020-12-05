@@ -63,6 +63,9 @@ struct local_data {
 	int idx[36];
 	int pattern;
 	int sample;
+	int has_cmod;
+	int has_samp;
+	int has_slen;
 };
 
 static const int fx[32] = {
@@ -103,7 +106,14 @@ static const int fx[32] = {
 static int get_cmod(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
+	struct local_data *data = (struct local_data *)parm;
 	int i;
+
+	/* Sanity check */
+	if (data->has_cmod || size < 8) {
+		return -1;
+	}
+	data->has_cmod = 1;
 
 	mod->chn = 0;
 	for (i = 0; i < 4; i++) {
@@ -132,8 +142,10 @@ static int get_samp(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	int looplen;
 
 	/* Sanity check */
-	if (size != 36 * 32)
+	if (data->has_samp || size != 36 * 32) {
 		return -1;
+	}
+	data->has_samp = 1;
 
 	/* Should be always 36 */
 	mod->ins = size / 32;	/* sizeof(struct okt_instrument_header); */
@@ -191,6 +203,13 @@ static int get_spee(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 static int get_slen(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
+	struct local_data *data = (struct local_data *)parm;
+
+	/* Sanity check */
+	if (data->has_slen || size < 2) {
+		return -1;
+	}
+	data->has_slen = 1;
 
 	mod->pat = hio_read16b(f);
 	mod->trk = mod->pat * mod->chn;
