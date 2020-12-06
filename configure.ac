@@ -1,6 +1,7 @@
 dnl AC_CONFIG_AUX_DIR(./scripts)
 AC_INIT
 AC_ARG_ENABLE(depackers, [  --disable-depackers     Don't build depackers])
+AC_ARG_ENABLE(prowizard, [  --disable-prowizard     Don't build ProWizard])
 AC_ARG_ENABLE(static,    [  --enable-static         Build static library])
 AC_ARG_ENABLE(shared,    [  --disable-shared        Don't build shared library])
 AC_SUBST(LD_VERSCRIPT)
@@ -160,6 +161,13 @@ else
   CFLAGS="${CFLAGS} -DLIBXMP_NO_DEPACKERS"
 fi
 AC_SUBST(DEPACKER_OBJS)
+
+if test "${enable_prowizard}" != no; then
+  PROWIZARD_OBJS='$(PROWIZARD_OBJS)'
+else
+  CFLAGS="${CFLAGS} -DLIBXMP_NO_PROWIZARD"
+fi
+AC_SUBST(PROWIZARD_OBJS)
 
 XMP_TRY_COMPILE(whether alloca() needs alloca.h,
   ac_cv_c_flag_w_have_alloca_h,,[

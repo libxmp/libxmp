@@ -18,7 +18,9 @@ const char *const *format_list(void);
 #define NUM_FORMATS 52
 #define NUM_PW_FORMATS 43
 
+#ifndef LIBXMP_NO_PROWIZARD
 int pw_test_format(HIO_HANDLE *, char *, const int, struct xmp_test_info *);
+#endif
 #endif
 
 #endif

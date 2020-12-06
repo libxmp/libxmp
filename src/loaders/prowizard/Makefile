@@ -9,7 +9,7 @@ PROWIZ_OBJS2	= pm.o pm01.o pm20.o pm40.o pp30.o
 PROWIZ_DFILES	= Makefile $(PROWIZ_OBJS:.o=.c) $(PROWIZ_OBJS2:.o=.c) prowiz.h
 PROWIZ_PATH	= src/loaders/prowizard
 
-OBJS += $(addprefix $(PROWIZ_PATH)/, $(PROWIZ_OBJS))
+PROWIZARD_OBJS	= $(addprefix $(PROWIZ_PATH)/, $(PROWIZ_OBJS))
 
 dist-prowiz::
 	mkdir -p $(DIST)/$(PROWIZ_PATH)
