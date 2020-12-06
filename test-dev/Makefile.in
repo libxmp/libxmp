@@ -338,7 +338,10 @@ FUZZER		= it_dca_3 \
 		  ult_invalid_tracks \
 		  prowizard_di_patterns_bound \
 		  prowizard_pha_patterns_bound \
-		  prowizard_tp3_patterns_bound
+		  prowizard_tp3_patterns_bound \
+		  depack_gzip_truncated \
+		  depack_muse_truncated \
+		  depack_zip_truncated
 
 SYNTH		= #adlib #spectrum
 
