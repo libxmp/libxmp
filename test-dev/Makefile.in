@@ -339,6 +339,7 @@ FUZZER		= it_dca_3 \
 		  prowizard_di_patterns_bound \
 		  prowizard_pha_patterns_bound \
 		  prowizard_tp3_patterns_bound \
+		  depack_arcfs_zero_length \
 		  depack_gzip_truncated \
 		  depack_muse_truncated \
 		  depack_zip_truncated
