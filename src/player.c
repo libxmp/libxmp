@@ -1293,11 +1293,12 @@ static void play_channel(struct context_data *ctx, int chn)
 
 	libxmp_virt_release(ctx, chn, TEST_NOTE(NOTE_RELEASE));
 
+	update_volume(ctx, chn);
+
 	process_volume(ctx, chn, act);
 	process_frequency(ctx, chn, act);
 	process_pan(ctx, chn, act);
 
-	update_volume(ctx, chn);
 	update_frequency(ctx, chn);
 	update_pan(ctx, chn);
 
