@@ -43,8 +43,10 @@ $(DLL): $(ALL_OBJS)
 	$(LD) $(LDFLAGS) $(ALL_OBJS)
 
 clean:
-	del $(OBJS) $(DLL) *.lib *.exp
+	del $(OBJS)
 	del $(DEPACKER_OBJS)
+	del $(PROWIZ_OBJS)
+	del $(DLL) *.lib *.exp
 
 check: $(TEST)
 	$(LD) /RELEASE /OUT:test\libxmp-test.exe $(TEST) libxmp.lib

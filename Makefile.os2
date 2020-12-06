@@ -77,7 +77,9 @@ $(LIBSTATIC): $(ALL_OBJS)
 	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(ALL_OBJS)
 
 clean: .symbolic
-	rm -f $(OBJS) $(DEPACKER_OBJS)
+	rm -f $(OBJS)
+	rm -f $(DEPACKER_OBJS)
+	rm -f $(PROWIZ_OBJS)
 
 distclean: clean .symbolic
 	rm -f $(DLLNAME) $(EXPNAME) $(LIBNAME) $(LIBSTATIC)
