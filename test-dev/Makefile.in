@@ -341,6 +341,7 @@ FUZZER		= it_dca_3 \
 		  prowizard_tp3_patterns_bound \
 		  depack_arcfs_zero_length \
 		  depack_gzip_truncated \
+		  depack_lzx_invalid \
 		  depack_muse_truncated \
 		  depack_zip_truncated
 

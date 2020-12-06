@@ -663,7 +663,7 @@ static int read_literal_table(struct LZXDecrData *decr)
                     x = decr->literal_len[pos] + 17 - symbol;
 
                     /* Sanity check */
-                    if (x >= 34)
+                    if (x < 0 || x >= 34)
                         return -1;
 
 		    symbol = table_four[x];
