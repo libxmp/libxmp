@@ -336,6 +336,23 @@ static int ft2_arpeggio(struct context_data *ctx, struct channel_data *xc)
 	return xc->arpeggio.val[i % 3];
 }
 
+static int arpeggio(struct context_data *ctx, struct channel_data *xc)
+{
+	struct module_data *m = &ctx->m;
+	int arp;
+
+	if (HAS_QUIRK(QUIRK_FT2BUGS)) {
+		arp = ft2_arpeggio(ctx, xc);
+	} else {
+		arp = xc->arpeggio.val[xc->arpeggio.count];
+	}
+
+	xc->arpeggio.count++;
+	xc->arpeggio.count %= xc->arpeggio.size;
+
+	return arp;
+}
+
 static int is_first_frame(struct context_data *ctx)
 {
 	struct player_data *p = &ctx->p;
@@ -840,12 +857,7 @@ static void process_frequency(struct context_data *ctx, int chn, int act)
 	} 
 
 	/* Arpeggio */
-
-	if (HAS_QUIRK(QUIRK_FT2BUGS)) {
-		arp = ft2_arpeggio(ctx, xc);
-	} else {
-		arp = xc->arpeggio.val[xc->arpeggio.count];
-	}
+	arp = arpeggio(ctx, xc);
 
 	/* Pitch bend */
 
@@ -1186,9 +1198,6 @@ static void update_frequency(struct context_data *ctx, int chn)
 		break;
 	}
 
-	xc->arpeggio.count++;
-	xc->arpeggio.count %= xc->arpeggio.size;
-
 	/* Check for invalid periods (from Toru Egashira's NSPmod)
 	 * panic.s3m has negative periods
 	 * ambio.it uses low (~8) period values
@@ -1294,12 +1303,12 @@ static void play_channel(struct context_data *ctx, int chn)
 	libxmp_virt_release(ctx, chn, TEST_NOTE(NOTE_RELEASE));
 
 	update_volume(ctx, chn);
+	update_frequency(ctx, chn);
 
 	process_volume(ctx, chn, act);
 	process_frequency(ctx, chn, act);
 	process_pan(ctx, chn, act);
 
-	update_frequency(ctx, chn);
 	update_pan(ctx, chn);
 
 #ifndef LIBXMP_CORE_PLAYER

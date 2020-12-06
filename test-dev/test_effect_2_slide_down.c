@@ -32,10 +32,7 @@ TEST(test_effect_2_slide_down)
 
 	for (i = 0; i < 60; i++) {
 		k = 113 + i * 10;
-		xmp_play_frame(opaque);
-		xmp_get_frame_info(opaque, &info);
-		fail_unless(PERIOD == k, "period error (frame 0)");
-		for (j = 0; j < 5; j++) {
+		for (j = 0; j < 6; j++) {
 			xmp_play_frame(opaque);
 			xmp_get_frame_info(opaque, &info);
 			fail_unless(PERIOD == k + j * 2, "period error");
@@ -56,10 +53,10 @@ TEST(test_effect_2_slide_down)
 	fail_unless(PERIOD == 113, "slide error (no fine slide)");
 	xmp_play_frame(opaque);
 	xmp_get_frame_info(opaque, &info);
-	fail_unless(PERIOD == 113, "slide error (no fine slide)");
+	fail_unless(PERIOD == 355, "slide error (no fine slide)");
 	xmp_play_frame(opaque);
 	xmp_get_frame_info(opaque, &info);
-	fail_unless(PERIOD == 355, "slide error (no fine slide)");
+	fail_unless(PERIOD == 597, "slide error (no fine slide)");
 
 	xmp_restart_module(opaque);
 
@@ -68,10 +65,7 @@ TEST(test_effect_2_slide_down)
 
 	for (i = 0; i < 60; i++) {
 		k = 113 + i * 2;
-		xmp_play_frame(opaque);
-		xmp_get_frame_info(opaque, &info);
-		fail_unless(PERIOD == k, "fine slide error (frame 0)");
-		for (j = 0; j < 5; j++) {
+		for (j = 0; j < 6; j++) {
 			xmp_play_frame(opaque);
 			xmp_get_frame_info(opaque, &info);
 			fail_unless(PERIOD == k + 2, "fine slide error");
@@ -88,10 +82,7 @@ TEST(test_effect_2_slide_down)
 
 	for (i = 0; i < 60; i++) {
 		k = 113 + i * 1;
-		xmp_play_frame(opaque);
-		xmp_get_frame_info(opaque, &info);
-		fail_unless(PERIOD == k, "extra fine slide error (frame 0)");
-		for (j = 0; j < 5; j++) {
+		for (j = 0; j < 6; j++) {
 			xmp_play_frame(opaque);
 			xmp_get_frame_info(opaque, &info);
 			fail_unless(PERIOD == k + 1, "extra fine slide error");
