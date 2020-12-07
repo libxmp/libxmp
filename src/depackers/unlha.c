@@ -231,7 +231,11 @@ static int make_table(struct LhADecrData *dat, int16 nchar, uint8 bitlen[], int1
 
   /* count */
   for(i = 0; i < nchar; i++)
+  {
+    if(bitlen[i] >= ARRAY_SIZE(count))
+      return -1;
     count[bitlen[i]]++;
+  }
 
   /* calculate first code */
   total = 0;
