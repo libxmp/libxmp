@@ -343,6 +343,7 @@ FUZZER		= it_dca_3 \
 		  depack_gzip_truncated \
 		  depack_lzx_invalid \
 		  depack_muse_truncated \
+		  depack_sqsh_truncated \
 		  depack_zip_truncated
 
 SYNTH		= #adlib #spectrum

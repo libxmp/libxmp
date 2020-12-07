@@ -251,7 +251,7 @@ static int unsqsh(uint8 *src, int srclen, uint8 *dest, int destlen)
 
 	while (len) {
 		/* Sanity check */
-		if (c >= src + srclen) {
+		if (c + 8 > src + srclen) {
 			return -1;
 		}
 
