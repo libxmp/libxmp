@@ -231,7 +231,11 @@ static int make_table(struct LhADecrData *dat, int16 nchar, uint8 bitlen[], int1
 
   /* count */
   for(i = 0; i < nchar; i++)
+  {
+    if(bitlen[i] >= ARRAY_SIZE(count))
+      return -1;
     count[bitlen[i]]++;
+  }
 
   /* calculate first code */
   total = 0;
@@ -1504,14 +1508,17 @@ static int32 LhA_Decrunch(FILE *in, FILE *out, int size, uint32 Method)
           if (dd->count >= size)
             break;
 
+          if(feof(dd->in))
+            break;
+
           c = DecodeC(dd);
           if (c < 0) {
             goto error;
           }
 
-	  if (dd->error)
-	    break;
-	
+          if(dd->error)
+            break;
+
           if(c <= UCHAR_MAX)
           {
             int res = fputc(c, out);
@@ -1532,7 +1539,7 @@ static int32 LhA_Decrunch(FILE *in, FILE *out, int size, uint32 Method)
               int res = fputc(text[i++ & dicsiz], out);
               if (res < 0) {
                 goto error;
-              }        
+              }
               text[dd->loc++] = res;
               dd->loc &= dicsiz;
             }

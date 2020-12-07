@@ -110,7 +110,7 @@ static unsigned char *read_file_data(FILE *in,
 	unsigned char *data;
 	int siz = hdrp->compressed_size;
 
-	if ((data = malloc(siz)) == NULL) {
+	if (!siz || (data = malloc(siz)) == NULL) {
 		goto err;
 	}
 	if (fseek(in, hdrp->offset, SEEK_SET) < 0) {
@@ -153,6 +153,10 @@ static int arcfs_extract(FILE *in, FILE *out)
 	 */
 	switch (hdr.method) {
 	case 2:		/* no compression */
+		if (hdr.orig_size != hdr.compressed_size) {
+			free(data);
+			return -1;
+		}
 		orig_data = data;
 		break;
 
