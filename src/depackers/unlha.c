@@ -1508,14 +1508,17 @@ static int32 LhA_Decrunch(FILE *in, FILE *out, int size, uint32 Method)
           if (dd->count >= size)
             break;
 
+          if(feof(dd->in))
+            break;
+
           c = DecodeC(dd);
           if (c < 0) {
             goto error;
           }
 
-	  if (dd->error)
-	    break;
-	
+          if(dd->error)
+            break;
+
           if(c <= UCHAR_MAX)
           {
             int res = fputc(c, out);
@@ -1536,7 +1539,7 @@ static int32 LhA_Decrunch(FILE *in, FILE *out, int size, uint32 Method)
               int res = fputc(text[i++ & dicsiz], out);
               if (res < 0) {
                 goto error;
-              }        
+              }
               text[dd->loc++] = res;
               dd->loc &= dicsiz;
             }
