@@ -336,6 +336,23 @@ static int ft2_arpeggio(struct context_data *ctx, struct channel_data *xc)
 	return xc->arpeggio.val[i % 3];
 }
 
+static int arpeggio(struct context_data *ctx, struct channel_data *xc)
+{
+	struct module_data *m = &ctx->m;
+	int arp;
+
+	if (HAS_QUIRK(QUIRK_FT2BUGS)) {
+		arp = ft2_arpeggio(ctx, xc);
+	} else {
+		arp = xc->arpeggio.val[xc->arpeggio.count];
+	}
+
+	xc->arpeggio.count++;
+	xc->arpeggio.count %= xc->arpeggio.size;
+
+	return arp;
+}
+
 static int is_first_frame(struct context_data *ctx)
 {
 	struct player_data *p = &ctx->p;
@@ -769,6 +786,7 @@ static void process_frequency(struct context_data *ctx, int chn, int act)
 	struct channel_data *xc = &p->xc_data[chn];
 	struct xmp_instrument *instrument;
 	double period, vibrato;
+	double final_period;
 	int linear_bend;
 	int frq_envelope;
 	int arp;
@@ -834,39 +852,22 @@ static void process_frequency(struct context_data *ctx, int chn, int act)
 	period += libxmp_extras_get_period(ctx, xc);
 #endif
 
+	if (HAS_QUIRK(QUIRK_ST3BUGS)) {
+		if (period < 0.25) {
+			libxmp_virt_resetchannel(ctx, chn);
+		}
+	}
 	/* Sanity check */
 	if (period < 0.1) {
 		period = 0.1;
 	} 
 
 	/* Arpeggio */
-
-	if (HAS_QUIRK(QUIRK_FT2BUGS)) {
-		arp = ft2_arpeggio(ctx, xc);
-	} else {
-		arp = xc->arpeggio.val[xc->arpeggio.count];
-	}
+	arp = arpeggio(ctx, xc);
 
 	/* Pitch bend */
 
- 	/* From OpenMPT PeriodLimit.s3m:
-	 * "ScreamTracker 3 limits the final output period to be at least 64,
-	 *  i.e. when playing a note that is too high or when sliding the
-	 *  period lower than 64, the output period will simply be clamped to
-	 *  64. However, when reaching a period of 0 through slides, the
-	 *  output on the channel should be stopped."
-	 */
-	/* ST3 uses periods*4, so the limit is 16. Adjusted to the exact
-	 * A6 value because we compute periods in floating point.
-	 */
-	if (HAS_QUIRK(QUIRK_ST3BUGS)) {
-		if (period < 16.239270) {	/* A6 */
-			period = 16.239270;
-		}
-	}
-
-	linear_bend = libxmp_period_to_bend(ctx, period + vibrato, xc->note,
-							xc->per_adj);
+	linear_bend = libxmp_period_to_bend(ctx, period + vibrato, xc->note, xc->per_adj);
 
 	if (TEST_NOTE(NOTE_GLISSANDO) && TEST(TONEPORTA)) {
 		if (linear_bend > 0) {
@@ -920,12 +921,29 @@ static void process_frequency(struct context_data *ctx, int chn, int act)
 	linear_bend += libxmp_extras_get_linear_bend(ctx, xc);
 #endif
 
-	period = libxmp_note_to_period_mix(xc->note, linear_bend);
-	libxmp_virt_setperiod(ctx, chn, period);
+	final_period = libxmp_note_to_period_mix(xc->note, linear_bend);
+
+	/* From OpenMPT PeriodLimit.s3m:
+	 * "ScreamTracker 3 limits the final output period to be at least 64,
+	 *  i.e. when playing a note that is too high or when sliding the
+	 *  period lower than 64, the output period will simply be clamped to
+	 *  64. However, when reaching a period of 0 through slides, the
+	 *  output on the channel should be stopped."
+	 */
+	/* ST3 uses periods*4, so the limit is 16. Adjusted to the exact
+	 * A6 value because we compute periods in floating point.
+	 */
+	if (HAS_QUIRK(QUIRK_ST3BUGS)) {
+		if (final_period < 16.239270) {	/* A6 */
+			final_period = 16.239270;
+		}
+	}
+
+	libxmp_virt_setperiod(ctx, chn, final_period);
 
 	/* For xmp_get_frame_info() */
 	xc->info_pitchbend = linear_bend >> 7;
-	xc->info_period = period * 4096;
+	xc->info_period = final_period * 4096;
 
 	if (IS_PERIOD_MODRNG()) {
 		CLAMP(xc->info_period,
@@ -1186,9 +1204,6 @@ static void update_frequency(struct context_data *ctx, int chn)
 		break;
 	}
 
-	xc->arpeggio.count++;
-	xc->arpeggio.count %= xc->arpeggio.size;
-
 	/* Check for invalid periods (from Toru Egashira's NSPmod)
 	 * panic.s3m has negative periods
 	 * ambio.it uses low (~8) period values
@@ -1293,13 +1308,13 @@ static void play_channel(struct context_data *ctx, int chn)
 
 	libxmp_virt_release(ctx, chn, TEST_NOTE(NOTE_RELEASE));
 
-	process_volume(ctx, chn, act);
-	process_frequency(ctx, chn, act);
-	process_pan(ctx, chn, act);
-
 	update_volume(ctx, chn);
 	update_frequency(ctx, chn);
 	update_pan(ctx, chn);
+
+	process_volume(ctx, chn, act);
+	process_frequency(ctx, chn, act);
+	process_pan(ctx, chn, act);
 
 #ifndef LIBXMP_CORE_PLAYER
 	if (HAS_QUIRK(QUIRK_PROTRACK) && xc->ins < mod->ins) {
