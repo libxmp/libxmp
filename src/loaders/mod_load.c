@@ -212,7 +212,10 @@ static int mod_test(HIO_HANDLE * f, char *t, const int start)
 	/* validate pattern data in an attempt to catch UNICs with MOD size */
 	for (count = i = 0; i < num_pat; i++) {
 		hio_seek(f, start + 1084 + 1024 * i, SEEK_SET);
-		hio_read(pat_buf, 1024, 1, f);
+		if (!hio_read(pat_buf, 1024, 1, f)) {
+			D_(D_WARN "pattern %d: failed to read pattern data", i);
+			return -1;
+		}
 		if (validate_pattern(pat_buf) < 0) {
 			D_(D_WARN "pattern %d: error in pattern data", i);
 			/* Allow a few errors, "lexstacy" has 0x52 */
