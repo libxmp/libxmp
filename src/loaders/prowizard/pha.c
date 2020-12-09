@@ -199,11 +199,11 @@ restart:
 	pdata = (uint8 *) malloc (psize);
 	psize = hio_read(pdata, 1, psize, in);
 	npat += 1;		/* coz first value is $00 */
-	pat = (uint8 *)malloc(npat * 1024);
-	memset(pat, 0, npat * 1024);
+	size = npat * 1024;
+	pat = (uint8 *)calloc(1, size);
 
 	j = 0;
-	for (i = 0; j < psize; i++) {
+	for (i = 0; i < psize && j < size; i++) {
 		if (pdata[i] == 0xff) {
 			i += 1;
 			ocpt[(k + 3) % 4] = 0xff - pdata[i];
