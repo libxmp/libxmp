@@ -70,7 +70,7 @@ static int depack_ac1d(HIO_HANDLE *in, FILE *out)
 
 	hio_seek(in, 0x300, SEEK_SET);	/* go to pattern table .. */
 	pw_move_data(out, in, 128);	/* pattern table */
-	
+
 	write32b(out, PW_MOD_MAGIC);	/* M.K. */
 
 	/* pattern data */
@@ -106,7 +106,7 @@ static int depack_ac1d(HIO_HANDLE *in, FILE *out)
 
 				tmp[x] = ins & 0xf0;
 
-				if (note != NO_NOTE) {
+				if (note != NO_NOTE && PTK_IS_VALID_NOTE(note)) {
 					tmp[x] |= ptk_table[note][0];
 					tmp[x + 1] = ptk_table[note][1];
 				}

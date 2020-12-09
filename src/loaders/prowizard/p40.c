@@ -152,6 +152,9 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 					sample = ((c1 << 4) & 0x10) |
 							((c2 >> 4) & 0x0f);
 					mynote = c1 & 0x7f;
+					if (hio_error(in) || !PTK_IS_VALID_NOTE(mynote / 2)) {
+						return -1;
+					}
 					note[0] = ptk_table[mynote / 2][0];
 					note[1] = ptk_table[mynote / 2][1];
 					switch (c2 & 0x0f) {
@@ -211,6 +214,9 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 					sample = ((c1 << 4) & 0x10) |
 						((c2 >> 4) & 0x0f);
 					mynote = c1 & 0x7f;
+					if (hio_error(in) || !PTK_IS_VALID_NOTE(mynote / 2)) {
+						return -1;
+					}
 					note[0] = ptk_table[mynote / 2][0];
 					note[1] = ptk_table[mynote / 2][1];
 					switch (c2 & 0x0f) {

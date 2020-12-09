@@ -117,6 +117,11 @@ static int depack_zen(HIO_HANDLE *in, FILE *out)
 			c4 = hio_read8(in);
 
 			note = (c2 & 0x7f) / 2;
+
+			if (hio_error(in) || !PTK_IS_VALID_NOTE(note)) {
+				return -1;
+			}
+
 			fxp = c4;
 			ins = ((c2 << 4) & 0x10) | ((c3 >> 4) & 0x0f);
 			fxt = c3 & 0x0f;

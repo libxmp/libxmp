@@ -109,7 +109,7 @@ static int depack_np1(HIO_HANDLE *in, FILE *out)
 				c3 = hio_read8(in);
 				c4 = (c1 & 0xfe) / 2;
 
-				if (hio_error(in) || c4 >= 37) {
+				if (hio_error(in) || !PTK_IS_VALID_NOTE(c4)) {
 					return -1;
 				}
 

@@ -97,8 +97,10 @@ static int depack_nru(HIO_HANDLE *in, FILE *out)
 				break;
 			}
 			pat_data[j * 4] = ins & 0xf0;
-			pat_data[j * 4] |= ptk_table[note / 2][0];
-			pat_data[j * 4 + 1] = ptk_table[note / 2][1];
+			if (PTK_IS_VALID_NOTE(note / 2)) {
+				pat_data[j * 4] |= ptk_table[note / 2][0];
+				pat_data[j * 4 + 1] = ptk_table[note / 2][1];
+			}
 			pat_data[j * 4 + 2] = (ins << 4) & 0xf0;
 			pat_data[j * 4 + 2] |= fxt;
 			pat_data[j * 4 + 3] = fxp;

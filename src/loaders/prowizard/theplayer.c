@@ -16,8 +16,13 @@ static uint8 set_event(uint8 *x, uint8 c1, uint8 c2, uint8 c3)
 {
 	uint8 b;
 
-	*x++ = ((c1 << 4) & 0x10) | ptk_table[c1 / 2][0];
-	*x++ = ptk_table[c1 / 2][1];
+	if (PTK_IS_VALID_NOTE(c1 / 2)) {
+		*x++ = ((c1 << 4) & 0x10) | ptk_table[c1 / 2][0];
+		*x++ = ptk_table[c1 / 2][1];
+	} else {
+		*x++ = ((c1 << 4) & 0x10);
+		*x++ = 0;
+	}
 
 	b = c2 & 0x0f;
 	if (b == 0x08)

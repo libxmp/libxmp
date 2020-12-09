@@ -84,7 +84,7 @@ static int depack_xann(HIO_HANDLE *in, FILE *out)
 			fxt = hio_read8(in);
 			fxp = hio_read8(in);
 
-			if (hio_error(in) || note >= 74) {
+			if (hio_error(in) || !PTK_IS_VALID_NOTE(note >> 1)) {
 				return -1;
 			}
 

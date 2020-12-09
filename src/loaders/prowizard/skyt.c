@@ -79,6 +79,10 @@ static int depack_skyt(HIO_HANDLE *in, FILE *out)
 				c3 = hio_read8(in);
 				c4 = hio_read8(in);
 
+				if (hio_error(in) || !PTK_IS_VALID_NOTE(c1)) {
+					return -1;
+				}
+
 				pat[x] = (c2 & 0xf0) | ptk_table[c1][0];
 				pat[x + 1] = ptk_table[c1][1];
 				pat[x + 2] = ((c2 << 4) & 0xf0) | c3;
