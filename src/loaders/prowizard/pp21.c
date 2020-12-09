@@ -131,6 +131,8 @@ static int test_pp21(const uint8 *data, char *t, int s)
 	int i;
 	int ssize, tsize, npat, max_ref;
 
+	PW_REQUEST_DATA(s, 762);
+
 	ssize = 0;
 	for (i = 0; i < 31; i++) {
 		const uint8 *d = data + i * 8;
@@ -170,6 +172,8 @@ static int test_pp21(const uint8 *data, char *t, int s)
 
 	tsize++;
 	tsize <<= 6;
+
+	PW_REQUEST_DATA(s, tsize * 2 + 4 + 762);
 
 	/* test #4  track data value > $4000 ? */
 	max_ref = 0;
@@ -199,6 +203,8 @@ static int test_pp30(const uint8 *data, char *t, int s)
 	int i;
 	int ssize, tsize, npat, max_ref, ref_size;
 
+	PW_REQUEST_DATA(s, 762);
+
 	ssize = 0;
 	for (i = 0; i < 31; i++) {
 		const uint8 *d = data + i * 8;
@@ -239,6 +245,8 @@ static int test_pp30(const uint8 *data, char *t, int s)
 	tsize++;
 	tsize <<= 6;
 
+	PW_REQUEST_DATA(s, (tsize * 2) + 4 + 762);
+
 	/* test #4  track data value *4 ? */
 	max_ref = 0;
 	for (i = 0; i < tsize; i++) {
@@ -266,9 +274,11 @@ static int test_pp30(const uint8 *data, char *t, int s)
 
 	ref_size >>= 2;
 
+	PW_REQUEST_DATA(s, (ref_size * 4) + (tsize * 2) + 4 + 762);
+
 	/* test #6  data in reference table ... */
 	for (i = 0; i < ref_size; i++) {
-		const uint8 *d = data + tsize + 766 + i * 4;
+		const uint8 *d = data + (tsize * 2) + 766 + i * 4;
 		uint8 fxt = d[2] & 0x0f;
 		uint8 fxp = d[3];
 

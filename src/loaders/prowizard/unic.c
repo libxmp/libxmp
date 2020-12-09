@@ -291,6 +291,8 @@ static int test_unic_id(const uint8 *data, char *t, int s)
 	if (psize < 0)
 		return -1;
 
+	PW_REQUEST_DATA(s, psize * 3 + 1084);
+
 	/* test #5 pattern data ... */
 	for (i = 0; i < psize; i++) {
 		/* relative note number + last bit of sample > $34 ? */

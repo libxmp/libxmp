@@ -170,6 +170,8 @@ static int test_nru(const uint8 *data, char *t, int s)
 	psize++;
 	psize <<= 8;
 
+	PW_REQUEST_DATA(s, psize * 4 + 1084);
+
 	/* test #5 pattern data ... */
 	for (i = 0; i < psize; i++) {
 		const uint8 *d = data + 1084 + i * 4;
