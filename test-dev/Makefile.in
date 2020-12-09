@@ -338,6 +338,7 @@ FUZZER		= it_dca_3 \
 		  ult_invalid_tracks \
 		  prowizard_ac1d_invalid_note \
 		  prowizard_di_patterns_bound \
+		  prowizard_eureka_truncated \
 		  prowizard_np3_invalid_note \
 		  prowizard_p61a_invalid_note \
 		  prowizard_pha_invalid_note \
