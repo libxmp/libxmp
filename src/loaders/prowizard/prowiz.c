@@ -98,73 +98,69 @@ int pw_write_zero(FILE *out, int len)
 
 int pw_wizardry(HIO_HANDLE *file_in, FILE *file_out, const char **name)
 {
-	int in_size;
-	uint8 *data;
-	char title[21];
-	int i;
-
-	in_size = hio_size(file_in);
-
-	/* printf ("input file size : %d\n", in_size); */
-	if (in_size < MIN_FILE_LENGHT) {
-		return -2;
-	}
-
-	if ((data = (uint8 *)malloc(in_size)) == NULL) {
-		goto err;
-	}
-	if (hio_read(data, 1, in_size, file_in) != in_size) {
-		goto err2;
-	}
-
+	const struct pw_format *format;
 
   /**************************   SEARCH   ******************************/
 
-	for (i = 0; pw_formats[i] != NULL; i++) {
-		D_("checking format: %s", pw_formats[i]->name);
-		if (pw_formats[i]->test(data, title, in_size) >= 0)
-			break;
-	}
-
-	if (pw_formats[i] == NULL) {
-		goto err2;
+	format = pw_check(file_in, NULL);
+	if (format == NULL) {
+		return -1;
 	}
 
 	hio_error(file_in); /* reset error flag */
 	hio_seek(file_in, 0, SEEK_SET);
-	if (pw_formats[i]->depack(file_in, file_out) < 0) {
-		goto err2;
+	if (format->depack(file_in, file_out) < 0) {
+		return -1;
 	}
 
 	if (hio_error(file_in)) {
-		goto err2;
+		return -1;
 	}
 
 	fflush(file_out);
-	free(data);
 
 	if (name != NULL) {
-		*name = pw_formats[i]->name;
+		*name = format->name;
 	}
 
 	return 0;
-
-    err2:
-	free(data);
-    err:
-	return -1;
 }
 
-int pw_check(unsigned char *b, int s, struct xmp_test_info *info)
+#define BUF_SIZE 0x10000
+
+const struct pw_format *pw_check(HIO_HANDLE *f, struct xmp_test_info *info)
 {
 	int i, res;
 	char title[21];
+	unsigned char *b;
+	int s = BUF_SIZE;
+
+	b = calloc(1, BUF_SIZE);
+	if (b == NULL)
+		return NULL;
+
+	s = hio_read(b, 1, s, f);
 
 	for (i = 0; pw_formats[i] != NULL; i++) {
 		D_("checking format [%d]: %s", s, pw_formats[i]->name);
 		res = pw_formats[i]->test(b, title, s);
 		if (res > 0) {
-			return res;
+			/* Extra data was requested. */
+			unsigned char *buf = realloc(b, s + res);
+			if (buf == NULL) {
+				free(b);
+				return NULL;
+			}
+			b = buf;
+
+			/* If the requested data can't be read, try the next format. */
+			if (!hio_read(b + s, res, 1, f)) {
+				continue;
+			}
+
+			/* Try this format again... */
+			s += res;
+			i--;
 		} else if (res == 0) {
 			D_("format ok: %s\n", pw_formats[i]->name);
 			if (info != NULL) {
@@ -172,11 +168,12 @@ int pw_check(unsigned char *b, int s, struct xmp_test_info *info)
 				strncpy(info->type, pw_formats[i]->name,
 							XMP_NAME_SIZE - 1);
 			}
-			return 0;
+			free(b);
+			return pw_formats[i];
 		}
 	}
-
-	return -1;
+	free(b);
+	return NULL;
 }
 
 void pw_read_title(const unsigned char *b, char *t, int s)
