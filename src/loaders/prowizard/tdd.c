@@ -98,8 +98,10 @@ static int depack_tdd(HIO_HANDLE *in, FILE *out)
 				pat[x + 2] |= (tmp[x] << 4) & 0xf0;
 
 				/* note */
-				pat[x] |= ptk_table[tmp[x + 1] / 2][0];
-				pat[x + 1] = ptk_table[tmp[x + 1] / 2][1];
+				if (PTK_IS_VALID_NOTE(tmp[x + 1] / 2)) {
+					pat[x] |= ptk_table[tmp[x + 1] / 2][0];
+					pat[x + 1] = ptk_table[tmp[x + 1] / 2][1];
+				}
 			}
 		}
 		if (fwrite(pat, 1, 1024, out) != 1024) {

@@ -19,6 +19,8 @@
 #define PW_REQUEST_DATA(s,n) \
 	do { if ((s)<(n)) return ((n)-(s)); } while (0)
 
+#define PTK_IS_VALID_NOTE(n) ((n) < ARRAY_SIZE(ptk_table))
+
 /*
  * depackb() and depackf() perform the same action reading the packed
  * module from a buffer or a file. We're supporting both protocols to

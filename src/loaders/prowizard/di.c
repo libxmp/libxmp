@@ -17,7 +17,7 @@ static int write_event(uint8 c1, uint8 c2, uint8 fxp, FILE *out)
 	uint8 p[4];
 
 	note = ((c1 << 4) & 0x30) | ((c2 >> 4) & 0x0f);
-	if (note >= 37) {
+	if (!PTK_IS_VALID_NOTE(note)) {
 		/* di.nightmare has note 49! */
 		uint32 x = 0;
 		fwrite(&x, 4, 1, out);

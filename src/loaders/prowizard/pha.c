@@ -51,7 +51,7 @@ static int depack_pha(HIO_HANDLE *in, FILE *out)
 		write16b(out, size = hio_read16b(in));	/* size */
 		ssize += size * 2;
 		hio_read8(in);				/* ??? */
-		
+
 		vol = hio_read8(in);			/* volume */
 		lps = hio_read16b(in);			/* loop start */
 		lsz = hio_read16b(in);			/* loop size */
@@ -217,8 +217,10 @@ restart:
 			ocpt[k % 4] -= 1;
 
 			pat[j] = ins & 0xf0;
-			pat[j] |= ptk_table[(note / 2)][0];
-			pat[j + 1] = ptk_table[(note / 2)][1];
+			if (PTK_IS_VALID_NOTE(note / 2)) {
+				pat[j] |= ptk_table[(note / 2)][0];
+				pat[j + 1] = ptk_table[(note / 2)][1];
+			}
 			pat[j + 2] = (ins << 4) & 0xf0;
 			pat[j + 2] |= fxt;
 			pat[j + 3] = fxp;
@@ -237,8 +239,10 @@ restart:
 		onote[k % 4][3] = fxp;
 		i += 3;
 		pat[j] = ins & 0xf0;
-		pat[j] |= ptk_table[(note / 2)][0];
-		pat[j + 1] = ptk_table[(note / 2)][1];
+		if (PTK_IS_VALID_NOTE(note / 2)) {
+			pat[j] |= ptk_table[(note / 2)][0];
+			pat[j + 1] = ptk_table[(note / 2)][1];
+		}
 		pat[j + 2] = (ins << 4) & 0xf0;
 		pat[j + 2] |= fxt;
 		pat[j + 3] = fxp;

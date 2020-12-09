@@ -156,7 +156,7 @@ static int depack_ksm(HIO_HANDLE *in, FILE *out)
 				uint8 *t = &tdata[k][j * 3];
 
 				/* Sanity check */
-				if (t[0] >= 37) {
+				if (!PTK_IS_VALID_NOTE(t[0])) {
 					return -1;
 				}
 

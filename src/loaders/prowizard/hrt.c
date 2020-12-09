@@ -53,7 +53,7 @@ static int depack_hrt(HIO_HANDLE *in, FILE *out)
 			buf[0] /= 2;
 			c1 = buf[0] & 0xf0;
 
-			if (buf[1] == 0)
+			if (buf[1] == 0 || !PTK_IS_VALID_NOTE(buf[1] / 2))
 				c2 = 0;
 			else {
 				c1 |= ptk_table[buf[1] / 2][0];

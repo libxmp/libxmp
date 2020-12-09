@@ -54,7 +54,7 @@ static int depack_wn(HIO_HANDLE *in, FILE * out)
 			c3 = hio_read8(in);
 			c4 = hio_read8(in);
 
-			if (hio_error(in) || c1 >= 74) {
+			if (hio_error(in) || !PTK_IS_VALID_NOTE(c1 / 2)) {
 				return -1;
 			}
 

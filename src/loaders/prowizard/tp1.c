@@ -114,10 +114,10 @@ static int depack_tp1(HIO_HANDLE *in, FILE *out)
 
 			note = (c1 & 0xfe) >> 1;
 
-			if (note > 36) {
+			if (!PTK_IS_VALID_NOTE(note)) {
 				return -1;
 			}
-			
+
 			ins = ((c2 >> 4) & 0x0f) | ((c1 << 4) & 0x10);
 			fxt = c2 & 0x0f;
 			fxp = c3;

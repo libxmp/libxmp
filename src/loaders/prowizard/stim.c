@@ -165,7 +165,7 @@ static int depack_stim (uint8 *data, FILE * out)
 
 				pat[j * 16 + k * 4] = (ins & 0xf0);
 
-				if (note != 0) {
+				if (note != 0 && PTK_IS_VALID_NOTE(note - 1)) {
 					pat[j * 16 + k * 4] |=
 						ptk_table[note - 1][0];
 					pat[j * 16 + k * 4 + 1] =

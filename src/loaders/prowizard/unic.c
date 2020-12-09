@@ -109,7 +109,7 @@ static int depack_unic(HIO_HANDLE *in, FILE *out)
 			note = c1 & 0x3f;
 
 			/* Sanity check */
-			if (note >= 37) {
+			if (!PTK_IS_VALID_NOTE(note)) {
 				return -1;
 			}
 

@@ -61,7 +61,7 @@ static int depack_pru1 (HIO_HANDLE *in, FILE *out)
 			header[3] = hio_read8(in);
 
 			/* Sanity check */
-			if (header[1] >= 37) {
+			if (!PTK_IS_VALID_NOTE(header[1])) {
 				return -1;
 			}
 

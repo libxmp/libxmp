@@ -104,7 +104,7 @@ static int depack_titanics(HIO_HANDLE *in, FILE *out)
 
 			note = y & 0x3f;
 
-			if (note <= 36) {
+			if (PTK_IS_VALID_NOTE(note)) {
 				buf[k * 16 + c] = ptk_table[note][0];
 				buf[k * 16 + c + 1] = ptk_table[note][1];
 			}

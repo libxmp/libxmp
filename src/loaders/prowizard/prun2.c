@@ -63,7 +63,7 @@ static int depack_pru2(HIO_HANDLE *in, FILE *out)
 			} else if (header[0] == 0xc0) {
 				fwrite(v[0], 4, 1, out);
 				memcpy(c, v[0], 4);
-			} else if (header[0] >= 74) {
+			} else if (!PTK_IS_VALID_NOTE(header[0] >> 1)) {
 				return -1;
 			} else {
 				header[1] = hio_read8(in);

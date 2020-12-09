@@ -142,7 +142,7 @@ static int depack_tp23(HIO_HANDLE *in, FILE *out, int ver)
 				if (ver == 2) {
 					note = (c1 & 0xfe) >> 1;
 
-					if (note >= 37) {
+					if (!PTK_IS_VALID_NOTE(note)) {
 						return -1;
 					}
 
@@ -161,13 +161,13 @@ static int depack_tp23(HIO_HANDLE *in, FILE *out, int ver)
 					} else {
 						note = c1 & 0x3f;
 					}
-	
-					if (note >= 37) {
+
+					if (!PTK_IS_VALID_NOTE(note)) {
 						return -1;
 					}
-	
+
 					fxt = c2 & 0x0f;
-	
+
 					if (fxt == 0x00) {
 						p[0] = ins & 0xf0;
 						p[0] |= ptk_table[note][0];
