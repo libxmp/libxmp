@@ -350,6 +350,7 @@ FUZZER		= it_dca_3 \
 		  depack_lha_truncated \
 		  depack_lzx_invalid \
 		  depack_muse_truncated \
+		  depack_oxm_invalid \
 		  depack_sqsh_truncated \
 		  depack_zip_truncated \
 		  depack_zip_truncated2
