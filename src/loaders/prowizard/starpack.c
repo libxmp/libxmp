@@ -190,13 +190,7 @@ static int test_starpack(const uint8 *data, char *t, int s)
 	int i;
 	int plist_size, len, sdata_ofs, pdata_ofs;
 
-#if 0
-	/* test 1 */
-	if (i < 23) {
-		Test = BAD;
-		return;
-	}
-#endif
+	PW_REQUEST_DATA(s, 788);
 
 	/* test 2 */
 	plist_size = readmem16b(data + 268);
@@ -259,6 +253,8 @@ static int test_starpack(const uint8 *data, char *t, int s)
 		if (readmem32b(data + i * 4 + 272) != 0)
 			return -1;
 	}
+
+	PW_REQUEST_DATA(s, sdata_ofs + 4);
 
 	/* test pattern data */
 	pdata_ofs = 788;
