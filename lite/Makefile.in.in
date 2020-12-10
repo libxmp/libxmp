@@ -131,8 +131,11 @@ lib/$(GCLIB): $(GCOBJS)
 	$(RANLIB) $@
 
 clean:
-	@rm -f $(OBJS) $(LOBJS) lib/lib*
+	@rm -f $(OBJS) $(LOBJS)
 	@rm -f $(GCOBJS) $(OBJS:.o=.gcno) $(OBJS:.o=.gcda)
+
+distclean: clean
+	@rm -f config.log config.status libxmp-lite.pc depend Makefile lib/*
 
 install: all
 	@mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(LIBDIR) $(DESTDIR)$(INCLUDEDIR)
