@@ -52,6 +52,7 @@ AS.*
 *.bz2
 
 # Configuration
+config.cache
 config.log
 config.status
 configure
@@ -62,12 +63,13 @@ depend
 players/xmp/Makefile
 libxmp.pc
 Makefile
-test/all_tests.c
 test/.test
 test/libxmp-covertest
 test/libxmp-tests
 test/test8.raw
-test/write_test
+test-dev/.read_test
+test-dev/all_tests.c
+test-dev/write_test
 coverage/
 docs/libxmp.3
 docs/libxmp.html
