@@ -535,7 +535,7 @@ static inline void read_row(struct context_data *ctx, int pat, int row)
 			 * it to read row events only in the start of the row. (see the
 			 * OpenMPT test case FineVolColSlide.it)
 			 */
-			if (!f->rowdelay_set || ((f->rowdelay_set & 2) && f->rowdelay > 0)) {
+			if (!f->rowdelay_set || ((f->rowdelay_set & ROWDELAY_FIRST_FRAME) && f->rowdelay > 0)) {
 				libxmp_read_event(ctx, &ev, chn);
 #ifndef LIBXMP_CORE_PLAYER
 				libxmp_med_hold_hack(ctx, pat, chn, row);
@@ -1115,11 +1115,10 @@ static void update_volume(struct context_data *ctx, int chn)
 			 * ever executed on the first tick -- not on multiples
 			 * of the first tick if there is a pattern delay. 
 			 */
-			if (!f->rowdelay_set || f->rowdelay_set & 2) {
+			if (!f->rowdelay_set || f->rowdelay_set & ROWDELAY_FIRST_FRAME) {
 				xc->volume += xc->vol.fslide2;
 			}
 		}
-		f->rowdelay_set &= ~2;
 #endif
 
 		if (TEST(TRK_FVSLIDE)) {
@@ -1725,6 +1724,8 @@ int xmp_play_frame(xmp_context opaque)
 	for (i = 0; i < p->virt.virt_channels; i++) {
 		play_channel(ctx, i);
 	}
+
+	f->rowdelay_set &= ~ROWDELAY_FIRST_FRAME;
 
 	p->frame_time = m->time_factor * m->rrate / p->bpm;
 	p->current_time += p->frame_time;
