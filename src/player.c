@@ -530,7 +530,12 @@ static inline void read_row(struct context_data *ctx, int pat, int row)
 		}
 
 		if (check_delay(ctx, &ev, chn) == 0) {
-			if (!f->rowdelay_set || f->rowdelay > 0) {
+			/* rowdelay_set bit 1 is set only in the first tick of the row
+			 * event if the delay causes the tick count resets to 0. We test
+			 * it to read row events only in the start of the row. (see the
+			 * OpenMPT test case FineVolColSlide.it)
+			 */
+			if (!f->rowdelay_set || ((f->rowdelay_set & 2) && f->rowdelay > 0)) {
 				libxmp_read_event(ctx, &ev, chn);
 #ifndef LIBXMP_CORE_PLAYER
 				libxmp_med_hold_hack(ctx, pat, chn, row);
