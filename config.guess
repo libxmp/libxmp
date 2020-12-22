@@ -27,7 +27,7 @@ timestamp='2020-10-22'
 # Originally written by Per Bothner; maintained since 2000 by Ben Elliston.
 #
 # You can get the latest version of this script from:
-# https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess
+# https://git.savannah.gnu.org/cgit/config.git/plain/config.guess
 #
 # Please send patches to <config-patches@gnu.org>.
 
