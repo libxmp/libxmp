@@ -1,4 +1,4 @@
-dnl AC_CONFIG_AUX_DIR(./scripts)
+dnl AC_CONFIG_AUX_DIR(scripts)
 AC_INIT
 AC_ARG_ENABLE(depackers, [  --disable-depackers     Don't build depackers])
 AC_ARG_ENABLE(prowizard, [  --disable-prowizard     Don't build ProWizard])
@@ -24,13 +24,13 @@ AC_DEFUN([XMP_TRY_COMPILE],[
 AC_DEFUN([AC_CHECK_DEFINED],[
   AS_VAR_PUSHDEF([ac_var],[ac_cv_defined_$1])dnl
   AC_CACHE_CHECK([for $1 defined], ac_var,
-  AC_TRY_COMPILE(,[
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
     #ifdef $1
     int ok;
     #else
     choke me
     #endif
-  ],AS_VAR_SET(ac_var, yes),AS_VAR_SET(ac_var, no)))
+  ]])],[AS_VAR_SET(ac_var, yes)],[AS_VAR_SET(ac_var, no)]))
   AS_IF([test AS_VAR_GET(ac_var) != "no"], [$2], [$3])dnl
   AS_VAR_POPDEF([ac_var])dnl
 ])
@@ -59,17 +59,17 @@ AC_CHECK_DEFINED(__clang__)
 
 case "${host_os}" in
 dnl Skip this on platforms where it is just simply busted.
-openbsd*) ;;
+ openbsd*) ;;
  darwin*) LDFLAGS="$LDFLAGS -Wl,-undefined,error" ;;
-          dnl For whatever reason, the Clang sanitizers and --no-undefined for
-          dnl shared libraries are incompatible.
-       *) if test "$ac_cv_defined___clang__" = "no" || test "${LDFLAGS#*fsanitize}" = "$LDFLAGS"
-          then
-            save_LDFLAGS="$LDFLAGS"
-            LDFLAGS="$LDFLAGS -Wl,--no-undefined"
-            AC_TRY_LINK([],[],[],[LDFLAGS="$save_LDFLAGS"])
-          fi
-          ;;
+ dnl For whatever reason, the Clang sanitizers and --no-undefined for
+ dnl shared libraries are incompatible.
+ *) if test "$ac_cv_defined___clang__" = "no" || test "${LDFLAGS#*fsanitize}" = "$LDFLAGS"
+    then
+      save_LDFLAGS="$LDFLAGS"
+      LDFLAGS="$LDFLAGS -Wl,--no-undefined"
+      AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])], [], [LDFLAGS="$save_LDFLAGS"])
+    fi
+    ;;
 esac
 
 if test "${enable_static}" = yes; then
@@ -94,7 +94,7 @@ XMP_TRY_COMPILE(whether compiler understands -Wall,
   ac_cv_c_flag_w_all,
   -Wall,[
   int main(void){return 0;}],
-  CFLAGS="${CFLAGS} -Wall")  
+  CFLAGS="${CFLAGS} -Wall")
 
 old_CFLAGS="${CFLAGS}"
 XMP_TRY_COMPILE(whether compiler understands -Werror,
@@ -135,25 +135,25 @@ XMP_TRY_COMPILE(whether compiler understands -Wunknown-warning-option,
   ac_cv_c_flag_w_unknown_warning_option,
   -Wunknown-warning-option,[
   int main(void){return 0;}],
-  CFLAGS="${CFLAGS} -Wno-unknown-warning-option")  
+  CFLAGS="${CFLAGS} -Wno-unknown-warning-option")
 
 XMP_TRY_COMPILE(whether compiler understands -Wunused-but-set-variable,
   ac_cv_c_flag_w_unused_but_set_variable,
   -Wunused-but-set-variable,[
   int main(void){return 0;}],
-  CFLAGS="${CFLAGS} -Wno-unused-but-set-variable")  
+  CFLAGS="${CFLAGS} -Wno-unused-but-set-variable")
 
 XMP_TRY_COMPILE(whether compiler understands -Wunused-result,
   ac_cv_c_flag_w_unused_result,
   -Wunused-result,[
   int main(void){return 0;}],
-  CFLAGS="${CFLAGS} -Wno-unused-result")  
+  CFLAGS="${CFLAGS} -Wno-unused-result")
 
 XMP_TRY_COMPILE(whether compiler understands -Warray-bounds,
   ac_cv_c_flag_w_array_bounds,
   -Warray-bounds,[
   int main(void){return 0;}],
-  CFLAGS="${CFLAGS} -Wno-array-bounds")  
+  CFLAGS="${CFLAGS} -Wno-array-bounds")
 
 if test "${enable_depackers}" != no; then
   DEPACKER_OBJS='$(DEPACKER_OBJS)'
@@ -173,7 +173,7 @@ XMP_TRY_COMPILE(whether alloca() needs alloca.h,
   ac_cv_c_flag_w_have_alloca_h,,[
   #include <alloca.h>
   int main(void){return 0;}],
-  AC_DEFINE(HAVE_ALLOCA_H))  
+  AC_DEFINE(HAVE_ALLOCA_H, 1, [ ]))
 
 old_LIBS="${LIBS}"
 AC_CHECK_LIB(m,pow)
