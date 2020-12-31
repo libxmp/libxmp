@@ -345,14 +345,16 @@ struct player_data {
 		int delay;
 		int jumpline;
 		int loop_chn;
-	
+
 		struct pattern_loop {
 			int start;
 			int count;
 		} *loop;
-	
+
 		int num_rows;
 		int end_point;
+#define ROWDELAY_ON		(1 << 0)
+#define ROWDELAY_FIRST_FRAME	(1 << 1)
 		int rowdelay;		/* For IT pattern row delay */
 		int rowdelay_set;
 	} flow;

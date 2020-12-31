@@ -556,7 +556,7 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 	case FX_IT_ROWDELAY:
 		if (!f->rowdelay_set) {
 			f->rowdelay = fxp;
-			f->rowdelay_set = 3;
+			f->rowdelay_set = ROWDELAY_ON | ROWDELAY_FIRST_FRAME;
 		}
 		break;
 
