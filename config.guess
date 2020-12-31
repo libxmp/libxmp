@@ -2,7 +2,7 @@
 # Attempt to guess a canonical system name.
 #   Copyright 1992-2020 Free Software Foundation, Inc.
 
-timestamp='2020-10-22'
+timestamp='2020-12-22'
 
 # This file is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by
@@ -996,6 +996,9 @@ EOF
     k1om:Linux:*:*)
 	echo "$UNAME_MACHINE"-unknown-linux-"$LIBC"
 	exit ;;
+    loongarch32:Linux:*:* | loongarch64:Linux:*:* | loongarchx32:Linux:*:*)
+	echo "$UNAME_MACHINE"-unknown-linux-"$LIBC"
+	exit ;;
     m32r*:Linux:*:*)
 	echo "$UNAME_MACHINE"-unknown-linux-"$LIBC"
 	exit ;;
@@ -1650,9 +1653,9 @@ This script (version $timestamp), has failed to recognize the
 operating system you are using. If your script is old, overwrite *all*
 copies of config.guess and config.sub with the latest versions from:
 
-  https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess
+  https://git.savannah.gnu.org/cgit/config.git/plain/config.guess
 and
-  https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub
+  https://git.savannah.gnu.org/cgit/config.git/plain/config.sub
 EOF
 
 year=`echo $timestamp | sed 's,-.*,,'`
