@@ -337,6 +337,7 @@ LIBXMP_EXPORT int         xmp_play_frame      (xmp_context);
 LIBXMP_EXPORT int         xmp_play_buffer     (xmp_context, void *, int, int);
 LIBXMP_EXPORT void        xmp_get_frame_info  (xmp_context, struct xmp_frame_info *);
 LIBXMP_EXPORT void        xmp_end_player      (xmp_context);
+LIBXMP_EXPORT int         xmp_add_channels    (xmp_context, int, int);
 LIBXMP_EXPORT void        xmp_inject_event    (xmp_context, int, struct xmp_event *);
 LIBXMP_EXPORT void        xmp_get_module_info (xmp_context, struct xmp_module_info *);
 LIBXMP_EXPORT const char *const *xmp_get_format_list (void);

@@ -70,3 +70,8 @@ XMP_4.5 {
     xmp_test_module_from_file;
     xmp_test_module_from_memory;
 } XMP_4.4;
+
+XMP_4.6 {
+  global:
+    xmp_add_channels;
+} XMP_4.5;

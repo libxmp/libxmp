@@ -1926,3 +1926,121 @@ void xmp_get_frame_info(xmp_context opaque, struct xmp_frame_info *info)
 		}
 	}
 }
+
+int xmp_add_channels(xmp_context opaque, int start, int num)
+{
+	struct context_data *ctx = (struct context_data *)opaque;
+	struct module_data *m = &ctx->m;
+	struct player_data *p = &ctx->p;
+	struct xmp_module *mod = &m->mod;
+	int pat, c, t;
+
+	if (num == 0)
+		return 0;
+	if (num > 0) {
+		if (mod->chn + num > XMP_MAX_CHANNELS)
+			return -XMP_ERROR_INVALID;
+	}
+	else {
+		if (mod->chn + num < 0)
+			return -XMP_ERROR_INVALID;
+	}
+
+	if (start < 0)
+		start = mod->chn + 1 + start;
+	if (start < 0 || start > mod->chn)
+		return -XMP_ERROR_INVALID;
+
+	if (num < 0) {
+		if (start - num > mod->chn)
+			return -XMP_ERROR_INVALID;
+		/* Shift tracks and channels back; resize patterns' track index arrays */
+		for (pat = 0; pat < mod->pat; pat++) {
+			mod->xxp[pat] = realloc(mod->xxp[pat], sizeof (struct xmp_pattern) + sizeof (int) * (mod->chn + num - 1));
+			if (mod->xxp[pat] == NULL)
+				return -XMP_ERROR_SYSTEM;
+			for (c = 0; c < mod->chn + num; c++) {
+				t = pat * (mod->chn + num) + c;
+				mod->xxp[pat]->index[c] = t;
+				mod->xxt[t] = mod->xxt[pat * mod->chn + c - (c >= start ? num : 0)];
+			}
+		}
+		for (c = start; c < mod->chn + num; c++) {
+			mod->xxc[c].pan = mod->xxc[c - num].pan;
+			mod->xxc[c].vol = mod->xxc[c - num].vol;
+			mod->xxc[c].flg = mod->xxc[c - num].flg;
+		}
+		/* Shrink track matrix */
+		mod->xxt = realloc(mod->xxt, sizeof (struct xmp_track *) * mod->pat * (mod->chn + num));
+		if (mod->xxt == NULL)
+			return -XMP_ERROR_SYSTEM;
+		mod->chn += num;
+		mod->trk = mod->chn * mod->pat;
+	} else {
+		/* See libxmp_init_pattern and, for example, it_load */
+		mod->xxt = realloc(mod->xxt, sizeof (struct xmp_track *) * mod->pat * (mod->chn + num));
+		if (mod->xxt == NULL)
+			return -XMP_ERROR_SYSTEM;
+
+		/* Spread tracks over new channel dimensions */
+		for (pat = mod->pat - 1; pat >= 0; pat--) {
+			for (c = mod->chn - 1; c >= 0; c--) {
+				mod->xxt[pat * (mod->chn + num) + c] = mod->xxt[pat * mod->chn + c];
+			}
+		}
+
+		mod->chn += num;
+		mod->trk = mod->chn * mod->pat;
+
+		/* Shift tracks forward */
+		for (pat = mod->pat - 1; pat >= 0; pat--) {
+			mod->xxp[pat] = realloc(mod->xxp[pat], sizeof (struct xmp_pattern) + sizeof (int) * mod->chn - 1);
+			if (mod->xxp[pat] == NULL)
+				return -XMP_ERROR_SYSTEM;
+			for (c = mod->chn - 1; c >= 0; c--) {
+				t = pat * mod->chn + c;
+				mod->xxp[pat]->index[c] = t;
+				if (c >= start + num) {
+					mod->xxt[t] = mod->xxt[t - num];
+				} else if (c >= start) {
+					/* See libxmp_alloc_track */
+					mod->xxt[t] = calloc(sizeof (struct xmp_track) + sizeof (struct xmp_event) * (mod->xxp[pat]->rows - 1), 1);
+					if (mod->xxt[t] == NULL)
+						return -XMP_ERROR_SYSTEM;
+					mod->xxt[t]->rows = mod->xxp[pat]->rows;
+				}
+			}
+		}
+
+		for (c = mod->chn - 1; c >= start + num; c--) {
+			mod->xxc[c].pan = mod->xxc[c - num].pan;
+			mod->xxc[c].vol = mod->xxc[c - num].vol;
+			mod->xxc[c].flg = mod->xxc[c - num].flg;
+			/* See xmp_start_player */
+			p->channel_mute[c] = 0;
+			p->channel_vol[c] = 100;
+		}
+		for (c = start + num - 1; c >= start; c--) {
+			/* See libxmp_load_prologue */
+			mod->xxc[c].pan = 0x80;
+			mod->xxc[c].vol = 0x40;
+			mod->xxc[c].flg = 0;
+		}
+
+		/* This is needed to get actual speaker output when in instrument mode! */
+		libxmp_virt_off(ctx);
+		p->virt.voice_array = NULL;
+		p->virt.virt_channel = NULL;
+		if (libxmp_virt_on(ctx, mod->trk) != 0)
+			return -XMP_ERROR_INTERNAL;
+		/* See xmp_start_player */
+		p->xc_data = realloc(p->xc_data, p->virt.virt_channels * sizeof (struct channel_data));
+		if (p->xc_data == NULL)
+			return -XMP_ERROR_SYSTEM;
+	}
+
+	/* See xmp_play_frame */
+	libxmp_virt_reset(ctx);
+	reset_channels(ctx);
+	return 0;
+}

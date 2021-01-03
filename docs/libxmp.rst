@@ -648,6 +648,43 @@ void xmp_end_player(xmp_context c)
 
     PageBreak
 
+Module editing
+~~~~~~~~~~~~~~
+
+.. _xmp_add_channels():
+
+int xmp_add_channels(xmp_context c, int start, int num)
+```````````````````````````````````````````````````````
+
+  *[Added in libxmp 4.6]* Adds channels to the module. This function
+  currently only supports MOD, S3M, and IT formats, resulting in
+  undefined behavior when called on contexts of others.
+
+  **Parameters:**
+    :c: the player context handle.
+
+    :start: the channel index from which to displace existing channels.
+      Negative indices count in reverse such that -1 refers to the first
+      non-existing index (i.e. the number of channels).
+
+    :num: the number of channels to add. Negative numbers remove
+      channels and are clamped if they breach module dimensions.
+
+  **Returns:**
+    0 if channels were added successfully, ``-XMP_ERROR_INVALID``
+    if arguments were invalid, ``-XMP_ERROR_SYSTEM`` if allocation
+    failed, or ``-XMP_ERROR_INTERNAL`` for any other error.
+
+  **Examples:** ::
+
+    xmp_add_channels(c, -1, 2); /* Append two channels */
+    xmp_add_channels(c, 0, -1); /* Remove the first channel */
+    xmp_add_channels(c, 1, 3); /* Insert three channels after the first */
+
+.. raw:: pdf
+
+    PageBreak
+
 Player control
 ~~~~~~~~~~~~~~
 
