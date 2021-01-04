@@ -21,13 +21,13 @@ TEST(test_api_add_channels)
 	libxmp_prepare_scan(ctx);
 	libxmp_scan_sequences(ctx);
 
-	/*
 	ret = xmp_add_channels(opaque, -1, 2);
 	fail_unless(ret == 0, "unable to append two channels");
-	*/
 
+	/*
 	ret = xmp_add_channels(opaque, 0, -1);
 	fail_unless(ret == 0, "unable to remove a channel");
+	*/
 
 	/*
 	ret = xmp_add_channels(opaque, 0, XMP_MAX_CHANNELS + 1);
