@@ -24,10 +24,12 @@ TEST(test_api_add_channels)
 	/*
 	ret = xmp_add_channels(opaque, -1, 2);
 	fail_unless(ret == 0, "unable to append two channels");
+	*/
 
 	ret = xmp_add_channels(opaque, 0, -1);
 	fail_unless(ret == 0, "unable to remove a channel");
 
+	/*
 	ret = xmp_add_channels(opaque, 0, XMP_MAX_CHANNELS + 1);
 	fail_unless(ret == -XMP_ERROR_INVALID, "erroneously succeeded for invalid number of channels");
 	*/
