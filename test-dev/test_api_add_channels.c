@@ -30,6 +30,7 @@ TEST(test_api_add_channels)
 	ret = xmp_add_channels(opaque, 0, XMP_MAX_CHANNELS + 1);
 	fail_unless(ret == -XMP_ERROR_INVALID, "erroneously succeeded for invalid number of channels");
 
+	xmp_release_module(opaque);
 	xmp_free_context(opaque);
 }
 END_TEST
