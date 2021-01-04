@@ -692,8 +692,7 @@ void xmp_release_module(xmp_context opaque)
 		return;
 	 */
 
-	ctx->state = XMP_STATE_PLAYING;
-	if (ctx->state > XMP_STATE_LOADED)
+	//if (ctx->state > XMP_STATE_LOADED)
 		xmp_end_player(opaque);
 
 	ctx->state = XMP_STATE_UNLOADED;
