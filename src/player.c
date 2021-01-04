@@ -2028,15 +2028,15 @@ int xmp_add_channels(xmp_context opaque, int start, int num)
 		}
 
 		/* This is needed to get actual speaker output when in instrument mode! */
-		//libxmp_virt_off(ctx);
-		//p->virt.voice_array = NULL;
-		//p->virt.virt_channel = NULL;
-		//if (libxmp_virt_on(ctx, mod->trk) != 0)
-		//	return -XMP_ERROR_INTERNAL;
-		///* See xmp_start_player */
-		//p->xc_data = realloc(p->xc_data, p->virt.virt_channels * sizeof (struct channel_data));
-		//if (p->xc_data == NULL)
-		//	return -XMP_ERROR_SYSTEM;
+		libxmp_virt_off(ctx);
+		p->virt.voice_array = NULL;
+		p->virt.virt_channel = NULL;
+		if (libxmp_virt_on(ctx, mod->trk) != 0)
+			return -XMP_ERROR_INTERNAL;
+		/* See xmp_start_player */
+		p->xc_data = realloc(p->xc_data, p->virt.virt_channels * sizeof (struct channel_data));
+		if (p->xc_data == NULL)
+			return -XMP_ERROR_SYSTEM;
 	}
 
 	/* See xmp_play_frame */
