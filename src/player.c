@@ -2034,9 +2034,9 @@ int xmp_add_channels(xmp_context opaque, int start, int num)
 		if (libxmp_virt_on(ctx, mod->trk) != 0)
 			return -XMP_ERROR_INTERNAL;
 		/* See xmp_start_player */
-		p->xc_data = realloc(p->xc_data, p->virt.virt_channels * sizeof (struct channel_data));
-		if (p->xc_data == NULL)
-			return -XMP_ERROR_SYSTEM;
+		//p->xc_data = realloc(p->xc_data, p->virt.virt_channels * sizeof (struct channel_data));
+		//if (p->xc_data == NULL)
+		//	return -XMP_ERROR_SYSTEM;
 	}
 
 	/* See xmp_play_frame */
