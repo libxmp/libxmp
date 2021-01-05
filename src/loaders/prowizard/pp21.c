@@ -287,8 +287,8 @@ static int test_pp30(const uint8 *data, char *t, int s)
 			return -1;
 		}
 
-		/* break > 40 ? */
-		if (fxt == 0x0d && fxp > 0x40) {
+		/* break > 64 (packed decimal) ? */
+		if (fxt == 0x0d && (fxp > 0x64 || (fxp & 0xf) > 9)) {
 			return -1;
 		}
 
