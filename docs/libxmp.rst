@@ -698,9 +698,9 @@ int xmp_set_position(xmp_context c, int pos)
 .. _xmp_set_row():
 
 int xmp_set_row(xmp_context c, int row)
-````````````````````````````````````````````
+```````````````````````````````````````
 
-  Skip replay to the given row.
+  *[Added in libxmp 4.5]* Skip replay to the given row.
 
   **Parameters:**
     :c: the player context handle.
