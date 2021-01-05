@@ -1802,8 +1802,8 @@ void xmp_end_player(xmp_context opaque)
 	int i;
 #endif
 
-	//if (ctx->state < XMP_STATE_PLAYING)
-	//	return;
+	if (ctx->state < XMP_STATE_PLAYING)
+		return;
 
 	ctx->state = XMP_STATE_LOADED;
 
