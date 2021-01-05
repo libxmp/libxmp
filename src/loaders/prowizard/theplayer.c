@@ -368,7 +368,7 @@ static int theplayer_test(const uint8 *data, char *t, int s, int version)
 	int i;
 	int len, num_pat, num_ins, sdata;
 
-	/* FIXME: add PW_REQUEST_DATA */
+	PW_REQUEST_DATA(s, 4);
 
 	/* number of pattern (real) */
 	num_pat = data[2];
@@ -379,6 +379,8 @@ static int theplayer_test(const uint8 *data, char *t, int s, int version)
 	num_ins = (data[3] & 0x3f);
 	if (num_ins == 0 || num_ins > 0x1f)
 		return -1;
+
+	PW_REQUEST_DATA(s, num_ins * 6 + 4);
 
 	for (i = 0; i < num_ins; i++) {
 		/* test volumes */
@@ -415,6 +417,8 @@ static int theplayer_test(const uint8 *data, char *t, int s, int version)
 	if (sdata < num_ins * 6 + 4 + num_pat * 8)
 		return -1;
 
+	PW_REQUEST_DATA(s, num_pat * 8 + num_ins * 6 + 4);
+
 	/* test track table */
 	for (i = 0; i < num_pat * 4; i++) {
 		int x = readmem16b(data + 4 + num_ins * 6 + i * 2);
@@ -422,9 +426,7 @@ static int theplayer_test(const uint8 *data, char *t, int s, int version)
 			return -1;
 	}
 
-
-	/* first, test if we dont oversize the input file */
-	PW_REQUEST_DATA(s, num_ins * 6 + 4 + num_pat * 8);
+	PW_REQUEST_DATA(s, num_pat * 8 + num_ins * 6 + 4 + 128);
 
 	/* test pattern table */
 	len = 0;

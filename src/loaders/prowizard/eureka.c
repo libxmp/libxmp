@@ -163,6 +163,8 @@ static int test_eu(const uint8 *data, char *t, int s)
 			min_trk = trk;
 	}
 
+	PW_REQUEST_DATA(s, max_trk);
+
 	/* test track datas */
 	/* last track wont be tested ... */
 	for (i = min_trk; i < max_trk; i++) {

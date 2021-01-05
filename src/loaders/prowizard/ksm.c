@@ -215,7 +215,7 @@ static int test_ksm (const uint8 *data, char *t, int s)
 	if (max_trk == 0)
 		return -1;
 
-	PW_REQUEST_DATA(s, 1536 + max_trk * 192 + 63 * 3);
+	PW_REQUEST_DATA(s, 1536 + max_trk * 192 + 64 * 3);
 
 	/* real test on tracks data starts now */
 	for (i = 0; i <= max_trk; i++) {

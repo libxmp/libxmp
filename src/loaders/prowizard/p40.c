@@ -294,6 +294,8 @@ static int test_p4x(const uint8 *data, char *t, int s)
 	//int start = 0, ssize;
 	uint32 id;
 
+	PW_REQUEST_DATA(s, 8);
+
 	id = readmem32b(data);
 
 	if (id != MAGIC_P40A && id != MAGIC_P40B && id != MAGIC_P41A)

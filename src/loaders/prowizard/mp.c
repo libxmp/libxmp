@@ -64,11 +64,7 @@ static int test_mp_noid(const uint8 *data, char *t, int s)
 	int i;
 	int len, psize, hdr_ssize;
 
-#if 0
-	if (s < 378) {
-		return - 1;
-	}
-#endif
+	PW_REQUEST_DATA(s, 378);
 
 	/* test #2 */
 	hdr_ssize = 0;
@@ -163,6 +159,8 @@ static int test_mp_id(const uint8 *data, char *t, int s)
 	int i;
 	int len, psize;
 
+	PW_REQUEST_DATA(s, 382);
+
 	/* "TRK1" Module Protector */
 	if (readmem32b(data) != MAGIC_TRK1)
 		return -1;
@@ -189,6 +187,8 @@ static int test_mp_id(const uint8 *data, char *t, int s)
 	}
 	psize++;
 	psize <<= 8;
+
+	PW_REQUEST_DATA(s, 382 + psize * 4);
 
 	/* test #5  ptk notes .. gosh ! (testing all patterns !) */
 	/* k contains the number of pattern saved */

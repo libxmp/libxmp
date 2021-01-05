@@ -45,40 +45,14 @@ const struct format_loader libxmp_loader_pw = {
 	pw_load
 };
 
-#define BUF_SIZE 0x10000
-
 int pw_test_format(HIO_HANDLE *f, char *t, const int start,
 		   struct xmp_test_info *info)
 {
-	unsigned char *b;
-	int extra;
-	int s = BUF_SIZE;
+	const struct pw_format *format;
 
-	b = calloc(1, BUF_SIZE);
-	if (b == NULL)
-		return -1;
+	format = pw_check(f, info);
 
-	s = hio_read(b, 1, s, f);
-
-	while ((extra = pw_check(b, s, info)) > 0) {
-		unsigned char *buf = realloc(b, s + extra);
-		if (buf == NULL) {
-			free(b);
-			return -1;
-		}
-		b = buf;
-
-		if (hio_read(b + s, extra, 1, f) == 0) {
-			free(b);
-			return -1;
-		}
-
-		s += extra;
-	}
-
-	free(b);
-
-	return extra == 0 ? 0 : -1;
+	return format ? 0 : -1;
 }
 
 static int pw_test(HIO_HANDLE *f, char *t, const int start)

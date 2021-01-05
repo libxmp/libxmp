@@ -177,6 +177,8 @@ static int test_fuzz(const uint8 *data, char *t, int s)
 {
 	int i;
 
+	PW_REQUEST_DATA(s, 2115);
+
 	if (readmem32b(data) != MAGIC4('M','1','.','0'))
 		return -1;
 
