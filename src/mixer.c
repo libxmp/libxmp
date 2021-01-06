@@ -825,6 +825,7 @@ int libxmp_mixer_on(struct context_data *ctx, int rate, int format, int c4rate)
 
     err1:
 	free(s->buffer);
+	s->buffer = NULL;
     err:
 	return -1;
 }

@@ -89,6 +89,7 @@ int xmp_start_smix(xmp_context opaque, int chn, int smp)
 
     err1:
 	free(smix->xxi);
+	smix->xxi = NULL;
     err:
 	return -XMP_ERROR_INTERNAL;
 }
@@ -326,4 +327,6 @@ void xmp_end_smix(xmp_context opaque)
 
 	free(smix->xxs);
 	free(smix->xxi);
+	smix->xxs = NULL;
+	smix->xxi = NULL;
 }

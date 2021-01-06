@@ -150,6 +150,7 @@ int libxmp_virt_on(struct context_data *ctx, int num)
 	}
 #endif
 	free(p->virt.voice_array);
+	p->virt.voice_array = NULL;
       err:
 	return -1;
 }
@@ -177,6 +178,8 @@ void libxmp_virt_off(struct context_data *ctx)
 
 	free(p->virt.voice_array);
 	free(p->virt.virt_channel);
+	p->virt.voice_array = NULL;
+	p->virt.virt_channel = NULL;
 }
 
 void libxmp_virt_reset(struct context_data *ctx)
