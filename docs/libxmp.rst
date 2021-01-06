@@ -711,6 +711,21 @@ int xmp_set_row(xmp_context c, int row)
     The new row, ``-XMP_ERROR_INVALID`` if the new row is invalid or
     ``-XMP_ERROR_STATE`` if the player is not in playing state.
 
+.. _xmp_set_tempo_factor():
+
+int xmp_set_tempo_factor(xmp_context c, double val)
+```````````````````````````````````````````````````
+
+  *[Added in libxmp 4.5]* Modify the replay tempo multiplier.
+
+  **Parameters:**
+    :c: the player context handle.
+
+    :val: the new multiplier.
+
+  **Returns:**
+    0 on success, or -1 if value is invalid.
+
 .. _xmp_stop_module():
 
 void xmp_stop_module(xmp_context c)
