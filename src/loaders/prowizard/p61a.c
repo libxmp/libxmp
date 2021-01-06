@@ -458,6 +458,10 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
 			c2 = hio_read8(in);
 			c3 = hio_read8(in);
 
+			if (hio_error(in) || !PTK_IS_VALID_NOTE(c1 / 2)) {
+			    return -1;
+			}
+
 	                *x++ = ((c1 << 4) & 0x10) | ptk_table[c1 / 2][0];
 	                *x++ = ptk_table[c1 / 2][1];
 

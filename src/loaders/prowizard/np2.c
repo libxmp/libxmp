@@ -83,6 +83,11 @@ static int depack_np2(HIO_HANDLE *in, FILE *out)
 	}
 	npat++;
 
+	/* Sanity check */
+	if (npat > 128) {
+		return -1;
+	}
+
 	fwrite(ptable, 128, 1, out);	/* write pattern table */
 	write32b(out, PW_MOD_MAGIC);	/* write ptk ID */
 

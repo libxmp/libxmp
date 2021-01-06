@@ -156,6 +156,8 @@ restart:
 		int x = hio_read16b(in);
 		if (x > refmax)
 			refmax = x;
+		if (hio_error(in))
+			return -1;
 	}
 
 	/* read "reference Table" */
@@ -184,7 +186,16 @@ restart:
 
 				per = ((p[0] & 0x0f) << 8) | p[1];
 				fxt = p[2] & 0x0f;
-				fine = fin[oldins[k] - 1];
+				if (oldins[k] > 0 && oldins[k] < 32) {
+					fine = fin[oldins[k] - 1];
+				} else {
+					fine = 0;
+				}
+
+				/* Sanity check */
+				if (fine >= 16) {
+					goto err;
+				}
 
 				if (per != 0 && oldins[k] > 0 && fine != 0) {
 					for (l = 0; l < 36; l++) {
@@ -220,6 +231,10 @@ restart:
 	pw_move_data(out, in, ssize);
 
 	return 0;
+
+    err:
+	free(reftab);
+	return -1;
 }
 
 static int test_p10c(const uint8 *data, char *t, int s)
