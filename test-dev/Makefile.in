@@ -349,6 +349,7 @@ FUZZER		= it_dca_3 \
 		  prowizard_fuchs_pattern_length \
 		  prowizard_ksm_invalid_pattern \
 		  prowizard_noiserun_truncated \
+		  prowizard_np2_patterns_bound \
 		  prowizard_np3_invalid_note \
 		  prowizard_p61a_invalid_note \
 		  prowizard_pha_invalid_note \
