@@ -1596,9 +1596,11 @@ int xmp_start_player(xmp_context opaque, int rate, int format)
 #ifndef LIBXMP_CORE_PLAYER
     err2:
 	free(p->xc_data);
+	p->xc_data = NULL;
 #endif
     err1:
 	free(f->loop);
+	f->loop = NULL;
     err:
 	return ret;
 }
