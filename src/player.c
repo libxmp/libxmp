@@ -2037,7 +2037,7 @@ int xmp_add_channels(xmp_context opaque, int start, int num)
 		//	return -XMP_ERROR_SYSTEM;
 	}
 
-	//libxmp_virt_off(ctx); // What the hell...
+	libxmp_virt_off(ctx);
 	/* See xmp_play_frame */
 	//libxmp_virt_reset(ctx);
 	//reset_channels(ctx);
