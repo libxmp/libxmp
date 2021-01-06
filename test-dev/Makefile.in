@@ -311,6 +311,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  pp21_1 pp21_2 \
 		  pp30_1 pp30_2 \
 		  pru1 pru2 \
+		  starpack \
 		  titanics \
 		  tp3 \
 		  unic unic2 \
@@ -356,6 +357,7 @@ FUZZER		= it_dca_3 \
 		  prowizard_pm10c_invalid_psize \
 		  prowizard_pp10_invalid_pattern \
 		  prowizard_pp30_invalid \
+		  prowizard_starpack_junk_orders \
 		  prowizard_theplayer_invalid_note \
 		  prowizard_tp3_patterns_bound \
 		  prowizard_unic_truncated \
