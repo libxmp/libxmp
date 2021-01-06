@@ -352,6 +352,8 @@ FUZZER		= it_dca_3 \
 		  prowizard_p61a_invalid_note \
 		  prowizard_pha_invalid_note \
 		  prowizard_pha_patterns_bound \
+		  prowizard_pm10c_invalid_pattern \
+		  prowizard_pm10c_invalid_psize \
 		  prowizard_pp10_invalid_pattern \
 		  prowizard_pp30_invalid \
 		  prowizard_theplayer_invalid_note \
