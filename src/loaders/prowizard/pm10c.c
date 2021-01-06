@@ -234,7 +234,7 @@ restart:
 
     err:
 	free(reftab);
-	return 1;
+	return -1;
 }
 
 static int test_p10c(const uint8 *data, char *t, int s)
