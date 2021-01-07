@@ -338,11 +338,14 @@ static int unsqsh(uint8 *src, int srclen, uint8 *dest, int destlen)
 
 		if (type == 0) {
 			/* verbatim block */
+			decrunched += packed_size;
+			if (decrunched > destlen) {
+				return -1;
+			}
 			memcpy(io.dest, c, packed_size);
 			io.dest += packed_size;
 			c += packed_size;
 			len -= packed_size;
-			decrunched += packed_size;
 			continue;
 		}
 
