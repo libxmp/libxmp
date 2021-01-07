@@ -334,6 +334,7 @@ FUZZER		= st_invalid_sample_count \
 		  gal4_duplicate_instrument \
 		  gal4_env_point_bound \
 		  gal5_channels_bound \
+		  masi_invalid_length \
 		  mdl_duplicate_chunk \
 		  mdl_invalid_run \
 		  med3_invalid_pattern \
