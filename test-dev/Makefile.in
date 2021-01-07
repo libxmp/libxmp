@@ -372,6 +372,7 @@ FUZZER		= st_invalid_sample_count \
 		  depack_muse_truncated \
 		  depack_oxm_invalid \
 		  depack_sqsh_truncated \
+		  depack_sqsh_truncated2 \
 		  depack_zip_truncated \
 		  depack_zip_truncated2
 
