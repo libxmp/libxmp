@@ -325,7 +325,8 @@ PROBLEMATIC	= length_data_jack \
 		  length_roadblast \
 		  length_ode2ptk
 
-FUZZER		= it_dca_3 \
+FUZZER		= st_invalid_sample_count \
+		  it_dca_3 \
 		  abk_0_instruments \
 		  dbm_invalid_instruments \
 		  dbm_name_buffer_overflow \
@@ -333,6 +334,7 @@ FUZZER		= it_dca_3 \
 		  gal4_duplicate_instrument \
 		  gal4_env_point_bound \
 		  gal5_channels_bound \
+		  masi_invalid_length \
 		  mdl_duplicate_chunk \
 		  mdl_invalid_run \
 		  med3_invalid_pattern \
@@ -369,7 +371,9 @@ FUZZER		= it_dca_3 \
 		  depack_lzx_invalid \
 		  depack_muse_truncated \
 		  depack_oxm_invalid \
+		  depack_sqsh_invalid_verbatim \
 		  depack_sqsh_truncated \
+		  depack_sqsh_truncated2 \
 		  depack_zip_truncated \
 		  depack_zip_truncated2
 

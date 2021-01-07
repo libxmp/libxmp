@@ -35,6 +35,7 @@ struct io {
 	uint8 *src;
 	uint8 *dest;
 	int offs;
+	int srclen;
 };
 
 static uint8 ctable[] = {
@@ -58,9 +59,20 @@ static uint16 xchecksum(uint32 * ptr, uint32 count)
 	return (uint16) (sum ^ (sum >> 16));
 }
 
+static int has_bits(struct io *io, int count)
+{
+	return (count <= io->srclen - io->offs);
+}
+
 static int get_bits(struct io *io, int count)
 {
-	int r = readmem24b(io->src + (io->offs >> 3));
+	int r;
+
+	if (!has_bits(io, count)) {
+		return -1;
+	}
+
+	r = readmem24b(io->src + (io->offs >> 3));
 
 	r <<= io->offs % 8;
 	r &= 0xffffff;
@@ -72,6 +84,9 @@ static int get_bits(struct io *io, int count)
 
 static int get_bits_final(struct io *io, int count)
 {
+	/* Note: has_bits check should be done separately since
+	 * this can return negative values.
+	 */
 	int r = readmem24b(io->src + (io->offs >> 3));
 
 	r <<= (io->offs % 8) + 8;
@@ -84,7 +99,7 @@ static int get_bits_final(struct io *io, int count)
 static int copy_data(struct io *io, int d1, int *data, uint8 *dest_start, uint8 *dest_end)
 {
 	uint8 *copy_src;
-	int dest_offset, count, copy_len;
+	int r, dest_offset, count, copy_len;
 
 	if (get_bits(io, 1) == 0) {
 		copy_len = get_bits(io, 1) + 2;
@@ -98,8 +113,16 @@ static int copy_data(struct io *io, int d1, int *data, uint8 *dest_start, uint8 
 		copy_len = get_bits(io, 5) + 16;
 	}
 
-	if (get_bits(io, 1) == 0) {
-		if (get_bits(io, 1) == 0) {
+	r = get_bits(io, 1);
+	if (copy_len < 0 || r < 0) {
+		return -1;
+	}
+	if (r == 0) {
+		r = get_bits(io, 1);
+		if (r < 0) {
+			return -1;
+		}
+		if (r == 0) {
 			count = 8;
 			dest_offset = 0;
 		} else {
@@ -125,7 +148,11 @@ static int copy_data(struct io *io, int d1, int *data, uint8 *dest_start, uint8 
 
 	copy_len += 2;
 
-	copy_src = io->dest + dest_offset - get_bits(io, count) - 1;
+	r = get_bits(io, count);
+	if (r < 0) {
+		return -1;
+	}
+	copy_src = io->dest + dest_offset - r - 1;
 
 	/* Sanity check */
 	if (copy_src < dest_start || copy_src + copy_len >= dest_end) {
@@ -144,7 +171,7 @@ static int copy_data(struct io *io, int d1, int *data, uint8 *dest_start, uint8 
 
 static int unsqsh_block(struct io *io, uint8 *dest_start, uint8 *dest_end)
 {
-	int d1, d2, data, unpack_len, count, old_count;
+	int r, d1, d2, data, unpack_len, count, old_count;
 
 	d1 = d2 = data = old_count = 0;
 	io->offs = 0;
@@ -153,18 +180,22 @@ static int unsqsh_block(struct io *io, uint8 *dest_start, uint8 *dest_end)
 	*(io->dest++) = data;
 
 	do {
+		r = get_bits(io, 1);
+		if (r < 0)
+			return -1;
+
 		if (d1 < 8) {
-			if (get_bits(io, 1)) {
+			if (r) {
 				d1 = copy_data(io, d1, &data, dest_start, dest_end);
 				if (d1 < 0)
 					return -1;
 				d2 -= d2 >> 3;
 				continue;
-			} 
+			}
 			unpack_len = 0;
 			count = 8;
 		} else {
-			if (get_bits(io, 1)) {
+			if (r) {
 				count = 8;
 				if (count == old_count) {
 					if (d2 >= 20) {
@@ -179,7 +210,11 @@ static int unsqsh_block(struct io *io, uint8 *dest_start, uint8 *dest_end)
 					d2 += 8;
 				}
 			} else {
-				if (get_bits(io, 1) == 0) {
+				r = get_bits(io, 1);
+				if (r < 0)
+					return -1;
+
+				if (r == 0) {
 					d1 = copy_data(io, d1, &data, dest_start, dest_end);
 					if (d1 < 0)
 						return -1;
@@ -187,12 +222,22 @@ static int unsqsh_block(struct io *io, uint8 *dest_start, uint8 *dest_end)
 					continue;
 				}
 
-				if (get_bits(io, 1) == 0) {
+				r = get_bits(io, 1);
+				if (r < 0)
+					return -1;
+
+				if (r == 0) {
 					count = 2;
 				} else {
-					if (get_bits(io, 1)) {
+					r = get_bits(io, 1);
+					if (r < 0)
+						return -1;
+
+					if (r) {
 						io->offs--;
 						count = get_bits(io, 3);
+						if (count < 0)
+							return -1;
 					} else {
 						count = 3;
 					}
@@ -211,6 +256,10 @@ static int unsqsh_block(struct io *io, uint8 *dest_start, uint8 *dest_end)
 					}
 				}
 			}
+		}
+
+		if (!has_bits(io, count * (unpack_len + 2))) {
+			return -1;
 		}
 
 		do {
@@ -277,6 +326,7 @@ static int unsqsh(uint8 *src, int srclen, uint8 *dest, int destlen)
 		}
 
 		io.src = c + 2;
+		io.srclen = packed_size << 3;
 		memcpy(bc, c + packed_size, 3);
 		memset(c + packed_size, 0, 3);
 		lchk = xchecksum((uint32 *) (c), (packed_size + 3) >> 2);
@@ -288,11 +338,14 @@ static int unsqsh(uint8 *src, int srclen, uint8 *dest, int destlen)
 
 		if (type == 0) {
 			/* verbatim block */
+			decrunched += packed_size;
+			if (decrunched > destlen) {
+				return -1;
+			}
 			memcpy(io.dest, c, packed_size);
 			io.dest += packed_size;
 			c += packed_size;
 			len -= packed_size;
-			decrunched += packed_size;
 			continue;
 		}
 
@@ -316,7 +369,7 @@ static int unsqsh(uint8 *src, int srclen, uint8 *dest, int destlen)
 		if (unsqsh_block(&io, dest_start, dest_end) < 0) {
 			return -1;
 		}
-		
+
 		io.dest = dest_end;
 	}
 

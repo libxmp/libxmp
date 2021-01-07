@@ -188,7 +188,7 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 	/* Check if file was cut before any unused samples */
 	if (size < 600 + pat * 1024 + smp_size) {
 		int ss;
-		for (ss = i = 0; i < ins; i++) {
+		for (ss = i = 0; i < 15 && i < ins; i++) {
 			ss += 2 * mh.ins[i].size;
 		}
 

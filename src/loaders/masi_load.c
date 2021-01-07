@@ -539,6 +539,9 @@ static int subchunk_oplh(struct module_data *m, int size, HIO_HANDLE *f, void *p
 		 */
 		switch (opcode) {
 		case 0x01:			/* Play order list item */
+			if (mod->len >= XMP_MAX_MOD_LENGTH) {
+				return -1;
+			}
 			hio_read(data->pord + mod->len * 8, 1, data->sinaria ? 8 : 4, f);
 			size -= data->sinaria ? 8 : 4;
 			mod->len++;
@@ -681,7 +684,7 @@ static int get_song_2(struct module_data *m, int size, HIO_HANDLE *f, void *parm
 
 		magic = hio_read32b(f);
 		subchunk_size = hio_read32l(f);
-		if (subchunk_size == 0) {
+		if (subchunk_size == 0 || hio_error(f)) {
 			return -1;
 		}
 
@@ -758,7 +761,7 @@ static int masi_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	if (data.pnam == NULL)
 		goto err;
 
-	data.pord = malloc(255 * 8);		/* pattern orders */
+	data.pord = malloc(XMP_MAX_MOD_LENGTH * 8);	/* pattern orders */
 	if (data.pord == NULL)
 		goto err2;
 
