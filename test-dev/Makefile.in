@@ -355,6 +355,7 @@ FUZZER		= st_invalid_sample_count \
 		  prowizard_noiserun_truncated \
 		  prowizard_np2_patterns_bound \
 		  prowizard_np3_invalid_note \
+		  prowizard_np3_patterns_bound \
 		  prowizard_p61a_invalid_note \
 		  prowizard_pha_invalid_note \
 		  prowizard_pha_patterns_bound \
