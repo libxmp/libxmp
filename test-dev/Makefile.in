@@ -299,10 +299,12 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  crb crb2 \
 		  di \
 		  eureka \
+		  fc_m \
 		  fuchs \
 		  fuzzac \
 		  ksm \
 		  mp_noid \
+		  novotrade \
 		  np1 np2 np3 \
 		  nru \
 		  p40a p40b p41a p50a p60 p61 \
@@ -313,7 +315,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  pru1 pru2 \
 		  starpack \
 		  titanics \
-		  tp3 \
+		  tp1 tp2 tp3 \
 		  unic unic2 \
 		  xann
 
