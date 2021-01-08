@@ -174,6 +174,7 @@ restart:
 	for (i = 0; i < nop; i++)
 		if (pnum[i] > npat)
 			npat = pnum[i];
+	npat++;
 
 	write8(out, 0x7f);			/* ntk restart byte */
 
@@ -195,12 +196,17 @@ restart:
 	psize = ftell (in) - j;
 	fseek (in, j, 0);	/* SEEK_SET */
 #endif
+	/* This value should be larger than the actual size of the
+	 * pattern data and will probably set the error flag, so
+	 * clear it after reading.
+	 */
 	psize = npat * 1024;
 	if ((pdata = (uint8 *)malloc(psize)) == NULL)
 		return -1;
 
 	psize = hio_read(pdata, 1, psize, in);
-	npat += 1;		/* coz first value is $00 */
+	hio_error(in);
+
 	size = npat * 1024;
 	if ((pat = (uint8 *)calloc(1, size)) == NULL)
 		goto err;

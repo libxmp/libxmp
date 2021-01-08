@@ -308,6 +308,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  np1 np2 np3 \
 		  nru \
 		  p40a p40b p41a p50a p60 p61 \
+		  pha pha_short \
 		  pm10 pm18 \
 		  pp10_1 pp10_2 \
 		  pp21_1 pp21_2 \
