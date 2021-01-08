@@ -196,16 +196,22 @@ restart:
 	fseek (in, j, 0);	/* SEEK_SET */
 #endif
 	psize = npat * 1024;
-	pdata = (uint8 *) malloc (psize);
+	if ((pdata = (uint8 *)malloc(psize)) == NULL)
+		return -1;
+
 	psize = hio_read(pdata, 1, psize, in);
 	npat += 1;		/* coz first value is $00 */
 	size = npat * 1024;
-	pat = (uint8 *)calloc(1, size);
+	if ((pat = (uint8 *)calloc(1, size)) == NULL)
+		goto err;
 
 	j = 0;
 	for (i = 0; i < psize && j < size; i++) {
 		if (pdata[i] == 0xff) {
 			i += 1;
+			if (i >= psize)
+				goto err;
+
 			ocpt[(k + 3) % 4] = 0xff - pdata[i];
 			continue;
 		}
@@ -229,6 +235,10 @@ restart:
 			i -= 1;
 			continue;
 		}
+
+		if (i + 3 >= psize)
+			goto err;
+
 		ins = pdata[i];
 		note = pdata[i + 1];
 		fxt = pdata[i + 2];
@@ -258,6 +268,11 @@ restart:
 	pw_move_data(out, in, ssize);
 
 	return 0;
+
+    err:
+	free(pdata);
+	free(pat);
+	return -1;
 }
 
 static int test_pha(const uint8 *data, char *t, int s)

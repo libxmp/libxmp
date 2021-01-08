@@ -359,6 +359,7 @@ FUZZER		= st_invalid_sample_count \
 		  prowizard_p61a_invalid_note \
 		  prowizard_pha_invalid_note \
 		  prowizard_pha_patterns_bound \
+		  prowizard_pha_truncated \
 		  prowizard_pm10c_invalid_note \
 		  prowizard_pm10c_invalid_pattern \
 		  prowizard_pm10c_invalid_psize \
