@@ -299,13 +299,16 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  crb crb2 \
 		  di \
 		  eureka \
+		  fc_m \
 		  fuchs \
 		  fuzzac \
 		  ksm \
 		  mp_noid \
+		  novotrade \
 		  np1 np2 np3 \
 		  nru \
 		  p40a p40b p41a p50a p60 p61 \
+		  pha pha_short \
 		  pm10 pm18 \
 		  pp10_1 pp10_2 \
 		  pp21_1 pp21_2 \
@@ -313,7 +316,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  pru1 pru2 \
 		  starpack \
 		  titanics \
-		  tp3 \
+		  tp1 tp2 tp3 \
 		  unic unic2 \
 		  xann
 
@@ -353,15 +356,20 @@ FUZZER		= st_invalid_sample_count \
 		  prowizard_noiserun_truncated \
 		  prowizard_np2_patterns_bound \
 		  prowizard_np3_invalid_note \
+		  prowizard_np3_patterns_bound \
 		  prowizard_p61a_invalid_note \
 		  prowizard_pha_invalid_note \
 		  prowizard_pha_patterns_bound \
+		  prowizard_pha_truncated \
+		  prowizard_pm10c_invalid_note \
 		  prowizard_pm10c_invalid_pattern \
 		  prowizard_pm10c_invalid_psize \
+		  prowizard_pm18a_invalid_note \
 		  prowizard_pp10_invalid_pattern \
 		  prowizard_pp30_invalid \
 		  prowizard_starpack_junk_orders \
 		  prowizard_theplayer_invalid_note \
+		  prowizard_tp1_invalid_length \
 		  prowizard_tp3_patterns_bound \
 		  prowizard_unic_truncated \
 		  prowizard_zen_invalid_note \

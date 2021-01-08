@@ -225,7 +225,7 @@ static int test_np3(const uint8 *data, char *t, int s)
 	max_pptr = 0;
 	for (i = 0; i < ptab_size; i += 2) {
 		int pptr = readmem16b(data + hdr_size + i);
-		if (pptr & 0x07 || pptr > 0x400)
+		if (pptr & 0x07 || pptr >= 0x400)
 			return -1;
 		if (pptr > max_pptr)
 			max_pptr = pptr;
