@@ -194,7 +194,7 @@ static int test_tp1(const uint8 *data, char *t, int s)
 
 	/* pattern list size */
 	len = readmem16b(data + 280) + 1;
-	if (len == 0 || len > 128) {
+	if (len > 128) {
 		return -1;
 	}
 
