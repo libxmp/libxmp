@@ -18,6 +18,7 @@ static int depack_p18a(HIO_HANDLE *in, FILE *out)
 	short pat_max;
 	int tmp_ptr;
 	int refmax;
+	int refsize;
 	uint8 pnum[128];
 	int paddr[128];
 	short pptr[64][256];
@@ -112,12 +113,15 @@ static int depack_p18a(HIO_HANDLE *in, FILE *out)
 
 	/* read "reference table" */
 	refmax += 1;			/* 1st value is 0 ! */
-	i = refmax * 4;			/* each block is 4 bytes long */
-	if ((reftab = (uint8 *)malloc(i)) == NULL) {
+	refsize = refmax * 4;		/* each block is 4 bytes long */
+	if ((reftab = (uint8 *)malloc(refsize)) == NULL) {
 		return -1;
 	}
-	
-	hio_read(reftab, i, 1, in);
+
+	if (hio_read(reftab, refsize, 1, in) < 1) {
+		goto err;
+	}
+
 	hio_seek(in, 5226, SEEK_SET);	/* back to pattern data start */
 
 	for (j = 0; j <= pat_max; j++) {
@@ -128,6 +132,11 @@ static int depack_p18a(HIO_HANDLE *in, FILE *out)
 				uint8 *p = &pat[j][i * 16 + k * 4];
 				int x = hio_read16b(in) << 2;
 				int fine, ins, per, fxt;
+
+				/* Sanity check */
+				if (x >= refsize || hio_error(in)) {
+					goto err;
+				}
 
 				memcpy(p, &reftab[x], 4);
 
