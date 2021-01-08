@@ -366,6 +366,7 @@ FUZZER		= st_invalid_sample_count \
 		  prowizard_pp30_invalid \
 		  prowizard_starpack_junk_orders \
 		  prowizard_theplayer_invalid_note \
+		  prowizard_tp1_invalid_length \
 		  prowizard_tp3_patterns_bound \
 		  prowizard_unic_truncated \
 		  prowizard_zen_invalid_note \
