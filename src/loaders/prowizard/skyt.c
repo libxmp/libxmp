@@ -18,6 +18,7 @@ static int depack_skyt(HIO_HANDLE *in, FILE *out)
 	int i = 0, j = 0, k = 0;
 	int trkval[128][4];
 	int trk_addr;
+	int max_trk;
 	int size, ssize = 0;
 
 	memset(ptable, 0, sizeof(ptable));
@@ -48,9 +49,13 @@ static int depack_skyt(HIO_HANDLE *in, FILE *out)
 	write8(out, 0x7f);			/* write NoiseTracker byte */
 
 	/* read track numbers ... and deduce pattern list */
+	max_trk = 0;
 	for (i = 0; i < pat_pos; i++) {
 		for (j = 0; j < 4; j++) {
 			trkval[i][j] = hio_read16b(in);
+			if (trkval[i][j] > max_trk) {
+					max_trk = trkval[i][j];
+			}
 		}
 	}
 
@@ -70,6 +75,10 @@ static int depack_skyt(HIO_HANDLE *in, FILE *out)
 	for (i = 0; i < pat_pos; i++) {
 		memset(pat, 0, sizeof(pat));
 		for (j = 0; j < 4; j++) {
+			/* track 0 is blank and doesn't exist in the file. */
+			if (trkval[i][j] == 0) {
+				continue;
+			}
 			hio_seek(in, trk_addr + ((trkval[i][j] - 1)<<8), SEEK_SET);
 			for (k = 0; k < 64; k++) {
 				int x = k * 16 + j * 4;
@@ -90,6 +99,11 @@ static int depack_skyt(HIO_HANDLE *in, FILE *out)
 			}
 		}
 		fwrite(pat, 1024, 1, out);
+	}
+
+	/* skip to the end of the tracks/the start of the sample data. */
+	if (hio_seek(in, trk_addr + (max_trk << 8), SEEK_SET) < 0) {
+		return -1;
 	}
 
 	/* sample data */
