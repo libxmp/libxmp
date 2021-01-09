@@ -316,6 +316,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  pp30_1 pp30_2 \
 		  pru1 pru2 \
 		  starpack \
+		  tdd \
 		  titanics \
 		  tp1 tp2 tp3 \
 		  unic unic_id0 unic2 \
