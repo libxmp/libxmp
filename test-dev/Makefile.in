@@ -302,6 +302,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  fc_m \
 		  fuchs \
 		  fuzzac \
+		  hrt \
 		  ksm \
 		  mp_noid \
 		  novotrade \

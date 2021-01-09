@@ -85,6 +85,7 @@ static int pw_load(struct module_data *m, HIO_HANDLE *h, const int start)
 
 	/* Module loading */
 
+	D_(D_INFO "loading generated module");
 	if ((f = hio_open_file2(temp)) == NULL) {
 		fclose(temp);
 		goto err2;
