@@ -302,6 +302,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  fc_m \
 		  fuchs \
 		  fuzzac \
+		  hrt \
 		  ksm \
 		  mp_noid \
 		  novotrade \
@@ -317,7 +318,8 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  starpack \
 		  titanics \
 		  tp1 tp2 tp3 \
-		  unic unic2 \
+		  unic unic_id0 unic2 \
+		  wn \
 		  xann
 
 PROBLEMATIC	= length_data_jack \
