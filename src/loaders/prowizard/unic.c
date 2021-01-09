@@ -1,6 +1,6 @@
 /*
  * Unic_Tracker.c   Copyright (C) 1997 Asle / ReDoX
- * 
+ *
  * Unic tracked MODs to Protracker
  * both with or without ID Unic files will be converted
  *
@@ -240,7 +240,7 @@ static int check_pattern(const uint8 *data, int s, int psize, int max_ins, int o
 		if ((d[1] & 0x0F) == 0x0D && d[2] > 0x40)
 			return -1;
 
-		ins = ((d[0] >> 2) & 0x30) | ((d[2] >> 4) & 0x0F);
+		ins = ((d[0] >> 2) & 0x30) | ((d[1] >> 4) & 0x0F);
 
 		if (ins > max_ins)
 			return -1;
