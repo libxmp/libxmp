@@ -40,7 +40,6 @@ const struct pw_format *const pw_formats[NUM_PW_FORMATS + 1] = {
 
 	/* No signature */
 	&pw_xann,
-	&pw_mp_noid,	/* Must check before Heatseeker */
 	&pw_di,
 	&pw_eu,
 	&pw_p4x,
@@ -50,6 +49,7 @@ const struct pw_format *const pw_formats[NUM_PW_FORMATS + 1] = {
 	&pw_p50a,
 	&pw_p60a,
 	&pw_p61a,
+	&pw_mp_noid,	/* Must check before Heatseeker, after ProPacker 1.0 */
 	&pw_nru,
 	&pw_np2,
 	&pw_np1,
@@ -85,7 +85,7 @@ int pw_write_zero(FILE *out, int len)
 {
 	uint8 buf[1024];
 	int l;
-	
+
 	do {
 		l = len > 1024 ? 1024 : len;
 		memset(buf, 0, l);
