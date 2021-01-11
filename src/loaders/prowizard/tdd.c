@@ -24,16 +24,8 @@ static int depack_tdd(HIO_HANDLE *in, FILE *out)
 	memset(saddr, 0, sizeof(saddr));
 	memset(ssizes, 0, sizeof(ssizes));
 
-	/* write ptk header */
-	pw_write_zero(out, 1080);
-
-	/* read/write pattern list + size and ntk byte */
-	if (fseek(out, 950, SEEK_SET) < 0) {
-		return -1;
-	}
-
+	/* read pattern list + size and ntk byte */
 	hio_read(tmp, 130, 1, in);
-	fwrite(tmp, 130, 1, out);
 
 	for (pmax = i = 0; i < 128; i++) {
 		if (tmp[i + 2] > pmax) {
@@ -41,17 +33,20 @@ static int depack_tdd(HIO_HANDLE *in, FILE *out)
 		}
 	}
 
+	/* title */
+	pw_write_zero(out, 20);
+
 	/* sample descriptions */
 	for (i = 0; i < 31; i++) {
-		if (fseek(out, 42 + (i * 30), SEEK_SET) < 0) {
-			return -1;
-		}
+		/* sample name */
+		pw_write_zero(out, 22);
 
 		/* sample address */
 		saddr[i] = hio_read32b(in);
 
 		/* read/write size */
 		write16b(out, size = hio_read16b(in));
+		size *= 2;
 		ssize += size;
 		ssizes[i] = size;
 
@@ -62,17 +57,16 @@ static int depack_tdd(HIO_HANDLE *in, FILE *out)
 		write16b(out, hio_read16b(in));	/* read/write replen */
 	}
 
+	/* write pattern list + size and ntk byte */
+	fwrite(tmp, 130, 1, out);
+
+	/* write ptk's ID string */
+	write32b(out, PW_MOD_MAGIC);
+
 	/* bypass Samples datas */
 	if (hio_seek(in, ssize, SEEK_CUR) < 0) {
 		return -1;
 	}
-
-	/* write ptk's ID string */
-	if (fseek(out, 0, SEEK_END) < 0) {
-		return -1;
-	}
-
-	write32b(out, PW_MOD_MAGIC);
 
 	/* read/write pattern data */
 	for (i = 0; i <= pmax; i++) {
@@ -135,6 +129,7 @@ static int test_tdd(const uint8 *data, char *t, int s)
 		int size = readmem16b(d + 134);	/* sample size */
 		int sadr = readmem32b(d + 138);	/* loop start address */
 		int lsiz = readmem16b(d + 142);	/* loop size (replen) */
+		size *= 2;
 
 		/* volume > 40h ? */
 		if (d[137] > 0x40)
@@ -188,7 +183,7 @@ static int test_tdd(const uint8 *data, char *t, int s)
 	psize <<= 10;
 
 	/* test end of pattern list */
-	for (i = data[0] + 2; i < 128; i++) {
+	for (i = data[0]; i < 128; i++) {
 		if (data[i + 2] != 0)
 			return -1;
 	}
@@ -231,7 +226,7 @@ static int test_tdd(const uint8 *data, char *t, int s)
 
 	pw_read_title(NULL, t, 0);
 
-	return -1;
+	return 0;
 }
 
 const struct pw_format pw_tdd = {
