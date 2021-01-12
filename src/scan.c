@@ -55,6 +55,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
     struct xmp_module *mod = &m->mod;
     int parm, gvol_memory, f1, f2, p1, p2, ord, ord2;
     int row, last_row, break_row, row_count, row_count_total;
+    int orders_since_last_valid, any_valid;
     int gvl, bpm, speed, base_time, chn;
     int frame_count;
     double time, start_time;
@@ -117,10 +118,18 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
     ord = ep - 1;
 
     gvol_memory = break_row = row_count = row_count_total = frame_count = 0;
+    orders_since_last_valid = any_valid = 0;
     start_time = time = 0.0;
     inside_loop = 0;
 
     while (42) {
+	/* Sanity check to prevent getting stuck due to broken patterns. */
+	if (orders_since_last_valid > 512) {
+	    D_(D_CRIT "orders_since_last_valid = %d @ ord %d; ending scan", orders_since_last_valid, ord);
+	    goto end_module;
+	}
+	orders_since_last_valid++;
+
 	if ((uint32)++ord >= mod->len) {
 	    if (mod->rst > mod->len || mod->xxo[mod->rst] >= mod->pat) {
 		ord = ep;
@@ -219,6 +228,8 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 		goto end_module;
 	    }
 	    m->scan_cnt[ord][row]++;
+	    orders_since_last_valid = 0;
+	    any_valid = 1;
 
 	    pdelay = 0;
 
@@ -477,6 +488,9 @@ end_module:
 
     /* Sanity check */
     {
+        if (!any_valid) {
+	    return -1;
+	}
         pat = mod->xxo[ord];
         if (pat >= mod->pat || row >= mod->xxp[pat]->rows) {
             row = 0;
@@ -520,6 +534,11 @@ int libxmp_scan_sequences(struct context_data *ctx)
 	temp_ep[0] = 0;
 	p->scan[0].time = scan_module(ctx, ep, 0);
 	seq = 1;
+
+	if (p->scan[0].time < 0) {
+		D_(D_CRIT "scan was not able to find any valid orders");
+		return -1;
+	}
 
 	while (1) {
 		/* Scan song starting at given entry point */

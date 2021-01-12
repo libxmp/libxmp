@@ -331,7 +331,9 @@ PROBLEMATIC	= length_data_jack \
 		  length_roadblast \
 		  length_ode2ptk
 
-FUZZER		= st_invalid_sample_count \
+FUZZER		= mod_no_valid_orders \
+		  mod_scan_row_limit \
+		  st_invalid_sample_count \
 		  s3m_invalid_sample_size \
 		  it_dca_3 \
 		  abk_0_instruments \
@@ -345,13 +347,13 @@ FUZZER		= st_invalid_sample_count \
 		  gal5_channels_bound \
 		  gdm_invalid_sample_size \
 		  gdm_truncated \
+		  liq_no_valid_orders \
 		  masi_invalid_length \
 		  mdl_duplicate_chunk \
 		  mdl_invalid_run \
 		  med3_invalid_pattern \
 		  med4_instrument_name \
 		  mmd1_channel_count \
-		  mod_scan_row_limit \
 		  mtm_channels_bound \
 		  okt_duplicate_chunk \
 		  psm_samples_bound \
