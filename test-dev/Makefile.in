@@ -348,6 +348,7 @@ FUZZER		= st_invalid_sample_count \
 		  med3_invalid_pattern \
 		  med4_instrument_name \
 		  mmd1_channel_count \
+		  mod_scan_row_limit \
 		  mtm_channels_bound \
 		  okt_duplicate_chunk \
 		  psm_samples_bound \

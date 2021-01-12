@@ -54,7 +54,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
     struct module_data *m = &ctx->m;
     struct xmp_module *mod = &m->mod;
     int parm, gvol_memory, f1, f2, p1, p2, ord, ord2;
-    int row, last_row, break_row, row_count;
+    int row, last_row, break_row, row_count, row_count_total;
     int gvl, bpm, speed, base_time, chn;
     int frame_count;
     double time, start_time;
@@ -116,7 +116,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
     ord2 = -1;
     ord = ep - 1;
 
-    gvol_memory = break_row = row_count = frame_count = 0;
+    gvol_memory = break_row = row_count = row_count_total = frame_count = 0;
     start_time = time = 0.0;
     inside_loop = 0;
 
@@ -131,12 +131,12 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 		    ord = ep;
 	        }
 	    }
-	   
+
 	    pat = mod->xxo[ord];
 	    if (has_marker && pat == S3M_END) {
 		break;
 	    }
-	} 
+	}
 
 	pat = mod->xxo[ord];
 	info = &m->xxo_info[ord];
@@ -190,7 +190,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 	}
 
 	last_row = mod->xxp[pat]->rows;
-	for (row = break_row, break_row = 0; row < last_row; row++, row_count++) {
+	for (row = break_row, break_row = 0; row < last_row; row++, row_count++, row_count_total++) {
 	    /* Prevent crashes caused by large softmixer frames */
 	    if (bpm < XMP_MIN_BPM) {
 	        bpm = XMP_MIN_BPM;
@@ -209,8 +209,10 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 	     * (...) it dies at the end of position 2F
 	     */
 
-	    if (row_count > 512)  /* was 255, but Global trash goes to 318 */
+	    if (row_count_total > 512) { /* was 255, but Global trash goes to 318. */
+		D_(D_CRIT "row_count_total = %d @ ord %d, pat %d, row %d; ending scan", row_count_total, ord, pat, row);
 		goto end_module;
+	    }
 
 	    if (!loop_num && m->scan_cnt[ord][row]) {
 		row_count--;
@@ -426,7 +428,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 				loop_chn = chn;
 				loop_num++;
 			    }
-			} else { 
+			} else {
 			    /* Loop start */
 			    loop_row[chn] = row - 1;
 			    inside_loop = 1;
@@ -466,6 +468,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 	}
 
 	frame_count += row_count * speed;
+	row_count_total = 0;
 	row_count = 0;
     }
     row = break_row;
@@ -518,7 +521,7 @@ int libxmp_scan_sequences(struct context_data *ctx)
 	p->scan[0].time = scan_module(ctx, ep, 0);
 	seq = 1;
 
- 	while (1) { 
+	while (1) {
 		/* Scan song starting at given entry point */
 		/* Check if any patterns left */
 		for (i = 0; i < mod->len; i++) {
