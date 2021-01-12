@@ -22,7 +22,7 @@ This package is licensed under the LGPL. You are free to use this library
 in both commercial and non-commercial applications as long as you dynamically
 link to it. If you statically link this library you must also release your
 software under the LGPL. If you need more flexibility in the license email
-me and we can work something out. 
+me and we can work something out.
 
 Michael Kohn <mike@mikekohn.net>
 
@@ -89,7 +89,7 @@ static const unsigned char reverse[256] = {
 10, 138, 74, 202, 42, 170, 106, 234, 26, 154, 90, 218, 58, 186, 122, 250,
 6, 134, 70, 198, 38, 166, 102, 230, 22, 150, 86, 214, 54, 182, 118, 246,
 14, 142, 78, 206, 46, 174, 110, 238, 30, 158, 94, 222, 62, 190, 126, 254,
-1, 129, 65, 193, 33, 161, 97, 225, 17, 145, 81, 209, 49, 177, 113, 241,         
+1, 129, 65, 193, 33, 161, 97, 225, 17, 145, 81, 209, 49, 177, 113, 241,
 9, 137, 73, 201, 41, 169, 105, 233, 25, 153, 89, 217, 57, 185, 121, 249,
 5, 133, 69, 197, 37, 165, 101, 229, 21, 149, 85, 213, 53, 181, 117, 245,
 13, 141, 77, 205, 45, 173, 109, 237, 29, 157, 93, 221, 61, 189, 125, 253,
@@ -205,7 +205,7 @@ static int add_static_codes_to_tree(struct huffman_tree_t *huffman_tree, int cod
       }
 
       x=x>>1;
-    } 
+    }
 
     curr_huffman_leaf->code=start_uncomp_code++;
     start_code++;
@@ -229,7 +229,7 @@ printf("load_fixed_huffman()\n");
 #endif
 
 /*
-  code=0x30;   // 0011 0000 
+  code=0x30;   // 0011 0000
   for (t=0; t<=143; t++)
   {
     huffman->len[t]=8;
@@ -237,7 +237,7 @@ printf("load_fixed_huffman()\n");
     code++;
   }
 
-  code=0x190;  // 1 1001 0000 
+  code=0x190;  // 1 1001 0000
   for (t=144; t<=255; t++)
   {
     huffman->len[t]=9;
@@ -507,7 +507,7 @@ static int load_codes(FILE *in, struct bitstream_t *bitstream, int *lengths, int
         }
 
         x=x>>1;
-      } 
+      }
 
       huffman_tree[curr_leaf].code=t;
 
@@ -834,7 +834,11 @@ int decompress(FILE *in, struct huffman_t *huffman, struct bitstream_t *bitstrea
       {
         while (bitstream->bitptr<length_extra_bits[code])
         {
-          bitstream->holding+=(getc(in)<<bitstream->bitptr);
+          int x = getc(in);
+          if (x < 0)
+            return -1;
+
+          bitstream->holding+=(x<<bitstream->bitptr);
           bitstream->bitptr+=8;
         }
 
@@ -852,10 +856,14 @@ int decompress(FILE *in, struct huffman_t *huffman, struct bitstream_t *bitstrea
       {
         if (bitstream->bitptr<5)
         {
-          bitstream->holding+=(getc(in)<<bitstream->bitptr);
+          int x = getc(in);
+          if (x < 0)
+            return -1;
+
+          bitstream->holding+=(x<<bitstream->bitptr);
           bitstream->bitptr+=8;
         }
- 
+
         code=(bitstream->holding&0x1f);
         code=reverse[code&255]>>3;
         bitstream->bitptr-=5;
@@ -876,7 +884,11 @@ int decompress(FILE *in, struct huffman_t *huffman, struct bitstream_t *bitstrea
           {
             /* bitstream->holding+=(getc(in)<<bitstream->bitptr); */
             /* bitstream->bitptr+=8; */
-            bitstream->holding=getc(in);
+            int x = getc(in);
+            if (x < 0)
+              return -1;
+
+            bitstream->holding=x;
             bitstream->bitptr=8;
           }
 #ifdef DEBUG
@@ -930,7 +942,11 @@ int decompress(FILE *in, struct huffman_t *huffman, struct bitstream_t *bitstrea
       {
         while (bitstream->bitptr<dist_extra_bits[code])
         {
-          bitstream->holding+=(getc(in)<<bitstream->bitptr);
+          int x = getc(in);
+          if (x < 0)
+            return -1;
+
+          bitstream->holding+=(x<<bitstream->bitptr);
           bitstream->bitptr+=8;
         }
 
@@ -1146,7 +1162,7 @@ if (!is_zip) {
           huffman.window_ptr=0;
         }
       }
-    } 
+    }
       else
     if (comp_method==2)
     {

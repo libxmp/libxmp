@@ -382,6 +382,7 @@ FUZZER		= st_invalid_sample_count \
 		  depack_lha_truncated \
 		  depack_lzx_invalid \
 		  depack_muse_truncated \
+		  depack_muse_truncated2 \
 		  depack_oxm_invalid \
 		  depack_sqsh_invalid_verbatim \
 		  depack_sqsh_truncated \
