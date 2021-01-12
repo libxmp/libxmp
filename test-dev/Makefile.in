@@ -332,6 +332,7 @@ PROBLEMATIC	= length_data_jack \
 		  length_ode2ptk
 
 FUZZER		= st_invalid_sample_count \
+		  s3m_invalid_sample_size \
 		  it_dca_3 \
 		  abk_0_instruments \
 		  dbm_invalid_instruments \
@@ -342,6 +343,7 @@ FUZZER		= st_invalid_sample_count \
 		  gal4_duplicate_instrument \
 		  gal4_env_point_bound \
 		  gal5_channels_bound \
+		  gdm_invalid_sample_size \
 		  gdm_truncated \
 		  masi_invalid_length \
 		  mdl_duplicate_chunk \
