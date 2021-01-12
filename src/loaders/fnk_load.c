@@ -42,10 +42,10 @@ static int fnk_test(HIO_HANDLE *f, char *t, const int start)
     if (hio_read32b(f) != MAGIC_Funk)
 	return -1;
 
-    hio_read8(f); 
+    hio_read8(f);
     a = hio_read8(f);
-    b = hio_read8(f); 
-    hio_read8(f); 
+    b = hio_read8(f);
+    hio_read8(f);
 
     if ((a >> 1) < 10)			/* creation year (-1980) */
 	return -1;
@@ -123,6 +123,10 @@ static int fnk_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	ffh.fih[i].shifter = hio_read8(f);
 	ffh.fih[i].waveform = hio_read8(f);
 	ffh.fih[i].retrig = hio_read8(f);
+	/* Sanity check */
+	if (ffh.fih[i].length >= ffh.filesize) {
+	    return -1;
+	}
     }
 
     /* day = ffh.info[0] & 0x1f;
@@ -293,11 +297,11 @@ static int fnk_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		    break;
 		case 0xe:
 		    event->fxt = FX_SETPAN;
-		    event->fxp = 8 + (LSN(ev[2]) << 4);	
+		    event->fxp = 8 + (LSN(ev[2]) << 4);
 		    break;
 		case 0xf:
 		    event->fxt = FX_SPEED;
-		    event->fxp = LSN(ev[2]);	
+		    event->fxp = LSN(ev[2]);
 		    break;
 		}
 	    }
