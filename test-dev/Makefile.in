@@ -378,6 +378,7 @@ FUZZER		= st_invalid_sample_count \
 		  prowizard_unic_truncated \
 		  prowizard_zen_invalid_note \
 		  depack_arcfs_zero_length \
+		  depack_gzip_invalid_name \
 		  depack_gzip_truncated \
 		  depack_lha_truncated \
 		  depack_lzx_invalid \
