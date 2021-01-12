@@ -305,6 +305,9 @@ static int stx_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		for (r = 0; r < 64;) {
 			b = hio_read8(f);
+			if (hio_error(f)) {
+				goto err3;
+			}
 
 			if (b == S3M_EOR) {
 				r++;

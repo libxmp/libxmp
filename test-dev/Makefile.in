@@ -352,6 +352,7 @@ FUZZER		= st_invalid_sample_count \
 		  mtm_channels_bound \
 		  okt_duplicate_chunk \
 		  psm_samples_bound \
+		  stx_truncated \
 		  ult_channels_bound \
 		  ult_invalid_tracks \
 		  prowizard_ac1d_invalid_note \
