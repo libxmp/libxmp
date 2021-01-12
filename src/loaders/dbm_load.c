@@ -245,7 +245,11 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	 */
 
 	for (i = 0; i < mod->pat; i++) {
-		if (libxmp_alloc_pattern_tracks(mod, i, hio_read16b(f)) < 0)
+		int trks = hio_read16b(f);
+		if (trks > XMP_MAX_CHANNELS || hio_error(f))
+			return -1;
+
+		if (libxmp_alloc_pattern_tracks(mod, i, trks) < 0)
 			return -1;
 
 		sz = hio_read32b(f);
@@ -257,6 +261,9 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 		while (sz > 0) {
 			//printf("  offset=%x,  sz = %d, ", hio_tell(f), sz);
 			c = hio_read8(f);
+			if (hio_error(f))
+				return -1;
+
 			if (--sz <= 0) break;
 			//printf("c = %02x\n", c);
 
@@ -393,6 +400,9 @@ static int read_envelope(struct xmp_module *mod, struct dbm_envelope *env, HIO_H
 		env->nodes[i].position	= hio_read16b(f);
 		env->nodes[i].value	= (int16)hio_read16b(f);
 	}
+
+	if (hio_error(f))
+		return -1;
 
 	return 0;
 }

@@ -336,6 +336,7 @@ FUZZER		= st_invalid_sample_count \
 		  abk_0_instruments \
 		  dbm_invalid_instruments \
 		  dbm_name_buffer_overflow \
+		  dbm_truncated \
 		  fnk_patterns_bound \
 		  gal4_duplicate_instrument \
 		  gal4_env_point_bound \
