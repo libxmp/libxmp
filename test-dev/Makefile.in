@@ -349,6 +349,7 @@ FUZZER		= mod_no_valid_orders \
 		  gdm_truncated \
 		  liq_no_valid_orders \
 		  masi_invalid_length \
+		  masi_seek_loop \
 		  mdl_duplicate_chunk \
 		  mdl_invalid_run \
 		  med3_invalid_pattern \

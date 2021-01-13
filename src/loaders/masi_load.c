@@ -684,7 +684,7 @@ static int get_song_2(struct module_data *m, int size, HIO_HANDLE *f, void *parm
 
 		magic = hio_read32b(f);
 		subchunk_size = hio_read32l(f);
-		if (subchunk_size == 0 || hio_error(f)) {
+		if (subchunk_size <= 0 || hio_error(f)) {
 			return -1;
 		}
 
