@@ -309,7 +309,7 @@ struct module_data {
 	struct xmp_sequence seq_data[MAX_SEQUENCES];
 	char *instrument_path;
 	void *extra;			/* format-specific extra fields */
-	char **scan_cnt;		/* scan counters */
+	uint8 **scan_cnt;		/* scan counters */
 	struct extra_sample_data *xtra;
 #ifndef LIBXMP_CORE_DISABLE_IT
 	struct xmp_sample *xsmp;	/* sustain loop samples */

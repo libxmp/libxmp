@@ -131,7 +131,7 @@ static void module_quirks(struct context_data *ctx)
 	}
 }
 
-/* 
+/*
  * Check whether the given string matches one of the blacklisted glob
  * patterns. Used to filter file names stored in archive files.
  */
@@ -324,7 +324,7 @@ int libxmp_prepare_scan(struct context_data *ctx)
 		return 0;
 	}
 
-	m->scan_cnt = calloc(sizeof (char *), mod->len);
+	m->scan_cnt = calloc(sizeof (uint8 *), mod->len);
 	if (m->scan_cnt == NULL)
 		return -XMP_ERROR_SYSTEM;
 

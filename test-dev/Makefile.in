@@ -347,6 +347,7 @@ FUZZER		= mod_no_valid_orders \
 		  gal5_channels_bound \
 		  gdm_invalid_sample_size \
 		  gdm_truncated \
+		  ims_scan_loop \
 		  liq_no_valid_orders \
 		  masi_invalid_length \
 		  masi_seek_loop \

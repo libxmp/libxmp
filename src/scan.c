@@ -231,6 +231,13 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 	    orders_since_last_valid = 0;
 	    any_valid = 1;
 
+	    /* If the scan count for this row overflows, break.
+	     * A scan count of 0 will help break this loop in playback (storlek_11.it).
+	     */
+	    if (!m->scan_cnt[ord][row]) {
+		goto end_module;
+	    }
+
 	    pdelay = 0;
 
 	    for (chn = 0; chn < mod->chn; chn++) {
@@ -385,7 +392,9 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 		}
 
 		if (f1 == FX_IT_ROWDELAY) {
-	    		m->scan_cnt[ord][row] += p1 & 0x0f;
+			/* Don't allow the scan count for this row to overflow here. */
+			int x = m->scan_cnt[ord][row] + (p1 & 0x0f);
+			m->scan_cnt[ord][row] = MIN(x, 255);
 			frame_count += (p1 & 0x0f) * speed;
 		}
 
