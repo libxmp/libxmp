@@ -336,6 +336,7 @@ FUZZER		= mod_no_valid_orders \
 		  st_invalid_sample_count \
 		  s3m_invalid_sample_size \
 		  it_dca_3 \
+		  it_truncated_pattern \
 		  abk_0_instruments \
 		  dbm_invalid_instruments \
 		  dbm_name_buffer_overflow \
