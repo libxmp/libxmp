@@ -338,6 +338,7 @@ FUZZER		= mod_no_valid_orders \
 		  it_dca_3 \
 		  it_truncated_pattern \
 		  abk_0_instruments \
+		  amf_truncated \
 		  dbm_invalid_instruments \
 		  dbm_name_buffer_overflow \
 		  dbm_truncated \
