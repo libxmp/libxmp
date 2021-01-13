@@ -126,7 +126,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 	/* Sanity check to prevent getting stuck due to broken patterns. */
 	if (orders_since_last_valid > 512) {
 	    D_(D_CRIT "orders_since_last_valid = %d @ ord %d; ending scan", orders_since_last_valid, ord);
-	    goto end_module;
+	    break;
 	}
 	orders_since_last_valid++;
 
