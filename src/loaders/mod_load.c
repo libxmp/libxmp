@@ -528,7 +528,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     /*
      * Experimental tracker-detection routine
-     */ 
+     */
 
     if (detected)
 	goto skip_test;
@@ -632,7 +632,9 @@ skip_test:
             int period;
 
 	    event = &EVENT(i, j % mod->chn, j / mod->chn);
-	    hio_read(mod_event, 1, 4, f);
+	    if (hio_read(mod_event, 1, 4, f) < 4) {
+		return -1;
+	    }
 
 	    period = ((int)(LSN(mod_event[0])) << 8) | mod_event[1];
 	    if (period != 0 && (period < 108 || period > 907)) {
@@ -668,14 +670,16 @@ skip_test:
 
 	for (j = 0; j < (64 * mod->chn); j++) {
 	    event = &EVENT(i, j % mod->chn, j / mod->chn);
-	    hio_read(mod_event, 1, 4, f);
+	    if (hio_read(mod_event, 1, 4, f) < 4) {
+		return -1;
+	    }
 
 	    switch (tracker_id) {
 	    case TRACKER_PROBABLY_NOISETRACKER:
 	    case TRACKER_NOISETRACKER:
 	    	libxmp_decode_noisetracker_event(event, mod_event);
 		break;
-	    default:	
+	    default:
 	        libxmp_decode_protracker_event(event, mod_event);
 	    }
 	}
