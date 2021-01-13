@@ -145,10 +145,10 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	int i, len, chan;
 	int rows, r;
 	uint8 flag;
-	
+
 	i = hio_read8(f);	/* pattern number */
 	len = hio_read32l(f);
-	
+
 	rows = hio_read8(f) + 1;
 
 	if (libxmp_alloc_pattern_tracks(mod, i, rows) < 0)
@@ -158,6 +158,9 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 		if ((flag = hio_read8(f)) == 0) {
 			r++;
 			continue;
+		}
+		if (hio_error(f)) {
+			return -1;
 		}
 
 		chan = flag & 0x1f;
@@ -174,7 +177,7 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 				break;
 			default:
 				if (fxt > 0x0f) {
-					printf("unknown effect %02x %02x\n", fxt, fxp);
+					D_(D_CRIT "p%d r%d c%d unknown effect %02x %02x", i, r, chan, fxt, fxp);
 					fxt = fxp = 0;
 				}
 			}
@@ -270,7 +273,7 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 		mod->xxs[i].flg & XMP_SAMPLE_16BIT ? '+' : ' ',
 		mod->xxs[i].lps,
 		mod->xxs[i].lpe,
-		mod->xxs[i].flg & XMP_SAMPLE_LOOP_BIDIR ? 'B' : 
+		mod->xxs[i].flg & XMP_SAMPLE_LOOP_BIDIR ? 'B' :
 			mod->xxs[i].flg & XMP_SAMPLE_LOOP ? 'L' : ' ',
 		mod->xxi[i].sub[0].vol, flags, srate);
 

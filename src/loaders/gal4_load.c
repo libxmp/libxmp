@@ -166,6 +166,9 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 			r++;
 			continue;
 		}
+		if (hio_error(f)) {
+			return -1;
+		}
 
 		chan = flag & 0x1f;
 
@@ -181,7 +184,7 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 				break;
 			default:
 				if (fxt > 0x0f) {
-					printf("unknown effect %02x %02x\n", fxt, fxp);
+					D_(D_CRIT "p%d r%d c%d unknown effect %02x %02x", i, r, chan, fxt, fxp);
 					fxt = fxp = 0;
 				}
 			}
@@ -352,7 +355,7 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 			mod->xxs[data->snum].flg & XMP_SAMPLE_16BIT ? '+' : ' ',
 			mod->xxs[data->snum].lps,
 			mod->xxs[data->snum].lpe,
-			mod->xxs[data->snum].flg & XMP_SAMPLE_LOOP_BIDIR ? 'B' : 
+			mod->xxs[data->snum].flg & XMP_SAMPLE_LOOP_BIDIR ? 'B' :
 			mod->xxs[data->snum].flg & XMP_SAMPLE_LOOP ? 'L' : ' ',
 			mod->xxi[i].sub[j].vol,
 			mod->xxi[i].sub[j].pan,
