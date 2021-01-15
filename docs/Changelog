@@ -25,8 +25,12 @@ Stable versions
 	- fix IT sample global volume and sample vibrato
 	- fix two IT bugs related to note off and volume handling
 	- fix event out-of-bounds reads due to invalid key values
+	- fix multiple out-of-bounds reads/writes, memory corruptions,
+	  uninitialized reads and hangs in several loaders
+	- fix xmp_release_module double frees when invoked multiple times
 	- check external sample file names before opening them
 	- make it possible to disable module depacker functionality
+	- make it possible to disable prowizard module loaders
 	Changes by viiri:
 	- fix samples corruption in STM modules
 	- support more versions of STM modules
@@ -82,7 +86,13 @@ Stable versions
 	Fix problems reported by Jay Garcia:
 	- fix smix sample allocation
 	- force reset of buffer state on player start
+	Fix problems reported by Vitaly Novichkov:
+	- fix Emscripten builds
+	- fix linkage errors with MSVC debug builds
 	Other changes:
+	- fix IT pattern delay volume reset bug (read row events only
+	  once per row)
+	- fix volume, pitch and pan slides lagging behind one frame
 	- fix tempo assignment in module scan to fix seek issues/crashes
 	- fix double free in case of ADPCM sample load error
 	- code refactoring and cleanup

@@ -15,13 +15,19 @@ Stable versions
 	- fix a seek issue with xmp_load_module_from_memory
 	- fix memory-io functions' error handling
 	- fix event out-of-bounds reads due to invalid key values
+	- fix multiple out-of-bounds reads/writes, memory corruptions,
+	  uninitialized reads and hangs in several loaders
+	- fix xmp_release_module double frees when invoked multiple times
 	- fix tempo assignment in module scan (fixes seek issues/crashes)
+	- fix volume, pitch and pan slides lagging behind one frame
 	- fix lite build mod loader symbols
 	- add new xmp_set_row() call to skip replay to the given row
 	- add new xmp_set_tempo_factor() call to set the replay tempo
 	  multiplier
 	- add xmp_test_module_from_memory and xmp_test_module_from_file
 	  calls to api
+	- fix IT pattern delay volume reset bug (read row events only
+	  once per row)
 	- IT: T00 now repeats previous slide
 	- prevent clobbering of muted channels' volumes in IT modules
 	- clamp number of IT envelope nodes at load time
@@ -46,6 +52,8 @@ Stable versions
 	- fix warnings in configure script
 	- fix Watcom C build on OS/2
 	- fix Amiga build
+	- fix Emscripten builds
+	- fix linkage errors with MSVC debug builds
 
 4.4.1 (20161012):
 	- fix MacOS Tiger build issues (reported by Misty De Meo)
