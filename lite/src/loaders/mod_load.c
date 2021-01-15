@@ -119,7 +119,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		return -1;
 	}
 
-	strncpy(mod->name, (char *)mh.name, 20);
+	strncpy(mod->name, (char *) mh.name, 20);
 
 	mod->len = mh.len;
 	/* mod->rst = mh.restart; */
@@ -173,7 +173,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	mod->trk = mod->chn * mod->pat;
 
-	libxmp_set_type(m, mod->chn == 4 ? "Protracker" : "Fasttracker");
+	libxmp_set_type(m, (mod->chn == 4) ? "Protracker" : "Fasttracker");
 
 	MODULE_INFO();
 
@@ -200,7 +200,9 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		for (j = 0; j < (64 * mod->chn); j++) {
 			event = &EVENT(i, j % mod->chn, j / mod->chn);
-			hio_read(mod_event, 1, 4, f);
+			if (hio_read(mod_event, 1, 4, f) < 4) {
+				return -1;
+			}
 			libxmp_decode_protracker_event(event, mod_event);
 		}
 	}
