@@ -184,12 +184,12 @@ static void unroll_loop(struct xmp_sample *xxs)
 	if (xxs->flg & XMP_SAMPLE_16BIT) {
 		s16 += start;
 		for (i = 0; i < loop_size; i++) {
-			*(s16 + i) = *(s16 - i - 1);	
+			*(s16 + i) = *(s16 - i - 1);
 		}
 	} else {
 		s8 += start;
 		for (i = 0; i < loop_size; i++) {
-			*(s8 + i) = *(s8 - i - 1);	
+			*(s8 + i) = *(s8 - i - 1);
 		}
 	}
 }
@@ -222,6 +222,12 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 			/* coverity[check_return] */
 			hio_seek(f, xxs->len, SEEK_CUR);
 		}
+		return 0;
+	}
+
+	/* If this sample starts at or after EOF, skip it entirely.
+	 */
+	if ((~flags & SAMPLE_FLAG_NOLOAD) && f && hio_tell(f) >= hio_size(f)) {
 		return 0;
 	}
 
@@ -363,7 +369,7 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 		unroll_loop(xxs);
 		bytelen += unroll_extralen;
 	}
-	
+
 	/* Add extra samples at end */
 	if (xxs->flg & XMP_SAMPLE_16BIT) {
 		for (i = 0; i < 8; i++) {

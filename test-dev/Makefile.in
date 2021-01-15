@@ -331,16 +331,28 @@ PROBLEMATIC	= length_data_jack \
 		  length_roadblast \
 		  length_ode2ptk
 
-FUZZER		= st_invalid_sample_count \
+FUZZER		= mod_no_valid_orders \
+		  mod_scan_row_limit \
+		  st_invalid_sample_count \
+		  s3m_invalid_sample_size \
 		  it_dca_3 \
+		  it_truncated_pattern \
 		  abk_0_instruments \
+		  amf_truncated \
 		  dbm_invalid_instruments \
 		  dbm_name_buffer_overflow \
+		  dbm_truncated \
+		  fnk_invalid_sample_size \
 		  fnk_patterns_bound \
 		  gal4_duplicate_instrument \
 		  gal4_env_point_bound \
 		  gal5_channels_bound \
+		  gdm_invalid_sample_size \
+		  gdm_truncated \
+		  ims_scan_loop \
+		  liq_no_valid_orders \
 		  masi_invalid_length \
+		  masi_seek_loop \
 		  mdl_duplicate_chunk \
 		  mdl_invalid_run \
 		  med3_invalid_pattern \
@@ -349,6 +361,7 @@ FUZZER		= st_invalid_sample_count \
 		  mtm_channels_bound \
 		  okt_duplicate_chunk \
 		  psm_samples_bound \
+		  stx_truncated \
 		  ult_channels_bound \
 		  ult_invalid_tracks \
 		  prowizard_ac1d_invalid_note \
@@ -377,16 +390,19 @@ FUZZER		= st_invalid_sample_count \
 		  prowizard_unic_truncated \
 		  prowizard_zen_invalid_note \
 		  depack_arcfs_zero_length \
+		  depack_gzip_invalid_name \
 		  depack_gzip_truncated \
 		  depack_lha_truncated \
 		  depack_lzx_invalid \
 		  depack_muse_truncated \
+		  depack_muse_truncated2 \
 		  depack_oxm_invalid \
 		  depack_sqsh_invalid_verbatim \
 		  depack_sqsh_truncated \
 		  depack_sqsh_truncated2 \
 		  depack_zip_truncated \
-		  depack_zip_truncated2
+		  depack_zip_truncated2 \
+		  depack_zip_truncated3
 
 SYNTH		= #adlib #spectrum
 

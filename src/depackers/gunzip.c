@@ -50,7 +50,7 @@ static int test_gzip(unsigned char *b)
 static int decrunch_gzip(FILE *in, FILE *out)
 {
 	struct member member;
-	int val, c;
+	int val, c, err;
 	uint32 crc;
 
 	libxmp_crc32_init_A();
@@ -76,20 +76,26 @@ static int decrunch_gzip(FILE *in, FILE *out)
 
 	if (member.flg & FLAG_FNAME) {
 		do {
-			c = read8(in, NULL);
+			c = read8(in, &err);
+			if (err) {
+				return -1;
+			}
 		} while (c != 0);
 	}
 
 	if (member.flg & FLAG_FCOMMENT) {
 		do {
-			c = read8(in, NULL);
+			c = read8(in, &err);
+			if (err) {
+				return -1;
+			}
 		} while (c != 0);
 	}
 
 	if (member.flg & FLAG_FHCRC) {
 		read16l(in, NULL);
 	}
-	
+
 	val = libxmp_inflate(in, out, &crc, 1);
 	if (val != 0) {
 		return -1;

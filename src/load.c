@@ -524,7 +524,11 @@ static int load_module(xmp_context opaque, HIO_HANDLE *h)
 		return ret;
 	}
 
-	libxmp_scan_sequences(ctx);
+	ret = libxmp_scan_sequences(ctx);
+	if (ret < 0) {
+		xmp_release_module(opaque);
+		return -XMP_ERROR_LOAD;
+	}
 
 	ctx->state = XMP_STATE_LOADED;
 

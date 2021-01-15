@@ -212,7 +212,7 @@ static int gdm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	ins_ofs = hio_read32l(f);
 	smp_ofs = hio_read32l(f);
 	mod->ins = mod->smp = hio_read8(f) + 1;
-	
+
 	m->c4rate = C4_NTSC_RATE;
 
 	MODULE_INFO();
@@ -248,7 +248,7 @@ static int gdm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		c4spd = hio_read16l(f);
 		vol = hio_read8(f);
 		pan = hio_read8(f);
-		
+
 		mod->xxi[i].sub[0].vol = vol > 0x40 ? 0x40 : vol;
 		mod->xxi[i].sub[0].pan = pan > 15 ? 0x80 : 0x80 + (pan - 8) * 16;
 		libxmp_c2spd_to_note(c4spd, &mod->xxi[i].sub[0].xpo, &mod->xxi[i].sub[0].fin);
@@ -298,6 +298,8 @@ static int gdm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		for (r = 0; len > 0; ) {
 			c = hio_read8(f);
+			if (hio_error(f))
+				return -1;
 			len--;
 
 			if (c == 0) {
@@ -315,7 +317,7 @@ static int gdm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 				continue;
 			}
 
-			if (mod->chn <= (c & 0x1f)) 
+			if (mod->chn <= (c & 0x1f))
 				mod->chn = (c & 0x1f) + 1;
 
 			if (c & 0x20) {		/* note and sample follows */
@@ -327,6 +329,8 @@ static int gdm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			if (c & 0x40) {		/* effect(s) follow */
 				do {
 					k = hio_read8(f);
+					if (hio_error(f))
+						return -1;
 					len--;
 					if ((k & 0xc0) != 0xc0) {
 						hio_read8(f);
@@ -336,7 +340,7 @@ static int gdm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			}
 		}
 	}
- 
+
 	mod->trk = mod->pat * mod->chn;
 
 	if (libxmp_init_pattern(mod) < 0)
@@ -356,6 +360,8 @@ static int gdm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		for (r = 0; len > 0; ) {
 			c = hio_read8(f);
+			if (hio_error(f))
+				return -1;
 			len--;
 
 			if (c == 0) {
@@ -381,6 +387,8 @@ static int gdm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			if (c & 0x40) {		/* effect(s) follow */
 				do {
 					k = hio_read8(f);
+					if (hio_error(f))
+						return -1;
 					len--;
 					switch ((k & 0xc0) >> 6) {
 					case 0:

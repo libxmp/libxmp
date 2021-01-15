@@ -6,7 +6,7 @@ This package is licensed under the LGPL. You are free to use this library
 in both commercial and non-commercial applications as long as you dynamically
 link to it. If you statically link this library you must also release your
 software under the LGPL. If you need more flexibility in the license email
-me and we can work something out. 
+me and we can work something out.
 
 Michael Kohn <mike@mikekohn.net>
 
@@ -74,6 +74,8 @@ int t;
   while (t<len)
   {
     t=t+fread(buffer+t,1,len-t,in);
+    if (t < len && (feof(in) || ferror(in)))
+      return -1;
   }
 
   return t;
@@ -87,6 +89,8 @@ int t;
   while (t<len)
   {
     t=t+fwrite(buffer+t,1,len-t,out);
+    if (ferror(out))
+      return -1;
   }
 
   return t;
@@ -97,7 +101,7 @@ int t;
 #define BUFFER_SIZE 16738
 
 
-static unsigned int copy_file(FILE *in, FILE *out, int len, struct inflate_data *data)
+static int copy_file(FILE *in, FILE *out, int len, uint32 *_checksum, struct inflate_data *data)
 {
 unsigned char buffer[BUFFER_SIZE];
 unsigned int checksum;
@@ -114,13 +118,16 @@ int t,r;
       else
     { r=len-t; }
 
-    read_buffer(in,buffer,r);
-    write_buffer(out,buffer,r);
+    if (read_buffer(in,buffer,r) < r)
+      return -1;
+    if (write_buffer(out,buffer,r) < r)
+      return -1;
     checksum=libxmp_crc32_A2(buffer,r,checksum);
     t=t+r;
   }
 
-  return checksum^0xffffffff;
+  *_checksum = (checksum ^ 0xffffffff);
+  return 0;
 }
 
 static int read_zip_header(FILE *in, struct zip_file_header *header)
@@ -181,7 +188,8 @@ struct inflate_data data;
   {
     if (header.compression_method==0)
     {
-      checksum=copy_file(in,out,header.uncompressed_size,&data);
+      if (copy_file(in,out,header.uncompressed_size,&checksum,&data) < 0)
+        goto err3;
     }
     else
     {

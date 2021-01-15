@@ -113,7 +113,7 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	m->c4rate = C4_NTSC_RATE;
 
 	MODULE_INFO();
- 
+
 
 	/* Orders */
 
@@ -257,7 +257,10 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			mod->xxs[i].lpe, mod->xxs[i].flg & XMP_SAMPLE_LOOP ?
 			'L' : ' ', mod->xxi[i].sub[0].vol, c2spd);
 	}
-				
+
+	if (hio_error(f))
+		return -1;
+
 
 	/* Tracks */
 
@@ -289,6 +292,9 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	mod->trk = newtrk;		/* + empty track */
 	free(trkmap);
 
+	if (hio_error(f))
+		return -1;
+
 	D_(D_INFO "Stored tracks: %d", mod->trk);
 
 	mod->trk++;
@@ -309,6 +315,8 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			return -1;
 
 		size = hio_read24l(f);
+		if (hio_error(f))
+			return -1;
 
 		for (j = 0; j < size; j++) {
 			t1 = hio_read8(f);			/* row */
