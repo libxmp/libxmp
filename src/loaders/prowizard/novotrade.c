@@ -21,12 +21,17 @@ static int depack_ntp(HIO_HANDLE *in, FILE *out)
 
 	pw_move_data(out, in, 16);		/* title */
 	write32b(out, 0);
-	
+
 	body_addr = hio_read16b(in) + 4;		/* get 'BODY' address */
 	nins = hio_read16b(in);			/* number of samples */
 	len = hio_read16b(in);			/* size of pattern list */
 	npat = hio_read16b(in);			/* number of patterns stored */
 	smp_addr = hio_read16b(in) + body_addr + 4;	/* get 'SAMP' address */
+
+	/* Sanity check */
+	if (npat > 128 || len > 128) {
+		return -1;
+	}
 
 	memset(buf, 0, sizeof(buf));
 
@@ -96,7 +101,7 @@ static int depack_ntp(HIO_HANDLE *in, FILE *out)
 	/* samples */
 	hio_seek(in, smp_addr, SEEK_SET);
 	pw_move_data(out, in, ssize);
-	
+
 	return 0;
 }
 

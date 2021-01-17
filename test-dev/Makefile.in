@@ -372,6 +372,8 @@ FUZZER		= mod_no_valid_orders \
 		  prowizard_fuchs_pattern_length \
 		  prowizard_ksm_invalid_pattern \
 		  prowizard_noiserun_truncated \
+		  prowizard_novotrade_orders_bound \
+		  prowizard_novotrade_patterns_bound \
 		  prowizard_np2_patterns_bound \
 		  prowizard_np3_invalid_note \
 		  prowizard_np3_patterns_bound \
