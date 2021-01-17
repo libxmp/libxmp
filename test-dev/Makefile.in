@@ -364,6 +364,7 @@ FUZZER		= mod_no_valid_orders \
 		  stx_truncated \
 		  ult_channels_bound \
 		  ult_invalid_tracks \
+		  ult_v000 \
 		  prowizard_ac1d_invalid_note \
 		  prowizard_di_patterns_bound \
 		  prowizard_eureka_truncated \
