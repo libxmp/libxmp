@@ -354,6 +354,7 @@ FUZZER		= mod_no_valid_orders \
 		  masi_invalid_length \
 		  masi_seek_loop \
 		  mdl_duplicate_chunk \
+		  mdl_invalid_chunk_order \
 		  mdl_invalid_run \
 		  med3_invalid_pattern \
 		  med4_instrument_name \

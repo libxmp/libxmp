@@ -412,7 +412,7 @@ static int get_chunk_pa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     int x;
 
     /* Sanity check */
-    if (mod->pat != 0)
+    if (mod->pat != 0 || mod->len == 0)
         return -1;
 
     mod->pat = hio_read8(f);
@@ -448,7 +448,7 @@ static int get_chunk_p0(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     uint16 x;
 
     /* Sanity check */
-    if (mod->pat != 0)
+    if (mod->pat != 0 || mod->len == 0)
         return -1;
 
     mod->pat = hio_read8(f);
@@ -481,7 +481,7 @@ static int get_chunk_tr(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     struct xmp_track *track;
 
     /* Sanity check */
-    if (mod->trk) {
+    if (mod->trk || mod->pat == 0) {
 	return -1;
     }
 
@@ -848,6 +848,11 @@ static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     int i, len;
     uint8 *smpbuf, *buf;
 
+    /* Sanity check */
+    if (data->packinfo == NULL) {
+	return -1;
+    }
+
     D_(D_INFO "Stored samples: %d", mod->smp);
 
     for (i = 0; i < mod->smp; i++) {
@@ -864,7 +869,7 @@ static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	case 0:
 	    hio_read(smpbuf, 1, len, f);
 	    break;
-	case 1: 
+	case 1:
 	    len = hio_read32l(f);
             /* Sanity check */
             if (xxs->flg & XMP_SAMPLE_16BIT)
@@ -898,7 +903,7 @@ static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	    /* Sanity check */
             goto err2;
 	}
-	
+
 	if (libxmp_load_sample(m, NULL, SAMPLE_FLAG_NOLOAD, xxs, (char *)smpbuf) < 0)
 	    goto err2;
 
@@ -930,6 +935,9 @@ static int get_chunk_ve(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     D_(D_INFO "Vol envelopes: %d", data->v_envnum);
 
     data->v_env = calloc(data->v_envnum, sizeof (struct mdl_envelope));
+    if (data->v_env == NULL) {
+	return -1;
+    }
 
     for (i = 0; i < data->v_envnum; i++) {
 	data->v_env[i].num = hio_read8(f);
@@ -957,6 +965,9 @@ static int get_chunk_pe(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     D_(D_INFO "Pan envelopes: %d", data->p_envnum);
 
     data->p_env = calloc(data->p_envnum, sizeof (struct mdl_envelope));
+    if (data->p_env == NULL) {
+	return -1;
+    }
 
     for (i = 0; i < data->p_envnum; i++) {
 	data->p_env[i].num = hio_read8(f);
@@ -984,6 +995,9 @@ static int get_chunk_fe(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     D_(D_INFO "Pitch envelopes: %d", data->f_envnum);
 
     data->f_env = calloc(data->f_envnum, sizeof (struct mdl_envelope));
+    if (data->f_env == NULL) {
+	return -1;
+    }
 
     for (i = 0; i < data->f_envnum; i++) {
 	data->f_env[i].num = hio_read8(f);
@@ -1052,6 +1066,9 @@ static int mdl_load(struct module_data *m, HIO_HANDLE *f, const int start)
     data.v_index = malloc(256 * sizeof (int));
     data.p_index = malloc(256 * sizeof (int));
     data.f_index = malloc(256 * sizeof (int));
+    if (!data.s_index || !data.i_index || !data.v_index || !data.p_index || !data.f_index) {
+	goto err;
+    }
 
     for (i = 0; i < 256; i++) {
 	data.v_index[i] = data.p_index[i] = data.f_index[i] = -1;
@@ -1079,7 +1096,7 @@ static int mdl_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	    }
 	}
     }
-	
+
     /* Reindex envelopes, etc. */
     for (i = 0; i < mod->ins; i++) {
         fix_env(i, &mod->xxi[i].aei, data.v_env, data.v_index, data.v_envnum);
