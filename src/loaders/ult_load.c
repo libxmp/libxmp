@@ -52,7 +52,7 @@ static int ult_test(HIO_HANDLE *f, char *t, const int start)
     if (memcmp(buf, "MAS_UTrack_V000", 14))
 	return -1;
 
-    if (buf[14] < '0' || buf[14] > '4')
+    if (buf[14] < '1' || buf[14] > '4')
 	return -1;
 
     libxmp_read_title(f, t, 32);
@@ -120,7 +120,7 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
     ver = ufh.magic[14] - '0';
 
     strncpy(mod->name, (char *)ufh.name, 32);
-    ufh.name[0] = 0;
+    mod->name[32] = '\0';
     libxmp_set_type(m, "Ultra Tracker %s ULT V%04d", verstr[ver - 1], ver);
 
     m->c4rate = C4_NTSC_RATE;

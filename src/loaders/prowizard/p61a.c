@@ -556,9 +556,14 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
 
 static int test_p61a(const uint8 *data, char *t, int s)
 {
-    int j, k, l, m, n, o;
-    int start = 0, ssize;
-    int x;
+    int i, n;
+    int len;
+    int lstart;
+    int npat;
+    int nins;
+    int pattern_data_offset;
+    int sample_data_offset;
+    int ssize;
 
 #if 0
     if (i < 7) {
@@ -568,97 +573,90 @@ static int test_p61a(const uint8 *data, char *t, int s)
     start = i - 7;
 #endif
 
+    PW_REQUEST_DATA(s, 4);
+
     /* number of pattern (real) */
-    /* m is the real number of pattern */
-    m = data[start + 2];
-    if (m > 0x7f || m == 0)
+    npat = data[2];
+    if (npat > 0x7f || npat == 0)
 	return -1;
 
     /* number of sample */
-    /* k is the number of sample */
-    k = (data[start + 3] & 0x3f);
-    if (k > 0x1f || k == 0)
+    nins = (data[3] & 0x3f);
+    if (nins > 0x1f || nins == 0)
 	return -1;
 
-    for (l = 0; l < k; l++) {
+    PW_REQUEST_DATA(s, 4 + nins * 6);
+
+    for (i = 0; i < nins; i++) {
 	/* test volumes */
-	if (data[start + 7 + l * 6] > 0x40)
+	if (data[7 + i * 6] > 0x40)
 	    return -1;
 
 	/* test finetunes */
-	if (data[start + 6 + l * 6] > 0x0f)
+	if (data[6 + i * 6] > 0x0f)
 	    return -1;
     }
 
     /* test sample sizes and loop start */
     ssize = 0;
-    for (n = 0; n < k; n++) {
-	o = readmem16b(data + start + n * 6 + 4);
-	if ((o < 0xffdf && o > 0x8000) || o == 0)
+    for (i = 0; i < nins; i++) {
+	len = readmem16b(data + i * 6 + 4);
+	if ((len < 0xffdf && len > 0x8000) || len == 0)
 	    return -1;
 
-	if (o < 0xff00)
-	    ssize += o * 2;
+	if (len < 0xff00)
+	    ssize += len * 2;
 
-	j = readmem16b(data + start + n * 6 + 8);
-	if (j != 0xffff && j >= o)
+	lstart = readmem16b(data + i * 6 + 8);
+	if (lstart != 0xffff && lstart >= len)
 	    return -1;
 
-	if (o > 0xffdf) {
-	    if (0xffff - o > k)
+	if (len > 0xffdf) {
+	    if (0xffff - len > nins)
 	        return -1;
 	}
     }
 
+    pattern_data_offset = 4 + nins * 6 + npat * 8;
+
     /* test sample data address */
-    /* j is the address of the sample data */
-    j = readmem16b(data + start);
-    if (j < k * 6 + 4 + m * 8)
+    sample_data_offset = readmem16b(data);
+    if (sample_data_offset < pattern_data_offset)
 	return -1;
+
+    PW_REQUEST_DATA(s, pattern_data_offset);
 
     /* test track table */
-    for (l = 0; l < m * 4; l++) {
-	o = readmem16b(data + start + 4 + k * 6 + l * 2);
-	if (o + k * 6 + 4 + m * 8 > j)
+    for (i = 0; i < npat * 4; i++) {
+	int track_start = readmem16b(data + 4 + nins * 6 + i * 2);
+	if (track_start + pattern_data_offset > sample_data_offset)
 	    return -1;
     }
+
+    PW_REQUEST_DATA(s, sample_data_offset);
 
     /* test pattern table */
-    l = 0;
-    o = 0;
-    /* first, test if we dont oversize the input file */
-    x = k * 6 + 4 + m * 8;    
-    PW_REQUEST_DATA(s, start + x);
-
-    while (data[start + x + l] != 0xff && l < 128) {
-	if (data[start + x + l] > m - 1)
+    for (i = 0; i < 128; i++) {
+	if (pattern_data_offset + i >= sample_data_offset)
 	    return -1;
 
-	if (data[start + x + l] > o)
-	    o = data[start + x + l];
-	l++;
+	if (data[pattern_data_offset + i] == 0xff)
+	    break;
+
+	if (data[pattern_data_offset + i] > npat - 1)
+	    return -1;
     }
 
-    /* are we beside the sample data address ? */
-    if (x + l > j)
+    if (i == 0 || i == 128)
 	return -1;
-
-    if (l == 0 || l == 128)
-	return -1;
-
-    o += 1;
-    /* o is the highest number of pattern */
 
     /* test notes ... pfiew */
 
-    PW_REQUEST_DATA (s, start + j + 1);
-
-    l += 1;
-    for (n = x + l; n < j; n++) {
+    for (n = pattern_data_offset + i + 1; n < sample_data_offset - 1; n++) {
         uint8 d, e;
 
-	d = data[start + n];
-	e = data[start + n + 1];
+	d = data[n];
+	e = data[n + 1];
 
 	if ((d & 0xff) == 0xff) {
 	    if ((e & 0xc0) == 0x00) {
@@ -680,14 +678,14 @@ static int test_p61a(const uint8 *data, char *t, int s)
 
 	/* no fxt nor fxtArg */
 	if ((d & 0xf0) == 0xf0) {
-	    if ((e & 0x1f) > k)
+	    if ((e & 0x1f) > nins)
 	        return -1;
 	    n += 2;
 	    continue;
 	}
 
 	if ((d & 0xf0) == 0x70) {
-	    if ((e & 0x1f) > k)
+	    if ((e & 0x1f) > nins)
 	        return -1;
 	    n += 1;
 	    continue;
@@ -705,20 +703,17 @@ static int test_p61a(const uint8 *data, char *t, int s)
 	}
 
 	if ((d & 0x80) == 0x80) {
-	    if ((((d << 4) & 0x10) | ((e >> 4) & 0x0f)) > k)
+	    if ((((d << 4) & 0x10) | ((e >> 4) & 0x0f)) > nins)
 	        return -1;
 	    n += 3;
 	    continue;
 	}
 
-	if ((((d << 4) & 0x10) | ((e >> 4) & 0x0F)) > k)
+	if ((((d << 4) & 0x10) | ((e >> 4) & 0x0F)) > nins)
 	    return -1;
 	n += 2;
     }
 
-    /* ssize is the whole sample data size */
-    /* j is the address of the sample data */
-    
     return 0;
 }
 
