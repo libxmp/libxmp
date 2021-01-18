@@ -380,6 +380,7 @@ FUZZER		= mod_no_valid_orders \
 		  prowizard_p61a_invalid_note \
 		  prowizard_p61a_truncated \
 		  prowizard_pha_invalid_note \
+		  prowizard_pha_invalid_offset \
 		  prowizard_pha_patterns_bound \
 		  prowizard_pha_truncated \
 		  prowizard_pm10c_invalid_note \
