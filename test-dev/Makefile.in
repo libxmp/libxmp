@@ -392,6 +392,7 @@ FUZZER		= mod_no_valid_orders \
 		  prowizard_theplayer_invalid_note \
 		  prowizard_tp1_invalid_length \
 		  prowizard_tp3_patterns_bound \
+		  prowizard_tp3_samples_bound \
 		  prowizard_unic_truncated \
 		  prowizard_zen_invalid_note \
 		  depack_arcfs_zero_length \

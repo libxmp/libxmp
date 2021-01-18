@@ -241,7 +241,7 @@ static int test_tp23(const uint8 *data, char *t, int s, const char *magic)
 	/* number of sample */
 	nins = readmem16b(data + 28);
 
-	if (nins == 0 || nins & 0x07)
+	if (nins == 0 || nins & 0x07 || (nins >> 3) > 31)
 		return -1;
 
 	nins >>= 3;
