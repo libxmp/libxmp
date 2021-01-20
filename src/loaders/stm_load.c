@@ -191,7 +191,10 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			D_(D_CRIT "Wrong number of orders: %d (max %d)", sfh.sub.v1.ordnum, XMP_MAX_MOD_LENGTH);
 			return -1;
 		}
-		sfh.sub.v1.patnum = hio_read16l(f);	/* Number of patterns */
+		if ((sfh.sub.v1.patnum = hio_read16l(f)) > XMP_MAX_MOD_LENGTH) {	/* Number of patterns */
+			D_(D_CRIT "Wrong number of patterns: %d (max %d)", sfh.sub.v1.patnum, XMP_MAX_MOD_LENGTH);
+			return -1;
+		}
 		sfh.sub.v1.srate = hio_read16l(f);	/* Sample rate? */
 		sfh.sub.v1.tempo = hio_read8(f);	/* Playback tempo */
 		if ((sfh.sub.v1.channels = hio_read8(f)) != 4) {	/* Number of channels */
@@ -279,7 +282,8 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			      &mod->xxi[i].sub[0].fin);
 	}
 
-	hio_read(mod->xxo, 1, mod->len, f);
+	if (hio_read(mod->xxo, 1, mod->len, f) < mod->len)
+		return -1;
 
 	for (i = 0; i < mod->len; i++)
 		if (mod->xxo[i] >= mod->pat)
@@ -297,6 +301,9 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 
 	for (i = 0; i < mod->pat; i++) {
 		if (libxmp_alloc_pattern_tracks(mod, i, 64) < 0)
+			return -1;
+
+		if (hio_error(f))
 			return -1;
 
 		for (j = 0; j < 64 * mod->chn; j++) {
@@ -317,7 +324,7 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 					event->note = 0;
 				else
 					event->note = 1 + LSN(b) + 12 * (3 + MSN(b));
-				
+
 				b = hio_read8(f);
 				event->vol = b & 0x07;
 				event->ins = (b & 0xf8) >> 3;

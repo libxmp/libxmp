@@ -363,6 +363,7 @@ FUZZER		= mod_no_valid_orders \
 		  mtm_channels_bound \
 		  okt_duplicate_chunk \
 		  psm_samples_bound \
+		  stm_patterns_bound \
 		  stx_truncated \
 		  ult_channels_bound \
 		  ult_invalid_tracks \
