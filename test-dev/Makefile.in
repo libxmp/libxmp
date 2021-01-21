@@ -348,6 +348,7 @@ FUZZER		= mod_no_valid_orders \
 		  gal4_duplicate_instrument \
 		  gal4_env_point_bound \
 		  gal5_channels_bound \
+		  gal5_duplicate_instrument \
 		  gdm_invalid_sample_size \
 		  gdm_truncated \
 		  ims_scan_loop \
