@@ -11,7 +11,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Install dependencies
-        run: sudo apt install autoconf
+        run: sudo apt update && sudo apt install autoconf
       - name: Install emscripten
         run: |
           cd ..
