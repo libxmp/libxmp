@@ -336,6 +336,7 @@ FUZZER		= mod_no_valid_orders \
 		  mod_scan_row_limit \
 		  st_invalid_sample_count \
 		  s3m_invalid_sample_size \
+		  s3m_invalid_sample_size2 \
 		  it_dca_3 \
 		  it_truncated_pattern \
 		  abk_0_instruments \
@@ -361,6 +362,7 @@ FUZZER		= mod_no_valid_orders \
 		  med3_invalid_pattern \
 		  med4_instrument_name \
 		  mmd1_channel_count \
+		  mmd3_invalid_sample_size \
 		  mtm_channels_bound \
 		  okt_duplicate_chunk \
 		  psm_samples_bound \

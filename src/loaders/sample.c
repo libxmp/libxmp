@@ -227,8 +227,23 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 
 	/* If this sample starts at or after EOF, skip it entirely.
 	 */
-	if ((~flags & SAMPLE_FLAG_NOLOAD) && f && hio_tell(f) >= hio_size(f)) {
-		return 0;
+	if (~flags & SAMPLE_FLAG_NOLOAD) {
+		long file_pos, file_len;
+		if (!f) {
+			return 0;
+		}
+		file_pos = hio_tell(f);
+		file_len = hio_size(f);
+		if (file_len >= 0 && file_pos >= file_len) {
+			D_(D_WARN "ignoring sample at EOF");
+			return 0;
+		}
+		/* If this sample goes past EOF, truncate it. */
+		if (file_len >= 0 && file_pos + xxs->len > file_len && (~flags & SAMPLE_FLAG_ADPCM)) {
+			D_(D_WARN "sample would extend %ld bytes past EOF; truncating to %ld",
+				file_pos + xxs->len - file_len, file_len - file_pos);
+			xxs->len = file_len - file_pos;
+		}
 	}
 
 	/* Loop parameters sanity check
