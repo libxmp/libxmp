@@ -407,6 +407,7 @@ FUZZER		= mod_no_valid_orders \
 		  depack_muse_truncated \
 		  depack_muse_truncated2 \
 		  depack_oxm_invalid \
+		  depack_oxm_truncated \
 		  depack_sqsh_invalid_verbatim \
 		  depack_sqsh_truncated \
 		  depack_sqsh_truncated2 \
