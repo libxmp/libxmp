@@ -383,6 +383,7 @@ FUZZER		= mod_no_valid_orders \
 		  prowizard_np3_invalid_note \
 		  prowizard_np3_patterns_bound \
 		  prowizard_p61a_invalid_note \
+		  prowizard_p61a_invalid_sample_dup \
 		  prowizard_p61a_truncated \
 		  prowizard_pha_invalid_note \
 		  prowizard_pha_invalid_offset \
@@ -396,6 +397,7 @@ FUZZER		= mod_no_valid_orders \
 		  prowizard_pp30_invalid \
 		  prowizard_starpack_junk_orders \
 		  prowizard_theplayer_invalid_note \
+		  prowizard_theplayer_invalid_sample_dup \
 		  prowizard_tp1_invalid_length \
 		  prowizard_tp3_patterns_bound \
 		  prowizard_tp3_samples_bound \

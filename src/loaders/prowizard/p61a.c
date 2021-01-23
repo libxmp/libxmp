@@ -601,7 +601,7 @@ static int test_p61a(const uint8 *data, char *t, int s)
     ssize = 0;
     for (i = 0; i < nins; i++) {
 	len = readmem16b(data + i * 6 + 4);
-	if ((len < 0xffdf && len > 0x8000) || len == 0)
+	if ((len <= 0xffdf && len > 0x8000) || len == 0)
 	    return -1;
 
 	if (len < 0xff00)
