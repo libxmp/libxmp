@@ -382,6 +382,7 @@ FUZZER		= mod_no_valid_orders \
 		  prowizard_np2_patterns_bound \
 		  prowizard_np3_invalid_note \
 		  prowizard_np3_patterns_bound \
+		  prowizard_p40_invalid_packing \
 		  prowizard_p61a_invalid_note \
 		  prowizard_p61a_invalid_sample_dup \
 		  prowizard_p61a_truncated \
