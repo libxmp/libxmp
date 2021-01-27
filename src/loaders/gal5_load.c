@@ -151,6 +151,10 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 
 	rows = hio_read8(f) + 1;
 
+	/* Sanity check - don't allow duplicate patterns. */
+	if (len < 0 || mod->xxp[i] != NULL)
+		return -1;
+
 	if (libxmp_alloc_pattern_tracks(mod, i, rows) < 0)
 		return -1;
 
@@ -212,6 +216,10 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	hio_read32b(f);		/* 42 01 00 00 */
 	hio_read8(f);		/* 00 */
 	i = hio_read8(f);		/* instrument number */
+
+	/* Sanity check - don't allow duplicate instruments. */
+	if (mod->xxi[i].nsm != 0)
+		return -1;
 
 	hio_read(mod->xxi[i].name, 1, 28, f);
 	hio_seek(f, 290, SEEK_CUR);	/* Sample/note map, envelopes */

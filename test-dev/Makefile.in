@@ -336,6 +336,7 @@ FUZZER		= mod_no_valid_orders \
 		  mod_scan_row_limit \
 		  st_invalid_sample_count \
 		  s3m_invalid_sample_size \
+		  s3m_invalid_sample_size2 \
 		  it_dca_3 \
 		  it_truncated_pattern \
 		  abk_0_instruments \
@@ -348,6 +349,7 @@ FUZZER		= mod_no_valid_orders \
 		  gal4_duplicate_instrument \
 		  gal4_env_point_bound \
 		  gal5_channels_bound \
+		  gal5_duplicate_instrument \
 		  gdm_invalid_sample_size \
 		  gdm_truncated \
 		  ims_scan_loop \
@@ -360,9 +362,11 @@ FUZZER		= mod_no_valid_orders \
 		  med3_invalid_pattern \
 		  med4_instrument_name \
 		  mmd1_channel_count \
+		  mmd3_invalid_sample_size \
 		  mtm_channels_bound \
 		  okt_duplicate_chunk \
 		  psm_samples_bound \
+		  stm_patterns_bound \
 		  stx_truncated \
 		  ult_channels_bound \
 		  ult_invalid_tracks \
@@ -405,6 +409,7 @@ FUZZER		= mod_no_valid_orders \
 		  depack_muse_truncated \
 		  depack_muse_truncated2 \
 		  depack_oxm_invalid \
+		  depack_oxm_truncated \
 		  depack_sqsh_invalid_verbatim \
 		  depack_sqsh_truncated \
 		  depack_sqsh_truncated2 \
