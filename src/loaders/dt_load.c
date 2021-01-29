@@ -130,6 +130,11 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	data->realpat = hio_read16b(f);
 	mod->trk = mod->chn * mod->pat;
 
+	/* Sanity check */
+	if (mod->chn > XMP_MAX_CHANNELS) {
+		return -1;
+	}
+
 	return 0;
 }
 
