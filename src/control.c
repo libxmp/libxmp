@@ -211,6 +211,10 @@ int xmp_set_row(xmp_context opaque, int row)
 	p->frame = -1;
 	f->num_rows = mod->xxp[mod->xxo[p->ord]]->rows;
 
+	/* Because we skipped the decrement in check_end_of_module. */
+	if (f->end_point && row)
+		f->end_point--;
+
 	return row;
 }
 
