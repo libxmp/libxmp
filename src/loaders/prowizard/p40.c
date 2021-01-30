@@ -61,7 +61,7 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 	uint8 c1, c2, c3, c4, c5;
 	uint8 tmp[1024];
 	uint8 len, npat, nsmp;
-	uint8 *tdata, *tdata_end;
+	uint8 *tdata;
 	uint16 track_addr[128][4];
 	int trkdat_ofs, trktab_ofs, smp_ofs;
 	int ssize = 0;
@@ -169,7 +169,6 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 	if ((tdata = calloc(512, 256)) == NULL) {
 		return -1;
 	}
-	tdata_end = tdata + 512 * 256;
 
 	for (i = 0; i < len; i++) {	/* rewrite the track data */
 		for (j = 0; j < 4; j++) {
@@ -192,7 +191,7 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 						k++;
 						for (l = 256; l > c4; l--) {
 							tr = &track(i, j, k);
-							if (tr >= tdata_end)
+							if (k >= 64)
 								goto err;
 
 							set_event(tr, c1, c2, c3);
@@ -219,7 +218,7 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 					c3 = hio_read8(in);
 					c4 = hio_read8(in);
 
-					if (hio_error(in) || tr >= tdata_end || set_event(tr, c1, c2, c3) < 0)
+					if (hio_error(in) || k >= 64 || set_event(tr, c1, c2, c3) < 0)
 						goto err;
 
 					if ((c4 > 0x00) && (c4 < 0x80))
@@ -228,7 +227,7 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 						k++;
 						for (l = 256; l > c4; l--) {
 							tr = &track(i, j, k);
-							if (tr >= tdata_end)
+							if (k >= 64)
 								goto err;
 
 							set_event(tr, c1, c2, c3);
