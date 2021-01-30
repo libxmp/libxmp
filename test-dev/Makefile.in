@@ -264,7 +264,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  abk \
 		  asylum \
 		  chiptracker \
-		  dbm dbm_penv dbm_venv \
+		  dbm dbm_rows dbm_penv dbm_venv \
 		  dsmi \
 		  dtm \
 		  emod \
@@ -341,6 +341,7 @@ FUZZER		= mod_no_valid_orders \
 		  it_truncated_pattern \
 		  abk_0_instruments \
 		  amf_truncated \
+		  dbm_chunk_order \
 		  dbm_invalid_instruments \
 		  dbm_name_buffer_overflow \
 		  dbm_truncated \

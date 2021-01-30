@@ -229,7 +229,7 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	uint8 x;
 
 	/* Sanity check */
-	if (data->have_patt) {
+	if (data->have_patt || !data->have_info) {
 		return -1;
 	}
 	data->have_patt = 1;
@@ -245,11 +245,11 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	 */
 
 	for (i = 0; i < mod->pat; i++) {
-		int trks = hio_read16b(f);
-		if (trks > XMP_MAX_CHANNELS || hio_error(f))
+		int rows = hio_read16b(f);
+		if (hio_error(f))
 			return -1;
 
-		if (libxmp_alloc_pattern_tracks(mod, i, trks) < 0)
+		if (libxmp_alloc_pattern_tracks(mod, i, rows) < 0)
 			return -1;
 
 		sz = hio_read32b(f);
@@ -335,7 +335,7 @@ static int get_smpl(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	int i, flags;
 
 	/* Sanity check */
-	if (data->have_smpl) {
+	if (data->have_smpl || !data->have_info) {
 		return -1;
 	}
 	data->have_smpl = 1;
@@ -415,7 +415,7 @@ static int get_venv(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	int i, j, nenv, ins;
 
 	/* Sanity check */
-	if (data->have_venv) {
+	if (data->have_venv || !data->have_info) {
 		return -1;
 	}
 	data->have_venv = 1;
@@ -452,7 +452,7 @@ static int get_penv(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	int i, j, nenv, ins;
 
 	/* Sanity check */
-	if (data->have_penv) {
+	if (data->have_penv || !data->have_info) {
 		return -1;
 	}
 	data->have_penv = 1;
