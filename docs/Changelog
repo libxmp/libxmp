@@ -246,7 +246,7 @@ Stable versions
 	- prevent division by zero in memory I/O
 	- change IFF info ID from string to binary buffer
 	- better IFF error handling
-	Fix problems caused by fuzz files (reported by Jonathan Neuschäfer):
+	Fix problems caused by fuzz files (reported by Jonathan NeuschÃ¤fer):
 	- add sanity checks to LHA depacker
 	- add sanity checks to MED3 loader
 	- add sanity checks to ABK loader
@@ -276,7 +276,7 @@ Stable versions
 	- add sanity check to Oxm/vorbis depacker
 	- add sanity check to lha/MMCMP/s404 depacker
 	- fix memory leak in vorbis decoder
-	Fix problems caused by fuzz files (reported by Jonathan Neuschäfer):
+	Fix problems caused by fuzz files (reported by Jonathan NeuschÃ¤fer):
 	- add sanity check to IT instrument name loader
 	- add sanity check to IT loader instrument mapping
 	- add sanity check to AMF module parameters and event loading
@@ -403,7 +403,7 @@ Stable versions
 	- fix XM note delay volume with no note or instrument set
 	- fix XM out-of-range note delays with pattern delays
 	Other changes:
-	- fix XM envelope loop length (reported by Per Törner)
+	- fix XM envelope loop length (reported by Per TÃ¶rner)
 	- fix big-endian detection in configuration (by Andreas Schwab)
 
 4.3.2 (20141130):
@@ -424,7 +424,7 @@ Stable versions
 	- fix MOD/XM volume up+down priority (reported by Jason Gibson)
 	- fix MOD fine volume slide memory (reported by Dennis Lindroos)
 	- fix set sample offset effect (by Dennis Lindroos)
-	- fix Windows temp file (reported by Andreas Argirakis & Eric Lévesque)
+	- fix Windows temp file (reported by Andreas Argirakis & Eric LÃ©vesque)
 	- add emulation of the FT2 pattern loop bug (by Eugene Toder)
 	- allow loading of packed formats from memory
 	- allow loading of OpenMPT MOD files with large samples
@@ -534,7 +534,7 @@ Stable versions
 	- fix volume in MED synth instruments
 	- fix OctaMED V5 MMD2 sample transpose
 	Other changes:
-	- fix double free in module loaded from memory (by Arnaud Troël)
+	- fix double free in module loaded from memory (by Arnaud TroÃ«l)
 	- fix old Soundtracker sample loops (reported by Dennis Lindroos)
 	- fix Win64 portability issues (reported by Ozkan Sezer)
 	- fix OctaMED 3 octave limit for sampled instruments
@@ -901,7 +901,7 @@ Stable versions
 	- implement IT volume column fine effects quirk (Storlek test #6)
 	- fix bmp plugin build
 	- fix FreeBSD build (by swell k)
-	- fix terminal handling in Cygwin (by daniel åkerud)
+	- fix terminal handling in Cygwin (by daniel Ã¥kerud)
 	- add OpenMPT id to S3M loader
 	- add Epic MegaGames MUSE data decompression
 	- add Galaxy Music System (Jazz Jackrabbit 2 J2B) module loader
@@ -922,18 +922,18 @@ Stable versions
 	- remove pause-related functions from player core
 	- fix build in Solaris 10 and Sun Studio 12 Update 1 C++ compiler
 	  (reported by Douglas Carmichael)
-	- fix plugin to work with Audacious 2.2 (reported by Götz Waschk)
+	- fix plugin to work with Audacious 2.2 (reported by GÃ¶tz Waschk)
 	- fix invalid and uninitialized data accesses reported by Valgrind
 	- fix memory leaks reported by Valgrind
 
 2.7.1 (20090718):
 	- fix -l option in manpage (debian bug #442147)
-	- fix endianism in MDL sample depacking (reported by Gürkan Sengün)
-	- fix loading of MOD2XM 1.0 modules (reported by Gürkan Sengün)
+	- fix endianism in MDL sample depacking (reported by GÃ¼rkan SengÃ¼n)
+	- fix loading of MOD2XM 1.0 modules (reported by GÃ¼rkan SengÃ¼n)
 	- add some sanity checks in XM module loading
 	- fix IT note cut and delay (Storlek test #22)
 	- increase period resolution for better tuning (reported by Mirko
-	  Buffoni and Gürkan Sengün)
+	  Buffoni and GÃ¼rkan SengÃ¼n)
 	- allow lower BPM settings (fixes Lemmings 2 circus music)
 
 2.7.0 (20090711):
@@ -959,7 +959,7 @@ Stable versions
 	- display checksum for platforms where cksum(1) not readily available
 	- add filter quirk for rn-alone.it
 	- reintroduce manual setting for vblank timing in Amiga modules
-	- add vblank quirk for mod.siedler ii (by Daniel Åkerud)
+	- add vblank quirk for mod.siedler ii (by Daniel Ã…kerud)
 	- don't crash if SoundSmith instruments not found
 
 2.6.2 (20090630):
@@ -968,7 +968,7 @@ Stable versions
 	- fix periods in instruments with finetune
 
 2.6.1 (20090627):
-	- fix XMMS plugin build (reported by Götz Waschk)
+	- fix XMMS plugin build (reported by GÃ¶tz Waschk)
 	- add Chibi Tracker fingerprint to IT loader (info by Storlek)
 	- add Schism Tracker fingerprint to S3M loader (info by Storlek)
 	- fix Modplug Tracker/OpenMPT identification in IT loader
@@ -1005,7 +1005,7 @@ Stable versions
 	- fix buffer overflow in OXM/DTT loaders (reported by Luigi Auriemma)
 	- rename oss_mix driver to oss and alsa_mix to alsa
 	- restrict MMD0/MMD1 non-synth instrument note range to 3 octaves
-	  (reported by Daniel Åkerud and Mirko Buffoni)
+	  (reported by Daniel Ã…kerud and Mirko Buffoni)
 	- assume wav driver if output filename ends in .wav
 	- fix volume slides with 00 parameter (by Mirko Buffoni)
 	- fix crash when S3M C2spd is zero (by Mirko Buffoni)
@@ -1079,7 +1079,7 @@ Stable versions
 	- merged Amiga AHI driver written by Lorence Lombardo
 	- don't read commands from terminal in Windows and Amiga
 	- reset parameter in case of MDL "no effect" (saa.mdl pos 13 ch 9
-	  plays correctly, reported by Gürkan Sengün)
+	  plays correctly, reported by GÃ¼rkan SengÃ¼n)
 	- fixed wav and file drivers binary file creation for win32
 	- add support for Octamed V6 16bit samples (fixes instruments in
 	  LaEsperanza.mmd3, reported by Lorence Lombardo)
@@ -1430,9 +1430,9 @@ Stable versions
 	- Fixed STX memory leaks
 	- Added support for XM 1.03 modules in the XM loader
 	- Speed 0x20 correctly recognized
-	- STM loader accepts BMOD2STM stms (reported by Bernhard März)
+	- STM loader accepts BMOD2STM stms (reported by Bernhard MÃ¤rz)
 	- Fixed wrong number of patterns in FAR loader (reported by Bernhard
-	  März <maerz@rklnw1.ngate.uni-regensburg.de>)
+	  MÃ¤rz <maerz@rklnw1.ngate.uni-regensburg.de>)
 	- Fixed IFF chunk buffer allocation for MDL samples
 	- Fixed sample buffer size for MDL 16 bit samples
 	- SMIX_C4NOTE changed to from 6947 to 6864 in mixer.h (reported by
