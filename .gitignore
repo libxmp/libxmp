@@ -76,6 +76,8 @@ docs/libxmp.html
 docs/libxmp.man.rst
 docs/libxmp.pdf
 .test
+libxmp-lite-stagedir/
+lite/Makefile.in
 
 # Other stuff and leftovers
 xmp.out
