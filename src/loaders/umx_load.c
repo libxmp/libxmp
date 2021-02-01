@@ -291,7 +291,7 @@ static int32 probe_header (void *header)
 	/* byte swap the header - all members are 32 bit LE values */
 	p = (unsigned char *) header;
 	swp = (uint32 *) header;
-	for (i = 0; i < (int)sizeof(struct upkg_hdr)/4; i++, p += 4) {
+	for (i = 0; i < UPKG_HDR_SIZE/4; i++, p += 4) {
 		swp[i] = p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);
 	}
 
@@ -332,9 +332,9 @@ static int32 probe_header (void *header)
 
 static int process_upkg (HIO_HANDLE *f, int32 *ofs, int32 *objsize)
 {
-	char header[64];
+	char header[UPKG_HDR_SIZE];
 
-	if (hio_read(header, 1, 64, f) < 64)
+	if (hio_read(header, 1, UPKG_HDR_SIZE, f) < UPKG_HDR_SIZE)
 		return -1;
 	if (probe_header(header) < 0)
 		return -1;
