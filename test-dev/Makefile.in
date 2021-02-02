@@ -412,6 +412,7 @@ FUZZER		= mod_no_valid_orders \
 		  depack_arcfs_zero_length \
 		  depack_gzip_invalid_name \
 		  depack_gzip_truncated \
+		  depack_lha_invalid_tree \
 		  depack_lha_truncated \
 		  depack_lzx_invalid \
 		  depack_muse_truncated \
