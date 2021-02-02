@@ -353,11 +353,32 @@ static int umx_test(HIO_HANDLE *f, char *t, const int start)
 	int type;
 
 	type = process_upkg(f, &ofs, &size);
-	if (type < 0 || type > UMUSIC_MOD) {
+	(void) hio_error(f);
+	if (type < 0) {
 		return -1;
 	}
 
-	return 0;
+	ofs += start; /** FIXME? **/
+	switch (type) {
+	case UMUSIC_IT:
+		hio_seek(f, ofs + 4, SEEK_SET);
+		libxmp_read_title(f, t, 26);
+		return 0;
+	case UMUSIC_S3M:
+		hio_seek(f, ofs, SEEK_SET);
+		libxmp_read_title(f, t, 28);
+		return 0;
+	case UMUSIC_XM:
+		hio_seek(f, ofs + 17, SEEK_SET);
+		libxmp_read_title(f, t, 20);
+		return 0;
+	case UMUSIC_MOD:
+		hio_seek(f, ofs, SEEK_SET);
+		libxmp_read_title(f, t, 20);
+		return 0;
+	}
+
+	return -1;
 }
 
 static int umx_load(struct module_data *m, HIO_HANDLE *f, const int start)
@@ -369,16 +390,15 @@ static int umx_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	D_(D_INFO "Container type : Epic Games UMX");
 
-	ofs = size = 0;
 	type = process_upkg(f, &ofs, &size);
-	hio_error(f); /* clear error */
-
+	(void) hio_error(f);
 	if (type < 0) {
 		return -1;
 	}
 
 	D_(D_INFO "UMX: %s data @ 0x%x, %d bytes\n", mustype[type], ofs, size);
 
+	ofs += start; /** FIXME? **/
 	hio_seek(f, ofs, SEEK_SET);
 	switch (type) {
 	case UMUSIC_IT:
