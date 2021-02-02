@@ -338,6 +338,7 @@ FUZZER		= mod_no_valid_orders \
 		  s3m_invalid_sample_size \
 		  s3m_invalid_sample_size2 \
 		  it_dca_3 \
+		  it_invalid_compressed \
 		  it_truncated_pattern \
 		  abk_0_instruments \
 		  amf_truncated \
