@@ -8,7 +8,7 @@ USE_PROWIZARD	= 1
 
 CC	= cl
 CFLAGS	= /O2 /W3 /Iinclude /Isrc /Isrc\win32 /DBUILDING_DLL /DWIN32 \
-	  /Dinline=__inline /DPATH_MAX=1024 /D_USE_MATH_DEFINES
+	  /Dinline=__inline /DPATH_MAX=1024 /D_USE_MATH_DEFINES /D_CRT_SECURE_NO_WARNINGS
 LD	= link
 LDFLAGS	= /DLL /RELEASE /OUT:$(DLL)
 DLL	= libxmp.dll
