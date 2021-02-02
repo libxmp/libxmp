@@ -23,6 +23,11 @@
 #include <stddef.h> /* offsetof() */
 #include "loader.h"
 
+#ifdef _WIN32
+#undef strcasecmp
+#define strcasecmp _stricmp
+#endif
+
 extern const struct format_loader libxmp_loader_xm;
 extern const struct format_loader libxmp_loader_it;
 extern const struct format_loader libxmp_loader_s3m;
