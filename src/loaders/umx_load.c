@@ -286,21 +286,18 @@ static int probe_umx   (HIO_HANDLE *f, const struct upkg_hdr *hdr,
 	return t;
 }
 
-static int32 probe_header (void *header)
+static int32 probe_header (HIO_HANDLE *f, struct upkg_hdr *hdr)
 {
-	struct upkg_hdr *hdr;
-	unsigned char *p;
-	uint32 *swp;
-	int i;
+	hdr->tag           = hio_read32l(f);
+	hdr->file_version  = (int32) hio_read32l(f);
+	hdr->pkg_flags     = hio_read32l(f);
+	hdr->name_count    = (int32) hio_read32l(f);
+	hdr->name_offset   = (int32) hio_read32l(f);
+	hdr->export_count  = (int32) hio_read32l(f);
+	hdr->export_offset = (int32) hio_read32l(f);
+	hdr->import_count  = (int32) hio_read32l(f);
+	hdr->import_offset = (int32) hio_read32l(f);
 
-	/* byte swap the header - all members are 32 bit LE values */
-	p = (unsigned char *) header;
-	swp = (uint32 *) header;
-	for (i = 0; i < UPKG_HDR_SIZE/4; i++, p += 4) {
-		swp[i] = p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);
-	}
-
-	hdr = (struct upkg_hdr *) header;
 	if (hdr->tag != UPKG_HDR_TAG) {
 		D_(D_INFO "UMX: Unknown header tag 0x%x\n", hdr->tag);
 		return -1;
@@ -337,14 +334,13 @@ static int32 probe_header (void *header)
 
 static int process_upkg (HIO_HANDLE *f, int32 *ofs, int32 *objsize)
 {
-	char header[UPKG_HDR_SIZE];
+	struct upkg_hdr header;
 
-	if (hio_read(header, 1, UPKG_HDR_SIZE, f) < UPKG_HDR_SIZE)
-		return -1;
-	if (probe_header(header) < 0)
+	memset(&header, 0, sizeof(header));
+	if (probe_header(f, &header) < 0)
 		return -1;
 
-	return probe_umx(f, (struct upkg_hdr *)header, ofs, objsize);
+	return probe_umx(f, &header, ofs, objsize);
 }
 
 static int umx_test(HIO_HANDLE *f, char *t, const int start)
