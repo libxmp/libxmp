@@ -26,7 +26,8 @@ Stable versions
 	- fix two IT bugs related to note off and volume handling
 	- fix event out-of-bounds reads due to invalid key values
 	- fix multiple out-of-bounds reads/writes, memory corruptions,
-	  uninitialized reads and hangs in several loaders
+	  uninitialized reads and hangs in several loaders (thanks to
+	  Lionel Debroux for providing fuzz files)
 	- fix xmp_release_module double frees when invoked multiple times
 	- check external sample file names before opening them
 	- make it possible to disable module depacker functionality
@@ -43,9 +44,10 @@ Stable versions
 	- explicitly document that callers of xmp_load_module_from_file()
 	  are responsible for closing their own file.
 	- remove nonportable use of fdopen in xmp_load_module_from_file()
-	- fix number of envelope points sanity check in IMF loader
 	- fix a seek issue with xmp_load_module_from_memory
 	- fix memory-io functions' error handling
+	- fix number of envelope points sanity check in IMF loader
+	- rewrite the UMX loader
 	- revise sanity checks to prevent oob reads in s404 depacker
 	- fix vorbis depacker to function properly on big endian systems
 	- fix windows static library builds

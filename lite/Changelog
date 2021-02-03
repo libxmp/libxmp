@@ -16,7 +16,8 @@ Stable versions
 	- fix memory-io functions' error handling
 	- fix event out-of-bounds reads due to invalid key values
 	- fix multiple out-of-bounds reads/writes, memory corruptions,
-	  uninitialized reads and hangs in several loaders
+	  uninitialized reads and hangs in several loaders (thanks to
+	  Lionel Debroux for providing fuzz files)
 	- fix xmp_release_module double frees when invoked multiple times
 	- fix tempo assignment in module scan (fixes seek issues/crashes)
 	- fix volume, pitch and pan slides lagging behind one frame
