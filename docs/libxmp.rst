@@ -301,8 +301,8 @@ int xmp_test_module(char \*path, struct xmp_test_info \*test_info)
 
 .. xmp_test_module_from_memory():
 
-int xmp_test_module_from_memory(void \*mem, long size, struct xmp_test_info \*test_info)
-````````````````````````````````````````````````````````````````````````````````````````
+int xmp_test_module_from_memory(const void \*mem, long size, struct xmp_test_info \*test_info)
+``````````````````````````````````````````````````````````````````````````````````````````````
 
   *[Added in libxmp 4.5]* Test if a memory buffer is a valid module. Testing
   memory does not affect the current player context or any currently loaded
@@ -385,8 +385,8 @@ int xmp_load_module(xmp_context c, char \*path)
 
 .. _xmp_load_module_from_memory():
 
-int xmp_load_module_from_memory(xmp_context c, void \*mem, long size)
-`````````````````````````````````````````````````````````````````````
+int xmp_load_module_from_memory(xmp_context c, const void \*mem, long size)
+```````````````````````````````````````````````````````````````````````````
 
   *[Added in libxmp 4.2]* Load a module from memory into the specified
   player context.

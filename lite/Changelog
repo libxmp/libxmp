@@ -9,6 +9,8 @@ Stable versions
 	- xmp_test_module, xmp_load_module, xmp_set_instrument_path and
 	  xmp_smix_load_sample() now accept const char* path parameters
 	  (no ABI change)
+	- xmp_load_module_from_memory() now accepts a const void* memory
+	  param (no ABI change)
 	- explicitly document that callers of xmp_load_module_from_file()
 	  are responsible for closing their own file.
 	- remove nonportable use of fdopen in xmp_load_module_from_file()

@@ -383,7 +383,7 @@ int xmp_test_module(const char *path, struct xmp_test_info *info)
 	return ret;
 }
 
-int xmp_test_module_from_memory(void *mem, long size, struct xmp_test_info *info)
+int xmp_test_module_from_memory(const void *mem, long size, struct xmp_test_info *info)
 {
 	HIO_HANDLE *h;
 	int ret;
@@ -629,7 +629,7 @@ int xmp_load_module(xmp_context opaque, const char *path)
 #endif
 }
 
-int xmp_load_module_from_memory(xmp_context opaque, void *mem, long size)
+int xmp_load_module_from_memory(xmp_context opaque, const void *mem, long size)
 {
 	struct context_data *ctx = (struct context_data *)opaque;
 	struct module_data *m = &ctx->m;

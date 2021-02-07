@@ -328,10 +328,18 @@ LIBXMP_EXPORT_VAR extern const unsigned int xmp_vercode;
 
 LIBXMP_EXPORT xmp_context xmp_create_context  (void);
 LIBXMP_EXPORT void        xmp_free_context    (xmp_context);
-LIBXMP_EXPORT int         xmp_test_module     (const char *, struct xmp_test_info *);
+
 LIBXMP_EXPORT int         xmp_load_module     (xmp_context, const char *);
+LIBXMP_EXPORT int         xmp_load_module_from_memory (xmp_context, const void *, long);
+LIBXMP_EXPORT int         xmp_load_module_from_file (xmp_context, void *, long);
+
+LIBXMP_EXPORT int         xmp_test_module     (const char *, struct xmp_test_info *);
+LIBXMP_EXPORT int         xmp_test_module_from_memory (const void *, long, struct xmp_test_info *);
+LIBXMP_EXPORT int         xmp_test_module_from_file (void *, struct xmp_test_info *);
+
 LIBXMP_EXPORT void        xmp_scan_module     (xmp_context);
 LIBXMP_EXPORT void        xmp_release_module  (xmp_context);
+
 LIBXMP_EXPORT int         xmp_start_player    (xmp_context, int, int);
 LIBXMP_EXPORT int         xmp_play_frame      (xmp_context);
 LIBXMP_EXPORT int         xmp_play_buffer     (xmp_context, void *, int, int);
@@ -353,10 +361,6 @@ LIBXMP_EXPORT int         xmp_channel_vol     (xmp_context, int, int);
 LIBXMP_EXPORT int         xmp_set_player      (xmp_context, int, int);
 LIBXMP_EXPORT int         xmp_get_player      (xmp_context, int);
 LIBXMP_EXPORT int         xmp_set_instrument_path (xmp_context, const char *);
-LIBXMP_EXPORT int         xmp_load_module_from_memory (xmp_context, void *, long);
-LIBXMP_EXPORT int         xmp_load_module_from_file (xmp_context, void *, long);
-LIBXMP_EXPORT int         xmp_test_module_from_memory (void *, long, struct xmp_test_info *);
-LIBXMP_EXPORT int         xmp_test_module_from_file (void *, struct xmp_test_info *);
 
 /* External sample mixer API */
 LIBXMP_EXPORT int         xmp_start_smix       (xmp_context, int, int);
