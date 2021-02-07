@@ -143,7 +143,7 @@ clean:
 	@rm -f $(GCOBJS) $(ALL_OBJS:.o=.gcno) $(ALL_OBJS:.o=.gcda)
 
 distclean: clean
-	@rm -f config.log config.status libxmp.pc depend Makefile lib/*
+	@rm -f config.log config.cache config.status libxmp.pc depend Makefile lib/*
 
 install: all
 	@mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(LIBDIR) $(DESTDIR)$(INCLUDEDIR)
