@@ -329,7 +329,7 @@ static int make_table(struct LhADecrData *dat, int16 nchar, uint8 bitlen[], int1
     }
     start[k] = l;
   }
-  
+
   return 0;
 }
 
@@ -460,7 +460,13 @@ static int decode_c_st1(struct LhADecrData *dat)
   dat->d.st.blocksize--;
   j = dat->d.st.c_table[dat->bitbuf >> 4];
   if(j < NC)
+  {
+    /* Sanity check - 0-length character encoding on the Huffman tree is
+     * invalid and can cause hangs here. */
+    if(dat->d.st.c_len[j] == 0)
+      return -1;
     fillbuf(dat, dat->d.st.c_len[j]);
+  }
   else
   {
     fillbuf(dat, 12);

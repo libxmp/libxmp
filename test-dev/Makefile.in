@@ -264,7 +264,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  abk \
 		  asylum \
 		  chiptracker \
-		  dbm dbm_penv dbm_venv \
+		  dbm dbm_rows dbm_penv dbm_venv \
 		  dsmi \
 		  dtm \
 		  emod \
@@ -338,12 +338,16 @@ FUZZER		= mod_no_valid_orders \
 		  s3m_invalid_sample_size \
 		  s3m_invalid_sample_size2 \
 		  it_dca_3 \
+		  it_invalid_compressed \
 		  it_truncated_pattern \
 		  abk_0_instruments \
 		  amf_truncated \
+		  dbm_chunk_order \
 		  dbm_invalid_instruments \
 		  dbm_name_buffer_overflow \
 		  dbm_truncated \
+		  dt_channels_bound \
+		  dt_duplicate_chunk \
 		  fnk_invalid_sample_size \
 		  fnk_patterns_bound \
 		  gal4_duplicate_instrument \
@@ -359,6 +363,7 @@ FUZZER		= mod_no_valid_orders \
 		  mdl_duplicate_chunk \
 		  mdl_invalid_chunk_order \
 		  mdl_invalid_run \
+		  mdl_invalid_sample \
 		  med3_invalid_pattern \
 		  med4_instrument_name \
 		  mmd1_channel_count \
@@ -382,7 +387,9 @@ FUZZER		= mod_no_valid_orders \
 		  prowizard_np2_patterns_bound \
 		  prowizard_np3_invalid_note \
 		  prowizard_np3_patterns_bound \
+		  prowizard_p40_invalid_packing \
 		  prowizard_p61a_invalid_note \
+		  prowizard_p61a_invalid_sample_dup \
 		  prowizard_p61a_truncated \
 		  prowizard_pha_invalid_note \
 		  prowizard_pha_invalid_offset \
@@ -396,6 +403,7 @@ FUZZER		= mod_no_valid_orders \
 		  prowizard_pp30_invalid \
 		  prowizard_starpack_junk_orders \
 		  prowizard_theplayer_invalid_note \
+		  prowizard_theplayer_invalid_sample_dup \
 		  prowizard_tp1_invalid_length \
 		  prowizard_tp3_patterns_bound \
 		  prowizard_tp3_samples_bound \
@@ -404,6 +412,7 @@ FUZZER		= mod_no_valid_orders \
 		  depack_arcfs_zero_length \
 		  depack_gzip_invalid_name \
 		  depack_gzip_truncated \
+		  depack_lha_invalid_tree \
 		  depack_lha_truncated \
 		  depack_lzx_invalid \
 		  depack_muse_truncated \

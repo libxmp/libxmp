@@ -845,13 +845,18 @@ static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 {
     struct xmp_module *mod = &m->mod;
     struct local_data *data = (struct local_data *)parm;
-    int i, len;
-    uint8 *smpbuf, *buf;
+    int i, len, size_bound;
+    uint8 *smpbuf = NULL, *buf;
+    int smpbuf_alloc = 0;
+    int left = hio_size(f) - hio_tell(f);
 
     /* Sanity check */
     if (data->packinfo == NULL) {
 	return -1;
     }
+
+    if (size < left)
+	left = size;
 
     D_(D_INFO "Stored samples: %d", mod->smp);
 
@@ -862,12 +867,45 @@ static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	if (xxs->flg & XMP_SAMPLE_16BIT)
 	    len <<= 1;
 
-	if ((smpbuf = calloc(1, len)) == NULL)
-	    goto err;
+	/* Bound the packed sample data size before trying to allocate RAM for it... */
+	switch (data->packinfo[i]) {
+	case 0:
+	    size_bound = len;
+	    break;
+	case 1:
+	    /* See unpack_sample8: each byte packs to 5 bits minimum. */
+	    size_bound = (len >> 3) * 5;
+	    break;
+	case 2:
+	    /* See unpack_sample16: each upper byte packs to 5 bits minimum, lower bytes are not packed. */
+	    size_bound = (len >> 4) * 13;
+	    break;
+	default:
+	    /* Sanity check */
+	    goto err2;
+	}
+
+	/* Sanity check */
+	if (left < size_bound) {
+	    D_(D_CRIT "sample %d (pack=%d) requested >=%d bytes, only %d available",
+		i, data->packinfo[i], size_bound, left);
+	    goto err2;
+	}
+
+	if (len > smpbuf_alloc) {
+	    uint8 *tmp = realloc(smpbuf, len);
+	    if (!tmp)
+		goto err2;
+
+	    smpbuf = tmp;
+	    smpbuf_alloc = len;
+	}
 
 	switch (data->packinfo[i]) {
 	case 0:
-	    hio_read(smpbuf, 1, len, f);
+	    if (hio_read(smpbuf, 1, len, f) < len)
+		goto err2;
+	    left -= len;
 	    break;
 	case 1:
 	    len = hio_read32l(f);
@@ -883,6 +921,7 @@ static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
             if (unpack_sample8(smpbuf, buf, len, xxs->len) < 0)
                 goto err3;
 	    free(buf);
+	    left -= len + 4;
 	    break;
 	case 2:
 	    len = hio_read32l(f);
@@ -898,24 +937,20 @@ static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
             if (unpack_sample16(smpbuf, buf, len, xxs->len) < 0)
                 goto err3;
 	    free(buf);
+	    left -= len + 4;
 	    break;
-	default:
-	    /* Sanity check */
-            goto err2;
 	}
 
 	if (libxmp_load_sample(m, NULL, SAMPLE_FLAG_NOLOAD, xxs, (char *)smpbuf) < 0)
 	    goto err2;
-
-	free(smpbuf);
     }
 
+    free(smpbuf);
     return 0;
   err3:
     free(buf);
   err2:
     free(smpbuf);
-  err:
     return -1;
 }
 

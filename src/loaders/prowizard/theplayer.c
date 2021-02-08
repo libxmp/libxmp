@@ -395,7 +395,7 @@ static int theplayer_test(const uint8 *data, char *t, int s, int version)
 	for (i = 0; i < num_ins; i++) {
 		int start, size = readmem16b(data + i * 6 + 4);
 
-		if ((size < 0xffdf && size > 0x8000) || size == 0)
+		if ((size <= 0xffdf && size > 0x8000) || size == 0)
 			return -1;
 
 		/* if (size < 0xff00)
