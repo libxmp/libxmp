@@ -737,10 +737,11 @@ void xmp_release_module(xmp_context opaque)
 			libxmp_free_sample(&mod->xxs[i]);
 		}
 		free(mod->xxs);
-		free(m->xtra);
 		mod->xxs = NULL;
-		m->xtra = NULL;
 	}
+
+	free(m->xtra);
+	m->xtra = NULL;
 
 #ifndef LIBXMP_CORE_DISABLE_IT
 	if (m->xsmp != NULL) {
