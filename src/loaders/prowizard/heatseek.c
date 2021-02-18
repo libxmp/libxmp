@@ -76,7 +76,7 @@ static int depack_crb(HIO_HANDLE *in, FILE *out)
 					l = hio_tell(in);
 
 					/* Sanity check */
-					if (l < 0 || m >= 2048)
+					if (l < 0 || (unsigned int)m >= 2048U)
 						return -1;
 
 					hio_seek(in, taddr[m >> 2], SEEK_SET);
