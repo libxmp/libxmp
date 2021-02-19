@@ -294,6 +294,11 @@ static int decrunch_oxm(FILE *f, FILE *fo)
 				xi[j].len = newlen;
 
 				if (pcm[j] == NULL) {
+					/* cleanup */
+					for (i = 0; i < j; ++i) {
+						if (xi[i].len > 0)
+						    free(pcm[i]);
+					}
 					return -1;
 				}
 #ifdef WORDS_BIGENDIAN

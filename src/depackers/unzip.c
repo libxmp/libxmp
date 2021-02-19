@@ -175,10 +175,10 @@ struct inflate_data data;
     goto err2;
 
   if (read_chars(in,header.file_name,header.file_name_length) < 0)
-    goto err2;
+    goto err3;
 
   if (read_chars(in,(char *)header.extra_field,header.extra_field_length) < 0)
-    goto err2;
+    goto err3;
 
   marker=ftell(in);
 
