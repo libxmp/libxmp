@@ -376,6 +376,7 @@ FUZZER		= mod_no_valid_orders \
 		  okt_duplicate_chunk \
 		  okt_sbod_leak \
 		  psm_samples_bound \
+		  pt3_ptdt_leak \
 		  stm_patterns_bound \
 		  stx_truncated \
 		  ult_channels_bound \
