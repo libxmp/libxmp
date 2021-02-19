@@ -3994,14 +3994,16 @@ static void vorbis_deinit(stb_vorbis *p)
       setup_free(p, p->bit_reverse[i]);
    }
 
-   for (i=0; i < p->residue_count; ++i) {
-      Residue *r = p->residue_config+i;
-      if (r->classdata) {
-         for (j=0; j < p->codebooks[r->classbook].entries; ++j)
-            setup_free(p, r->classdata[j]);
-         setup_free(p, r->classdata);
+   if (p->residue_config) {
+      for (i=0; i < p->residue_count; ++i) {
+         Residue *r = p->residue_config+i;
+         if (r->classdata) {
+            for (j=0; j < p->codebooks[r->classbook].entries; ++j)
+               setup_free(p, r->classdata[j]);
+            setup_free(p, r->classdata);
+         }
+         setup_free(p, r->residue_books);
       }
-      setup_free(p, r->residue_books);
    }
 
    if (p->codebooks) {
