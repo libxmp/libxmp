@@ -363,6 +363,7 @@ FUZZER		= mod_no_valid_orders \
 		  masi_invalid_length \
 		  masi_seek_loop \
 		  mdl_duplicate_chunk \
+		  mdl_duplicate_is_chunk \
 		  mdl_invalid_chunk_order \
 		  mdl_invalid_run \
 		  mdl_invalid_sample \

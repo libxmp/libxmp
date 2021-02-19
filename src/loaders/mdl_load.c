@@ -706,7 +706,7 @@ static int get_chunk_is(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     uint8 x;
 
     /* Sanity check */
-    if (mod->smp) {
+    if (mod->smp || data->packinfo != NULL) {
 	return -1;
     }
 
@@ -776,7 +776,7 @@ static int get_chunk_i0(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     uint8 x;
 
     /* Sanity check */
-    if (mod->smp || mod->ins) {
+    if (mod->smp || mod->ins || data->packinfo != NULL) {
 	return -1;
     }
 
