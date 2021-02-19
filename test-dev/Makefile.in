@@ -349,6 +349,7 @@ FUZZER		= mod_no_valid_orders \
 		  dbm_truncated \
 		  dt_channels_bound \
 		  dt_duplicate_chunk \
+		  emod_duplicate_chunk \
 		  fnk_invalid_sample_size \
 		  fnk_patterns_bound \
 		  gal4_duplicate_instrument \
