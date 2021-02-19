@@ -63,6 +63,7 @@ struct local_data {
 	int idx[36];
 	int pattern;
 	int sample;
+	int samples;
 	int has_cmod;
 	int has_samp;
 	int has_slen;
@@ -186,6 +187,7 @@ static int get_samp(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 			j++;
 		}
 	}
+	data->samples = j;
 
 	return 0;
 }
@@ -317,7 +319,7 @@ static int get_sbod(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	int flags = 0;
 	int i, sid;
 
-	if (data->sample >= mod->ins)
+	if (data->sample >= data->samples)
 		return 0;
 
 	D_(D_INFO "Stored samples: %d", mod->smp);
