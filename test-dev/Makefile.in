@@ -413,6 +413,7 @@ FUZZER		= mod_no_valid_orders \
 		  prowizard_tp3_samples_bound \
 		  prowizard_unic_truncated \
 		  prowizard_zen_invalid_note \
+		  depack_arcfs_lzw_leak \
 		  depack_arcfs_zero_length \
 		  depack_gzip_invalid_name \
 		  depack_gzip_truncated \
