@@ -382,6 +382,7 @@ FUZZER		= mod_no_valid_orders \
 		  ult_v000 \
 		  prowizard_ac1d_invalid_note \
 		  prowizard_di_patterns_bound \
+		  prowizard_di_patterns_test \
 		  prowizard_eureka_truncated \
 		  prowizard_fuchs_pattern_length \
 		  prowizard_ksm_invalid_pattern \
