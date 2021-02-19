@@ -367,6 +367,7 @@ FUZZER		= mod_no_valid_orders \
 		  med3_invalid_pattern \
 		  med4_instrument_name \
 		  mmd1_channel_count \
+		  mmd3_invalid_blockarr \
 		  mmd3_invalid_sample_size \
 		  mtm_channels_bound \
 		  okt_duplicate_chunk \
