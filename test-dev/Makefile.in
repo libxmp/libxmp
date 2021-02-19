@@ -342,6 +342,7 @@ FUZZER		= mod_no_valid_orders \
 		  it_truncated_pattern \
 		  abk_0_instruments \
 		  amf_truncated \
+		  arch_invalid_patterns \
 		  dbm_chunk_order \
 		  dbm_invalid_instruments \
 		  dbm_name_buffer_overflow \
