@@ -132,6 +132,10 @@ static int get_inst_cnt(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	hio_read8(f);		/* 00 */
 	i = hio_read8(f) + 1;	/* instrument number */
 
+	/* Sanity check */
+	if (i >= 256)
+		return -1;
+
 	if (i > mod->ins)
 		mod->ins = i;
 
