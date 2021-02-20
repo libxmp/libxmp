@@ -26,6 +26,10 @@ TEST(test_fuzzer_mdl_invalid_sample)
 	ret = xmp_load_module(opaque, "data/f/load_mdl_invalid_sample_size2.mdl");
 	fail_unless(ret == -XMP_ERROR_LOAD, "module load");
 
+	/* Negative sample length (caused crashes). */
+	ret = xmp_load_module(opaque, "data/f/load_mdl_invalid_sample_size3.mdl");
+	fail_unless(ret == -XMP_ERROR_LOAD, "module load");
+
 	xmp_free_context(opaque);
 }
 END_TEST

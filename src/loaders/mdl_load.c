@@ -847,7 +847,7 @@ static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     struct local_data *data = (struct local_data *)parm;
     int i, len, size_bound;
     uint8 *smpbuf = NULL, *buf;
-    int smpbuf_alloc = 0;
+    int smpbuf_alloc = -1;
     int left = hio_size(f) - hio_tell(f);
 
     /* Sanity check */
@@ -864,6 +864,8 @@ static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	struct xmp_sample *xxs = &mod->xxs[i];
 
         len = xxs->len;
+	if (len < 0)
+	    goto err2;
 	if (xxs->flg & XMP_SAMPLE_16BIT)
 	    len <<= 1;
 
