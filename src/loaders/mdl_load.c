@@ -412,7 +412,7 @@ static int get_chunk_pa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     int x;
 
     /* Sanity check */
-    if (mod->pat != 0 || mod->len == 0)
+    if (mod->pat != 0 || mod->xxp != NULL || mod->len == 0)
         return -1;
 
     mod->pat = hio_read8(f);
@@ -448,7 +448,7 @@ static int get_chunk_p0(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     uint16 x;
 
     /* Sanity check */
-    if (mod->pat != 0 || mod->len == 0)
+    if (mod->pat != 0 || mod->xxp != NULL || mod->len == 0)
         return -1;
 
     mod->pat = hio_read8(f);
@@ -619,14 +619,14 @@ static int get_chunk_ii(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     char buf[40];
 
     /* Sanity check */
-    if (mod->ins) {
+    if (mod->ins || mod->xxi != NULL) {
 	return -1;
     }
 
     mod->ins = hio_read8(f);
     D_(D_INFO "Instruments: %d", mod->ins);
 
-    if (libxmp_init_instrument(m) < 0)
+    if ((mod->xxi = calloc(sizeof (struct xmp_instrument), mod->ins)) == NULL)
 	return -1;
 
     for (i = 0; i < mod->ins; i++) {

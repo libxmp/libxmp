@@ -369,6 +369,8 @@ FUZZER		= mod_no_null_terminator \
 		  masi_seek_loop \
 		  mdl_duplicate_chunk \
 		  mdl_duplicate_is_chunk \
+		  mdl_duplicate_pa_chunk \
+		  mdl_ii_after_is \
 		  mdl_invalid_chunk_order \
 		  mdl_invalid_run \
 		  mdl_invalid_sample \
