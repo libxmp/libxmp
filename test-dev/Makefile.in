@@ -332,7 +332,8 @@ PROBLEMATIC	= length_data_jack \
 		  length_roadblast \
 		  length_ode2ptk
 
-FUZZER		= mod_no_valid_orders \
+FUZZER		= mod_no_null_terminator \
+		  mod_no_valid_orders \
 		  mod_scan_row_limit \
 		  st_invalid_sample_count \
 		  s3m_invalid_sample_size \
