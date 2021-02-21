@@ -26,6 +26,7 @@
 #define DEFPAN(x) (0x80 + ((x) - 0x80) * m->defpan / 100)
 
 int	libxmp_init_instrument		(struct module_data *);
+int	libxmp_realloc_samples		(struct module_data *, int);
 int	libxmp_alloc_subinstrument	(struct xmp_module *, int, int);
 int	libxmp_init_pattern		(struct xmp_module *);
 int	libxmp_alloc_pattern		(struct xmp_module *, int);
@@ -34,7 +35,6 @@ int	libxmp_alloc_tracks_in_pattern	(struct xmp_module *, int);
 int	libxmp_alloc_pattern_tracks	(struct xmp_module *, int, int);
 int	libxmp_alloc_pattern_tracks_long(struct xmp_module *, int, int);
 char	*libxmp_instrument_name		(struct xmp_module *, int, uint8 *, int);
-struct xmp_sample* libxmp_realloc_samples(struct xmp_sample *, int *, int);
 
 char	*libxmp_copy_adjust		(char *, uint8 *, int);
 int	libxmp_copy_name_for_fopen	(char *, const char *, int);

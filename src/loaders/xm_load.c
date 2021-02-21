@@ -404,7 +404,7 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 			/* Sample size should be in struct xm_instrument according to
 			 * the official format description, but FT2 actually puts it in
 			 * struct xm_instrument header. There's a tracker or converter
-			 * that follow the specs, so we must handle both cases (see 
+			 * that follow the specs, so we must handle both cases (see
 			 * "Braintomb" by Jazztiz/ART).
 			 */
 
@@ -522,8 +522,7 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 			D_(D_INFO "  sample index:%d sample id:%d", j, sample_num);
 
 			if (sample_num >= mod->smp) {
-				mod->xxs = libxmp_realloc_samples(mod->xxs, &mod->smp, mod->smp * 3 / 2);
-				if (mod->xxs == NULL)
+				if (libxmp_realloc_samples(m, mod->smp * 3 / 2) < 0)
 					return -1;
 			}
 			xxs = &mod->xxs[sample_num];
@@ -628,8 +627,7 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 	}
 
 	/* Final sample number adjustment */
-	mod->xxs = libxmp_realloc_samples(mod->xxs, &mod->smp, sample_num);
-	if (mod->xxs == NULL) {
+	if (libxmp_realloc_samples(m, sample_num) < 0) {
 		return -1;
 	}
 

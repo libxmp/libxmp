@@ -337,6 +337,7 @@ FUZZER		= mod_no_valid_orders \
 		  st_invalid_sample_count \
 		  s3m_invalid_sample_size \
 		  s3m_invalid_sample_size2 \
+		  xm_zero_samples \
 		  it_dca_3 \
 		  it_invalid_compressed \
 		  it_truncated_pattern \
@@ -381,6 +382,7 @@ FUZZER		= mod_no_valid_orders \
 		  okt_sbod_leak \
 		  psm_samples_bound \
 		  pt3_ptdt_leak \
+		  rtm_zero_samples \
 		  stm_patterns_bound \
 		  stx_truncated \
 		  ult_channels_bound \
