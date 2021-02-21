@@ -51,7 +51,7 @@ static int mgt_test(HIO_HANDLE *f, char *t, const int start)
 	hio_seek(f, start + sng_ptr, SEEK_SET);
 
 	libxmp_read_title(f, t, 32);
-	
+
 	return 0;
 }
 
@@ -82,7 +82,7 @@ static int mgt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	hio_read32b(f);			/* reserved */
 
 	/* Sanity check */
-	if (mod->chn > XMP_MAX_CHANNELS || mod->ins > 64) {
+	if (mod->chn > XMP_MAX_CHANNELS || mod->pat > MAX_PATTERNS || mod->ins > 64) {
 		return -1;
 	}
 
@@ -108,7 +108,7 @@ static int mgt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	hio_read8(f);			/* master R */
 
 	/* Sanity check */
-	if (mod->len > 256 || mod->rst > 255) {
+	if (mod->len > XMP_MAX_MOD_LENGTH || mod->rst > 255) {
 		return -1;
 	}
 
@@ -117,19 +117,20 @@ static int mgt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	}
 
 	m->c4rate = C4_NTSC_RATE;
-	
+
 	MODULE_INFO();
 
 	/* Sequence */
 
 	hio_seek(f, start + seq_ptr, SEEK_SET);
 	for (i = 0; i < mod->len; i++) {
-		mod->xxo[i] = hio_read16b(f);
+		int pos = hio_read16b(f);
 
 		/* Sanity check */
-		if (mod->xxo[i] >= mod->pat) {
+		if (pos >= mod->pat) {
 			return -1;
 		}
+		mod->xxo[i] = pos;
 	}
 
 	/* Instruments */
@@ -178,7 +179,7 @@ static int mgt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		mod->xxi[i].nsm = !!mod->xxs[i].len;
 		mod->xxi[i].sub[0].sid = i;
-		
+
 		D_(D_INFO "[%2X] %-32.32s %04x %04x %04x %c V%02x %5d\n",
 				i, mod->xxi[i].name,
 				mod->xxs[i].len, mod->xxs[i].lps, mod->xxs[i].lpe,
@@ -312,7 +313,7 @@ static int mgt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 				event->f2p = (event->vol - 0xf0) << 4;
 				break;
 			}
-	
+
 			event->vol = 0;
 
 			/*printf("%02x  %02x %02x %02x %02x %02x\n",
