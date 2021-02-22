@@ -166,7 +166,7 @@ static int stx_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	hio_read(sfh.magic2, 4, 1, f);
 
 	/* Sanity check */
-	if (sfh.patnum > 254 || sfh.insnum > 256 || sfh.ordnum > 256)
+	if (sfh.patnum > 254 || sfh.insnum > MAX_INSTRUMENTS || sfh.ordnum > 256)
 		return -1;
 
 	/* BMOD2STM does not convert pitch */
