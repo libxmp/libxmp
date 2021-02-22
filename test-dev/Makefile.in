@@ -380,6 +380,7 @@ FUZZER		= mod_no_null_terminator \
 		  mmd1_channel_count \
 		  mmd3_invalid_blockarr \
 		  mmd3_invalid_sample_size \
+		  mmd3_invalid_text_size \
 		  mtm_channels_bound \
 		  okt_duplicate_chunk \
 		  okt_sbod_leak \
@@ -396,6 +397,7 @@ FUZZER		= mod_no_null_terminator \
 		  prowizard_di_patterns_test \
 		  prowizard_eureka_truncated \
 		  prowizard_fuchs_pattern_length \
+		  prowizard_heatseek_truncated \
 		  prowizard_ksm_invalid_pattern \
 		  prowizard_noiserun_truncated \
 		  prowizard_novotrade_orders_bound \
@@ -426,6 +428,7 @@ FUZZER		= mod_no_null_terminator \
 		  prowizard_unic_truncated \
 		  prowizard_zen_invalid_note \
 		  depack_arcfs_lzw_leak \
+		  depack_arcfs_negative_size \
 		  depack_arcfs_zero_length \
 		  depack_gzip_invalid_name \
 		  depack_gzip_truncated \
@@ -435,13 +438,15 @@ FUZZER		= mod_no_null_terminator \
 		  depack_muse_truncated \
 		  depack_muse_truncated2 \
 		  depack_oxm_invalid \
+		  depack_oxm_pcm_leak \
 		  depack_oxm_truncated \
 		  depack_sqsh_invalid_verbatim \
 		  depack_sqsh_truncated \
 		  depack_sqsh_truncated2 \
 		  depack_zip_truncated \
 		  depack_zip_truncated2 \
-		  depack_zip_truncated3
+		  depack_zip_truncated3 \
+		  depack_zip_truncated4 \
 
 SYNTH		= #adlib #spectrum
 
