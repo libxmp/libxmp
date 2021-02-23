@@ -43,7 +43,7 @@ const struct format_loader libxmp_loader_arch = {
 	arch_load
 };
 
-/* 
+/*
  * Linear (0 to 0x40) to logarithmic volume conversion.
  * This is only used for the Protracker-compatible "linear volume" effect in
  * Andy Southgate's StasisMod.  In this implementation linear and logarithmic
@@ -102,6 +102,8 @@ static int arch_test(HIO_HANDLE *f, char *t, const int start)
 struct local_data {
     int year, month, day;
     int pflag, sflag, max_ins, max_pat;
+    int has_mvox;
+    int has_pnum;
     uint8 ster[8], rows[64];
 };
 
@@ -195,14 +197,16 @@ static int get_tinf(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 static int get_mvox(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
+	struct local_data *data = (struct local_data *)parm;
 
 	mod->chn = hio_read32l(f);
 
 	/* Sanity check */
-	if (mod->chn < 1 || mod->chn > 8) {
+	if (mod->chn < 1 || mod->chn > 8 || data->has_mvox) {
 		return -1;
 	}
 
+	data->has_mvox = 1;
 	return 0;
 }
 
@@ -215,7 +219,7 @@ static int get_ster(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	if (hio_read(data->ster, 1, 8, f) != 8) {
 		return -1;
 	}
-	
+
 	for (i = 0; i < mod->chn; i++) {
 		if (data->ster[i] > 0 && data->ster[i] < 8) {
 			mod->xxc[i].pan = 42 * data->ster[i] - 40;
@@ -258,13 +262,15 @@ static int get_mlen(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 static int get_pnum(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
+	struct local_data *data = (struct local_data *)parm;
 
 	mod->pat = hio_read32l(f);
 
 	/* Sanity check */
-	if (mod->pat > 64 )
+	if (mod->pat < 1 || mod->pat > 64 || data->has_pnum)
 		return -1;
 
+	data->has_pnum = 1;
 	return 0;
 }
 
@@ -295,6 +301,11 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	struct local_data *data = (struct local_data *)parm;
 	int i, j, k;
 	struct xmp_event *event;
+
+	/* Sanity check */
+	if (!data->has_mvox || !data->has_pnum) {
+		return -1;
+	}
 
 	if (!data->pflag) {
 		D_(D_INFO "Stored patterns: %d", mod->pat);
@@ -450,8 +461,7 @@ static int arch_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	hio_read32b(f);	/* MUSX */
 	hio_read32b(f);
 
-	data.pflag = data.sflag = 0;
-	data.year = data.month = data.day = 0;
+	memset(&data, 0, sizeof(struct local_data));
 
 	handle = libxmp_iff_new();
 	if (handle == NULL)

@@ -56,7 +56,7 @@ static int pt3_test(HIO_HANDLE *f, char *t, const int start)
 	hio_read32b(f);	/* skip size */
 
 	hio_seek(f, 10, SEEK_CUR);
-	
+
 	if (hio_read32b(f) == MAGIC_INFO) {
 		hio_read32b(f);	/* skip size */
 		libxmp_read_title(f, t, 32);
@@ -76,13 +76,22 @@ static int pt3_test(HIO_HANDLE *f, char *t, const int start)
 #define PT3_FLAG_16BIT	0x0040	/* 8 bit samples if not set */
 #define PT3_FLAG_RAWPAT	0x0080	/* Packed patterns if not set */
 
+struct local_data {
+	int has_ptdt;
+};
 
 static int get_info(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
+	struct local_data *data = (struct local_data *)parm;
 	/* int flags; */
 	/* int day, month, year, hour, min, sec;
 	int dhour, dmin, dsec; */
+
+	/* Sanity check */
+	if(data->has_ptdt) {
+		return -1;
+	}
 
 	hio_read(mod->name, 1, 32, f);
 	mod->ins = hio_read16b(f);
@@ -124,6 +133,14 @@ static int get_cmnt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 
 static int get_ptdt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 {
+	struct local_data *data = (struct local_data *)parm;
+
+	/* Sanity check */
+	if(data->has_ptdt) {
+		return -1;
+	}
+	data->has_ptdt = 1;
+
 	ptdt_load(m, f, 0);
 
 	return 0;
@@ -132,10 +149,13 @@ static int get_ptdt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 static int pt3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 {
 	iff_handle handle;
+	struct local_data data;
 	char buf[20];
 	int ret;
 
 	LOAD_INIT();
+
+	memset(&data, 0, sizeof(struct local_data));
 
 	hio_read32b(f);		/* FORM */
 	hio_read32b(f);		/* size */
@@ -161,7 +181,7 @@ static int pt3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	libxmp_iff_set_quirk(handle, IFF_FULL_CHUNK_SIZE);
 
 	/* Load IFF chunks */
-	if (libxmp_iff_load(handle, m, f, NULL) < 0) {
+	if (libxmp_iff_load(handle, m, f, &data) < 0) {
 		libxmp_iff_release(handle);
 		return -1;
 	}

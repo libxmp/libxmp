@@ -360,8 +360,8 @@ static int get_tracker_id(struct module_data *m, struct mod_header *mh, int id)
 		}
 	} else { /* Has loops with size 0 */
 		for (i = 15; i < 31; i++) {
-			if (strlen((char *)mh->ins[i].name)
-			    || mh->ins[i].size > 0)
+			/* Is the name or size set? */
+			if (mh->ins[i].name[0] || mh->ins[i].size > 0)
 				break;
 		}
 		if (i == 31 && is_st_ins((char *)mh->ins[14].name)) {

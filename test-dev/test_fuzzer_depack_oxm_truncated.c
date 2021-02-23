@@ -1,7 +1,7 @@
 #include "test.h"
 
-/* These inputs caused hangs in stb_vorbis due to missing EOF checks
- * in start_decoder.
+/* These inputs caused hangs, leaks, or crashes in stb_vorbis due to
+ * missing or broken EOF checks in start_decoder.
  */
 
 TEST(test_fuzzer_depack_oxm_truncated)
@@ -14,6 +14,12 @@ TEST(test_fuzzer_depack_oxm_truncated)
 	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking");
 
 	ret = xmp_load_module(opaque, "data/f/depack_oxm_truncated2.oxm");
+	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking");
+
+	ret = xmp_load_module(opaque, "data/f/depack_oxm_truncated3.oxm");
+	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking");
+
+	ret = xmp_load_module(opaque, "data/f/depack_oxm_truncated4.oxm");
 	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking");
 
 	xmp_free_context(opaque);

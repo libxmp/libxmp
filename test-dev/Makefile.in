@@ -332,54 +332,73 @@ PROBLEMATIC	= length_data_jack \
 		  length_roadblast \
 		  length_ode2ptk
 
-FUZZER		= mod_no_valid_orders \
+FUZZER		= mod_no_null_terminator \
+		  mod_no_valid_orders \
 		  mod_scan_row_limit \
 		  st_invalid_sample_count \
 		  s3m_invalid_sample_size \
 		  s3m_invalid_sample_size2 \
+		  xm_zero_samples \
 		  it_dca_3 \
 		  it_invalid_compressed \
 		  it_truncated_pattern \
 		  abk_0_instruments \
 		  amf_truncated \
+		  arch_invalid_patterns \
 		  dbm_chunk_order \
 		  dbm_invalid_instruments \
 		  dbm_name_buffer_overflow \
 		  dbm_truncated \
 		  dt_channels_bound \
 		  dt_duplicate_chunk \
+		  emod_duplicate_chunk \
 		  fnk_invalid_sample_size \
 		  fnk_patterns_bound \
 		  gal4_duplicate_instrument \
 		  gal4_env_point_bound \
+		  gal4_invalid_sample_num \
 		  gal5_channels_bound \
 		  gal5_duplicate_instrument \
+		  gal5_invalid_sample_num \
 		  gdm_invalid_sample_size \
+		  gdm_samples_bound \
 		  gdm_truncated \
 		  ims_scan_loop \
 		  liq_no_valid_orders \
 		  masi_invalid_length \
 		  masi_seek_loop \
 		  mdl_duplicate_chunk \
+		  mdl_duplicate_is_chunk \
+		  mdl_duplicate_pa_chunk \
+		  mdl_ii_after_is \
 		  mdl_invalid_chunk_order \
 		  mdl_invalid_run \
 		  mdl_invalid_sample \
 		  med3_invalid_pattern \
 		  med4_instrument_name \
+		  mgt_patterns_bound \
 		  mmd1_channel_count \
+		  mmd3_invalid_blockarr \
 		  mmd3_invalid_sample_size \
+		  mmd3_invalid_text_size \
 		  mtm_channels_bound \
 		  okt_duplicate_chunk \
+		  okt_sbod_leak \
 		  psm_samples_bound \
+		  pt3_ptdt_leak \
+		  rtm_zero_samples \
 		  stm_patterns_bound \
+		  stx_instruments_bound \
 		  stx_truncated \
 		  ult_channels_bound \
 		  ult_invalid_tracks \
 		  ult_v000 \
 		  prowizard_ac1d_invalid_note \
 		  prowizard_di_patterns_bound \
+		  prowizard_di_patterns_test \
 		  prowizard_eureka_truncated \
 		  prowizard_fuchs_pattern_length \
+		  prowizard_heatseek_truncated \
 		  prowizard_ksm_invalid_pattern \
 		  prowizard_noiserun_truncated \
 		  prowizard_novotrade_orders_bound \
@@ -409,6 +428,8 @@ FUZZER		= mod_no_valid_orders \
 		  prowizard_tp3_samples_bound \
 		  prowizard_unic_truncated \
 		  prowizard_zen_invalid_note \
+		  depack_arcfs_lzw_leak \
+		  depack_arcfs_negative_size \
 		  depack_arcfs_zero_length \
 		  depack_gzip_invalid_name \
 		  depack_gzip_truncated \
@@ -418,13 +439,15 @@ FUZZER		= mod_no_valid_orders \
 		  depack_muse_truncated \
 		  depack_muse_truncated2 \
 		  depack_oxm_invalid \
+		  depack_oxm_pcm_leak \
 		  depack_oxm_truncated \
 		  depack_sqsh_invalid_verbatim \
 		  depack_sqsh_truncated \
 		  depack_sqsh_truncated2 \
 		  depack_zip_truncated \
 		  depack_zip_truncated2 \
-		  depack_zip_truncated3
+		  depack_zip_truncated3 \
+		  depack_zip_truncated4 \
 
 SYNTH		= #adlib #spectrum
 

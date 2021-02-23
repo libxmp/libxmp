@@ -213,6 +213,10 @@ static int gdm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	smp_ofs = hio_read32l(f);
 	mod->ins = mod->smp = hio_read8(f) + 1;
 
+	/* Sanity check */
+	if (mod->ins > MAX_INSTRUMENTS)
+		return -1;
+
 	m->c4rate = C4_NTSC_RATE;
 
 	MODULE_INFO();

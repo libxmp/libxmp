@@ -38,23 +38,23 @@ struct local_data {
   #define REALMAXSTR 65536
   int st_ptr[REALMAXSTR],st_chr[REALMAXSTR],st_last;
   int st_ptr1st[REALMAXSTR];
-  
+
   /* this is for the byte -> bits mangler:
    *  dc_bitbox holds the bits, dc_bitsleft is number of bits left in dc_bitbox,
    */
   int dc_bitbox,dc_bitsleft;
-  
+
   int codeofs;
   int global_use_rle,oldver;
   struct rledata rd;
   struct data_in_out io;
   uint32 quirk;
-  
+
   int maxstr;
   int outputstring_buf[REALMAXSTR];
-  
+
   int st_oldverhashlinks[4096];	/* only used for 12-bit types */
-  
+
   int nomarch_input_size;	/* hack for xmp, will fix later */
 };
 
@@ -113,8 +113,10 @@ if(max_bits==16)
   data->maxstr=(1<<*data->io.data_in_point++);	 /* but compress-type *may* change it (!) */
 
 /* XXX */
-if (data->maxstr > (1 << max_bits))
+if (data->maxstr > (1 << max_bits)) {
+  free(data_out);
   return NULL;
+}
 
 data->nomarch_input_size = 0;
 
@@ -151,7 +153,7 @@ while(1)
 
     if (data->quirk & NOMARCH_QUIRK_START101)	/* CM: Digital symphony data->quirk */
       data->st_last++;
-    
+
     /* XXX do we need a resync if there's a reset when *already* csize==9?
      * (er, assuming that can ever happen?)
      */
@@ -199,7 +201,7 @@ while(1)
         }
       }
     }
-    
+
   oldcode=newcode;
   }
 
@@ -470,7 +472,7 @@ while(bitsfilled<numbits)
     data->dc_bitbox&=0xff;
     data->dc_bitbox<<=got;
     bitsfilled+=got;
-    
+
     /* Sanity check */
     if (bitsfilled > numbits) {
       return 0;

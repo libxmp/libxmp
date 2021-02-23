@@ -221,7 +221,7 @@ static int test_di(const uint8 *data, char *t, int s)
 	}
 #endif
 
-	PW_REQUEST_DATA(s, pat_offs - 1);
+	PW_REQUEST_DATA(s, pat_offs);
 
 	/* test pattern table reliability */
 	for (i = ptab_offs; i < pat_offs - 1; i++) {

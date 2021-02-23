@@ -173,7 +173,7 @@ static int read_object_header(HIO_HANDLE *f, struct ObjectHeader *h, const char 
 	h->version = hio_read16l(f);
 	h->headerSize = hio_read16l(f);
 	D_(D_INFO "object %-4.4s (%d)", h->id, h->headerSize);
-	
+
 	return 0;
 }
 
@@ -265,7 +265,7 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			D_(D_CRIT "Error reading pattern %d", i);
 			return -1;
 		}
-	
+
 		rp.flags = hio_read16l(f);
 		rp.ntrack = hio_read8(f);
 		rp.nrows = hio_read16l(f);
@@ -378,7 +378,7 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		ri.volumeEnv.loopstart = hio_read8(f);
 		ri.volumeEnv.loopend = hio_read8(f);
 		ri.volumeEnv.flags = hio_read16l(f); /* bit 0:enable 1:sus 2:loop */
-		
+
 		ri.panningEnv.npoint = hio_read8(f);
 
 		/* Sanity check */
@@ -480,9 +480,7 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			sub->sid = smpnum;
 
 			if (smpnum >= mod->smp) {
-				 mod->xxs = libxmp_realloc_samples(mod->xxs,
-						&mod->smp, mod->smp * 3 / 2);
-				if (mod->xxs == NULL)
+				if (libxmp_realloc_samples(m, mod->smp * 3 / 2) < 0)
 					return -1;
 			}
  			xxs = &mod->xxs[smpnum];
@@ -519,8 +517,7 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	}
 
 	/* Final sample number adjustment */
-	mod->xxs = libxmp_realloc_samples(mod->xxs, &mod->smp, smpnum);
-	if (mod->xxs == NULL)
+	if (libxmp_realloc_samples(m, smpnum) < 0)
 		return -1;
 
 	m->quirk |= QUIRKS_FT2;
