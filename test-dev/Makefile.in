@@ -384,6 +384,7 @@ FUZZER		= mod_no_null_terminator \
 		  mmd3_invalid_text_size \
 		  mtm_channels_bound \
 		  okt_duplicate_chunk \
+		  okt_invalid_chunk_order \
 		  okt_sbod_leak \
 		  psm_samples_bound \
 		  pt3_ptdt_leak \
