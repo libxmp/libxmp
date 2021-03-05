@@ -151,6 +151,11 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 
 	mod->ins = mod->smp = hio_read16b(f);
 
+	/* Sanity check */
+	if (mod->ins > MAX_INSTRUMENTS) {
+		return -1;
+	}
+
 	D_(D_INFO "Instruments    : %d ", mod->ins);
 
 	if (libxmp_init_instrument(m) < 0)
