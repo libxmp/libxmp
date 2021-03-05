@@ -175,6 +175,10 @@ static int fnk_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	mod->chn = (ffh.fmt[2] < '0') || (ffh.fmt[2] > '9') ||
 		(ffh.fmt[3] < '0') || (ffh.fmt[3] > '9') ? 8 :
 		(ffh.fmt[2] - '0') * 10 + ffh.fmt[3] - '0';
+
+	/* Sanity check */
+	if (mod->chn <= 0 || mod->chn > XMP_MAX_CHANNELS)
+		return -1;
     }
 
     mod->bpm = 4 * mod->bpm / 5;

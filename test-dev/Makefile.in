@@ -354,6 +354,7 @@ FUZZER		= mod_no_null_terminator \
 		  dt_duplicate_chunk \
 		  dt_instrument_count \
 		  emod_duplicate_chunk \
+		  fnk_channels_bound \
 		  fnk_invalid_sample_size \
 		  fnk_patterns_bound \
 		  gal4_duplicate_instrument \
