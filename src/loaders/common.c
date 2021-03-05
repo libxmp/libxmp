@@ -60,6 +60,9 @@ int libxmp_init_instrument(struct module_data *m)
 
 	if (mod->smp > 0) {
 		int i;
+		/* Sanity check */
+		if (mod->smp > MAX_SAMPLES)
+			return -1;
 
 		mod->xxs = calloc(sizeof (struct xmp_sample), mod->smp);
 		if (mod->xxs == NULL)

@@ -348,6 +348,7 @@ FUZZER		= mod_no_null_terminator \
 		  dbm_chunk_order \
 		  dbm_invalid_instruments \
 		  dbm_name_buffer_overflow \
+		  dbm_sample_count \
 		  dbm_truncated \
 		  dt_channels_bound \
 		  dt_duplicate_chunk \
@@ -378,6 +379,7 @@ FUZZER		= mod_no_null_terminator \
 		  med3_invalid_pattern \
 		  med4_instrument_name \
 		  mgt_patterns_bound \
+		  mmd0_sample_count \
 		  mmd1_channel_count \
 		  mmd3_invalid_blockarr \
 		  mmd3_invalid_sample_size \
