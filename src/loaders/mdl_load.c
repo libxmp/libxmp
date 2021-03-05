@@ -941,6 +941,8 @@ static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 		goto err2;
 	    if (hio_read(buf, 1, len, f) != len)
                 goto err3;
+	    /* The unpack function may read slightly beyond the end. */
+	    buf[len] = buf[len + 1] = buf[len + 2] = buf[len + 3] = 0;
             if (unpack_sample8(smpbuf, buf, len, xxs->len) < 0)
                 goto err3;
 	    free(buf);
@@ -957,6 +959,8 @@ static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 		goto err2;
 	    if (hio_read(buf, 1, len, f) != len)
                 goto err3;
+	    /* The unpack function may read slightly beyond the end. */
+	    buf[len] = buf[len + 1] = buf[len + 2] = buf[len + 3] = 0;
             if (unpack_sample16(smpbuf, buf, len, xxs->len) < 0)
                 goto err3;
 	    free(buf);
