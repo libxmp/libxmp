@@ -466,7 +466,7 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		a = hio_read8(f);
 
 		if (a != 0 && a != 1) {
-			fprintf(stderr, "libxmp: unsupported sample type\n");
+			D_(D_WARN "libxmp: unsupported sample type %d\n", a);
 			//return -1;
 		}
 
