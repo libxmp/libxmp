@@ -403,6 +403,7 @@ FUZZER		= mod_no_null_terminator \
 		  pt3_ptdt_leak \
 		  pt3_truncated \
 		  rtm_zero_samples \
+		  sfx_truncated \
 		  stm_patterns_bound \
 		  stx_instruments_bound \
 		  stx_truncated \
