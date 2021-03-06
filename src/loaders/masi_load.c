@@ -156,7 +156,10 @@ static int get_pbod_cnt(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	char buf[20];
 
 	mod->pat++;
-	hio_read(buf, 1, 20, f);
+	if (hio_read(buf, 1, 20, f) < 20) {
+		D_(D_CRIT "read error at pat %d", mod->pat - 1);
+		return -1;
+	}
 	if (buf[9] != 0 && buf[13] == 0)
 		data->sinaria = 1;
 
