@@ -66,8 +66,14 @@ static int depack_ntp(HIO_HANDLE *in, FILE *out)
 
 	/* pattern list */
 	memset(buf, 0, 128);
-	for (i = 0; i < len; i++)
-		buf[i] = hio_read16b(in);
+	for (i = 0; i < len; i++) {
+		int pat = hio_read16b(in);
+		/* Sanity check */
+		if (pat >= npat)
+			return -1;
+
+		buf[i] = pat;
+	}
 	fwrite(buf, 128, 1, out);
 
 	/* pattern addresses now */

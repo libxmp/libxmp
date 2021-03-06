@@ -422,6 +422,7 @@ FUZZER		= mod_no_null_terminator \
 		  prowizard_heatseek_truncated \
 		  prowizard_ksm_invalid_pattern \
 		  prowizard_noiserun_truncated \
+		  prowizard_novotrade_invalid_order \
 		  prowizard_novotrade_orders_bound \
 		  prowizard_novotrade_patterns_bound \
 		  prowizard_np2_patterns_bound \
