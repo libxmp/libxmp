@@ -144,7 +144,7 @@ static int c669_load(struct module_data *m, HIO_HANDLE *f, const int start)
     m->comment = malloc(109);
     memcpy(m->comment, sfh.message, 108);
     m->comment[108] = 0;
-    
+
     /* Read and convert instruments and samples */
 
     if (libxmp_init_instrument(m) < 0)
@@ -215,7 +215,10 @@ static int c669_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	for (j = 0; j < 64 * 8; j++) {
 	    event = &EVENT(i, j % 8, j / 8);
-	    hio_read(ev, 1, 3, f);
+	    if(hio_read(ev, 1, 3, f) < 3) {
+		D_(D_CRIT "read error at pat %d", i);
+		return -1;
+	    }
 
 	    if ((ev[0] & 0xfe) != 0xfe) {
 		event->note = 1 + 36 + (ev[0] >> 2);
