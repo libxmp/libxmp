@@ -209,7 +209,7 @@ static int read_am_instrument(struct module_data *m, HIO_HANDLE *nt, int i)
 	 * Startrekker increments/decrements the envelope by the stage speed
 	 * until it reaches the next stage level.
 	 *
-	 *         ^ 
+	 *         ^
 	 *         |
 	 *     100 +.........o
 	 *         |        /:
@@ -430,13 +430,19 @@ static int flt_load(struct module_data *m, HIO_HANDLE * f, const int start)
 
 		for (j = 0; j < (64 * 4); j++) {
 			event = &EVENT(i, j % 4, j / 4);
-			hio_read(mod_event, 1, 4, f);
+			if (hio_read(mod_event, 1, 4, f) < 4) {
+				D_(D_CRIT "read error at pat %d", i);
+				goto err;
+			}
 			libxmp_decode_noisetracker_event(event, mod_event);
 		}
 		if (mod->chn > 4) {
 			for (j = 0; j < (64 * 4); j++) {
 				event = &EVENT(i, (j % 4) + 4, j / 4);
-				hio_read(mod_event, 1, 4, f);
+				if (hio_read(mod_event, 1, 4, f) < 4) {
+					D_(D_CRIT "read error at pat %d", i);
+					goto err;
+				}
 				libxmp_decode_noisetracker_event(event, mod_event);
 
 				/* no macros */
