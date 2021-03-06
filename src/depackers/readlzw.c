@@ -257,6 +257,7 @@ unsigned char *libxmp_read_lzw_dynamic(FILE *f, uint8 *buf, int max_bits,int use
 	int pos;
 	int size;
 	struct local_data *data;
+	size_t read_len;
 
 	if ((data = malloc(sizeof (struct local_data))) == NULL) {
 		goto err;
@@ -268,10 +269,11 @@ unsigned char *libxmp_read_lzw_dynamic(FILE *f, uint8 *buf, int max_bits,int use
 	}
 
 	pos = ftell(f);
-	if (fread(buf2, 1, in_len, f) != in_len) {
+	if ((read_len = fread(buf2, 1, in_len, f)) != in_len) {
 		if (~q & XMP_LZW_QUIRK_DSYM) {
 			goto err3;
 		}
+		in_len = read_len;
 	}
 	b = convert_lzw_dynamic(buf2, max_bits, use_rle, in_len, orig_len, q, data);
 	memcpy(buf, b, orig_len);

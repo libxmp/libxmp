@@ -401,6 +401,7 @@ FUZZER		= mod_no_null_terminator \
 		  stm_patterns_bound \
 		  stx_instruments_bound \
 		  stx_truncated \
+		  sym_truncated_lzw \
 		  ult_channels_bound \
 		  ult_invalid_tracks \
 		  ult_v000 \
