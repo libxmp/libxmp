@@ -399,6 +399,7 @@ FUZZER		= mod_no_null_terminator \
 		  okt_sbod_leak \
 		  psm_samples_bound \
 		  pt3_ptdt_leak \
+		  pt3_truncated \
 		  rtm_zero_samples \
 		  stm_patterns_bound \
 		  stx_instruments_bound \

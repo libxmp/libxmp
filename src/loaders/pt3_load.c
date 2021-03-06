@@ -215,7 +215,10 @@ static int ptdt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	}
 	mh.len = hio_read8(f);
 	mh.restart = hio_read8(f);
-	hio_read(mh.order, 128, 1, f);
+	if (hio_read(mh.order, 128, 1, f) < 1) {
+		D_(D_CRIT "read error at order list");
+		return -1;
+	}
 	hio_read(mh.magic, 4, 1, f);
 
 	mod->ins = 31;
@@ -277,7 +280,10 @@ static int ptdt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		for (j = 0; j < (64 * 4); j++) {
 			event = &EVENT(i, j % 4, j / 4);
-			hio_read(mod_event, 1, 4, f);
+			if (hio_read(mod_event, 1, 4, f) < 4) {
+				D_(D_CRIT "read error at pat %d", i);
+				return -1;
+			}
 			libxmp_decode_protracker_event(event, mod_event);
 		}
 	}
