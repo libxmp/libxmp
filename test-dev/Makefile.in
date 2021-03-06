@@ -345,6 +345,7 @@ FUZZER		= mod_no_null_terminator \
 		  abk_0_instruments \
 		  amf_truncated \
 		  arch_invalid_patterns \
+		  chip_truncated \
 		  dbm_chunk_order \
 		  dbm_invalid_instruments \
 		  dbm_name_buffer_overflow \
