@@ -454,6 +454,7 @@ FUZZER		= mod_no_null_terminator \
 		  depack_arcfs_lzw_leak \
 		  depack_arcfs_negative_size \
 		  depack_arcfs_zero_length \
+		  depack_bz2_invalid_selector \
 		  depack_gzip_invalid_name \
 		  depack_gzip_truncated \
 		  depack_lha_invalid_tree \
