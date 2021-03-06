@@ -342,16 +342,23 @@ FUZZER		= mod_no_null_terminator \
 		  it_dca_3 \
 		  it_invalid_compressed \
 		  it_truncated_pattern \
+		  669_truncated \
 		  abk_0_instruments \
 		  amf_truncated \
 		  arch_invalid_patterns \
+		  chip_truncated \
 		  dbm_chunk_order \
 		  dbm_invalid_instruments \
 		  dbm_name_buffer_overflow \
+		  dbm_sample_count \
 		  dbm_truncated \
 		  dt_channels_bound \
 		  dt_duplicate_chunk \
+		  dt_instrument_count \
 		  emod_duplicate_chunk \
+		  far_truncated \
+		  flt_umr \
+		  fnk_channels_bound \
 		  fnk_invalid_sample_size \
 		  fnk_patterns_bound \
 		  gal4_duplicate_instrument \
@@ -363,33 +370,47 @@ FUZZER		= mod_no_null_terminator \
 		  gdm_invalid_sample_size \
 		  gdm_samples_bound \
 		  gdm_truncated \
+		  hmn_truncated \
+		  ice_truncated \
+		  imf_truncated \
 		  ims_scan_loop \
 		  liq_no_valid_orders \
 		  masi_invalid_length \
 		  masi_seek_loop \
+		  masi_truncated \
 		  mdl_duplicate_chunk \
 		  mdl_duplicate_is_chunk \
 		  mdl_duplicate_pa_chunk \
+		  mdl_duplicate_sa_chunk \
 		  mdl_ii_after_is \
 		  mdl_invalid_chunk_order \
 		  mdl_invalid_run \
 		  mdl_invalid_sample \
+		  mdl_truncated \
+		  mdl_umr \
 		  med3_invalid_pattern \
 		  med4_instrument_name \
+		  mfp_truncated \
 		  mgt_patterns_bound \
+		  mmd0_sample_count \
 		  mmd1_channel_count \
+		  mmd1_truncated \
 		  mmd3_invalid_blockarr \
 		  mmd3_invalid_sample_size \
 		  mmd3_invalid_text_size \
 		  mtm_channels_bound \
 		  okt_duplicate_chunk \
+		  okt_invalid_chunk_order \
 		  okt_sbod_leak \
 		  psm_samples_bound \
 		  pt3_ptdt_leak \
+		  pt3_truncated \
 		  rtm_zero_samples \
+		  sfx_truncated \
 		  stm_patterns_bound \
 		  stx_instruments_bound \
 		  stx_truncated \
+		  sym_truncated_lzw \
 		  ult_channels_bound \
 		  ult_invalid_tracks \
 		  ult_v000 \
@@ -401,6 +422,7 @@ FUZZER		= mod_no_null_terminator \
 		  prowizard_heatseek_truncated \
 		  prowizard_ksm_invalid_pattern \
 		  prowizard_noiserun_truncated \
+		  prowizard_novotrade_invalid_order \
 		  prowizard_novotrade_orders_bound \
 		  prowizard_novotrade_patterns_bound \
 		  prowizard_np2_patterns_bound \
@@ -419,6 +441,7 @@ FUZZER		= mod_no_null_terminator \
 		  prowizard_pm10c_invalid_psize \
 		  prowizard_pm18a_invalid_note \
 		  prowizard_pp10_invalid_pattern \
+		  prowizard_pp21_truncated \
 		  prowizard_pp30_invalid \
 		  prowizard_starpack_junk_orders \
 		  prowizard_theplayer_invalid_note \
@@ -431,6 +454,7 @@ FUZZER		= mod_no_null_terminator \
 		  depack_arcfs_lzw_leak \
 		  depack_arcfs_negative_size \
 		  depack_arcfs_zero_length \
+		  depack_bz2_invalid_selector \
 		  depack_gzip_invalid_name \
 		  depack_gzip_truncated \
 		  depack_lha_invalid_tree \

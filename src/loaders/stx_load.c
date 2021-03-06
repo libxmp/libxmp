@@ -262,6 +262,10 @@ static int stx_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		sih.int_last = hio_read32l(f);
 		hio_read(sih.name, 28, 1, f);
 		hio_read(sih.magic, 4, 1, f);
+		if (hio_error(f)) {
+			D_(D_CRIT "read error at instrument %d", i);
+			goto err3;
+		}
 
 		mod->xxs[i].len = sih.length;
 		mod->xxs[i].lps = sih.loopbeg;

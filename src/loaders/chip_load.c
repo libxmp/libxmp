@@ -165,7 +165,10 @@ static int chip_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			struct xmp_event *event = &mod->xxt[i]->event[j];
 			uint8 e[4];
 
-			hio_read(e, 1, 4, f);
+			if (hio_read(e, 1, 4, f) < 4) {
+				D_(D_CRIT "read error in track %d", i);
+				goto err2;
+			}
 			if (e[0] && e[0] != 0xa8)
 				event->note = 13 + e[0] / 2;
 			event->ins = e[1];

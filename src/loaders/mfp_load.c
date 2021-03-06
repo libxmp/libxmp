@@ -128,7 +128,7 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 			return -1;
-		
+
 		mod->xxs[i].len = 2 * hio_read16b(f);
 		mod->xxi[i].sub[0].fin = (int8)(hio_read8(f) << 4);
 		mod->xxi[i].sub[0].vol = hio_read8(f);
@@ -187,14 +187,23 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			return -1;
 
 		for (j = 0; j < 4; j++) {
+			size_t len;
 			hio_seek(f, pat_addr + pat_table[i][j], SEEK_SET);
 
-			hio_read(buf, 1, 1024, f);
+			len = hio_read(buf, 1, 1024, f);
 
 			for (row = k = 0; k < 4; k++) {
 				for (x = 0; x < 4; x++) {
 					for (y = 0; y < 4; y++, row++) {
 						event = &EVENT(i, j, row);
+
+						if (k >= len ||
+						    buf[k] + x >= len ||
+						    buf[buf[k] + x] + y >= len ||
+						    buf[buf[buf[k] + x] + y] * 2 + 4 > len) {
+							D_(D_CRIT "read error at pat %d", i);
+							return -1;
+						}
 						memcpy(mod_event, &buf[buf[buf[buf[k] + x] + y] * 2], 4);
 						libxmp_decode_protracker_event(event, mod_event);
 					}

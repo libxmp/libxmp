@@ -180,7 +180,10 @@ static int get_next_block(bunzip_data *bd)
 	for(i=0; i<groupCount; i++) mtfSymbol[i] = i;
 	for(i=0; i<nSelectors; i++) {
 		/* Get next value */
-		for(j=0;get_bits(bd,1);j++) if (j>=groupCount) return RETVAL_DATA_ERROR;
+		for(j=0;get_bits(bd,1);) {
+			j++;
+			if (j>=groupCount) return RETVAL_DATA_ERROR;
+		}
 		/* Decode MTF to get the next selector */
 		uc = mtfSymbol[j];
 		for(;j;j--) mtfSymbol[j] = mtfSymbol[j-1];
@@ -245,7 +248,7 @@ static int get_next_block(bunzip_data *bd)
 		pp=0;
 		for(i=minLen;i<=maxLen;i++) {
 			temp[i]=limit[i]=0;
-			for(t=0;t<symCount;t++) 
+			for(t=0;t<symCount;t++)
 				if(length[t]==i) hufGroup->permute[pp++] = t;
 		}
 		/* Count symbols coded for at each bit length */

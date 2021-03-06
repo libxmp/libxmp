@@ -208,7 +208,7 @@ static int get_slen(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	struct local_data *data = (struct local_data *)parm;
 
 	/* Sanity check */
-	if (data->has_slen || size < 2) {
+	if (data->has_slen || !data->has_cmod || size < 2) {
 		return -1;
 	}
 	data->has_slen = 1;
@@ -251,6 +251,11 @@ static int get_pbod(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	struct xmp_event *e;
 	uint16 rows;
 	int j;
+
+	/* Sanity check */
+	if (!data->has_slen || !data->has_cmod) {
+		return -1;
+	}
 
 	if (data->pattern >= mod->pat)
 		return 0;

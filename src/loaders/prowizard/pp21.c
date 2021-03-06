@@ -94,7 +94,10 @@ static int depack_pp21_pp30(HIO_HANDLE *in, FILE *out, int is_30)
 
 	/* read "reference Table" */
 	tab = (uint8 *)malloc(tabsize);
-	hio_read(tab, tabsize, 1, in);
+	if (hio_read(tab, tabsize, 1, in) != 1) {
+		free(tab);
+		return -1;
+	}
 
 	for (i = 0; i < numpat; i++) {
 		memset(buf, 0, sizeof(buf));

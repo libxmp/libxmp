@@ -175,7 +175,10 @@ static int ice_load(struct module_data *m, HIO_HANDLE * f, const int start)
 
 		for (j = 0; j < mod->xxt[i]->rows; j++) {
 			event = &mod->xxt[i]->event[j];
-			hio_read(ev, 1, 4, f);
+			if (hio_read(ev, 1, 4, f) < 4) {
+				D_(D_CRIT "read error at track %d", i);
+				return -1;
+			}
 			libxmp_decode_protracker_event(event, ev);
 
 			if (event->fxt == FX_SPEED) {

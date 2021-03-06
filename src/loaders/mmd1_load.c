@@ -50,7 +50,7 @@ static int mmd1_test(HIO_HANDLE *f, char *t, const int start)
 
 	hio_seek(f, 28, SEEK_CUR);
 	offset = hio_read32b(f);		/* expdata_offset */
-	
+
 	if (offset) {
 		hio_seek(f, start + offset + 44, SEEK_SET);
 		offset = hio_read32b(f);
@@ -285,13 +285,13 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		int block_offset;
 
 		if (hio_seek(f, start + blockarr_offset + i * 4, SEEK_SET) != 0)
-		  return -1;
+			return -1;
 		block_offset = hio_read32b(f);
 		D_(D_INFO "block %d block_offset = 0x%08x", i, block_offset);
 		if (block_offset == 0)
 			continue;
 		if (hio_seek(f, start + block_offset, SEEK_SET) != 0)
-		  return -1;
+			return -1;
 
 		if (ver > 0) {
 			block.numtracks = hio_read16b(f);
@@ -461,7 +461,10 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			if (offset < 0 || hio_seek(f, start + offset, SEEK_SET) < 0) {
 				return -1;
 			}
-			hio_read(name, 40, 1, f);
+			if (hio_read(name, 40, 1, f) < 1) {
+				D_(D_CRIT "read error at expdata %d", i);
+				return -1;
+			}
 			strncpy(xxi->name, name, 32);
 			xxi->name[31] = '\0';
 		}
