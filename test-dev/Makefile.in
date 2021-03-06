@@ -383,6 +383,7 @@ FUZZER		= mod_no_null_terminator \
 		  mdl_umr \
 		  med3_invalid_pattern \
 		  med4_instrument_name \
+		  mfp_truncated \
 		  mgt_patterns_bound \
 		  mmd0_sample_count \
 		  mmd1_channel_count \
