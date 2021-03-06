@@ -367,6 +367,7 @@ FUZZER		= mod_no_null_terminator \
 		  gdm_invalid_sample_size \
 		  gdm_samples_bound \
 		  gdm_truncated \
+		  ice_truncated \
 		  ims_scan_loop \
 		  liq_no_valid_orders \
 		  masi_invalid_length \
