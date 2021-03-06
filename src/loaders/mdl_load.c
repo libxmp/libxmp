@@ -384,6 +384,7 @@ static int get_chunk_in(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     data->has_in = 1;
 
     hio_read(mod->name, 1, 32, f);
+    mod->name[32] = '\0';
     hio_seek(f, 20, SEEK_CUR);
 
     mod->len = hio_read16l(f);
@@ -406,7 +407,10 @@ static int get_chunk_in(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     mod->chn = i;
     hio_seek(f, 32 - i - 1, SEEK_CUR);
 
-    hio_read(mod->xxo, 1, mod->len, f);
+    if (hio_read(mod->xxo, 1, mod->len, f) != mod->len) {
+	D_(D_CRIT "read error at order list");
+	return -1;
+    }
 
     MODULE_INFO();
 
@@ -651,7 +655,10 @@ static int get_chunk_ii(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 
 	data->i_index[i] = hio_read8(f);
 	xxi->nsm = hio_read8(f);
-	hio_read(buf, 1, 32, f);
+	if (hio_read(buf, 1, 32, f) < 32) {
+	    D_(D_CRIT "read error at instrument %d", i);
+	    return -1;
+	}
 	buf[32] = 0;
 	strncpy(xxi->name, buf, 31);
 	xxi->name[31] = '\0';
@@ -745,7 +752,10 @@ static int get_chunk_is(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	int c5spd;
 
 	data->s_index[i] = hio_read8(f);	/* Sample number */
-	hio_read(buf, 1, 32, f);
+	if (hio_read(buf, 1, 32, f) < 32) {
+	    D_(D_CRIT "read error at sample %d", i);
+	    return -1;
+	}
 	buf[32] = 0;
 	strncpy(xxs->name, buf, 31);
 	xxs->name[31] = '\0';
@@ -823,7 +833,10 @@ static int get_chunk_i0(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	sub = &xxi->sub[0];
 	sub->sid = data->i_index[i] = data->s_index[i] = hio_read8(f);
 
-	hio_read(buf, 1, 32, f);
+	if (hio_read(buf, 1, 32, f) < 32) {
+	    D_(D_CRIT "read error at instrument %d", i);
+	    return -1;
+	}
 	buf[32] = 0;
 	hio_seek(f, 8, SEEK_CUR);	/* Sample filename */
 	strncpy(xxi->name, buf, 31);
