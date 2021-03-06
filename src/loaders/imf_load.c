@@ -274,7 +274,10 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	ih.chn[i].reverb = hio_read8(f);
     }
 
-    hio_read(ih.pos, 256, 1, f);
+    if (hio_read(ih.pos, 256, 1, f) < 1) {
+	D_(D_CRIT "read error at order list");
+	return -1;
+    }
 
     if (ih.magic != MAGIC_IM10) {
 	return -1;
