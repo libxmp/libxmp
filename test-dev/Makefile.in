@@ -396,6 +396,7 @@ FUZZER		= mod_no_null_terminator \
 		  mmd1_channel_count \
 		  mmd1_truncated \
 		  mmd3_invalid_blockarr \
+		  mmd3_invalid_mmdinfo \
 		  mmd3_invalid_sample_size \
 		  mmd3_invalid_text_size \
 		  mmd3_truncated \

@@ -466,7 +466,7 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 				return -1;
 			}
 			if (hio_read(name, 40, 1, f) < 1) {
-				D_(D_CRIT "read error at expdata %d", i);
+				D_(D_CRIT "read error at iinfo %d", i);
 				return -1;
 			}
 			strncpy(xxi->name, name, 32);

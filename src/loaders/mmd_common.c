@@ -621,12 +621,12 @@ int mmd_load_sampled_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 		for (j = 0; j < 9; j++) {
 			for (k = 0; k < 12; k++) {
 				int xpo = 0;
-	
+
 				if (j < 1)
 					xpo = 12 * (1 - j);
 				else if (j > 3)
 					xpo = -12 * (j - 3);
-	
+
 				xxi->map[12 * j + k].xpo = xpo;
 			}
 		}
@@ -693,24 +693,24 @@ int mmd_load_iffoct_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 
 	for (j = 0; j < num_oct; j++) {
 		sub = &xxi->sub[j];
-	
+
 		sub->vol = sample->svol;
 		sub->pan = 0x80;
 		sub->xpo = 24 + sample->strans;
 		sub->sid = smp_idx;
 		sub->fin = exp_smp->finetune << 4;
-	
+
 		xxs = &mod->xxs[smp_idx];
-	
+
 		xxs->len = size;
 		xxs->lps = rep;
 		xxs->lpe = rep + replen;
 		xxs->flg = 0;
-	
+
 		if (sample->replen > 1) {
 			xxs->flg |= XMP_SAMPLE_LOOP;
 		}
-	
+
 		if (libxmp_load_sample(m, f, SAMPLE_FLAG_BIGEND, xxs, NULL) < 0) {
 			return -1;
 		}
@@ -758,9 +758,11 @@ void mmd_info_text(HIO_HANDLE *f, struct module_data *m, int offset)
 	hio_read32b(f);		/* skip next */
 	hio_read16b(f);		/* skip reserved */
 	type = hio_read16b(f);
+	D_(D_INFO "mmdinfo type=%d", type);
 	if (type == 1) {	/* 1 = ASCII */
 		len = hio_read32b(f);
-		if (len > 0 && len < 0x7fffffff) {
+		D_(D_INFO "mmdinfo length=%d", len);
+		if (len > 0 && len < hio_size(f)) {
 			m->comment = malloc(len + 1);
 			if (m->comment == NULL)
 				return;
