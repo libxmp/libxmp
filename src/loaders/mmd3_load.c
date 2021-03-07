@@ -267,6 +267,7 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		hio_read32b(f);
 		hio_read32b(f);
 		songname_offset = hio_read32b(f);
+		D_(D_INFO "songname_offset = 0x%08x", songname_offset);
 		expdata.songnamelen = hio_read32b(f);
 		hio_read32b(f);		/* dumps */
 		mmdinfo_offset = hio_read32b(f);
@@ -284,6 +285,7 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		}
 
 		if (mmdinfo_offset != 0) {
+			D_(D_INFO "mmdinfo_offset = 0x%08x", mmdinfo_offset);
 			hio_seek(f, start + mmdinfo_offset, SEEK_SET);
 			mmd_info_text(f, m, mmdinfo_offset);
 		}
@@ -436,11 +438,15 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (expdata_offset && i < expdata.i_ext_entries) {
 			struct xmp_instrument *xxi = &mod->xxi[i];
 			int offset = iinfo_offset + i * expdata.i_ext_entrsz;
+			D_(D_INFO "sample %d iinfo_offset = 0x%08x", i, offset);
 
 			if (offset < 0 || hio_seek(f, start + offset, SEEK_SET) < 0) {
 				return -1;
 			}
-			hio_read(name, 40, 1, f);
+			if (hio_read(name, 40, 1, f) < 1) {
+				D_(D_CRIT "read error at expdata %d", i);
+				return -1;
+			}
 			strncpy(xxi->name, name, 32);
 			xxi->name[31] = '\0';
 			D_(D_INFO "[%2x] %-40.40s %d", i, mod->xxi[i].name, instr.type);
@@ -450,6 +456,7 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		if (expdata_offset && i < expdata.s_ext_entries) {
 			int offset = expsmp_offset + i * expdata.s_ext_entrsz;
+			D_(D_INFO "sample %d expsmp_offset = 0x%08x", i, offset);
 
 			if (offset < 0 || hio_seek(f, start + offset, SEEK_SET) < 0) {
 				return -1;

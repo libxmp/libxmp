@@ -398,6 +398,7 @@ FUZZER		= mod_no_null_terminator \
 		  mmd3_invalid_blockarr \
 		  mmd3_invalid_sample_size \
 		  mmd3_invalid_text_size \
+		  mmd3_truncated \
 		  mtm_channels_bound \
 		  okt_duplicate_chunk \
 		  okt_invalid_chunk_order \
