@@ -214,12 +214,12 @@ static int theplayer_depack(HIO_HANDLE *in, FILE *out, int version)
     memset(ptable, 0, sizeof(ptable));
     memset(smp_size, 0, sizeof(smp_size));
     memset(isize, 0, sizeof(isize));
+    memset(saddr, 0, sizeof(saddr));
     /*for (i = 0; i < 31; i++) {
 	PACK[i] = 0;
         DELTA[i] = 0;
     }*/
 
-    saddr[0] = 0;
     sdata_addr = hio_read16b(in);		/* read sample data address */
     npat = hio_read8(in);			/* read real number of patterns */
 
