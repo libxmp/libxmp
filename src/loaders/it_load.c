@@ -1364,9 +1364,6 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 				int b = hio_read8(f);
 				if (b == '\r') {
 					b = '\n';
-				} else if ((b < 32 || b > 127) && b != '\n'
-					   && b != '\t') {
-					b = '.';
 				}
 				m->comment[j] = b;
 			}
