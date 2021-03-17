@@ -153,6 +153,10 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	uih.bidiloop = hio_read8(f);
 	uih.finetune = hio_read16l(f);
 	uih.c2spd = ver < 4 ? 0 : hio_read16l(f);
+	if (hio_error(f)) {
+	    D_(D_CRIT "read error at instrument %d", i);
+	    return -1;
+	}
 
 	if (ver > 3) {			/* Incorrect in ult_form.txt */
 	    uih.c2spd ^= uih.finetune;
