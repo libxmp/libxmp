@@ -126,10 +126,17 @@ static int digi_load(struct module_data *m, HIO_HANDLE *f, const int start)
     for (i = 0; i < 31; i++)
 	dh.fin[i] = hio_read8s(f);
 
-    hio_read(dh.title, 32, 1, f);
+    if (hio_read(dh.title, 1, 32, f) < 32) {
+	D_(D_CRIT "read error at title");
+	return -1;
+    }
 
-    for (i = 0; i < 31; i++)
-        hio_read(dh.insname[i], 30, 1, f);
+    for (i = 0; i < 31; i++) {
+	if (hio_read(dh.insname[i], 1, 30, f) < 30) {
+	    D_(D_CRIT "read error at instrument name %d", i);
+	    return -1;
+	}
+    }
 
     mod->ins = 31;
     mod->smp = mod->ins;
@@ -144,10 +151,10 @@ static int digi_load(struct module_data *m, HIO_HANDLE *f, const int start)
     libxmp_set_type(m, "DIGI Booster %-4.4s", dh.vstr);
 
     MODULE_INFO();
- 
+
     for (i = 0; i < mod->len; i++)
 	mod->xxo[i] = dh.ord[i];
- 
+
     if (libxmp_init_instrument(m) < 0)
 	return -1;
 
