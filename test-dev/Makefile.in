@@ -415,6 +415,7 @@ FUZZER		= mod_no_null_terminator \
 		  sym_truncated_lzw \
 		  ult_channels_bound \
 		  ult_invalid_tracks \
+		  ult_truncated \
 		  ult_v000 \
 		  prowizard_ac1d_invalid_note \
 		  prowizard_di_patterns_bound \

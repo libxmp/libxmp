@@ -211,7 +211,7 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	libxmp_instrument_name(mod, i, uih.name, 24);
 
 	D_(D_INFO "[%2X] %-32.32s %05x%c%05x %05x %c V%02x F%04x %5d",
-		i, uih.name, mod->xxs[i].len,
+		i, mod->xxi[i].name, mod->xxs[i].len,
 		mod->xxs[i].flg & XMP_SAMPLE_16BIT ? '+' : ' ',
 		mod->xxs[i].lps, mod->xxs[i].lpe,
 		mod->xxs[i].flg & XMP_SAMPLE_LOOP ? 'L' : ' ',
@@ -276,7 +276,10 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		cnt = hio_read8(f);		/* Read repeat count */
 		x8 = hio_read8(f);		/* Read note */
 	    }
-	    hio_read(&ue, 4, 1, f);		/* Read rest of the event */
+	    if (hio_read(&ue, 1, 4, f) < 4) {	/* Read rest of the event */
+		D_(D_CRIT "read error at channel %d pos %d", i, j);
+		return -1;
+	    }
 
 	    if (cnt == 0)
 		cnt++;
