@@ -337,6 +337,7 @@ FUZZER		= mod_no_null_terminator \
 		  mod_no_valid_orders \
 		  mod_scan_row_limit \
 		  st_invalid_sample_count \
+		  st_truncated \
 		  s3m_invalid_sample_size \
 		  s3m_invalid_sample_size2 \
 		  xm_zero_samples \
