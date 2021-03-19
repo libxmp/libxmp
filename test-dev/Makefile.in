@@ -453,6 +453,7 @@ FUZZER		= mod_no_null_terminator \
 		  prowizard_starpack_junk_orders \
 		  prowizard_theplayer_invalid_note \
 		  prowizard_theplayer_invalid_sample_dup \
+		  prowizard_titanics_truncated \
 		  prowizard_tp1_invalid_length \
 		  prowizard_tp3_patterns_bound \
 		  prowizard_tp3_samples_bound \
