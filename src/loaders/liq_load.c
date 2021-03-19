@@ -599,6 +599,11 @@ next_pattern:
 	hio_read(li.rsvd, 11, 1, f);
 	hio_read(li.filename, 25, 1, f);
 
+	/* Sanity check */
+	if (hio_error(f)) {
+	    return -1;
+	}
+
 	xxi->nsm = !!(li.length);
 	xxi->vol = 0x40;
 

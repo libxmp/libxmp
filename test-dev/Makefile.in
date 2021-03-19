@@ -378,6 +378,7 @@ FUZZER		= mod_no_null_terminator \
 		  imf_truncated \
 		  ims_scan_loop \
 		  liq_no_valid_orders \
+		  liq_truncated \
 		  masi_invalid_length \
 		  masi_seek_loop \
 		  masi_truncated \
