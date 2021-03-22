@@ -44,6 +44,7 @@ static int read_file_header(FILE *in, struct archived_file_header_tag *hdrp)
 		return -1;
 	hlen = read32l(in, &error) / 36;
 	if (error != 0) return -1;
+	if (hlen < 1) return -1;
 	start = read32l(in, &error);
 	if (error != 0) return -1;
 	/*ver =*/ read32l(in, &error);
@@ -87,11 +88,11 @@ static int read_file_header(FILE *in, struct archived_file_header_tag *hdrp)
 
 		if (hdrp->offset & 0x80000000)		/* directory */
 			continue;
-		
+
 		hdrp->crc = x >> 16;
 		hdrp->bits = (x & 0xff00) >> 8;
-		hdrp->offset &= 0x7fffffff;	
-		hdrp->offset += start;	
+		hdrp->offset &= 0x7fffffff;
+		hdrp->offset += start;
 
 		break;
 	}
