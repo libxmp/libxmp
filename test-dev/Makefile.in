@@ -446,7 +446,9 @@ FUZZER		= mod_no_null_terminator \
 		  prowizard_pm10c_invalid_note \
 		  prowizard_pm10c_invalid_pattern \
 		  prowizard_pm10c_invalid_psize \
+		  prowizard_pm10c_zero_length \
 		  prowizard_pm18a_invalid_note \
+		  prowizard_pm18a_zero_length \
 		  prowizard_pp10_invalid_pattern \
 		  prowizard_pp21_truncated \
 		  prowizard_pp30_invalid \

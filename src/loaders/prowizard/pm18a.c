@@ -16,7 +16,6 @@
 static int depack_p18a(HIO_HANDLE *in, FILE *out)
 {
 	short pat_max;
-	int tmp_ptr;
 	int refmax;
 	int refsize;
 	uint8 pnum[128];
@@ -70,11 +69,10 @@ static int depack_p18a(HIO_HANDLE *in, FILE *out)
 
 	/* ordering of patterns addresses */
 
-	tmp_ptr = 0;
+	pat_max = 0;
 	for (i = 0; i < num_pat; i++) {
 		if (i == 0) {
 			pnum[0] = 0;
-			tmp_ptr++;
 			continue;
 		}
 		for (j = 0; j < i; j++) {
@@ -84,10 +82,8 @@ static int depack_p18a(HIO_HANDLE *in, FILE *out)
 			}
 		}
 		if (j == i)
-			pnum[i] = tmp_ptr++;
+			pnum[i] = (++pat_max);
 	}
-
-	pat_max = tmp_ptr - 1;
 
 	fwrite(pnum, 128, 1, out);		/* pattern table */
 	write32b(out, PW_MOD_MAGIC);		/* M.K. */
