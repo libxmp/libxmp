@@ -46,7 +46,6 @@
 #include <process.h>
 #define getpid _getpid
 #define open _open
-typedef int pid_t;
 #endif
 
 #ifndef O_BINARY
@@ -56,7 +55,11 @@ typedef int pid_t;
 int mkstemp(char *template)
 {
 	int start, i;
+#ifdef _WIN32
+	int   val;
+#else
 	pid_t val;
+#endif
 
 	val = getpid();
 	start = strlen(template) - 1;
