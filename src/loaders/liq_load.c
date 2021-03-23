@@ -566,7 +566,8 @@ next_pattern:
 
 	sub = &xxi->sub[0];
 
-	hio_read (b, 1, 4, f);
+	if (hio_read(b, 1, 4, f) < 4)
+	    return -1;
 
 	if (b[0] == '?' && b[1] == '?' && b[2] == '?' && b[3] == '?')
 	    continue;
