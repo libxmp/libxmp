@@ -195,7 +195,10 @@ static int digi_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	if (dh.pack) {
 	    w = (hio_read16b(f) - 64) >> 2;
-	    hio_read (chn_table, 1, 64, f);
+	    if (hio_read(chn_table, 1, 64, f) < 64) {
+		D_(D_CRIT "read error at channel table %d", i);
+		return -1;
+	    }
 	} else {
 	    w = 64 * mod->chn;
 	    memset(chn_table, 0xff, sizeof(chn_table));
@@ -204,7 +207,10 @@ static int digi_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	for (j = 0; j < 64; j++) {
 	    for (c = 0, k = 0x80; c < mod->chn; c++, k >>= 1) {
 	        if (chn_table[j] & k) {
-		    hio_read (digi_event, 4, 1, f);
+		    if (hio_read(digi_event, 1, 4, f) < 4) {
+			D_(D_CRIT "read error at pat %d", i);
+			return -1;
+		    }
 		    event = &EVENT (i, c, j);
 	            libxmp_decode_protracker_event(event, digi_event);
 		    switch (event->fxt) {
