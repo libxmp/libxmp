@@ -436,6 +436,7 @@ FUZZER		= mod_no_null_terminator \
 		  prowizard_np3_invalid_note \
 		  prowizard_np3_patterns_bound \
 		  prowizard_p40_invalid_packing \
+		  prowizard_p40_zero_length \
 		  prowizard_p61a_invalid_note \
 		  prowizard_p61a_invalid_sample_dup \
 		  prowizard_p61a_truncated \
