@@ -566,7 +566,8 @@ next_pattern:
 
 	sub = &xxi->sub[0];
 
-	hio_read (b, 1, 4, f);
+	if (hio_read(b, 1, 4, f) < 4)
+	    return -1;
 
 	if (b[0] == '?' && b[1] == '?' && b[2] == '?' && b[3] == '?')
 	    continue;
@@ -598,6 +599,11 @@ next_pattern:
 	li.midi_ch = hio_read8(f);
 	hio_read(li.rsvd, 11, 1, f);
 	hio_read(li.filename, 25, 1, f);
+
+	/* Sanity check */
+	if (hio_error(f)) {
+	    return -1;
+	}
 
 	xxi->nsm = !!(li.length);
 	xxi->vol = 0x40;

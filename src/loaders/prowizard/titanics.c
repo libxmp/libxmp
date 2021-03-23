@@ -149,7 +149,7 @@ static int test_titanics(const uint8 *data, char *t, int s)
 
 		if (d[7] > 0x40)
 			return -1;
-			
+
 		if (d[6] != 0)
 			return -1;
 
@@ -182,15 +182,16 @@ static int test_titanics(const uint8 *data, char *t, int s)
 		int addr = 0;
 
 		for (i = 0; i < 256; i += 2) {
+			PW_REQUEST_DATA(s, i + 182);
 			addr = readmem16b(data + i + 180);
-	
+
 			if (addr == 0xffff)
 				break;
-	
+
 			if (addr < 180)
 				return -1;
 		}
-	
+
 		if (addr != 0xffff) {
 			return -1;
 		}

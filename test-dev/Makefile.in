@@ -265,6 +265,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  asylum \
 		  chiptracker \
 		  dbm dbm_rows dbm_penv dbm_venv \
+		  digi \
 		  dsmi \
 		  dtm \
 		  emod \
@@ -336,6 +337,7 @@ FUZZER		= mod_no_null_terminator \
 		  mod_no_valid_orders \
 		  mod_scan_row_limit \
 		  st_invalid_sample_count \
+		  st_truncated \
 		  s3m_invalid_sample_size \
 		  s3m_invalid_sample_size2 \
 		  xm_zero_samples \
@@ -352,6 +354,7 @@ FUZZER		= mod_no_null_terminator \
 		  dbm_name_buffer_overflow \
 		  dbm_sample_count \
 		  dbm_truncated \
+		  digi_truncated \
 		  dt_channels_bound \
 		  dt_duplicate_chunk \
 		  dt_instrument_count \
@@ -375,6 +378,7 @@ FUZZER		= mod_no_null_terminator \
 		  imf_truncated \
 		  ims_scan_loop \
 		  liq_no_valid_orders \
+		  liq_truncated \
 		  masi_invalid_length \
 		  masi_seek_loop \
 		  masi_truncated \
@@ -415,6 +419,7 @@ FUZZER		= mod_no_null_terminator \
 		  sym_truncated_lzw \
 		  ult_channels_bound \
 		  ult_invalid_tracks \
+		  ult_truncated \
 		  ult_v000 \
 		  prowizard_ac1d_invalid_note \
 		  prowizard_di_patterns_bound \
@@ -431,6 +436,7 @@ FUZZER		= mod_no_null_terminator \
 		  prowizard_np3_invalid_note \
 		  prowizard_np3_patterns_bound \
 		  prowizard_p40_invalid_packing \
+		  prowizard_p40_zero_length \
 		  prowizard_p61a_invalid_note \
 		  prowizard_p61a_invalid_sample_dup \
 		  prowizard_p61a_truncated \
@@ -441,19 +447,23 @@ FUZZER		= mod_no_null_terminator \
 		  prowizard_pm10c_invalid_note \
 		  prowizard_pm10c_invalid_pattern \
 		  prowizard_pm10c_invalid_psize \
+		  prowizard_pm10c_zero_length \
 		  prowizard_pm18a_invalid_note \
+		  prowizard_pm18a_zero_length \
 		  prowizard_pp10_invalid_pattern \
 		  prowizard_pp21_truncated \
 		  prowizard_pp30_invalid \
 		  prowizard_starpack_junk_orders \
 		  prowizard_theplayer_invalid_note \
 		  prowizard_theplayer_invalid_sample_dup \
+		  prowizard_titanics_truncated \
 		  prowizard_tp1_invalid_length \
 		  prowizard_tp3_patterns_bound \
 		  prowizard_tp3_samples_bound \
 		  prowizard_unic_truncated \
 		  prowizard_zen_invalid_note \
 		  depack_arcfs_lzw_leak \
+		  depack_arcfs_negative_header_size \
 		  depack_arcfs_negative_size \
 		  depack_arcfs_zero_length \
 		  depack_bz2_invalid_selector \

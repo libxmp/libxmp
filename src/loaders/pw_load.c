@@ -177,7 +177,8 @@ static int pw_load(struct module_data *m, HIO_HANDLE *h, const int start)
 
 		for (j = 0; j < (64 * 4); j++) {
 			event = &EVENT(i, j % 4, j / 4);
-			hio_read(mod_event, 1, 4, f);
+			if (hio_read(mod_event, 1, 4, f) < 4)
+				goto err3;
 			libxmp_decode_protracker_event(event, mod_event);
 		}
 	}

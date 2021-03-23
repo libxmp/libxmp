@@ -15,7 +15,7 @@ static int depack_p10c(HIO_HANDLE *in, FILE *out)
 {
 	uint8 c1, c2;
 	int pat_max;
-	int tmp_ptr, tmp1, tmp2;
+	int tmp1, tmp2;
 	int refmax;
 	int refsize;
 	uint8 pnum[128];
@@ -77,11 +77,10 @@ static int depack_p10c(HIO_HANDLE *in, FILE *out)
 
 	/* ordering of patterns addresses */
 
-	tmp_ptr = 0;
+	pat_max = 0;
 	for (i = 0; i < num_pat; i++) {
 		if (i == 0) {
 			pnum[0] = 0;
-			tmp_ptr++;
 			continue;
 		}
 
@@ -92,10 +91,8 @@ static int depack_p10c(HIO_HANDLE *in, FILE *out)
 			}
 		}
 		if (j == i)
-			pnum[i] = tmp_ptr++;
+			pnum[i] = (++pat_max);
 	}
-
-	pat_max = tmp_ptr - 1;
 
 	/* correct re-order */
 	for (i = 0; i < num_pat; i++)
