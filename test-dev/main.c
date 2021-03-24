@@ -1,12 +1,16 @@
-#ifndef WIN32
+#ifdef WIN32
+#include <process.h> /* _spawnl, _P_WAIT */
+#else
 #define FORK_TEST
 #endif
+
 
 #ifdef FORK_TEST
 #include <sys/types.h>
 #include <sys/wait.h>
 #endif
 #include <unistd.h>
+#include <stdio.h>
 #include "test.h"
 #include "../src/list.h"
 
@@ -41,6 +45,8 @@ void _add_test(char *name, int (*func)(void))
 	num_tests++;
 }
 
+#ifdef FORK_TEST
+
 void init_colors()
 {
 	if (isatty(STDOUT_FILENO)) {
@@ -50,8 +56,6 @@ void init_colors()
 		color_none = "\x1b[0m";
 	}
 }
-
-#ifdef FORK_TEST
 
 int run_tests()
 {
@@ -120,7 +124,7 @@ int run_test(int num)
 				return 0;
 			}
 		}
-		
+
 		i++;
 	}
 
@@ -155,11 +159,20 @@ int main(int argc, char **argv)
 	}
 
 	for (i = 0; i < num_tests; i++) {
-		snprintf(cmd, 512, "%s %d", argv[0], i);
+#ifdef WIN32
+		snprintf(cmd, sizeof(cmd), "%d", i);
+		if (_spawnl(_P_WAIT, argv[0], argv[0], cmd, NULL)) {
+			fail++;
+		}
+		total++;
+#else
+		/* In the off chance something that isn't Windows needs the non-fork test... */
+		snprintf(cmd, sizeof(cmd), "%s %d", argv[0], i);
 		if (system(cmd) != 0) {
 			fail++;
 		}
 		total++;
+#endif /* !WIN32 */
 	}
 
 	printf("total:%d  passed:%d (%4.1f%%)  failed:%d (%4.1f%%)\n",
