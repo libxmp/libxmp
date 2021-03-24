@@ -596,6 +596,11 @@ dist-test:
 clean:
 	rm -f *.o core *~ $(T_OBJS)
 
+vc-prepare:
+	@echo Generate Makefile.vc
+	@sed -e 's!@SRCS@!$(subst /,\\,$(T_OBJS:.o=.c))!' \
+	     Makefile.vc.in > Makefile.vc
+
 #
 # Utilities
 #

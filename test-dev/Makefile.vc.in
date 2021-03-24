@@ -1,0 +1,26 @@
+CC	= cl
+CFLAGS	= /O2 /W3 /I..\include /I..\src /I..\src\win32 /DWIN32 \
+	  /Dinline=__inline /DPATH_MAX=1024 /D_USE_MATH_DEFINES /D_CRT_SECURE_NO_WARNINGS
+LDFLAGS = /RELEASE /OUT:$(EXE)
+EXE	= libxmp-tests.exe
+
+SOURCES	= @SRCS@
+ALL_SOURCES	= $(SOURCES)
+
+all: $(EXE)
+	$(EXE)
+
+$(EXE): $(ALL_SOURCES) all_tests.c
+	copy ..\libxmp.lib .
+	copy ..\libxmp.dll .
+	$(CC) /MP /nologo $(CFLAGS) $(ALL_SOURCES) /link $(LDFLAGS) libxmp.lib
+
+# FIXME no convincing way to do this here right now.
+all_tests.c: Makefile
+	@make all_tests.c
+
+clean:
+	del libxmp.lib
+	del libxmp.dll
+	del *.obj
+	del $(EXE)

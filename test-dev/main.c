@@ -1,6 +1,9 @@
-#ifndef WIN32
+#ifdef WIN32
+#include <process.h> /* _spawnl, _P_WAIT */
+#else
 #define FORK_TEST
 #endif
+
 
 #ifdef FORK_TEST
 #include <sys/types.h>
@@ -42,6 +45,8 @@ void _add_test(char *name, int (*func)(void))
 	num_tests++;
 }
 
+#ifdef FORK_TEST
+
 void init_colors()
 {
 	if (isatty(STDOUT_FILENO)) {
@@ -51,8 +56,6 @@ void init_colors()
 		color_none = "\x1b[0m";
 	}
 }
-
-#ifdef FORK_TEST
 
 int run_tests()
 {

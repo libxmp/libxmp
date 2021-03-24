@@ -17,6 +17,10 @@ test-dev/libxmp-covertest
 test-dev/libxmp-test
 
 # VC++ files
+/.vs
+/.vscode
+*.exp
+*.lib
 *.suo
 *.ncb
 
