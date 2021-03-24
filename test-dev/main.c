@@ -7,6 +7,7 @@
 #include <sys/wait.h>
 #endif
 #include <unistd.h>
+#include <stdio.h>
 #include "test.h"
 #include "../src/list.h"
 
@@ -120,7 +121,7 @@ int run_test(int num)
 				return 0;
 			}
 		}
-		
+
 		i++;
 	}
 
@@ -155,11 +156,20 @@ int main(int argc, char **argv)
 	}
 
 	for (i = 0; i < num_tests; i++) {
-		snprintf(cmd, 512, "%s %d", argv[0], i);
+#ifdef WIN32
+		snprintf(cmd, sizeof(cmd), "%d", i);
+		if (_spawnl(_P_WAIT, argv[0], argv[0], cmd, NULL)) {
+			fail++;
+		}
+		total++;
+#else
+		/* In the off chance something that isn't Windows needs the non-fork test... */
+		snprintf(cmd, sizeof(cmd), "%s %d", argv[0], i);
 		if (system(cmd) != 0) {
 			fail++;
 		}
 		total++;
+#endif /* !WIN32 */
 	}
 
 	printf("total:%d  passed:%d (%4.1f%%)  failed:%d (%4.1f%%)\n",
