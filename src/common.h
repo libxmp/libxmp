@@ -155,6 +155,7 @@ void __inline CLIB_DECL D_(const char *text, ...) { do {} while (0); }
 #define open _open
 #define close _close
 #define unlink _unlink
+#define S_ISDIR(x) (((x)&_S_IFDIR) != 0)
 #endif
 #if defined(_WIN32) || defined(__WATCOMC__) /* in win32.c */
 #define USE_LIBXMP_SNPRINTF
@@ -378,18 +379,18 @@ struct player_data {
 		int virt_channels;	/* Number of virtual channels */
 		int virt_used;		/* Number of voices currently in use */
 		int maxvoc;		/* Number of sound card voices */
-	
+
 		struct virt_channel {
 			int count;
 			int map;
 		} *virt_channel;
-	
+
 		struct mixer_voice *voice_array;
 	} virt;
 
 	struct xmp_event inject_event[XMP_MAX_CHANNELS];
 
-	struct {		
+	struct {
 		int consumed;
 		int in_size;
 		char *in_buffer;

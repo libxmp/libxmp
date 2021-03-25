@@ -8,6 +8,7 @@ TEST(test_api_load_module)
 {
 	xmp_context ctx;
 	int state, ret;
+	FILE *f;
 
 	ctx = xmp_create_context();
 
@@ -40,7 +41,11 @@ TEST(test_api_load_module)
 #endif
 
 	/* small file */
-	creat(".read_test", 0644);
+	// Crashes with MSVC.
+	//creat(".read_test", 0644);
+	f = fopen(".read_test", "wb");
+	if (f)
+		fclose(f);
 	ret = xmp_load_module(ctx, ".read_test");
 	fail_unless(ret == -XMP_ERROR_FORMAT, "small file");
 	unlink(".read_test");
