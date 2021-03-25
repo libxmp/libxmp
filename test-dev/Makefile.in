@@ -571,8 +571,8 @@ TESTS		= $(READ_TESTS) \
 
 TEST_NAMES	= $(addprefix test_,$(TESTS))
 
-TEST_OBJS	= util.o md5.o main.o simple_module.o compare_mixer_data.o \
-		  $(TEST_NAMES:=.o)
+MAIN_OBJS	= util.o md5.o main.o simple_module.o compare_mixer_data.o
+TEST_OBJS	= $(MAIN_OBJS) $(TEST_NAMES:=.o)
 
 TEST_DFILES	= Makefile $(TEST_OBJS:.o=.c) test.h md5.h data
 
@@ -596,9 +596,10 @@ dist-test:
 clean:
 	rm -f *.o core *~ $(T_OBJS)
 
-vc-prepare:
+vc-prepare: $(TEST_PATH)/all_tests.txt
 	@echo Generate Makefile.vc
-	@sed -e 's!@SRCS@!$(subst /,\\,$(T_OBJS:.o=.c))!' \
+	@sed -e 's!@MAINSRCS@!$(subst /,\\,$(MAIN_OBJS:.o=.c))!' \
+	     -e 's!@XMPSRCS@!$(subst /,\\,$(addprefix $(SRC_PATH)/,$(TEST_INTERNAL:.o=.c)))!' \
 	     Makefile.vc.in > Makefile.vc
 
 #
@@ -621,7 +622,7 @@ gen_module_data: gen_module_data.o util.o md5.o
 # Run standard tests
 #
 
-check: $(TEST_PATH)/all_tests.c $(TEST_PATH)/libxmp-tests
+check: $(TEST_PATH)/all_tests.c $(TEST_PATH)/all_tests.txt $(TEST_PATH)/libxmp-tests
 	cd $(TEST_PATH); LD_LIBRARY_PATH=../lib DYLD_LIBRARY_PATH=../lib LIBRARY_PATH=../lib:$$LIBRARY_PATH PATH=$$PATH:../lib ./libxmp-tests
 
 $(TEST_PATH)/libxmp-tests: $(T_OBJS)
@@ -658,6 +659,12 @@ $(TEST_PATH)/all_tests.c: $(TEST_PATH)/Makefile
 	@echo > $@; \
 	for i in $(TEST_NAMES); do \
 		echo "declare_test($$i);" >> $@; \
+	done
+
+$(TEST_PATH)/all_tests.txt: $(TEST_PATH)/Makefile
+	@$(RM) $@; \
+	for i in $(TEST_NAMES); do \
+		echo "$$i" >> $@; \
 	done
 
 $(addprefix $(SRC_PATH)/,$(TEST_INTERNAL)): $(SRC_PATH)/player.h
