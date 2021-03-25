@@ -348,12 +348,10 @@ int xmp_test_module(const char *path, struct xmp_test_info *info)
 	if (stat(path, &st) < 0)
 		return -XMP_ERROR_SYSTEM;
 
-#ifndef _MSC_VER
 	if (S_ISDIR(st.st_mode)) {
 		errno = EISDIR;
 		return -XMP_ERROR_SYSTEM;
 	}
-#endif
 
 	if ((h = hio_open(path, "rb")) == NULL)
 		return -XMP_ERROR_SYSTEM;
@@ -559,12 +557,10 @@ int xmp_load_module(xmp_context opaque, const char *path)
 		return -XMP_ERROR_SYSTEM;
 	}
 
-#ifndef _MSC_VER
 	if (S_ISDIR(st.st_mode)) {
 		errno = EISDIR;
 		return -XMP_ERROR_SYSTEM;
 	}
-#endif
 
 	if ((h = hio_open(path, "rb")) == NULL) {
 		return -XMP_ERROR_SYSTEM;
