@@ -18,8 +18,6 @@
 #include <unistd.h>
 #include "common.h"
 #include "depacker.h"
-#include "readrle.h"
-#include "readhuff.h"
 #include "readlzw.h"
 
 
