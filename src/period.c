@@ -137,7 +137,7 @@ static uint16 pt_period_table[16][36] = {
 #ifndef M_LN2
 #define M_LN2	0.69314718055994530942
 #endif
-#if !defined(HAVE_ROUND) || defined(_MSC_VER) || defined(__WATCOMC__)
+#if !defined(HAVE_ROUND) || defined(_MSC_VER) || defined(__WATCOMC__) || defined(__DJGPP__)
 static inline double libxmp_round(double val)
 {
 	return (val >= 0.0)? floor(val + 0.5) : ceil(val - 0.5);
