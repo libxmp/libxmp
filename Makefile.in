@@ -44,6 +44,7 @@ GCLIB		= libxmp-gc.a
 DYLIB_COMPAT	= -compatibility_version,$(COMPAT_VERSION),
 
 DARWIN_VERSION	= @DARWIN_VERSION@
+PLATFORM_DIR	= @PLATFORM_DIR@
 
 # https://github.com/cmatsuoka/libxmp/issues/1
 ifneq ($(DARWIN_VERSION),)

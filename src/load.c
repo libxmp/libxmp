@@ -30,9 +30,20 @@
 #include "loaders/loader.h"
 
 #ifndef LIBXMP_NO_DEPACKERS
-#if !defined(HAVE_POPEN) && defined(_WIN32)
+#ifdef _WIN32
+/* Note: The _popen function returns an invalid file opaque, if
+ * used in a Windows program, that will cause the program to hang
+ * indefinitely. _popen works properly in a Console application.
+ * To create a Windows application that redirects input and output,
+ * read the section "Creating a Child Process with Redirected Input
+ * and Output" in the Win32 SDK. -- Mirko
+ *
+ * This popen reimplementation uses CreateProcess instead and should be safe.
+ */
 #include "win32/ptpopen.h"
+#ifndef HAVE_POPEN
 #define HAVE_POPEN 1
+#endif
 #elif defined(__WATCOMC__)
 #define popen  _popen
 #define pclose _pclose
@@ -82,57 +93,127 @@ static struct depacker *depacker_list[] = {
 
 int test_oxm		(FILE *);
 
-#ifndef HAVE_POPEN
-static int execute_command(const char *cmd, const char *filename, FILE *t) {
+#if defined(HAVE_FORK) && defined(HAVE_PIPE) && defined(HAVE_EXECVP) && \
+    defined(HAVE_DUP2) && defined(HAVE_WAIT)
+#define DECRUNCH_USE_FORK
+#elif defined(HAVE_POPEN) && \
+    (defined(_WIN32) || defined(__OS2__) || defined(__EMX__))
+#define DECRUNCH_USE_POPEN
+#else
+static int execute_command(const char * const cmd[], FILE *t) {
 	return -1;
 }
-#else
-static int execute_command(const char *cmd, const char *filename, FILE *t)
+#endif
+
+#ifdef DECRUNCH_USE_POPEN
+static int execute_command(const char * const cmd[], FILE *t)
 {
 	char line[1024], buf[BUFLEN];
 	FILE *p;
+	int pos;
 	int n;
 
-	snprintf(line, 1024, cmd, filename);
+	/* Collapse command array into a command line for popen. */
+	for (n = 0, pos = 0; cmd[n]; n++) {
+		int written = snprintf(line + pos, sizeof(line) - pos, n ? "\"%s\" " : "%s ", cmd[n]);
+		pos += written;
+		if (pos >= sizeof(line)) {
+			D_(D_CRIT "popen command line exceeded buffer size");
+			return -1;
+		}
+	}
+	line[sizeof(line) - 1] = '\0';
 
-#if defined(_WIN32) || defined(__OS2__) || defined(__EMX__)
-	/* Note: The _popen function returns an invalid file opaque, if
-	 * used in a Windows program, that will cause the program to hang
-	 * indefinitely. _popen works properly in a Console application.
-	 * To create a Windows application that redirects input and output,
-	 * read the section "Creating a Child Process with Redirected Input
-	 * and Output" in the Win32 SDK. -- Mirko
-	 */
+	D_(D_INFO "popen(%s)", line);
+
 	p = popen(line, "rb");
-#else
-	/* Linux popen fails with "rb" */
-	p = popen(line, "r");
-#endif
 
 	if (p == NULL) {
-	    return -1;
+		D_(D_CRIT "failed popen");
+		return -1;
 	}
 
 	while ((n = fread(buf, 1, BUFLEN, p)) > 0) {
-	    fwrite(buf, 1, n, t);
+		fwrite(buf, 1, n, t);
 	}
 
-	pclose (p);
-
+	pclose(p);
 	return 0;
 }
-#endif
+#endif /* USE_PTPOPEN */
+
+#ifdef DECRUNCH_USE_FORK
+#include <sys/wait.h>
+#include <unistd.h>
+
+static int execute_command(const char * const cmd[], FILE *t)
+{
+	/* Use pipe/fork/execvp to avoid shell injection vulnerabilities. */
+	char buf[BUFLEN];
+	FILE *p;
+	int n;
+	int fds[2];
+	pid_t pid;
+	int status;
+
+	D_(D_INFO "fork/execvp(%s...)", cmd[0]);
+
+	if (pipe(fds) < 0) {
+		D_(D_CRIT "failed pipe");
+		return -1;
+	}
+	if ((pid = fork()) < 0) {
+		D_(D_CRIT "failed fork");
+		close(fds[0]);
+		close(fds[1]);
+		return -1;
+	}
+	if (pid == 0) {
+		dup2(fds[1], STDOUT_FILENO);
+		close(fds[0]);
+		close(fds[1]);
+		/* argv param isn't const char * const * for some reason but
+		 * exec* only copies the provided arguments. */
+		execvp(cmd[0], (char * const *)cmd);
+		exit(errno);
+	}
+	close(fds[1]);
+	wait(&status);
+	if (!WIFEXITED(status)) {
+		D_(D_CRIT "process failed (wstatus = %d)", status);
+		close(fds[0]);
+		return -1;
+	}
+	if (WEXITSTATUS(status)) {
+		D_(D_CRIT "process exited with status %d", WEXITSTATUS(status));
+		close(fds[0]);
+		return -1;
+	}
+	if ((p = fdopen(fds[0], "rb")) == NULL) {
+		D_(D_CRIT "failed fdopen");
+		close(fds[0]);
+		return -1;
+	}
+
+	while ((n = fread(buf, 1, BUFLEN, p)) > 0) {
+		fwrite(buf, 1, n, t);
+	}
+
+	fclose(p);
+	return 0;
+}
+#endif /* USE_FORK */
 
 static int decrunch(HIO_HANDLE **h, const char *filename, char **temp)
 {
 	unsigned char b[1024];
-	const char *cmd;
+	const char *cmd[32];
 	FILE *f, *t;
 	int headersize;
 	int i;
 	struct depacker *depacker = NULL;
 
-	cmd = NULL;
+	cmd[0] = NULL;
 	*temp = NULL;
 	f = (*h)->handle.file;
 
@@ -155,12 +236,27 @@ static int decrunch(HIO_HANDLE **h, const char *filename, char **temp)
 		if (b[0] == 'M' && b[1] == 'O' && b[2] == '3') {
 			/* MO3 */
 			D_(D_INFO "mo3");
-			cmd = "unmo3 -s \"%s\" STDOUT";
+			i = 0;
+			cmd[i++] = "unmo3";
+			cmd[i++] = "-s";
+			cmd[i++] = filename;
+			cmd[i++] = "STDOUT";
+			cmd[i++] = NULL;
 		} else if (memcmp(b, "Rar", 3) == 0) {
 			/* rar */
 			D_(D_INFO "rar");
-			cmd = "unrar p -inul -xreadme -x*.diz -x*.nfo -x*.txt "
-			    "-x*.exe -x*.com \"%s\"";
+			i = 0;
+			cmd[i++] = "unrar";
+			cmd[i++] = "p";
+			cmd[i++] = "-inul";
+			cmd[i++] = "-xreadme";
+			cmd[i++] = "-x*.diz";
+			cmd[i++] = "-x*.nfo";
+			cmd[i++] = "-x*.txt";
+			cmd[i++] = "-x*.exe";
+			cmd[i++] = "-x*.com";
+			cmd[i++] = filename;
+			cmd[i++] = NULL;
 		} else if (test_oxm(f) == 0) {
 			/* oggmod */
 			D_(D_INFO "oggmod");
@@ -172,7 +268,7 @@ static int decrunch(HIO_HANDLE **h, const char *filename, char **temp)
 		goto err;
 	}
 
-	if (depacker == NULL && cmd == NULL) {
+	if (depacker == NULL && cmd[0] == NULL) {
 		D_(D_INFO "Not packed");
 		return 0;
 	}
@@ -187,7 +283,7 @@ static int decrunch(HIO_HANDLE **h, const char *filename, char **temp)
 	/* When the filename is unknown (because it is a stream) don't use
 	 * external helpers
 	 */
-	if (cmd && filename == NULL) {
+	if (cmd[0] && filename == NULL) {
 		return 0;
 	}
 
@@ -198,9 +294,9 @@ static int decrunch(HIO_HANDLE **h, const char *filename, char **temp)
 	}
 
 	/* Depack file */
-	if (cmd) {
-		D_(D_INFO "External depacker: %s", cmd);
-		if (execute_command(cmd, filename, t) < 0) {
+	if (cmd[0]) {
+		D_(D_INFO "External depacker: %s", cmd[0]);
+		if (execute_command(cmd, t) < 0) {
 			D_(D_CRIT "failed");
 			goto err2;
 		}

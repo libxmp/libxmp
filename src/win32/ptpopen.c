@@ -11,7 +11,7 @@
  * useful. -- Kurt Keller, Aug 2013
  */
 
-#if !defined(HAVE_POPEN) && defined(_WIN32)
+#ifdef _WIN32
 
 #include "ptpopen.h"
 
