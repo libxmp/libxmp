@@ -23,6 +23,7 @@ test-dev/libxmp-test
 *.lib
 *.suo
 *.ncb
+Makefile.vc.tmp
 
 # Module formats
 *.mod

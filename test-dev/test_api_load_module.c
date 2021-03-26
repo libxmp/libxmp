@@ -54,7 +54,7 @@ TEST(test_api_load_module)
 	fail_unless(state == XMP_STATE_UNLOADED, "state error");
 
 	/* invalid format */
-	ret = xmp_load_module(ctx, "Makefile");
+	ret = xmp_load_module(ctx, "Makefile.in");
 	fail_unless(ret == -XMP_ERROR_FORMAT, "invalid format");
 
 	state = xmp_get_player(ctx, XMP_PLAYER_STATE);

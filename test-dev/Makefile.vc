@@ -4,8 +4,8 @@ CFLAGS	= /O2 /W3 /MD /I..\include /I..\src /I..\src\win32 /DWIN32 \
 LDFLAGS = /RELEASE /OUT:$(EXE)
 EXE	= libxmp-tests.exe
 
-TEST_SOURCES	= @MAINSRCS@
-XMP_SOURCES	= @XMPSRCS@
+TEST_SOURCES	= util.c md5.c main.c simple_module.c compare_mixer_data.c
+XMP_SOURCES	= ..\src\win32.c ..\src\hio.c ..\src\load_helpers.c ..\src\loaders\itsex.c ..\src\dataio.c ..\src\scan.c ..\src\loaders\sample.c ..\src\loaders\common.c ..\src\period.c ..\src\xfnmatch.c ..\src\memio.c
 ALL_SOURCES	= $(SOURCES) $(TEST_SOURCES) $(XMP_SOURCES)
 
 TEMP_MAKEFILE	= Makefile.vc.tmp
