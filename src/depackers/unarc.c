@@ -29,8 +29,10 @@
 #include <ctype.h>
 #include "common.h"
 #include "depacker.h"
+#if 0
 #include "readrle.h"
 #include "readhuff.h"
+#endif
 #include "readlzw.h"
 
 
