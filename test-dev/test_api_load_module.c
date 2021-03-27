@@ -18,7 +18,7 @@ TEST(test_api_load_module)
 	/* module doesn't exist */
 	ret = xmp_load_module(ctx, "/doesntexist");
 	fail_unless(ret == -XMP_ERROR_SYSTEM, "module doesn't exist");
-	fail_unless(errno == ENOENT, "errno code");
+	fail_unless(xmp_syserrno() == ENOENT, "errno code");
 
 	state = xmp_get_player(ctx, XMP_PLAYER_STATE);
 	fail_unless(state == XMP_STATE_UNLOADED, "state error");
@@ -26,7 +26,7 @@ TEST(test_api_load_module)
 	/* is directory */
 	ret = xmp_load_module(ctx, "data");
 	fail_unless(ret == -XMP_ERROR_SYSTEM, "try to load directory");
-	fail_unless(errno == EISDIR, "errno code");
+	fail_unless(xmp_syserrno() == EISDIR, "errno code");
 
 	state = xmp_get_player(ctx, XMP_PLAYER_STATE);
 	fail_unless(state == XMP_STATE_UNLOADED, "state error");
@@ -36,7 +36,7 @@ TEST(test_api_load_module)
 	creat(".read_test", 0111);
 	ret = xmp_load_module(ctx, ".read_test");
 	fail_unless(ret == -XMP_ERROR_SYSTEM, "no read permission");
-	fail_unless(errno == EACCES, "errno code");
+	fail_unless(xmp_syserrno() == EACCES, "errno code");
 	unlink(".read_test");
 #endif
 
