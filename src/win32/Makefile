@@ -1,7 +1,6 @@
 
 WIN32_OBJS	= ptpopen.o debug.o
-WIN32_DFILES	= Makefile $(WIN32_OBJS:.o=.c) unistd.h ptpopen.h \
-		  osdcomm.h sys
+WIN32_DFILES	= Makefile $(WIN32_OBJS:.o=.c) unistd.h ptpopen.h
 WIN32_PATH	= src/win32
 
 ifeq ($(PLATFORM_DIR),win32)
