@@ -376,7 +376,7 @@ int xmp_load_module(xmp_context c, char \*path)
     :path: pathname of the module to load.
 
   **Returns:**
-    0 if sucessful, or a negative error code in case of error.
+    0 if successful, or a negative error code in case of error.
     Error codes can be ``-XMP_ERROR_FORMAT`` in case of an unrecognized file
     format, ``-XMP_ERROR_DEPACK`` if the file is compressed and uncompression
     failed, ``-XMP_ERROR_LOAD`` if the file format was recognized but the
@@ -403,7 +403,7 @@ int xmp_load_module_from_memory(xmp_context c, const void \*mem, long size)
       quirks won't be applied.
 
   **Returns:**
-    0 if sucessful, or a negative error code in case of error.
+    0 if successful, or a negative error code in case of error.
     Error codes can be ``-XMP_ERROR_FORMAT`` in case of an unrecognized file
     format, ``-XMP_ERROR_LOAD`` if the file format was recognized but the
     file loading failed, or ``-XMP_ERROR_SYSTEM`` in case of system error
@@ -429,7 +429,7 @@ int xmp_load_module_from_file(xmp_context c, FILE \*f, long size)
       quirks won't be applied.
 
   **Returns:**
-    0 if sucessful, or a negative error code in case of error.
+    0 if successful, or a negative error code in case of error.
     Error codes can be ``-XMP_ERROR_FORMAT`` in case of an unrecognized file
     format, ``-XMP_ERROR_LOAD`` if the file format was recognized but the
     file loading failed, or ``-XMP_ERROR_SYSTEM`` in case of system error
@@ -532,7 +532,7 @@ int xmp_start_player(xmp_context c, int rate, int format)
         XMP_FORMAT_MONO         /* Mix to mono instead of stereo */
 
   **Returns:**
-    0 if sucessful, or a negative error code in case of error.
+    0 if successful, or a negative error code in case of error.
     Error codes can be ``-XMP_ERROR_INTERNAL`` in case of a internal player
     error, ``-XMP_ERROR_INVALID`` if the sampling rate is invalid, or
     ``-XMP_ERROR_SYSTEM`` in case of system error (the system error
@@ -550,7 +550,7 @@ int xmp_play_frame(xmp_context c)
     :c: the player context handle.
 
   **Returns:**
-    0 if sucessful, ``-XMP_END`` if the module ended or was stopped, or
+    0 if successful, ``-XMP_END`` if the module ended or was stopped, or
     ``-XMP_ERROR_STATE`` if the player is not in playing state.
 
 .. _xmp_play_buffer():
@@ -578,7 +578,7 @@ int xmp_play_buffer(xmp_context c, void \*buffer, int size, int loop)
      value, or 0 to disable loop checking.
 
   **Returns:**
-    0 if sucessful, ``-XMP_END`` if module was stopped or the loop counter
+    0 if successful, ``-XMP_END`` if module was stopped or the loop counter
     was reached, or ``-XMP_ERROR_STATE`` if the player is not in playing
     state.
 
