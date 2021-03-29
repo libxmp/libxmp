@@ -250,11 +250,6 @@ static void set_md5sum(HIO_HANDLE *f, unsigned char *digest)
 	MD5_CTX ctx;
 	int bytes_read;
 
-	if (hio_size(f) <= 0) {
-		memset(digest, 0, 16);
-		return;
-	}
-
 	hio_seek(f, 0, SEEK_SET);
 
 	MD5Init(&ctx);
@@ -386,9 +381,9 @@ int xmp_test_module_from_memory(const void *mem, long size, struct xmp_test_info
 	HIO_HANDLE *h;
 	int ret;
 
-	/* Use size < 0 for unknown/undetermined size */
-	if (size == 0)
-		size--;
+	if (size <= 0) {
+		return -XMP_ERROR_INVALID;
+	}
 
 	if ((h = hio_open_mem(mem, size)) == NULL)
 		return -XMP_ERROR_SYSTEM;
@@ -632,9 +627,9 @@ int xmp_load_module_from_memory(xmp_context opaque, const void *mem, long size)
 	HIO_HANDLE *h;
 	int ret;
 
-	/* Use size < 0 for unknown/undetermined size */
-	if (size == 0)
-		size--;
+	if (size <= 0) {
+		return -XMP_ERROR_INVALID;
+	}
 
 	if ((h = hio_open_mem(mem, size)) == NULL)
 		return -XMP_ERROR_SYSTEM;
