@@ -312,9 +312,7 @@ int xmp_test_module_from_memory(const void \*mem, long size, struct xmp_test_inf
     :mem: a pointer to the module file image in memory. Multi-file modules
       or compressed modules can't be tested in memory.
 
-    :size: the size of the module, or 0 if the size is unknown or not
-      specified. If size is set to 0 certain module formats won't be
-      recognized.
+    :size: the size of the module.
 
     :test_info: NULL, or a pointer to a structure used to retrieve the
       module title and format if the memory buffer is a valid module.
@@ -397,10 +395,7 @@ int xmp_load_module_from_memory(xmp_context c, const void \*mem, long size)
     :mem: a pointer to the module file image in memory. Multi-file modules
       or compressed modules can't be loaded from memory.
 
-    :size: the size of the module, or 0 if the size is unknown or not
-      specified. If size is set to 0 certain module formats won't be
-      recognized, the MD5 digest will not be set, and module-specific
-      quirks won't be applied.
+    :size: the size of the module.
 
   **Returns:**
     0 if successful, or a negative error code in case of error.
@@ -423,10 +418,7 @@ int xmp_load_module_from_file(xmp_context c, FILE \*f, long size)
     :f: the file stream. On return, the stream position is undefined.
       Caller is responsible for closing the file stream.
 
-    :size: the size of the module, or 0 if the size is unknown or not
-      specified. If size is set to 0 certain module formats won't be
-      recognized, the MD5 digest will not be set, and module-specific
-      quirks won't be applied.
+    :size: the size of the module (ignored.)
 
   **Returns:**
     0 if successful, or a negative error code in case of error.

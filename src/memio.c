@@ -32,10 +32,7 @@
 
 static inline ptrdiff_t CAN_READ(MFILE *m)
 {
-	if (m->size >= 0)
-		return m->pos >= 0 ? m->size - m->pos : 0;
-
-	return INT_MAX;
+	return m->pos >= 0 ? m->size - m->pos : 0;
 }
 
 
@@ -43,25 +40,24 @@ int mgetc(MFILE *m)
 {
 	if (CAN_READ(m) >= 1)
 		return *(uint8 *)(m->start + m->pos++);
-	else
-		return EOF;
+	return EOF;
 }
 
 size_t mread(void *buf, size_t size, size_t num, MFILE *m)
 {
- 	size_t should_read = size * num;
- 	ptrdiff_t can_read = CAN_READ(m);
+	size_t should_read = size * num;
+	ptrdiff_t can_read = CAN_READ(m);
 
- 	if (!size || !num || can_read <= 0) {
- 		return 0;
+	if (!size || !num || can_read <= 0) {
+		return 0;
 	}
 
 	if (should_read > can_read) {
- 		should_read = can_read;
+		should_read = can_read;
 	}
 
 	memcpy(buf, m->start + m->pos, should_read);
- 	m->pos += should_read;
+	m->pos += should_read;
 
 	return should_read / size;
 }
@@ -78,18 +74,14 @@ int mseek(MFILE *m, long offset, int whence)
 		ofs += m->pos;
 		break;
 	case SEEK_END:
-		if (m->size < 0)
-			return -1;
 		ofs += m->size;
 		break;
 	default:
 		return -1;
 	}
-	if (m->size >= 0) {
-		if (ofs < 0) return -1;
-		if (ofs > m->size)
-			ofs = m->size;
-	}
+	if (ofs < 0) return -1;
+	if (ofs > m->size)
+		ofs = m->size;
 	m->pos = ofs;
 	return 0;
 }
@@ -101,10 +93,7 @@ long mtell(MFILE *m)
 
 int meof(MFILE *m)
 {
-	if (m->size <= 0)
-		return 0;
-	else
-		return CAN_READ(m) <= 0;
+	return CAN_READ(m) <= 0;
 }
 
 MFILE *mopen(const void *ptr, long size)
@@ -114,7 +103,7 @@ MFILE *mopen(const void *ptr, long size)
 	m = (MFILE *)malloc(sizeof (MFILE));
 	if (m == NULL)
 		return NULL;
-	
+
 	m->start = ptr;
 	m->pos = 0;
 	m->size = size;
