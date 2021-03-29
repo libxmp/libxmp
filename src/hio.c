@@ -346,10 +346,11 @@ HIO_HANDLE *hio_open_mem(const void *ptr, long size)
 {
 	HIO_HANDLE *h;
 
+	if (size <= 0) return NULL;
 	h = (HIO_HANDLE *)calloc(1, sizeof (HIO_HANDLE));
 	if (h == NULL)
 		return NULL;
-	
+
 	h->type = HIO_HANDLE_TYPE_MEMORY;
 	h->handle.mem = mopen(ptr, size);
 	h->size = size;
@@ -364,7 +365,7 @@ HIO_HANDLE *hio_open_file(FILE *f)
 	h = (HIO_HANDLE *)calloc(1, sizeof (HIO_HANDLE));
 	if (h == NULL)
 		return NULL;
-	
+
 	h->noclose = 1;
 	h->type = HIO_HANDLE_TYPE_FILE;
 	h->handle.file = f;
