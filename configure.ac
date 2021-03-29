@@ -178,8 +178,10 @@ XMP_TRY_COMPILE(whether alloca() needs alloca.h,
 old_LIBS="${LIBS}"
 AC_CHECK_LIB(m,pow)
 dnl -lm not needed with darwin and mingw.
+dnl -lm not needed with djgpp either: c89 math funcs are in libc.a,
+dnl       we do just fine without the c99 ones.
 case "${host_os}" in
-darwin*|mingw*)
+darwin*|*djgpp|mingw*)
   LIBS="${old_LIBS}"
   ;;
 esac

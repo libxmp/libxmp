@@ -30,9 +30,6 @@
  */
 
 #include "loader.h"
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 
 
 static int alm_test (HIO_HANDLE *, char *, const int);
@@ -62,8 +59,6 @@ static int alm_test(HIO_HANDLE *f, char *t, const int start)
     return 0;
 }
 
-
-
 struct alm_file_header {
     uint8 id[7];		/* "ALEY MO" or "ALEYMOD" */
     uint8 speed;		/* Only in versions 1.1 and 1.2 */
@@ -80,7 +75,6 @@ static int alm_load(struct module_data *m, HIO_HANDLE *f, const int start)
     int i, j;
     struct alm_file_header afh;
     struct xmp_event *event;
-    struct stat stat;
     uint8 b;
     char *basename;
     char filename[NAME_SIZE];
@@ -160,9 +154,8 @@ static int alm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	mod->xxi[i].nsm = 1;
 
-	hio_stat(s, &stat);
 	b = hio_read8(s);		/* Get first octet */
-	mod->xxs[i].len = stat.st_size - 5 * !b;
+	mod->xxs[i].len = hio_size(s) - 5 * !b;
 
 	if (!b) {		/* Instrument with header */
 	    mod->xxs[i].lps = hio_read16l(f);

@@ -128,14 +128,3 @@ int mclose(MFILE *m)
 	return 0;
 }
 
-#ifndef LIBXMP_CORE_PLAYER
-
-int mstat(MFILE *m, struct stat *st)
-{
-	memset(st, 0, sizeof (struct stat));
-	st->st_size = m->size;
-	return 0;
-}
-
-#endif
-
