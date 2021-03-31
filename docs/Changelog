@@ -43,6 +43,7 @@ Stable versions
 	  (no ABI change)
 	- xmp_load_module_from_memory() now accepts a const void* memory
 	  param (no ABI change)
+	- xmp_load_module_from_memory() no longer accepts sizes <= 0.
 	- explicitly document that callers of xmp_load_module_from_file()
 	  are responsible for closing their own file.
 	- remove nonportable use of fdopen in xmp_load_module_from_file()
