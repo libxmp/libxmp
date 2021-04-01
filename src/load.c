@@ -138,13 +138,11 @@ static int decrunch(HIO_HANDLE **h, const char *filename, char **temp)
 	unsigned char b[1024];
 	const char *cmd;
 	FILE *f, *t;
-	int res;
 	int headersize;
 	int i;
 	struct depacker *depacker = NULL;
 
 	cmd = NULL;
-	res = 0;
 	*temp = NULL;
 	f = (*h)->handle.file;
 
@@ -234,7 +232,7 @@ static int decrunch(HIO_HANDLE **h, const char *filename, char **temp)
 	hio_close(*h);
 	*h = hio_open_file2(t);
 
-	return res;
+	return (*h == NULL)? -1 : 0;
 
     err2:
 	fclose(t);

@@ -11,6 +11,7 @@ test_read_mem_16bit_little_endian
 test_read_mem_16bit_big_endian
 test_read_mem_hio
 test_read_mem_hio_nosize
+test_read_file_hio_pipe
 test_write_file_32bit_little_endian
 test_write_file_32bit_big_endian
 test_write_file_16bit_little_endian
