@@ -2,7 +2,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <errno.h>
 
 static int test_module_from_file_helper(const char* filename, struct xmp_test_info *tinfo)
 {

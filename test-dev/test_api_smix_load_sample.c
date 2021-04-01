@@ -29,7 +29,7 @@ TEST(test_api_smix_load_sample)
 	/* try to load non-existant file */
 	ret = xmp_smix_load_sample(opaque, 0, "doesnt.exist");
 	fail_unless(ret == -XMP_ERROR_SYSTEM, "sample doesn't exist");
-	fail_unless(errno == ENOENT, "errno");
+	fail_unless(xmp_syserrno() == ENOENT, "errno");
 
 	/* try to load sample with invalid format */
         ret = xmp_smix_load_sample(opaque, 1, "data/mod.loving_is_easy.pp");

@@ -231,6 +231,18 @@ const unsigned int xmp_vercode
   bits 7-0 contain the release number.
 
 
+.. _xmp_syserrno():
+
+int xmp_syserrno()
+``````````````````
+
+  *[Added in libxmp 4.5]*  Use to retrieve errno if you received
+  ``-XMP_ERROR_SYSTEM`` from an xmp function call. Useful if either
+  libxmp or its client is statically linked to libc.
+
+  **Returns:** System errno.
+
+
 .. _xmp_get_format_list():
 
 const char \*const \*xmp_get_format_list()

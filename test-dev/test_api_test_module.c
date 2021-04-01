@@ -11,13 +11,13 @@ TEST(test_api_test_module)
 
 	/* directory */
 	ret = xmp_test_module("data", &tinfo);
-	err = errno;
+	err = xmp_syserrno();
 	fail_unless(ret == -XMP_ERROR_SYSTEM, "directory fail");
 	fail_unless(err == EISDIR, "errno test module fail");
 
 	/* nonexistent file */
 	ret = xmp_test_module("foo--bar", &tinfo);
-	err = errno;
+	err = xmp_syserrno();
 	fail_unless(ret == -XMP_ERROR_SYSTEM, "nonexistent file fail");
 	fail_unless(err == ENOENT, "errno test module fail");
 
@@ -26,7 +26,7 @@ TEST(test_api_test_module)
 	creat(".read_test", 0111);
 	ret = xmp_test_module(".read_test", &tinfo);
 	fail_unless(ret == -XMP_ERROR_SYSTEM, "no read permission");
-	fail_unless(errno == EACCES, "errno code");
+	fail_unless(xmp_syserrno() == EACCES, "errno code");
 	unlink(".read_test");
 #endif
 
