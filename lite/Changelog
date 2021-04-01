@@ -30,6 +30,7 @@ Stable versions
 	  multiplier
 	- add xmp_test_module_from_memory and xmp_test_module_from_file
 	  calls to api
+	- add new xmp_syserrno call to the api
 	- fix IT pattern delay volume reset bug (read row events only
 	  once per row)
 	- IT: T00 now repeats previous slide

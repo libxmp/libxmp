@@ -36,6 +36,7 @@ Stable versions
 	- fix samples corruption in STM modules
 	- support more versions of STM modules
 	Changes by Ozkan Sezer:
+	- add new xmp_syserrno call to the api
 	- xmp_get_format_list() now returns const char* const*, not char**
 	  (no ABI change)
 	- xmp_test_module, xmp_load_module, xmp_set_instrument_path and
