@@ -42,8 +42,7 @@
 #if !defined(HAVE_POPEN) && defined(_WIN32)
 #include "win32/ptpopen.h"
 #define HAVE_POPEN 1
-#endif
-#if defined(__WATCOMC__)
+#elif defined(__WATCOMC__)
 #define popen  _popen
 #define pclose _pclose
 #define HAVE_POPEN 1
