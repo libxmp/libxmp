@@ -1,32 +1,3 @@
-# Makefile for OS/2 using Watcom compiler.
-#
-# wmake -f Makefile.os2
-# - builds libxmp.dll and its import lib (libxmp.lib)
-#
-# wmake -f Makefile.os2 target=static
-# - builds the static library xmp_static.lib
-#
-# To disable module depacker functionality:
-#	wmake -f Makefile.os2 USE_DEPACKERS=0
-#
-# To disable ProWizard functionality:
-#	wmake -f Makefile.os2 USE_PROWIZARD=0
-#
-!ifndef target
-target = dll
-!endif
-
-USE_PROWIZARD	= 1
-USE_DEPACKERS	= 1
-
-CC = wcc386
-
-CFLAGS = -zq -bt=os2 -bm -fp5 -fpi87 -mf -oeatxh -w4 -ei -zp8
-# newer OpenWatcom versions enable W303 by default.
-CFLAGS += -wcd=303
-# -5s  :  Pentium stack calling conventions.
-# -5r  :  Pentium register calling conventions.
-CFLAGS += -5s
 !ifeq USE_PROWIZARD 0
 CFLAGS += -DLIBXMP_NO_PROWIZARD
 !endif
@@ -35,9 +6,9 @@ CFLAGS += -DLIBXMP_NO_DEPACKERS
 !endif
 CFLAGS += -DHAVE_ALLOCA_H -DHAVE_FNMATCH -DHAVE_MKSTEMP -DHAVE_UMASK
 #CFLAGS += -DDEBUG
-CFLAGS += -I"src/os2" -Iinclude -Isrc
+CFLAGS += -Iinclude -Isrc
 
-DLLFLAGS=-bd
+DLLFLAGS=-bd -DBUILDING_DLL
 
 DLLNAME=libxmp.dll
 EXPNAME=libxmp.exp
@@ -54,7 +25,7 @@ BLD_TARGET=$(DLLNAME)
 OBJS=@OBJS@
 PROWIZ_OBJS=@POBJS@
 DEPACKER_OBJS=@DOBJS@
-ALL_OBJS=$(OBJS)
+ALL_OBJS=$(OBJS) $(OS_OBJS)
 !ifeq USE_PROWIZARD 1
 ALL_OBJS+= $(PROWIZ_OBJS)
 !endif
@@ -72,7 +43,7 @@ all: $(BLD_TARGET)
 
 # rely on symbol name, not ordinal: -irn switch of wlib is default, but -inn is not.
 $(DLLNAME): $(ALL_OBJS)
-	wlink NAM $@ SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE OP QUIET FIL {$(ALL_OBJS)} OPTION IMPF=$(EXPNAME)
+	wlink NAM $@ SYSTEM $(SYSTEM) INITINSTANCE TERMINSTANCE OP QUIET FIL {$(ALL_OBJS)} OPTION IMPF=$(EXPNAME)
 	wlib -q -b -n -c -pa -s -t -zld -ii -io -inn $(LIBNAME) +$(DLLNAME)
 
 $(LIBSTATIC): $(ALL_OBJS)

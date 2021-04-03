@@ -4,6 +4,7 @@
 *.so
 *.a
 *.obj
+*.lib
 *.exe
 *.dll
 *.pyc
@@ -41,7 +42,6 @@ Makefile.vc.tmp
 *.gtk
 mod.*
 AS.*
-*.NT
 *.xz
 
 # Other media
@@ -94,3 +94,4 @@ tags
 commit-*
 *.swp
 *.patch
+*.exp

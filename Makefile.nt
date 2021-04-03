@@ -1,16 +1,16 @@
-# Makefile for OS/2 using Watcom compiler.
+# Makefile for Windows NT using Watcom compiler.
 #
-# wmake -f Makefile.os2
+# wmake -f Makefile.nt
 # - builds libxmp.dll and its import lib (libxmp.lib)
 #
-# wmake -f Makefile.os2 target=static
+# wmake -f Makefile.nt target=static
 # - builds the static library xmp_static.lib
 #
 # To disable module depacker functionality:
-#	wmake -f Makefile.os2 USE_DEPACKERS=0
+#	wmake -f Makefile.nt USE_DEPACKERS=0
 #
 # To disable ProWizard functionality:
-#	wmake -f Makefile.os2 USE_PROWIZARD=0
+#	wmake -f Makefile.nt USE_PROWIZARD=0
 #
 !ifndef target
 target = dll
@@ -20,14 +20,17 @@ USE_PROWIZARD	= 1
 USE_DEPACKERS	= 1
 
 CC = wcc386
-SYSTEM = os2v2_dll
+SYSTEM = nt_dll
 
-CFLAGS = -zq -bt=os2 -bm -fp5 -fpi87 -mf -oeatxh -w4 -ei -zp8
+CFLAGS = -zq -bt=nt -bm -fp5 -fpi87 -mf -oeatxh -w4 -ei -zp8
 # newer OpenWatcom versions enable W303 by default.
 CFLAGS += -wcd=303
 # -5s  :  Pentium stack calling conventions.
 # -5r  :  Pentium register calling conventions.
 CFLAGS += -5s
-CFLAGS += -I"src/os2" -I"$(%WATCOM)/h/os2"
+CFLAGS += -I"src/win32" -I"$(%WATCOM)/h/nt"
+
+OS_OBJS = ptpopen.obj
+.c: src/win32
 
 !include watcom.mif

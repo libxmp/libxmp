@@ -6,18 +6,9 @@
 # wmake -f Makefile.os2 target=static
 # - builds the static library xmp_static.lib
 #
-# To disable module depacker functionality:
-#	wmake -f Makefile.os2 USE_DEPACKERS=0
-#
-# To disable ProWizard functionality:
-#	wmake -f Makefile.os2 USE_PROWIZARD=0
-#
 !ifndef target
 target = dll
 !endif
-
-USE_PROWIZARD	= 1
-USE_DEPACKERS	= 1
 
 CC = wcc386
 SYSTEM = os2v2_dll
