@@ -106,8 +106,12 @@ static int execute_command(const char * const cmd[], FILE *t) {
 #endif
 
 #ifdef DECRUNCH_USE_POPEN
+/* TODO: this may not be safe outside of _WIN32 (which uses CreateProcess). */
 static int execute_command(const char * const cmd[], FILE *t)
 {
+#ifdef _WIN32
+	struct pt_popen_data *popen_data;
+#endif
 	char line[1024], buf[BUFLEN];
 	FILE *p;
 	int pos;
@@ -126,7 +130,11 @@ static int execute_command(const char * const cmd[], FILE *t)
 
 	D_(D_INFO "popen(%s)", line);
 
+#ifdef _WIN32
+	p = pt_popen(line, "rb", &popen_data);
+#else
 	p = popen(line, "rb");
+#endif
 
 	if (p == NULL) {
 		D_(D_CRIT "failed popen");
@@ -137,7 +145,11 @@ static int execute_command(const char * const cmd[], FILE *t)
 		fwrite(buf, 1, n, t);
 	}
 
+#ifdef _WIN32
+	pt_pclose(p, &popen_data);
+#else
 	pclose(p);
+#endif
 	return 0;
 }
 #endif /* USE_PTPOPEN */
