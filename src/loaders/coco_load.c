@@ -135,7 +135,12 @@ static void fix_effect(struct xmp_event *e)
 		e->fxt = FX_VOLSLIDE_DN;	/* FIXME: it's fine */
 		break;
 	case 0x07:
-		e->fxt = FX_SETPAN;
+		/* y: stereo position (1-7,ignored). 1=left 4=center 7=right */
+		if (e->fxp>0 && e->fxp<8) {
+			e->fxt = FX_SETPAN;
+			e->fxp = 42*e->fxp-40;
+		} else
+			e->fxt = e->fxp = 0;
 		break;
 	case 0x08:			/* FIXME */
 	case 0x09:
