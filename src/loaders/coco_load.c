@@ -88,13 +88,10 @@ static int coco_test(HIO_HANDLE *f, char *t, const int start)
 		if (len > 0x00100000 || lps > 0x00100000 || lsz > 0x00100000)
 			return -1;
 
-		if (lps + lsz - 1 > len)
+		if (lps > 0 && lps + lsz - 1 > len)
 			return -1;
 
 		hio_read(buf, 1, 11, f);
-		if (check_cr(buf, 11) != 0)
-			return -1;
-
 		hio_read8(f);	/* unused */
 	}
 
