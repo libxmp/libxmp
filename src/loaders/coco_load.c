@@ -206,7 +206,7 @@ static int coco_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	if (libxmp_init_instrument(m) < 0)
 		return -1;
 
-	m->vol_table = (int *)arch_vol_table;
+	m->vol_table = (int *)libxmp_arch_vol_table;
 	m->volbase = 0xff;
 
 	for (i = 0; i < mod->ins; i++) {

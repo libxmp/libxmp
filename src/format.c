@@ -74,7 +74,7 @@ extern const struct format_loader libxmp_loader_sfx;
 extern const struct format_loader libxmp_loader_far;
 extern const struct format_loader libxmp_loader_umx;
 extern const struct format_loader libxmp_loader_stim;
-/* extern const struct format_loader libxmp_loader_coco; */
+extern const struct format_loader libxmp_loader_coco;
 /* extern const struct format_loader libxmp_loader_mtp; */
 extern const struct format_loader libxmp_loader_ims;
 extern const struct format_loader libxmp_loader_669;
@@ -144,7 +144,7 @@ const struct format_loader *const format_loaders[NUM_FORMATS + 2] = {
 	&libxmp_loader_umx,
 	&libxmp_loader_hmn,
 	&libxmp_loader_stim,
-	/* &libxmp_loader_coco, */
+	&libxmp_loader_coco,
 	/* &libxmp_loader_mtp, */
 	&libxmp_loader_ims,
 	&libxmp_loader_669,
