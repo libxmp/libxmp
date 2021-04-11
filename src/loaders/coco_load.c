@@ -117,21 +117,21 @@ static void fix_effect(struct xmp_event *e)
 		/* x: first halfnote to add
 		   y: second halftone to subtract */
 		break;
-	case 0x01:			/* 01 xx Slide Up */
-	case 0x05:
+	case 0x01:			/* 01 xx Slide Pitch Up (until Amis Max), Frequency+InfoByte*64*/
+	case 0x05:			/* 05 xx Slide Pitch Up (no limit), Frequency+InfoByte*16 */
 		e->fxt = FX_PORTA_UP;
 		break;
-	case 0x02:			/* 02 xx Slide Down */
-	case 0x06:
+	case 0x02:			/* 02 xx Slide Pitch Down (until Amis Min), Frequency-InfoByte*64*/
+	case 0x06:			/* 06 xx Slide Pitch Down (0 limit),  Frequency-InfoByte*16 */
 		e->fxt = FX_PORTA_DN;
 		break;
-	case 0x03:
+	case 0x03:			/* 03 xx Fine Volume Up */
 		e->fxt = FX_F_VSLIDE_UP;
 		break;
-	case 0x04:
+	case 0x04:			/* 04 xx Fine Volume Down */
 		e->fxt = FX_F_VSLIDE_DN;
 		break;
-	case 0x07:
+	case 0x07:			/* 07 xy Set Stereo Position */
 		/* y: stereo position (1-7,ignored). 1=left 4=center 7=right */
 		if (e->fxp>0 && e->fxp<8) {
 			e->fxt = FX_SETPAN;
@@ -139,36 +139,36 @@ static void fix_effect(struct xmp_event *e)
 		} else
 			e->fxt = e->fxp = 0;
 		break;
-	case 0x08:			/* FIXME */
-	case 0x09:
-	case 0x0a:
-	case 0x0b:
-		e->fxt = e->fxp = 0;
+	case 0x08:			/* 08 xx Start Auto Fine Volume Up */
+	case 0x09:			/* 09 xx Start Auto Fine Volume Down */
+	case 0x0a:			/* 0A xx Start Auto Pitch Up */
+	case 0x0b:			/* 0B xx Start Auto Pitch Down */
+		e->fxt = e->fxp = 0; /* FIXME */
 		break;
-	case 0x0c:
+	case 0x0c:			/* 0C xx Set Volume */
 		e->fxt = FX_VOLSET;
 		e->fxp = 0xff - e->fxp;
 		break;
-	case 0x0d:
+	case 0x0d:			/* 0D xy Pattern Break */
 		e->fxt = FX_BREAK;
 		break;
-	case 0x0e:
+	case 0x0e:			/* 0E xx Position Jump */
 		e->fxt = FX_JUMP;
 		break;
-	case 0x0f:
+	case 0x0f:			/* 0F xx Set Speed */
 		e->fxt = FX_SPEED;
 		break;
-	case 0x10:			/* unused */
+	case 0x10:			/* 10 xx Unused */
 		e->fxt = e->fxp = 0;
 		break;
-	case 0x11:
-	case 0x12:			/* FIXME */
-		e->fxt = e->fxp = 0;
+	case 0x11:			/* 11 xx Fine Slide Pitch Up */
+	case 0x12:			/* 12 xx Fine Slide Pitch Down */
+		e->fxt = e->fxp = 0; /* FIXME */
 		break;
-	case 0x13:
+	case 0x13:			/* 13 xx Volume Up */
 		e->fxt = FX_VOLSLIDE_UP;
 		break;
-	case 0x14:
+	case 0x14:			/* 14 xx Volume Down */
 		e->fxt = FX_VOLSLIDE_DN;
 		break;
 	default:
