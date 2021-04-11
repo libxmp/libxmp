@@ -129,10 +129,10 @@ static void fix_effect(struct xmp_event *e)
 		e->fxt = FX_PORTA_DN;
 		break;
 	case 0x03:
-		e->fxt = FX_VOLSLIDE_UP;	/* FIXME: it's fine */
+		e->fxt = FX_F_VSLIDE_UP;
 		break;
 	case 0x04:
-		e->fxt = FX_VOLSLIDE_DN;	/* FIXME: it's fine */
+		e->fxt = FX_F_VSLIDE_DN;
 		break;
 	case 0x07:
 		/* y: stereo position (1-7,ignored). 1=left 4=center 7=right */
