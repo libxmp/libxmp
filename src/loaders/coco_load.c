@@ -58,7 +58,7 @@ static int coco_test(HIO_HANDLE *f, char *t, const int start)
 		return -1;
 
 	n = hio_read8(f);			/* instruments */
-	if (n > 100)
+	if (n <= 0 || n > 100)
 		return -1;
 
 	hio_read8(f);			/* sequences */
@@ -82,9 +82,11 @@ static int coco_test(HIO_HANDLE *f, char *t, const int start)
 		if (ofs < 64 || ofs > 0x00100000)
 			return -1;
 
-		if (vol > 0xff)
+		if (vol < 0 || vol > 0xff)
 			return -1;
 
+		if (len < 0 || lps < 0 || lsz < 0)
+			return -1;
 		if (len > 0x00100000 || lps > 0x00100000 || lsz > 0x00100000)
 			return -1;
 
@@ -203,6 +205,10 @@ static int coco_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	seq_ptr = hio_read32l(f);
 	pat_ptr = hio_read32l(f);
 
+	if (hio_error(f)) {
+		return -1;
+	}
+
 	MODULE_INFO();
 
 	if (libxmp_init_instrument(m) < 0)
@@ -235,6 +241,10 @@ static int coco_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (mod->xxs[i].len > 0)
 			mod->xxi[i].nsm = 1;
 
+		if (hio_error(f)) {
+			return -1;
+		}
+
 		D_(D_INFO "[%2X] %-10.10s  %05x %05x %05x %c V%02x",
 				i, mod->xxi[i].name,
 				mod->xxs[i].len, mod->xxs[i].lps, mod->xxs[i].lpe,
@@ -253,7 +263,6 @@ static int coco_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	}
 	for (i++; i % 4; i++)	/* for alignment */
 		hio_read8(f);
-
 
 	/* Patterns */
 
@@ -274,6 +283,10 @@ static int coco_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			event->note = hio_read8(f);
 			if (event->note)
 				event->note += 12;
+
+			if (hio_error(f)) {
+				return -1;
+			}
 
 			fix_effect(event);
 		}
