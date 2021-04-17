@@ -58,7 +58,7 @@ static int coco_test(HIO_HANDLE *f, char *t, const int start)
 		return -1;
 
 	n = hio_read8(f);			/* instruments */
-	if (n > 100)
+	if (n <= 0 || n > 100)
 		return -1;
 
 	hio_read8(f);			/* sequences */
@@ -82,19 +82,18 @@ static int coco_test(HIO_HANDLE *f, char *t, const int start)
 		if (ofs < 64 || ofs > 0x00100000)
 			return -1;
 
-		if (vol > 0xff)
+		if (vol < 0 || vol > 0xff)
 			return -1;
 
+		if (len < 0 || lps < 0 || lsz < 0)
+			return -1;
 		if (len > 0x00100000 || lps > 0x00100000 || lsz > 0x00100000)
 			return -1;
 
-		if (lps + lsz - 1 > len)
+		if (lps > 0 && lps + lsz - 1 > len)
 			return -1;
 
 		hio_read(buf, 1, 11, f);
-		if (check_cr(buf, 11) != 0)
-			return -1;
-
 		hio_read8(f);	/* unused */
 	}
 
@@ -120,53 +119,58 @@ static void fix_effect(struct xmp_event *e)
 		/* x: first halfnote to add
 		   y: second halftone to subtract */
 		break;
-	case 0x01:			/* 01 xx Slide Up */
-	case 0x05:
+	case 0x01:			/* 01 xx Slide Pitch Up (until Amis Max), Frequency+InfoByte*64*/
+	case 0x05:			/* 05 xx Slide Pitch Up (no limit), Frequency+InfoByte*16 */
 		e->fxt = FX_PORTA_UP;
 		break;
-	case 0x02:			/* 02 xx Slide Down */
-	case 0x06:
+	case 0x02:			/* 02 xx Slide Pitch Down (until Amis Min), Frequency-InfoByte*64*/
+	case 0x06:			/* 06 xx Slide Pitch Down (0 limit),  Frequency-InfoByte*16 */
 		e->fxt = FX_PORTA_DN;
 		break;
-	case 0x03:
-		e->fxt = FX_VOLSLIDE_UP;	/* FIXME: it's fine */
+	case 0x03:			/* 03 xx Fine Volume Up */
+		e->fxt = FX_F_VSLIDE_UP;
 		break;
-	case 0x04:
-		e->fxt = FX_VOLSLIDE_DN;	/* FIXME: it's fine */
+	case 0x04:			/* 04 xx Fine Volume Down */
+		e->fxt = FX_F_VSLIDE_DN;
 		break;
-	case 0x07:
-		e->fxt = FX_SETPAN;
+	case 0x07:			/* 07 xy Set Stereo Position */
+		/* y: stereo position (1-7,ignored). 1=left 4=center 7=right */
+		if (e->fxp>0 && e->fxp<8) {
+			e->fxt = FX_SETPAN;
+			e->fxp = 42*e->fxp-40;
+		} else
+			e->fxt = e->fxp = 0;
 		break;
-	case 0x08:			/* FIXME */
-	case 0x09:
-	case 0x0a:
-	case 0x0b:
-		e->fxt = e->fxp = 0;
+	case 0x08:			/* 08 xx Start Auto Fine Volume Up */
+	case 0x09:			/* 09 xx Start Auto Fine Volume Down */
+	case 0x0a:			/* 0A xx Start Auto Pitch Up */
+	case 0x0b:			/* 0B xx Start Auto Pitch Down */
+		e->fxt = e->fxp = 0; /* FIXME */
 		break;
-	case 0x0c:
+	case 0x0c:			/* 0C xx Set Volume */
 		e->fxt = FX_VOLSET;
 		e->fxp = 0xff - e->fxp;
 		break;
-	case 0x0d:
+	case 0x0d:			/* 0D xy Pattern Break */
 		e->fxt = FX_BREAK;
 		break;
-	case 0x0e:
+	case 0x0e:			/* 0E xx Position Jump */
 		e->fxt = FX_JUMP;
 		break;
-	case 0x0f:
+	case 0x0f:			/* 0F xx Set Speed */
 		e->fxt = FX_SPEED;
 		break;
-	case 0x10:			/* unused */
+	case 0x10:			/* 10 xx Unused */
 		e->fxt = e->fxp = 0;
 		break;
-	case 0x11:
-	case 0x12:			/* FIXME */
-		e->fxt = e->fxp = 0;
+	case 0x11:			/* 11 xx Fine Slide Pitch Up */
+	case 0x12:			/* 12 xx Fine Slide Pitch Down */
+		e->fxt = e->fxp = 0; /* FIXME */
 		break;
-	case 0x13:
+	case 0x13:			/* 13 xx Volume Up */
 		e->fxt = FX_VOLSLIDE_UP;
 		break;
-	case 0x14:
+	case 0x14:			/* 14 xx Volume Down */
 		e->fxt = FX_VOLSLIDE_DN;
 		break;
 	default:
@@ -201,12 +205,16 @@ static int coco_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	seq_ptr = hio_read32l(f);
 	pat_ptr = hio_read32l(f);
 
+	if (hio_error(f)) {
+		return -1;
+	}
+
 	MODULE_INFO();
 
 	if (libxmp_init_instrument(m) < 0)
 		return -1;
 
-	m->vol_table = (int *)arch_vol_table;
+	m->vol_table = (int *)libxmp_arch_vol_table;
 	m->volbase = 0xff;
 
 	for (i = 0; i < mod->ins; i++) {
@@ -233,6 +241,10 @@ static int coco_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (mod->xxs[i].len > 0)
 			mod->xxi[i].nsm = 1;
 
+		if (hio_error(f)) {
+			return -1;
+		}
+
 		D_(D_INFO "[%2X] %-10.10s  %05x %05x %05x %c V%02x",
 				i, mod->xxi[i].name,
 				mod->xxs[i].len, mod->xxs[i].lps, mod->xxs[i].lpe,
@@ -251,7 +263,6 @@ static int coco_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	}
 	for (i++; i % 4; i++)	/* for alignment */
 		hio_read8(f);
-
 
 	/* Patterns */
 
@@ -272,6 +283,10 @@ static int coco_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			event->note = hio_read8(f);
 			if (event->note)
 				event->note += 12;
+
+			if (hio_error(f)) {
+				return -1;
+			}
 
 			fix_effect(event);
 		}
