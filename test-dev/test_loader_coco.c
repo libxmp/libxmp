@@ -1,16 +1,16 @@
 #include "test.h"
 
-TEST(test_loader_gmc)
+TEST(test_loader_coco)
 {
 	xmp_context opaque;
 	struct xmp_module_info info;
 	FILE *f;
 	int ret;
 
-	f = fopen("data/format_gmc.data", "r");
+	f = fopen("data/format_coco.data", "r");
 
 	opaque = xmp_create_context();
-	ret = xmp_load_module(opaque, "data/m/gmc.ingame");
+	ret = xmp_load_module(opaque, "data/m/Scrambled.Coconizer");
 	fail_unless(ret == 0, "module load");
 
 	xmp_get_module_info(opaque, &info);

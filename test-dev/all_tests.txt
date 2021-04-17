@@ -89,6 +89,7 @@ test_loader_669
 test_loader_abk
 test_loader_asylum
 test_loader_chiptracker
+test_loader_coco
 test_loader_dbm
 test_loader_dbm_rows
 test_loader_dbm_penv
@@ -140,6 +141,7 @@ test_loader_eureka
 test_loader_fc_m
 test_loader_fuchs
 test_loader_fuzzac
+test_loader_gmc
 test_loader_hrt
 test_loader_ksm
 test_loader_mp_noid

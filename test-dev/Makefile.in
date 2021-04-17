@@ -264,6 +264,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  abk \
 		  asylum \
 		  chiptracker \
+		  coco \
 		  dbm dbm_rows dbm_penv dbm_venv \
 		  digi \
 		  dsmi \
@@ -303,6 +304,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  fc_m \
 		  fuchs \
 		  fuzzac \
+		  gmc \
 		  hrt \
 		  ksm \
 		  mp_noid \
