@@ -9,10 +9,6 @@
  * for more information.
  */
 
-#include <errno.h>
-#include <time.h>
-#include <sys/types.h>
-#include <unistd.h>
 #include "common.h"
 #include "depacker.h"
 #include "readlzw.h"

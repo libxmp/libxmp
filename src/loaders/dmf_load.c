@@ -24,8 +24,6 @@
  * Public domain DMF sample decompressor by Olivier Lapicque
  */
 
-#include <assert.h>
-
 #include "loader.h"
 #include "iff.h"
 #include "period.h"

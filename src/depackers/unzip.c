@@ -11,10 +11,6 @@ me and we can work something out.
 Michael Kohn <mike@mikekohn.net>
 
 */
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <time.h>
-#include <unistd.h>
 #include "common.h"
 #include "depacker.h"
 #include "inflate.h"

@@ -20,12 +20,6 @@
  * THE SOFTWARE.
  */
 
-#include <stddef.h>
-#include <limits.h>
-#ifndef LIBXMP_CORE_PLAYER
-#include <sys/types.h>
-#include <sys/stat.h>
-#endif
 #include "common.h"
 #include "memio.h"
 

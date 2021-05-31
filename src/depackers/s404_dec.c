@@ -12,8 +12,7 @@
    (couldn't keep stdint types, some platforms we build on didn't like them)
 */
 
-#include <assert.h>
-#include <sys/types.h>
+/* #include <assert.h> */
 #include <sys/stat.h>
 #include "common.h"
 #include "depacker.h"

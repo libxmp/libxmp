@@ -7,8 +7,6 @@
  * to use.
  */
 
-#include <unistd.h>
-
 #include "common.h"
 #include "readrle.h"
 

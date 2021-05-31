@@ -15,7 +15,6 @@
  * will fill a supplied 16-byte array with the digest.
  */
 
-#include <sys/types.h>
 #include "common.h"
 #include "md5.h"
 

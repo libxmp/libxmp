@@ -20,8 +20,6 @@
  * THE SOFTWARE.
  */
 
-#include <unistd.h>
-#include <limits.h>
 #include "loader.h"
 #include "iff.h"
 #include "period.h"

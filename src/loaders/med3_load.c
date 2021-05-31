@@ -25,7 +25,6 @@
  * from ftp://ftp.funet.fi/pub/amiga/fish/301-400/ff349
  */
 
-#include <assert.h>
 #include "loader.h"
 
 #define MAGIC_MED3	MAGIC4('M','E','D',3)

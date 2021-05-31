@@ -20,7 +20,6 @@
  * THE SOFTWARE.
  */
 
-#include <limits.h>
 #include <errno.h>
 #include "common.h"
 #include "hio.h"

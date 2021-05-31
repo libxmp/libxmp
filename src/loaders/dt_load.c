@@ -20,8 +20,6 @@
  * THE SOFTWARE.
  */
 
-#include <assert.h>
-
 #include "loader.h"
 #include "iff.h"
 #include "period.h"

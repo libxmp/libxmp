@@ -15,7 +15,6 @@
  * wall therapy. %-(
  */
 
-#include <unistd.h>
 #include "readrle.h"
 
 #include "common.h"

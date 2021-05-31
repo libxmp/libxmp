@@ -1,9 +1,6 @@
 #ifndef XMP_HIO_H
 #define XMP_HIO_H
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <stddef.h>
 #include "memio.h"
 
 #define HIO_HANDLE_TYPE(x) ((x)->type)
