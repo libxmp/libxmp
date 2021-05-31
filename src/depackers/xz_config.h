@@ -20,8 +20,8 @@
 
 #define XZ_DEC_ANY_CHECK 1
 
-#include <stdlib.h>
 /*
+#include <stdlib.h>
 #include <string.h>
 */
 

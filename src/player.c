@@ -37,7 +37,6 @@
  * Claudio's fix: implementing effect K
  */
 
-#include <stdlib.h>
 #include "virtual.h"
 #include "period.h"
 #include "effects.h"

@@ -4,7 +4,6 @@
  * Modified in 2009,2014 by Claudio Matsuoka
  */
 
-#include <stdlib.h>
 #include "prowiz.h"
 
 

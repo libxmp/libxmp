@@ -20,7 +20,6 @@
  * THE SOFTWARE.
  */
 
-#include <stdlib.h>
 #include <limits.h>
 #include "common.h"
 #include "virtual.h"

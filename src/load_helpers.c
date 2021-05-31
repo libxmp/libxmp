@@ -21,7 +21,6 @@
  */
 
 #include <ctype.h>
-#include <stdlib.h>
 #include "common.h"
 #include "loaders/loader.h"
 

@@ -12,7 +12,6 @@
    (couldn't keep stdint types, some platforms we build on didn't like them)
 */
 
-#include <stdlib.h>
 #include <assert.h>
 #include <sys/types.h>
 #include <sys/stat.h>

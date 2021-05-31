@@ -26,7 +26,6 @@
 
 #ifndef LIBXMP_CORE_PLAYER
 
-#include <stdlib.h>
 #include <limits.h>
 #include <unistd.h>
 

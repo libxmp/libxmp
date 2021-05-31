@@ -12,7 +12,6 @@
  * - Add PP30 support
  */
 
-#include <stdlib.h>
 #include "prowiz.h"
 
 

@@ -16,8 +16,7 @@
  * Modified for xmp by Claudio Matsuoka, 05/2013
  * - decryption code removed
  */
- 
-#include <stdlib.h>
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>

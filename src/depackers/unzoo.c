@@ -30,7 +30,6 @@ code.  The contents of this file are hereby released to the public domain.
                                  -- Rahul Dhesi 1986/11/14
 */
 
-#include <stdlib.h>
 #include "common.h"
 
 #define  STACKSIZE	4000
@@ -337,7 +336,6 @@ static int lzd(BLOCKFILE input_f, BLOCKFILE output_f, uint32 *crc_table)
 **
 *****************************************************************************/
 
-#include <stdlib.h>
 #include "common.h"
 
 struct description {

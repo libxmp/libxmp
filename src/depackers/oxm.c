@@ -20,7 +20,6 @@
  * THE SOFTWARE.
  */
 
-#include <stdlib.h>
 #include "vorbis.h"
 #include "common.h"
 #include "depacker.h"

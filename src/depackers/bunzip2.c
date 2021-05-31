@@ -34,7 +34,6 @@
  */
 
 #include <setjmp.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <limits.h>
 #include "common.h"

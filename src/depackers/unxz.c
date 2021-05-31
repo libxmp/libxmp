@@ -6,7 +6,6 @@
  * for more information.
  */
 
-#include <stdlib.h>
 #include "depacker.h"
 #include "xz.h"
 #include "crc32.h"

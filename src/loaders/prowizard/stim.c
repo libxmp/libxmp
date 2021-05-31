@@ -9,7 +9,6 @@
  *     It speeds-up the process quite a bit :).
  */
 
-#include <stdlib.h>
 #include "prowiz.h"
 
 static int test_stim (uint8 *, int);

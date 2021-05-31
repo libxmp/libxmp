@@ -5,7 +5,6 @@
  *
 */
 
-#include <stdlib.h>
 #include "prowiz.h"
 
 #define ON  0

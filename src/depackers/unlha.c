@@ -23,7 +23,6 @@
     Modified for xmp by Claudio Matsuoka, 20120812
  */
 
-#include <stdlib.h>
 #include "common.h"
 #include "depacker.h"
 

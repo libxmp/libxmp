@@ -16,7 +16,6 @@
  */
 
 #include <unistd.h>
-#include <stdlib.h>
 #include "readrle.h"
 
 #include "common.h"

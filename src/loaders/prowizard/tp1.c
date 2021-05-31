@@ -6,7 +6,6 @@
  * Modified in 2016 by Claudio Matsuoka
  */
 
-#include <stdlib.h>
 #include "prowiz.h"
 
 static int depack_tp1(HIO_HANDLE *in, FILE *out)

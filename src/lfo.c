@@ -20,7 +20,6 @@
  * THE SOFTWARE.
  */
 
-#include <stdlib.h>
 #include "lfo.h"
 
 #define WAVEFORM_SIZE 64

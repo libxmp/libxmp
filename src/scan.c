@@ -38,7 +38,6 @@
  */
 
 
-#include <stdlib.h>
 #include "common.h"
 #include "effects.h"
 #include "mixer.h"

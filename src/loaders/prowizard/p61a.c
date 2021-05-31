@@ -12,7 +12,6 @@
  *      be a good idea too :).
  */
 
-#include <stdlib.h>
 #include "prowiz.h"
 
 

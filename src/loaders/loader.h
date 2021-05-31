@@ -1,7 +1,6 @@
 #ifndef XMP_LOADER_H
 #define XMP_LOADER_H
 
-#include <stdlib.h>
 #include "common.h"
 #include "effects.h"
 #include "format.h"

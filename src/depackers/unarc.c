@@ -23,7 +23,6 @@
 
 #define NOMARCH_VER	"1.4"
 
-#include <stdlib.h>
 #include <ctype.h>
 #include "common.h"
 #include "depacker.h"

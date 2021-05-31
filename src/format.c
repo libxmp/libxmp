@@ -20,7 +20,6 @@
  * THE SOFTWARE.
  */
 
-#include <stdlib.h>
 #include "format.h"
 
 #ifndef LIBXMP_NO_PROWIZARD

@@ -6,7 +6,6 @@
  * Modified in 2006,2007,2014 by Claudio Matsuoka
  */
 
-#include <stdlib.h>
 #include "prowiz.h"
 
 

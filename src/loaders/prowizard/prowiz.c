@@ -5,7 +5,6 @@
  * Copyright (C) 2006-2007 Claudio Matsuoka
  */
 
-#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>

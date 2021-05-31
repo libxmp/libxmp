@@ -7,7 +7,6 @@
  * Original code by Sylvain Chipaux, modified for xmp by Claudio Matsuoka.
  */
 
-#include <stdlib.h>
 #include "prowiz.h"
 
 
