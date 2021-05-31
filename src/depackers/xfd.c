@@ -15,7 +15,6 @@
 #include <proto/exec.h>
 #include <proto/xfdmaster.h>
 #include <exec/types.h>
-#include <stdio.h>
 #include <sys/stat.h>
 #include "common.h"
 #include "depacker.h"

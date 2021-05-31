@@ -1,6 +1,6 @@
 
-#include <string.h>
 #include <stdlib.h>
+#include "prowiz.h"
 
 void testPTK (void)
 {

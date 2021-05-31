@@ -38,7 +38,6 @@
  */
 
 #include <stdlib.h>
-#include <string.h>
 #include "virtual.h"
 #include "period.h"
 #include "effects.h"

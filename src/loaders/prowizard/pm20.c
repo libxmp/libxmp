@@ -5,8 +5,8 @@
  *
 */
 
-#include <string.h>
 #include <stdlib.h>
+#include "prowiz.h"
 
 #define ON  0
 #define OFF 1

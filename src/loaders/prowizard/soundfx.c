@@ -5,8 +5,8 @@
  *
 */
 
-#include <string.h>
 #include <stdlib.h>
+#include "prowiz.h"
 
 void Depack_SoundFX13 (FILE * in, FILE * out)
 {
@@ -202,7 +202,6 @@ void Depack_SoundFX13 (FILE * in, FILE * out)
 
 }
 
-#include <string.h>
 #include <stdlib.h>
 
 void testSoundFX13 (void)

@@ -6,7 +6,6 @@
  * The Player 4.0a and 4.0b to Protracker.
  */
 
-#include <string.h>
 #include <stdlib.h>
 #include "prowiz.h"
 

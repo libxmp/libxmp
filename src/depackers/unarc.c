@@ -23,8 +23,6 @@
 
 #define NOMARCH_VER	"1.4"
 
-#include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include "common.h"

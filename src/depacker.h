@@ -1,7 +1,7 @@
 #ifndef XMP_DEPACKER_H
 #define XMP_DEPACKER_H
 
-#include <stdio.h>
+#include "common.h"
 
 extern struct depacker libxmp_depacker_zip;
 extern struct depacker libxmp_depacker_lha;

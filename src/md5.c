@@ -16,7 +16,6 @@
  */
 
 #include <sys/types.h>
-#include <string.h>
 #include "common.h"
 #include "md5.h"
 

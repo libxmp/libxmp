@@ -9,7 +9,6 @@
  *     It speeds-up the process quite a bit :).
  */
 
-#include <string.h>
 #include <stdlib.h>
 #include "prowiz.h"
 

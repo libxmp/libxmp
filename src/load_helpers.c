@@ -20,9 +20,7 @@
  * THE SOFTWARE.
  */
 
-#include <stdio.h>
 #include <ctype.h>
-#include <string.h>
 #include <stdlib.h>
 #include "common.h"
 #include "loaders/loader.h"

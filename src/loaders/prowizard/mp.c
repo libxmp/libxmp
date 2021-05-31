@@ -7,7 +7,6 @@
  */
 
 #include <stdlib.h>
-#include <string.h>
 #include "prowiz.h"
 
 #define MAGIC_TRK1	MAGIC4('T','R','K','1')

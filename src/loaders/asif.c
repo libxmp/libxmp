@@ -20,8 +20,6 @@
  * THE SOFTWARE.
  */
 
-#include <stdio.h>
-
 #include "loader.h"
 #include "asif.h"
 

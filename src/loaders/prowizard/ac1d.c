@@ -9,7 +9,6 @@
  */
 
 #include <stdlib.h>
-#include <string.h>
 #include "prowiz.h"
 
 #define NO_NOTE 0xff

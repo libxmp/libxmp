@@ -5,7 +5,6 @@
  * Converts QC MODs back to PTK MODs
  */
 
-#include <string.h>
 #include <stdlib.h>
 #include "prowiz.h"
 

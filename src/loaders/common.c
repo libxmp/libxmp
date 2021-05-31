@@ -22,7 +22,6 @@
 
 #include <ctype.h>
 #include <sys/types.h>
-#include <stdarg.h>
 
 #ifndef LIBXMP_CORE_PLAYER
 #include <limits.h>
