@@ -80,8 +80,7 @@ void fix_effect(uint8 *fxt, uint8 *fxp)
 	case 0x0a:
 	case 0x0b:
 	case 0x0c:
-	case 0x0d:
-	case 0x0f:			/* same as protracker */
+	case 0x0d:			/* same as protracker */
 		break;
 	case 0x0e:
 		/* Convert some extended effects to their S3M equivalents. This is
@@ -123,6 +122,9 @@ void fix_effect(uint8 *fxt, uint8 *fxp)
 				}
 				break;
 		}
+		break;
+	case 0x0f:			/* set speed */
+		*fxt = FX_S3M_SPEED;
 		break;
 	case 0x10:			/* arpeggio */
 		*fxt = FX_S3M_ARPEGGIO;
