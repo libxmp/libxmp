@@ -268,10 +268,10 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     for (i = 0; i < 32; i++) {
 	hio_read(ih.chn[i].name, 12, 1, f);
-	ih.chn[i].status = hio_read8(f);
-	ih.chn[i].pan = hio_read8(f);
 	ih.chn[i].chorus = hio_read8(f);
 	ih.chn[i].reverb = hio_read8(f);
+	ih.chn[i].pan = hio_read8(f);
+	ih.chn[i].status = hio_read8(f);
     }
 
     if (hio_read(ih.pos, 256, 1, f) < 1) {
@@ -302,7 +302,8 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     mod->chn = 0;
     for (i = 0; i < 32; i++) {
-	if (ih.chn[i].status == 0x00)
+	/* 0=enabled; 1=muted, but still processed; 2=disabled.*/
+	if (ih.chn[i].status >= 2)
 	    continue;
 
 	mod->chn = i + 1;
