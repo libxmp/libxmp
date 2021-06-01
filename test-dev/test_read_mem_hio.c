@@ -1,5 +1,3 @@
-#include <sys/types.h>
-#include <sys/stat.h>
 #include "test.h"
 #include "../src/hio.h"
 
@@ -9,7 +7,6 @@ TEST(test_read_mem_hio)
 	int i;
 	int x;
 	HIO_HANDLE *h;
-	struct stat st;
 
 	for (i = 0; i < 100; i++)
 		mem[i] = i;

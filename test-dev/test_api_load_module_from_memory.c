@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "test.h"
 
 #define BUFFER_SIZE 256000

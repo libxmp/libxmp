@@ -1,7 +1,5 @@
 #include "test.h"
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 
 TEST(test_write_file_move_data)
 {

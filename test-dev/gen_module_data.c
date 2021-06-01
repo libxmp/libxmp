@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "../include/xmp.h"
 #include "test.h"
 

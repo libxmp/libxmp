@@ -1,7 +1,4 @@
 #include "test.h"
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 
 static int test_module_from_memory_helper(const char* filename, struct xmp_test_info *tinfo, char* buf)
 {

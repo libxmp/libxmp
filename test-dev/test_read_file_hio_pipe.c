@@ -1,7 +1,8 @@
-#include <sys/types.h>
-#include <sys/stat.h>
 #include "test.h"
 #include "../src/hio.h"
+#ifdef HAVE_PIPE
+#include <unistd.h>
+#endif
 
 /* libxmp requires a seekable input file.
  * Attempting to open a non-seekable file should fail. */

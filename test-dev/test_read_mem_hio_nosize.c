@@ -1,5 +1,3 @@
-#include <sys/types.h>
-#include <sys/stat.h>
 #include "test.h"
 #include "../src/hio.h"
 

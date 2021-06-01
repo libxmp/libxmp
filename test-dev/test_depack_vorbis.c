@@ -1,4 +1,5 @@
 #include "test.h"
+#include <sys/stat.h>
 
 
 TEST(test_depack_vorbis)

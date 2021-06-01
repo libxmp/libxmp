@@ -10,7 +10,6 @@
 #include <sys/wait.h>
 #endif
 #include <unistd.h>
-#include <stdio.h>
 #include "test.h"
 #include "../src/list.h"
 
