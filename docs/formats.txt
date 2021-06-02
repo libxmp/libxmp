@@ -84,7 +84,7 @@ XM		Fast Tracker II		1.02, 1.03, 1.04
 
 PC packed formats:
 
-AMF		DSMI (DMP)		0.9, 1.0, 1.1, 1.2, 1.3, 1.4
+AMF		DSMI (DMP)		0.1, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4
 GDM		General Digital Music	1.0
 STX		ST Music Interface Kit	1.0, 1.1
 
