@@ -20,21 +20,12 @@
  * THE SOFTWARE.
  */
 
-#include <stdio.h>
 #include <ctype.h>
-#include <string.h>
-#include <stdlib.h>
 #include "common.h"
 #include "loaders/loader.h"
 
 
 #ifndef LIBXMP_CORE_PLAYER
-
-#ifdef __ANDROID__
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#endif
 
 #include "xfnmatch.h"
 

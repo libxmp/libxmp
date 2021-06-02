@@ -6,7 +6,6 @@
  * Modified in 2006,2007,2014 by Claudio Matsuoka
  */
 
-#include <string.h>
 #include "prowiz.h"
 
 #define SMP_DESC_ADDRESS 0x206

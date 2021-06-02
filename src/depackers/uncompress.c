@@ -1,7 +1,5 @@
 /* public domain decompress code */
 
-#include <stdio.h>
-#include <string.h>
 #include "depacker.h"
 
 #define	MAGIC_1		31	/* First byte of compressed file */

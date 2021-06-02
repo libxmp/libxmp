@@ -12,8 +12,6 @@
  *      be a good idea too :).
  */
 
-#include <string.h>
-#include <stdlib.h>
 #include "prowiz.h"
 
 

@@ -1,7 +1,6 @@
 #ifndef LIBXMP_FORMAT_H
 #define LIBXMP_FORMAT_H
 
-#include <stdio.h>
 #include "common.h"
 #include "hio.h"
 

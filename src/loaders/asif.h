@@ -1,7 +1,6 @@
 #ifndef XMP_ASIF_H
 #define XMP_ASIF_H
 
-#include <stdio.h>
 #include "common.h"
 #include "hio.h"
 

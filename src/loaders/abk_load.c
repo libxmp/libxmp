@@ -21,12 +21,6 @@
  * THE SOFTWARE.
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-#include <ctype.h>
-
 #include "loader.h"
 #include "effects.h"
 #include "period.h"

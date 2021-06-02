@@ -1,7 +1,6 @@
 #ifndef PROWIZ_H
 #define PROWIZ_H
 
-#include <stdio.h>
 #include "list.h"
 #include "common.h"
 #include "format.h"

@@ -7,8 +7,7 @@
  *
 */
 
-#include <string.h>
-#include <stdlib.h>
+#include "prowiz.h"
 
 void Depack_PP30 (FILE * in, FILE * out)
 {

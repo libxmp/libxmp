@@ -1,8 +1,7 @@
 
 /* Empty file */
 
-#include <string.h>
-#include <stdlib.h>
+#include "prowiz.h"
 
 void testSoundTracker (void)
 {

@@ -20,8 +20,6 @@
  * THE SOFTWARE.
  */
 
-#include <stdlib.h>
-#include <string.h>
 #include <math.h>
 #include "common.h"
 #include "virtual.h"

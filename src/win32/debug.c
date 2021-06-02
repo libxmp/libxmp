@@ -4,8 +4,8 @@
 
 #if defined(_WIN32) && defined(_DEBUG)
 
-#include <stdio.h>
-#include <stdarg.h>
+#include "common.h"
+
 void D_(const char *format, ...)
 {
 	va_list argptr;

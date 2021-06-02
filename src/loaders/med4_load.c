@@ -26,7 +26,6 @@
  * HappySong MED4 is in ff401. MED 3.00 is in ff476.
  */
 
-#include <assert.h>
 #include "med.h"
 #include "loader.h"
 #include "med_extras.h"

@@ -24,7 +24,6 @@
  * written by Michael Schwendt <sidplay@geocities.com>
  */
 
-#include <ctype.h>
 #include "loader.h"
 #include "mod.h"
 #include "period.h"

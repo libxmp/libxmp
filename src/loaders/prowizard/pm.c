@@ -5,8 +5,7 @@
  *
 */
 
-#include <string.h>
-#include <stdlib.h>
+#include "prowiz.h"
 
 void Depack_PM (FILE * in, FILE * out)
 {

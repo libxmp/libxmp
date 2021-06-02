@@ -23,9 +23,6 @@
     Modified for xmp by Claudio Matsuoka, 2014-01-04
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "common.h"
 #include "depacker.h"
 #include "crc32.h"

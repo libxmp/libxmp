@@ -21,16 +21,14 @@
  */
 
 #include <ctype.h>
-#include <sys/types.h>
-#include <stdarg.h>
 
 #ifndef LIBXMP_CORE_PLAYER
-#include <limits.h>
 #if defined(_WIN32)
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <windows.h>
+#include <limits.h>
 #elif defined(__OS2__) || defined(__EMX__)
 #define INCL_DOS
 #define INCL_DOSERRORS

@@ -20,7 +20,6 @@
  * actually worth listening to.  
  */
 
-#include <string.h>
 #include "loader.h"
 #include "asif.h"
 

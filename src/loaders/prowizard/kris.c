@@ -5,8 +5,6 @@
  * Kris Tracker to Protracker.
  */
 
-#include <string.h>
-#include <stdlib.h>
 #include "prowiz.h"
 
 

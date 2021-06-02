@@ -9,8 +9,7 @@
  *
 */
 
-#include <string.h>
-#include <stdlib.h>
+#include "prowiz.h"
 
 void Depack_TP2 (FILE * in, FILE * out)
 {

@@ -2,6 +2,7 @@
 #define LIBXMP_COMMON_H
 
 #include <stdarg.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "xmp.h"

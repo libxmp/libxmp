@@ -20,7 +20,6 @@
  * THE SOFTWARE.
  */
 
-#include <stdio.h>
 #include "loader.h"
 #include "iff.h"
 

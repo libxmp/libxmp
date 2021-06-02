@@ -20,12 +20,6 @@
  * THE SOFTWARE.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <stdarg.h>
-
 #include "format.h"
 #include "virtual.h"
 #include "mixer.h"

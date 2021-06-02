@@ -39,9 +39,6 @@
  * tunes as a UNIC file.
  */
 
-#include <ctype.h>
-#include <sys/types.h>
-
 #include "loader.h"
 #include "period.h"
 

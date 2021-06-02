@@ -27,14 +27,12 @@
  */
 
 #include "loader.h"
-#include <sys/types.h>
 #include <sys/stat.h>
 #ifdef __native_client__
 #include <sys/syslimits.h>
 #else
 #include <limits.h>
 #endif
-#include <unistd.h>
 
 static int mfp_test(HIO_HANDLE *, char *, const int);
 static int mfp_load(struct module_data *, HIO_HANDLE *, const int);

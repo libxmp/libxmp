@@ -6,7 +6,6 @@
  * for more information.
  */
 
-#include <stdio.h>
 #include "common.h"
 #include "inflate.h"
 #include "depacker.h"

@@ -14,8 +14,6 @@
  * Modified in 2006,2007,2014 by Claudio Matsuoka
  */
 
-#include <string.h>
-#include <stdlib.h>
 #include "prowiz.h"
 
 

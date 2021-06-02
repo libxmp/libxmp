@@ -5,8 +5,6 @@
  * Converts QC MODs back to PTK MODs
  */
 
-#include <string.h>
-#include <stdlib.h>
 #include "prowiz.h"
 
 static int test_emod (const uint8 *, int);

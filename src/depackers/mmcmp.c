@@ -23,9 +23,6 @@
  * THE SOFTWARE.
  */
 
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
 #include "common.h"
 #include "depacker.h"
 
