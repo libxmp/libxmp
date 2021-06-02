@@ -124,6 +124,10 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	 * but as you noticed you have to perform -1 to obtain the index
 	 * in the track table. For value 0, found in some files, I think
 	 * it means an empty track.
+	 *
+	 * 2021 note: this is misleading. Do not subtract 1 from the logical
+	 * track values found in the order table; load the mapping table to
+	 * index 1 instead.
 	 */
 
 	for (i = 0; i < mod->len; i++)
@@ -264,12 +268,19 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	/* Tracks */
 
-	trkmap = calloc(sizeof(int), mod->trk);
+	/* Index 0 is a blank track that isn't stored in the file. To keep
+	 * things simple, load the mapping table to index 1 so the table
+	 * index is the same as the logical track value. Older versions
+	 * attempted to remap it to index 0 and subtract 1 from the index,
+	 * breaking modules that directly reference the empty track in the
+	 * order table (see "cosmos st.amf").
+	 */
+	trkmap = calloc(sizeof(int), mod->trk + 1);
 	if (trkmap == NULL)
 		return -1;
 	newtrk = 0;
 
-	for (i = 0; i < mod->trk; i++) {		/* read track table */
+	for (i = 1; i <= mod->trk; i++) {		/* read track table */
 		uint16 t;
 		t = hio_read16l(f);
 		trkmap[i] = t;
@@ -278,26 +289,25 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	for (i = 0; i < mod->pat; i++) {		/* read track table */
 		for (j = 0; j < mod->chn; j++) {
-			int k = mod->xxp[i]->index[j] - 1;
+			uint16 k = mod->xxp[i]->index[j];
 
 			/* Use empty track if an invalid track is requested
 			 * (such as in Lasse Makkonen "faster and louder")
 			 */
-			if (k < 0 || k >= mod->trk)
+			if (k > mod->trk)
 				k = 0;
 			mod->xxp[i]->index[j] = trkmap[k];
 		}
 	}
 
-	mod->trk = newtrk;		/* + empty track */
+	mod->trk = newtrk + 1;		/* + empty track */
 	free(trkmap);
 
 	if (hio_error(f))
 		return -1;
 
-	D_(D_INFO "Stored tracks: %d", mod->trk);
+	D_(D_INFO "Stored tracks: %d", mod->trk - 1);
 
-	mod->trk++;
 	mod->xxt = calloc (sizeof (struct xmp_track *), mod->trk);
 	if (mod->xxt == NULL)
 		return -1;
