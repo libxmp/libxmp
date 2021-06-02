@@ -267,7 +267,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  coco \
 		  dbm dbm_rows dbm_penv dbm_venv \
 		  digi \
-		  dsmi \
+		  dsmi dsmi_note7f dsmi_vol \
 		  dtm \
 		  emod \
 		  far \

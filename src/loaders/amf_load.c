@@ -335,16 +335,21 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			if (t2 < 0x7f) {		/* note */
 				if (t2 > 0)
 					event->note = t2 + 1;
-				event->vol = t3;
-			} else if (t2 == 0x7f) {	/* copy previous */
+				/* A volume value of 0xff indicates that
+				 * the old volume should be reused. Prior
+				 * libxmp versions also forgot to add 1 here.
+				 */
+				event->vol = (t3 != 0xff) ? (t3 + 1) : 0;
+			} else if (t2 == 0x7f) {	/* note retrigger */
 
-				/* Sanity check */
-				if (t1 == 0) {
-					return -1;
-				}
-
-				memcpy(event, &mod->xxt[i]->event[t1 - 1],
-					sizeof(struct xmp_event));
+				/* AMF.TXT claims that this duplicates the
+				 * previous event, which is a lie. M2AMF emits
+				 * this for MODs when an instrument change
+				 * occurs with no note, indicating it should
+				 * retrigger (like in PT 2.3). Ignore this.
+				 *
+				 * See: "aladdin - aladd.pc.amf", "eye.amf".
+				 */
 			} else if (t2 == 0x80) {	/* instrument */
 				event->ins = t3 + 1;
 			} else  {			/* effects */
@@ -367,7 +372,9 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 					}
 					break;
 				case 0x83:
-					event->vol = t3;
+					/* See volume notes above. Previous
+					 * releases forgot to add 1 here. */
+					event->vol = (t3 + 1);
 					break;
 				case 0x84:
 					/* AT: Not explained for 0x84, pitch
