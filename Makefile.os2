@@ -20,7 +20,8 @@ USE_PROWIZARD	= 1
 USE_DEPACKERS	= 1
 
 CC = wcc386
-SYSTEM = os2v2_dll
+SYSTEM = os2v2
+SYSTEM_DLL = os2v2_dll
 
 CFLAGS = -zq -bt=os2 -bm -fp5 -fpi87 -mf -oeatxh -w4 -ei -zp8
 # newer OpenWatcom versions enable W303 by default.
