@@ -96,6 +96,8 @@ test_loader_dbm_penv
 test_loader_dbm_venv
 test_loader_digi
 test_loader_dsmi
+test_loader_dsmi_08
+test_loader_dsmi_09
 test_loader_dsmi_track0
 test_loader_dsmi_note7f
 test_loader_dsmi_vol

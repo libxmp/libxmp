@@ -54,7 +54,7 @@ static int amf_test(HIO_HANDLE * f, char *t, const int start)
 		return -1;
 
 	ver = hio_read8(f);
-	if (ver < 0x0a || ver > 0x0e)
+	if ((ver != 0x01 && ver < 0x08) || ver > 0x0e)
 		return -1;
 
 	libxmp_read_title(f, t, 32);
@@ -70,6 +70,7 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	struct xmp_event *event;
 	uint8 buf[1024];
 	int *trkmap, newtrk;
+	int no_loopend = 0;
 	int ver;
 
 	LOAD_INIT();
@@ -85,7 +86,11 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	mod->ins = hio_read8(f);
 	mod->len = hio_read8(f);
 	mod->trk = hio_read16l(f);
-	mod->chn = hio_read8(f);
+	mod->chn = 4;
+
+	if (ver >= 0x09) {
+		mod->chn = hio_read8(f);
+	}
 
 	/* Sanity check */
 	if (mod->ins == 0 || mod->len == 0 || mod->trk == 0
@@ -96,7 +101,7 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	mod->smp = mod->ins;
 	mod->pat = mod->len;
 
-	if (ver == 0x0a)
+	if (ver == 0x09 || ver == 0x0a)
 		hio_read(buf, 1, 16, f);	/* channel remap table */
 
 	if (ver >= 0x0d) {
@@ -162,8 +167,11 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	/* Probe for 2-byte loop start 1.0 format
 	 * in facing_n.amf and sweetdrm.amf have only the sample
 	 * loop start specified in 2 bytes
+	 *
+	 * 2021 note: it would be nice to verify this, but these modules
+	 * seem to have disappeared off of the face of the earth.
 	 */
-	if (ver <= 0x0a) {
+	if (ver == 0x0a) {
 		uint8 b;
 		uint32 len, start, end;
 		long pos = hio_tell(f);
@@ -173,35 +181,35 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		for (i = 0; i < mod->ins; i++) {
 			b = hio_read8(f);
 			if (b != 0 && b != 1) {
-				ver = 0x09;
+				no_loopend = 1;
 				break;
 			}
 			hio_seek(f, 32 + 13, SEEK_CUR);
 			if (hio_read32l(f) > 0x100000) { /* check index */
-				ver = 0x09;
+				no_loopend = 1;
 				break;
 			}
 			len = hio_read32l(f);
 			if (len > 0x100000) {		/* check len */
-				ver = 0x09;
+				no_loopend = 1;
 				break;
 			}
 			if (hio_read16l(f) == 0x0000) {	/* check c2spd */
-				ver = 0x09;
+				no_loopend = 1;
 				break;
 			}
 			if (hio_read8(f) > 0x40) {	/* check volume */
-				ver = 0x09;
+				no_loopend = 1;
 				break;
 			}
 			start = hio_read32l(f);
 			if (start > len) {		/* check loop start */
-				ver = 0x09;
+				no_loopend = 1;
 				break;
 			}
 			end = hio_read32l(f);
 			if (end > len) {		/* check loop end */
-				ver = 0x09;
+				no_loopend = 1;
 				break;
 			}
 		}
@@ -225,7 +233,12 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		mod->xxi[i].nsm = 1;
 		mod->xxi[i].sub[0].sid = i;
 		mod->xxi[i].sub[0].pan = 0x80;
-		mod->xxs[i].len = hio_read32l(f);
+
+		if (ver >= 0x0a) {
+			mod->xxs[i].len = hio_read32l(f);
+		} else {
+			mod->xxs[i].len = hio_read16l(f);
+		}
 		c2spd = hio_read16l(f);
 		libxmp_c2spd_to_note(c2spd, &mod->xxi[i].sub[0].xpo, &mod->xxi[i].sub[0].fin);
 		mod->xxi[i].sub[0].vol = hio_read8(f);
@@ -241,15 +254,22 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		 * CM: confirmed with Maelcum's "The tribal zone"
 		 */
 
-		if (ver < 0x0a) {
+		if (no_loopend != 0) {
 			mod->xxs[i].lps = hio_read16l(f);
 			mod->xxs[i].lpe = mod->xxs[i].len;
-		} else {
+		} else if (ver >= 0x0a) {
 			mod->xxs[i].lps = hio_read32l(f);
 			mod->xxs[i].lpe = hio_read32l(f);
+		} else {
+			/* Non-looping samples are stored with lpe=-1, not 0. */
+			mod->xxs[i].lps = hio_read16l(f);
+			mod->xxs[i].lpe = hio_read16l(f);
+
+			if (mod->xxs[i].lpe == 0xffff)
+				mod->xxs[i].lpe = 0;
 		}
 
-		if (ver < 0x0a) {
+		if (no_loopend != 0) {
 			mod->xxs[i].flg = mod->xxs[i].lps > 0 ? XMP_SAMPLE_LOOP : 0;
 		} else {
 			mod->xxs[i].flg = mod->xxs[i].lpe > mod->xxs[i].lps ?
@@ -324,9 +344,20 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (libxmp_alloc_track(mod, i, 64) < 0)	/* FIXME! */
 			return -1;
 
-		size = hio_read24l(f);
+		/* Previous versions loaded this as a 24-bit value, but it's
+		 * just a word. The purpose of the third byte is unknown, and
+		 * DSMI just ignores it.
+		 */
+		size = hio_read16l(f);
+		hio_read8(f);
+
 		if (hio_error(f))
 			return -1;
+
+		/* Version 0.1 AMFs apparently have an extra event when the
+		 * event count != 0. This hasn't been verified yet. */
+		if (ver == 0x01 && size != 0)
+			size++;
 
 		for (j = 0; j < size; j++) {
 			t1 = hio_read8(f);			/* row */
@@ -336,9 +367,16 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			if (t1 == 0xff && t2 == 0xff && t3 == 0xff)
 				break;
 
-			/* Sanity check */
-			if (t1 >= mod->xxt[i]->rows)
-				return -1;
+			/* If an event is encountered past the end of the
+			 * track, treat it the same as the track end. This is
+			 * encountered in "Avoid.amf".
+			 */
+			if (t1 >= mod->xxt[i]->rows) {
+				if (hio_seek(f, (size - j - 1) * 3, SEEK_CUR))
+					return -1;
+
+				break;
+			}
 
 			event = &mod->xxt[i]->event[t1];
 
