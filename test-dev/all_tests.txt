@@ -101,6 +101,7 @@ test_loader_dsmi_09
 test_loader_dsmi_10
 test_loader_dsmi_track0
 test_loader_dsmi_note7f
+test_loader_dsmi_pan
 test_loader_dsmi_vol
 test_loader_dtm
 test_loader_emod

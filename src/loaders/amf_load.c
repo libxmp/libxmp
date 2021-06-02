@@ -547,8 +547,15 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 					}
 					break;
 				case 0x97:
-					fxt = FX_SETPAN;
-					fxp = 0x80 + 2 * (int8)t3;
+					/* Same as S3M pan, but param is offset by -0x40. */
+					if (t3 == 0x64) { /* 0xA4 - 0x40 */
+						fxt = FX_SURROUND;
+						fxp = 1;
+					} else if (t3 >= 0xC0 || t3 <= 0x40) {
+						int pan = ((int8)t3 << 1) + 0x80;
+						fxt = FX_SETPAN;
+						fxp = MIN(0xff, pan);
+					}
 					break;
 				}
 
