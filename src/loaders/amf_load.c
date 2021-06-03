@@ -188,7 +188,7 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 				break;
 			}
 			hio_seek(f, 32 + 13, SEEK_CUR);
-			if (hio_read32l(f) > 0x100000) { /* check index */
+			if (hio_read32l(f) > (uint32)mod->ins) { /* check index */
 				no_loopend = 1;
 				break;
 			}
