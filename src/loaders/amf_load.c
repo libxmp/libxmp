@@ -168,8 +168,11 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	 * in facing_n.amf and sweetdrm.amf have only the sample
 	 * loop start specified in 2 bytes
 	 *
-	 * 2021 note: it would be nice to verify this, but these modules
-	 * seem to have disappeared off of the face of the earth.
+	 * These modules are an early variant of the AMF 1.0 format. Since
+	 * normal AMF 1.0 files have 32-bit lengths/loop start/loop end,
+	 * this is possibly caused by these fields having been expanded for
+	 * the 1.0 format, but M2AMF 1.3 writing instrument structs with
+	 * the old length (which would explain the missing 6 bytes).
 	 */
 	if (ver == 0x0a) {
 		uint8 b;
@@ -214,6 +217,10 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			}
 		}
 		hio_seek(f, pos, SEEK_SET);
+	}
+
+	if (no_loopend) {
+		D_(D_INFO "Detected AMF 1.0 truncated instruments.");
 	}
 
 	for (i = 0; i < mod->ins; i++) {
@@ -354,8 +361,8 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (hio_error(f))
 			return -1;
 
-		/* Version 0.1 AMFs apparently have an extra event when the
-		 * event count != 0. This hasn't been verified yet. */
+		/* Version 0.1 AMFs do not count the end-of-track marker in
+		 * the event count, so add 1. This hasn't been verified yet. */
 		if (ver == 0x01 && size != 0)
 			size++;
 
