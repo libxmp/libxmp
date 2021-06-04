@@ -54,7 +54,7 @@ static int amf_test(HIO_HANDLE * f, char *t, const int start)
 		return -1;
 
 	ver = hio_read8(f);
-	if (ver < 0x0a || ver > 0x0e)
+	if ((ver != 0x01 && ver < 0x08) || ver > 0x0e)
 		return -1;
 
 	libxmp_read_title(f, t, 32);
@@ -70,6 +70,7 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	struct xmp_event *event;
 	uint8 buf[1024];
 	int *trkmap, newtrk;
+	int no_loopend = 0;
 	int ver;
 
 	LOAD_INIT();
@@ -85,7 +86,11 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	mod->ins = hio_read8(f);
 	mod->len = hio_read8(f);
 	mod->trk = hio_read16l(f);
-	mod->chn = hio_read8(f);
+	mod->chn = 4;
+
+	if (ver >= 0x09) {
+		mod->chn = hio_read8(f);
+	}
 
 	/* Sanity check */
 	if (mod->ins == 0 || mod->len == 0 || mod->trk == 0
@@ -96,7 +101,7 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	mod->smp = mod->ins;
 	mod->pat = mod->len;
 
-	if (ver == 0x0a)
+	if (ver == 0x09 || ver == 0x0a)
 		hio_read(buf, 1, 16, f);	/* channel remap table */
 
 	if (ver >= 0x0d) {
@@ -124,6 +129,10 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	 * but as you noticed you have to perform -1 to obtain the index
 	 * in the track table. For value 0, found in some files, I think
 	 * it means an empty track.
+	 *
+	 * 2021 note: this is misleading. Do not subtract 1 from the logical
+	 * track values found in the order table; load the mapping table to
+	 * index 1 instead.
 	 */
 
 	for (i = 0; i < mod->len; i++)
@@ -158,8 +167,14 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	/* Probe for 2-byte loop start 1.0 format
 	 * in facing_n.amf and sweetdrm.amf have only the sample
 	 * loop start specified in 2 bytes
+	 *
+	 * These modules are an early variant of the AMF 1.0 format. Since
+	 * normal AMF 1.0 files have 32-bit lengths/loop start/loop end,
+	 * this is possibly caused by these fields having been expanded for
+	 * the 1.0 format, but M2AMF 1.3 writing instrument structs with
+	 * the old length (which would explain the missing 6 bytes).
 	 */
-	if (ver <= 0x0a) {
+	if (ver == 0x0a) {
 		uint8 b;
 		uint32 len, start, end;
 		long pos = hio_tell(f);
@@ -169,39 +184,43 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		for (i = 0; i < mod->ins; i++) {
 			b = hio_read8(f);
 			if (b != 0 && b != 1) {
-				ver = 0x09;
+				no_loopend = 1;
 				break;
 			}
 			hio_seek(f, 32 + 13, SEEK_CUR);
-			if (hio_read32l(f) > 0x100000) { /* check index */
-				ver = 0x09;
+			if (hio_read32l(f) > (uint32)mod->ins) { /* check index */
+				no_loopend = 1;
 				break;
 			}
 			len = hio_read32l(f);
 			if (len > 0x100000) {		/* check len */
-				ver = 0x09;
+				no_loopend = 1;
 				break;
 			}
 			if (hio_read16l(f) == 0x0000) {	/* check c2spd */
-				ver = 0x09;
+				no_loopend = 1;
 				break;
 			}
 			if (hio_read8(f) > 0x40) {	/* check volume */
-				ver = 0x09;
+				no_loopend = 1;
 				break;
 			}
 			start = hio_read32l(f);
 			if (start > len) {		/* check loop start */
-				ver = 0x09;
+				no_loopend = 1;
 				break;
 			}
 			end = hio_read32l(f);
 			if (end > len) {		/* check loop end */
-				ver = 0x09;
+				no_loopend = 1;
 				break;
 			}
 		}
 		hio_seek(f, pos, SEEK_SET);
+	}
+
+	if (no_loopend) {
+		D_(D_INFO "Detected AMF 1.0 truncated instruments.");
 	}
 
 	for (i = 0; i < mod->ins; i++) {
@@ -221,7 +240,12 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		mod->xxi[i].nsm = 1;
 		mod->xxi[i].sub[0].sid = i;
 		mod->xxi[i].sub[0].pan = 0x80;
-		mod->xxs[i].len = hio_read32l(f);
+
+		if (ver >= 0x0a) {
+			mod->xxs[i].len = hio_read32l(f);
+		} else {
+			mod->xxs[i].len = hio_read16l(f);
+		}
 		c2spd = hio_read16l(f);
 		libxmp_c2spd_to_note(c2spd, &mod->xxi[i].sub[0].xpo, &mod->xxi[i].sub[0].fin);
 		mod->xxi[i].sub[0].vol = hio_read8(f);
@@ -237,15 +261,22 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		 * CM: confirmed with Maelcum's "The tribal zone"
 		 */
 
-		if (ver < 0x0a) {
+		if (no_loopend != 0) {
 			mod->xxs[i].lps = hio_read16l(f);
 			mod->xxs[i].lpe = mod->xxs[i].len;
-		} else {
+		} else if (ver >= 0x0a) {
 			mod->xxs[i].lps = hio_read32l(f);
 			mod->xxs[i].lpe = hio_read32l(f);
+		} else {
+			/* Non-looping samples are stored with lpe=-1, not 0. */
+			mod->xxs[i].lps = hio_read16l(f);
+			mod->xxs[i].lpe = hio_read16l(f);
+
+			if (mod->xxs[i].lpe == 0xffff)
+				mod->xxs[i].lpe = 0;
 		}
 
-		if (ver < 0x0a) {
+		if (no_loopend != 0) {
 			mod->xxs[i].flg = mod->xxs[i].lps > 0 ? XMP_SAMPLE_LOOP : 0;
 		} else {
 			mod->xxs[i].flg = mod->xxs[i].lpe > mod->xxs[i].lps ?
@@ -264,12 +295,19 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	/* Tracks */
 
-	trkmap = calloc(sizeof(int), mod->trk);
+	/* Index 0 is a blank track that isn't stored in the file. To keep
+	 * things simple, load the mapping table to index 1 so the table
+	 * index is the same as the logical track value. Older versions
+	 * attempted to remap it to index 0 and subtract 1 from the index,
+	 * breaking modules that directly reference the empty track in the
+	 * order table (see "cosmos st.amf").
+	 */
+	trkmap = calloc(sizeof(int), mod->trk + 1);
 	if (trkmap == NULL)
 		return -1;
 	newtrk = 0;
 
-	for (i = 0; i < mod->trk; i++) {		/* read track table */
+	for (i = 1; i <= mod->trk; i++) {		/* read track table */
 		uint16 t;
 		t = hio_read16l(f);
 		trkmap[i] = t;
@@ -278,26 +316,25 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	for (i = 0; i < mod->pat; i++) {		/* read track table */
 		for (j = 0; j < mod->chn; j++) {
-			int k = mod->xxp[i]->index[j] - 1;
+			uint16 k = mod->xxp[i]->index[j];
 
 			/* Use empty track if an invalid track is requested
 			 * (such as in Lasse Makkonen "faster and louder")
 			 */
-			if (k < 0 || k >= mod->trk)
+			if (k > mod->trk)
 				k = 0;
 			mod->xxp[i]->index[j] = trkmap[k];
 		}
 	}
 
-	mod->trk = newtrk;		/* + empty track */
+	mod->trk = newtrk + 1;		/* + empty track */
 	free(trkmap);
 
 	if (hio_error(f))
 		return -1;
 
-	D_(D_INFO "Stored tracks: %d", mod->trk);
+	D_(D_INFO "Stored tracks: %d", mod->trk - 1);
 
-	mod->trk++;
 	mod->xxt = calloc (sizeof (struct xmp_track *), mod->trk);
 	if (mod->xxt == NULL)
 		return -1;
@@ -314,9 +351,20 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (libxmp_alloc_track(mod, i, 64) < 0)	/* FIXME! */
 			return -1;
 
-		size = hio_read24l(f);
+		/* Previous versions loaded this as a 24-bit value, but it's
+		 * just a word. The purpose of the third byte is unknown, and
+		 * DSMI just ignores it.
+		 */
+		size = hio_read16l(f);
+		hio_read8(f);
+
 		if (hio_error(f))
 			return -1;
+
+		/* Version 0.1 AMFs do not count the end-of-track marker in
+		 * the event count, so add 1. This hasn't been verified yet. */
+		if (ver == 0x01 && size != 0)
+			size++;
 
 		for (j = 0; j < size; j++) {
 			t1 = hio_read8(f);			/* row */
@@ -326,25 +374,37 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			if (t1 == 0xff && t2 == 0xff && t3 == 0xff)
 				break;
 
-			/* Sanity check */
-			if (t1 >= mod->xxt[i]->rows)
-				return -1;
+			/* If an event is encountered past the end of the
+			 * track, treat it the same as the track end. This is
+			 * encountered in "Avoid.amf".
+			 */
+			if (t1 >= mod->xxt[i]->rows) {
+				if (hio_seek(f, (size - j - 1) * 3, SEEK_CUR))
+					return -1;
+
+				break;
+			}
 
 			event = &mod->xxt[i]->event[t1];
 
 			if (t2 < 0x7f) {		/* note */
 				if (t2 > 0)
 					event->note = t2 + 1;
-				event->vol = t3;
-			} else if (t2 == 0x7f) {	/* copy previous */
+				/* A volume value of 0xff indicates that
+				 * the old volume should be reused. Prior
+				 * libxmp versions also forgot to add 1 here.
+				 */
+				event->vol = (t3 != 0xff) ? (t3 + 1) : 0;
+			} else if (t2 == 0x7f) {	/* note retrigger */
 
-				/* Sanity check */
-				if (t1 == 0) {
-					return -1;
-				}
-
-				memcpy(event, &mod->xxt[i]->event[t1 - 1],
-					sizeof(struct xmp_event));
+				/* AMF.TXT claims that this duplicates the
+				 * previous event, which is a lie. M2AMF emits
+				 * this for MODs when an instrument change
+				 * occurs with no note, indicating it should
+				 * retrigger (like in PT 2.3). Ignore this.
+				 *
+				 * See: "aladdin - aladd.pc.amf", "eye.amf".
+				 */
 			} else if (t2 == 0x80) {	/* instrument */
 				event->ins = t3 + 1;
 			} else  {			/* effects */
@@ -367,7 +427,9 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 					}
 					break;
 				case 0x83:
-					event->vol = t3;
+					/* See volume notes above. Previous
+					 * releases forgot to add 1 here. */
+					event->vol = (t3 + 1);
 					break;
 				case 0x84:
 					/* AT: Not explained for 0x84, pitch
@@ -492,8 +554,15 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 					}
 					break;
 				case 0x97:
-					fxt = FX_SETPAN;
-					fxp = 0x80 + 2 * (int8)t3;
+					/* Same as S3M pan, but param is offset by -0x40. */
+					if (t3 == 0x64) { /* 0xA4 - 0x40 */
+						fxt = FX_SURROUND;
+						fxp = 1;
+					} else if (t3 >= 0xC0 || t3 <= 0x40) {
+						int pan = ((int8)t3 << 1) + 0x80;
+						fxt = FX_SETPAN;
+						fxp = MIN(0xff, pan);
+					}
 					break;
 				}
 
