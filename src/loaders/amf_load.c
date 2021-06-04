@@ -414,7 +414,7 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 				switch (t2) {
 				case 0x81:
-					fxt = FX_SPEED;
+					fxt = FX_S3M_SPEED;
 					fxp = t3;
 					break;
 				case 0x82:
