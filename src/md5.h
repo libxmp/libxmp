@@ -25,9 +25,15 @@ typedef struct MD5Context {
 	uint8 buffer[MD5_BLOCK_LENGTH];	/* input buffer */
 } MD5_CTX;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 void	 MD5Init(MD5_CTX *);
 void	 MD5Update(MD5_CTX *, const unsigned char *, size_t);
 void	 MD5Final(uint8[MD5_DIGEST_LENGTH], MD5_CTX *);
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* LIBXMP_MD5_H */
 
