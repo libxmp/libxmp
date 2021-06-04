@@ -574,7 +574,7 @@ TESTS		= $(READ_TESTS) \
 
 TEST_NAMES	= $(addprefix test_,$(TESTS))
 
-MAIN_OBJS	= util.o md5.o main.o simple_module.o compare_mixer_data.o
+MAIN_OBJS	= util.o main.o simple_module.o compare_mixer_data.o
 TEST_OBJS	= $(MAIN_OBJS) $(TEST_NAMES:=.o)
 
 TEST_DFILES	= Makefile $(TEST_OBJS:.o=.c) test.h md5.h data
@@ -582,7 +582,7 @@ TEST_DFILES	= Makefile $(TEST_OBJS:.o=.c) test.h md5.h data
 TEST_PATH	= .
 SRC_PATH	= ../src
 
-TEST_INTERNAL	= win32.o hio.o load_helpers.o loaders/itsex.o dataio.o scan.o \
+TEST_INTERNAL	= md5.o win32.o hio.o load_helpers.o loaders/itsex.o dataio.o scan.o \
 		  loaders/sample.o loaders/common.o period.o xfnmatch.o memio.o
 
 T_OBJS 		= $(addprefix $(TEST_PATH)/,$(TEST_OBJS)) \
@@ -616,8 +616,8 @@ gen_mixer_data: gen_mixer_data.o
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
 	eval $$CMD
 
-gen_module_data: gen_module_data.o util.o md5.o
-	@CMD='$(LD) $(LDFLAGS) -o $@ gen_module_data.o util.o md5.o -L../lib -lxmp $(LIBS)'; \
+gen_module_data: gen_module_data.o util.o ${SRC_PATH}/md5.o
+	@CMD='$(LD) $(LDFLAGS) -o $@ $^ -L../lib -lxmp $(LIBS)'; \
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
 	eval $$CMD
 

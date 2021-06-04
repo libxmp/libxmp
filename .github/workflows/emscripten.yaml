@@ -32,5 +32,5 @@ jobs:
         run: |
           source ../emsdk/emsdk_env.sh
           cd test
-          emcc test.c md5.c -o test.js -O3 -Wall -I../include -I../src -L../lib/ --embed-file test.itz -lxmp
+          emcc test.c ../src/md5.c -o test.js -O3 -Wall -I../include -I../src -L../lib/ --embed-file test.itz -lxmp
           node test.js

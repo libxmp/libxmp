@@ -1,7 +1,7 @@
 #include <xmp.h>
-#include "md5.h"
 
 #include "../src/common.h"
+#include "../src/md5.h"
 
 #define TMP_FILE ".test"
 

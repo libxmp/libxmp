@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "md5.h"
+#include "../src/md5.h"
 #include "xmp.h"
 
 static inline int is_big_endian() {
