@@ -236,6 +236,21 @@ int xmp_test_module_from_file(void *file, struct xmp_test_info *info)
 	return ret;
 }
 
+int xmp_test_module_from_callbacks(void *priv, struct xmp_callbacks callbacks,
+				struct xmp_test_info *info)
+{
+	HIO_HANDLE *h;
+	int ret;
+
+	if ((h = hio_open_callbacks(priv, callbacks)) == NULL)
+		return -XMP_ERROR_SYSTEM;
+
+	ret = test_module(info, h);
+
+	hio_close(h);
+	return ret;
+}
+
 static int load_module(xmp_context opaque, HIO_HANDLE *h)
 {
 	struct context_data *ctx = (struct context_data *)opaque;
@@ -463,6 +478,32 @@ int xmp_load_module_from_file(xmp_context opaque, void *file, long size)
 	int ret;
 
 	if ((h = hio_open_file((FILE *)file)) == NULL)
+		return -XMP_ERROR_SYSTEM;
+
+	if (ctx->state > XMP_STATE_UNLOADED)
+		xmp_release_module(opaque);
+
+	m->filename = NULL;
+	m->basename = NULL;
+	m->dirname = NULL;
+	m->size = hio_size(h);
+
+	ret = load_module(opaque, h);
+
+	hio_close(h);
+
+	return ret;
+}
+
+int xmp_load_module_from_callbacks(xmp_context opaque, void *priv,
+				struct xmp_callbacks callbacks)
+{
+	struct context_data *ctx = (struct context_data *)opaque;
+	struct module_data *m = &ctx->m;
+	HIO_HANDLE *h;
+	int ret;
+
+	if ((h = hio_open_callbacks(priv, callbacks)) == NULL)
 		return -XMP_ERROR_SYSTEM;
 
 	if (ctx->state > XMP_STATE_UNLOADED)
