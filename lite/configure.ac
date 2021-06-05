@@ -114,9 +114,12 @@ XMP_TRY_COMPILE(whether compiler understands -xldscope=hidden,
   [XMP_TRY_COMPILE(whether compiler understands -fvisibility=hidden,
     ac_cv_c_flag_f_visibility_hidden,
     -fvisibility=hidden,[
-    __attribute__((visibility("default"))) void foo(void) {}],
+__attribute__((visibility("default"))) int foo(void);
+__attribute__((visibility("hidden")))  int bar(void);
+int foo(void) { return 0; }
+int bar(void) { return 1; }],
     [CFLAGS="${old_CFLAGS} -fvisibility=hidden -DXMP_SYM_VISIBILITY"
-    LD_VERSCRIPT="-Wl,--version-script,libxmp.map"],
+     LD_VERSCRIPT="-Wl,--version-script,libxmp.map"],
     [CFLAGS="${old_CFLAGS}"])]
   )
 dnl we want symbol -fvisibility for elf targets, however it works
