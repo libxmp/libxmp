@@ -4,6 +4,12 @@
 #include "../src/md5.h"
 #include "xmp.h"
 
+#ifdef LIBXMP_NO_DEPACKERS
+#define TEST_IT_FILE "test.it"
+#else
+#define TEST_IT_FILE "test.itz"
+#endif
+
 static inline int is_big_endian() {
 	unsigned short w = 0x00ff;
 	return (*(char *)&w == 0x00);
@@ -57,7 +63,7 @@ int main()
 	if (c == NULL)
 		goto err;
 
-	ret = xmp_load_module(c, "test.itz");
+	ret = xmp_load_module(c, TEST_IT_FILE);
 	if (ret != 0) {
 		printf("can't load module\n");
 		goto err;
