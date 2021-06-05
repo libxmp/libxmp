@@ -111,6 +111,8 @@ test_loader_flt
 test_loader_flt8
 test_loader_fnk
 test_loader_gdm
+test_loader_gdm_fx
+test_loader_gdm_fx2
 test_loader_ice
 test_loader_imf
 test_loader_ims

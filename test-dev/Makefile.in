@@ -274,7 +274,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  far \
 		  flt flt8 \
 		  fnk \
-		  gdm \
+		  gdm gdm_fx gdm_fx2 \
 		  ice \
 		  imf \
 		  ims \
