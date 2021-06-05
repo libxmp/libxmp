@@ -58,19 +58,6 @@
  * starting at pos12, caused by pitchbending effect F25.
  */
 
-/*
- * From: Ralf Hoffmann <ralf@boomerangsworld.de>
- * Date: Wed, 26 Sep 2007 17:12:41 +0200
- * ftp://ftp.scenesp.org/pub/compilations/modplanet/normal/bonuscd/artists/
- * Iq/return%20of%20litmus.s3m doesn't start playing, just uses 100% cpu,
- * the number of patterns is unusually high
- *
- * Claudio's fix: this module seems to be a bad conversion, bad rip or
- * simply corrupted since it has many instances of 0x87 instead of 0x00
- * in the module and instrument headers. I'm adding a simple workaround
- * to be able to load/play the module as is, see the fix87() macro below.
- */
-
 #include "loader.h"
 #include "s3m.h"
 #include "period.h"
@@ -106,11 +93,6 @@ static int s3m_test(HIO_HANDLE *f, char *t, const int start)
 
 #define NONE		0xff
 #define FX_S3M_EXTENDED	0xfe
-
-#define fix87(x) do { \
-	int i; for (i = 0; i < sizeof(x); i++) { \
-		if (*((uint8 *)&x + i) == 0x87) *((uint8 *)&x + i) = 0; } \
-	} while (0)
 
 /* Effect conversion table */
 static const uint8 fx[27] = {
@@ -232,7 +214,6 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 #ifndef LIBXMP_CORE_PLAYER
 	struct s3m_adlib_header sah;
 	char tracker_name[40];
-	int quirk87 = 0;
 #endif
 	int pat_len;
 	uint8 n, b;
@@ -278,18 +259,6 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	if (sfh.magic != MAGIC_SCRM) {
 		goto err;
 	}
-
-#ifndef LIBXMP_CORE_PLAYER
-	/* S3M anomaly in return_of_litmus.s3m */
-	if (sfh.version == 0x1301 && sfh.name[27] == 0x87)
-		quirk87 = 1;
-
-	if (quirk87) {
-		fix87(sfh.name);
-		fix87(sfh.patnum);
-		fix87(sfh.flags);
-	}
-#endif
 
 	libxmp_copy_adjust(mod->name, sfh.name, 28);
 
@@ -599,14 +568,6 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			D_(D_CRIT "error: instrument magic");
 			goto err3;
 		}
-#ifndef LIBXMP_CORE_PLAYER
-		if (quirk87) {
-			fix87(sih.length);
-			fix87(sih.loopbeg);
-			fix87(sih.loopend);
-			fix87(sih.flags);
-		}
-#endif
 
 		xxs->len = sih.length;
 		xxi->nsm = sih.length > 0 ? 1 : 0;
