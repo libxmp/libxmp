@@ -431,7 +431,6 @@ struct context_data {
 /* Prototypes */
 
 char	*libxmp_adjust_string	(char *);
-int	libxmp_exclude_match	(const char *);
 int	libxmp_prepare_scan	(struct context_data *);
 void	libxmp_free_scan	(struct context_data *);
 int	libxmp_scan_sequences	(struct context_data *);

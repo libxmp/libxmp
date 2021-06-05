@@ -190,7 +190,14 @@ darwin*|*djgpp|mingw*)
   ;;
 esac
 AC_CHECK_HEADERS(dirent.h)
-AC_CHECK_FUNCS(wait pipe fork execvp dup2 popen mkstemp fnmatch umask round powf)
+AC_CHECK_FUNCS(popen mkstemp fnmatch umask round powf)
+dnl fork, execv & co don't work with djgpp
+case "${host_os}" in
+*djgpp|mingw*)
+  ;;
+*) AC_CHECK_FUNCS(wait pipe fork execvp dup2)
+  ;;
+esac
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([libxmp.pc])

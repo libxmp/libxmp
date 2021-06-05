@@ -27,8 +27,6 @@
 
 #ifndef LIBXMP_CORE_PLAYER
 
-#include "xfnmatch.h"
-
 /*
  * Handle special "module quirks" that can't be detected automatically
  * such as Protracker 2.x compatibility, vblank timing, etc.
@@ -120,36 +118,6 @@ static void module_quirks(struct context_data *ctx)
 			p->mode = mq[i].mode;
 		}
 	}
-}
-
-/*
- * Check whether the given string matches one of the blacklisted glob
- * patterns. Used to filter file names stored in archive files.
- */
-int libxmp_exclude_match(const char *name)
-{
-	int i;
-
-	static const char *const exclude[] = {
-		"README", "readme",
-		"*.DIZ", "*.diz",
-		"*.NFO", "*.nfo",
-		"*.DOC", "*.Doc", "*.doc",
-		"*.INFO", "*.info", "*.Info",
-		"*.TXT", "*.txt",
-		"*.EXE", "*.exe",
-		"*.COM", "*.com",
-		"*.README", "*.readme", "*.Readme", "*.ReadMe",
-		NULL
-	};
-
-	for (i = 0; exclude[i] != NULL; i++) {
-		if (fnmatch(exclude[i], name, 0) == 0) {
-			return 1;
-		}
-	}
-
-	return 0;
 }
 
 #endif /* LIBXMP_CORE_PLAYER */
