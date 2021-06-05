@@ -139,11 +139,11 @@ lib/$(GCLIB): $(GCOBJS)
 	$(RANLIB) $@
 
 clean:
-	@rm -f $(ALL_OBJS) $(LOBJS)
+	@rm -f $(ALL_OBJS) $(LOBJS) $(T_OBJS)
 	@rm -f $(GCOBJS) $(ALL_OBJS:.o=.gcno) $(ALL_OBJS:.o=.gcda)
 
 distclean: clean
-	@rm -f config.log config.cache config.status libxmp.pc depend Makefile lib/*
+	@rm -f config.log config.cache config.status libxmp.pc depend Makefile lib/* test/libxmp-test*
 
 install: all
 	@mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(LIBDIR) $(DESTDIR)$(INCLUDEDIR)
