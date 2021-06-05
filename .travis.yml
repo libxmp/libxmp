@@ -18,9 +18,17 @@ matrix:
 
     - os: linux
       dist: focal
+      addons:
+        apt:
+          packages:
+            - unrar
 
     - os: linux
       dist: bionic
+      addons:
+        apt:
+          packages:
+            - unrar
 
     - os: linux
       dist: precise
@@ -64,9 +72,17 @@ matrix:
       compiler: clang
       env: CFLAGS="-fsanitize=address" LDFLAGS="-fsanitize=address"
       script: autoconf && ./configure && make && make check && (cd test-dev; autoconf && ./configure && make)
+      addons:
+        apt:
+          packages:
+            - unrar
 
     - os: linux
       dist: focal
       compiler: clang
       env: CFLAGS="-fsanitize=memory" LDFLAGS="-fsanitize=memory"
       script: autoconf && ./configure && make && make check && (cd test-dev; autoconf && ./configure && make)
+      addons:
+        apt:
+          packages:
+            - unrar
