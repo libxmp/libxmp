@@ -143,6 +143,17 @@ void fix_effect(uint8 *fxt, uint8 *fxp)
 		break;
 	case 0x1e:			/* special misc */
 		switch (MSN(*fxp)) {
+		case 0x0:		/* sample control */
+			if (LSN(*fxp) == 1) { /* enable surround */
+				/* This is the only sample control effect
+				 * that 2GDM emits. BWSB ignores it,
+				 * but supporting it is harmless. */
+				*fxt = FX_SURROUND;
+				*fxp = 1;
+			} else {
+				*fxt = *fxp = 0;
+			}
+			break;
 		case 0x8:		/* set pan position */
 			*fxt = FX_EXTENDED;
 			break;
