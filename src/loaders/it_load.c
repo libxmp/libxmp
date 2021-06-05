@@ -1065,7 +1065,7 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		return -1;
 	}
 
-	hio_read(&ifh.name, 26, 1, f);
+	hio_read(ifh.name, 26, 1, f);
 	ifh.hilite_min = hio_read8(f);
 	ifh.hilite_maj = hio_read8(f);
 
@@ -1096,8 +1096,8 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	ifh.msgofs = hio_read32l(f);
 	ifh.rsvd = hio_read32l(f);
 
-	hio_read(&ifh.chpan, 64, 1, f);
-	hio_read(&ifh.chvol, 64, 1, f);
+	hio_read(ifh.chpan, 64, 1, f);
+	hio_read(ifh.chvol, 64, 1, f);
 
 	memcpy(mod->name, ifh.name, sizeof(ifh.name));
 	/* sizeof(ifh.name) == 26, sizeof(mod->name) == 64. */
@@ -1160,6 +1160,7 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		xxc->vol = ifh.chvol[i];
 	}
+
 	if (mod->len <= XMP_MAX_MOD_LENGTH) {
 		hio_read(mod->xxo, 1, mod->len, f);
 	} else {

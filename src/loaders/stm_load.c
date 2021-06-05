@@ -176,7 +176,7 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		sfh.sub.v2.tempo = hio_read8(f);	/* Playback tempo */
 		sfh.sub.v2.patterns = hio_read8(f);	/* Number of patterns */
 		sfh.sub.v2.gvol = hio_read8(f);		/* Global volume */
-		hio_read(&sfh.sub.v2.rsvd2, 13, 1, f);	/* Reserved */
+		hio_read(sfh.sub.v2.rsvd2, 13, 1, f);	/* Reserved */
 		mod->chn = 4;
 		mod->pat = sfh.sub.v2.patterns;
 		mod->spd = (version < 221) ? LSN(sfh.sub.v2.tempo / 10) : MSN(sfh.sub.v2.tempo);
@@ -216,7 +216,7 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	}
 
 	for (i = 0; i < mod->ins; i++) {
-		hio_read(&sfh.ins[i].name, 12, 1, f);	/* Instrument name */
+		hio_read(sfh.ins[i].name, 12, 1, f);	/* Instrument name */
 		sfh.ins[i].id = hio_read8(f);		/* Id=0 */
 		sfh.ins[i].idisk = hio_read8(f);	/* Instrument disk */
 		sfh.ins[i].rsvd1 = hio_read16l(f);	/* Reserved */
