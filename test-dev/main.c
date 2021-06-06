@@ -9,7 +9,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #endif
-#include <unistd.h>
 #include "test.h"
 #include "../src/list.h"
 
