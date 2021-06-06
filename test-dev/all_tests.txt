@@ -123,6 +123,7 @@ test_loader_liq_no
 test_loader_masi
 test_loader_mdl0
 test_loader_mdl
+test_loader_med2
 test_loader_med3
 test_loader_med4
 test_loader_mmd0

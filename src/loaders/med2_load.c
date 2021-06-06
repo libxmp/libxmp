@@ -125,7 +125,9 @@ int med2_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		return -1;
 	}
 
-	mod->spd = 192 / k;
+	mod->spd = 6;
+	mod->bpm = k;
+	m->time_factor = MED_TIME_FACTOR;
 
 	hio_read16b(f);			/* flags */
 	sliding = hio_read16b(f);	/* sliding */
@@ -174,7 +176,7 @@ int med2_load(struct module_data *m, HIO_HANDLE *f, const int start)
 					event->fxt = FX_VOLSLIDE;
 					break;
 				case 0x0f:
-					event->fxt = 192 / event->fxt;
+					event->fxt = FX_S3M_BPM;
 					break;
 				}
 			}
