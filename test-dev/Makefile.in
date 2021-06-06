@@ -599,6 +599,9 @@ dist-test:
 clean:
 	rm -f *.o core *~ $(T_OBJS)
 
+distclean: clean
+	@rm -f config.log config.status Makefile all_tests.c libxmp-tests* .test .read_test write_test
+
 vc-prepare: $(TEST_PATH)/all_tests.txt
 	@echo Generate Makefile.vc
 	@sed -e 's!@MAINSRCS@!$(subst /,\\,$(MAIN_OBJS:.o=.c))!' \
