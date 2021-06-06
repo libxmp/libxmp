@@ -18,11 +18,18 @@ static long tell_func(void *priv)
 	return ftell(f);
 }
 
+static int close_func(void *priv)
+{
+	FILE *f = (FILE *)priv;
+	return fclose(f);
+}
+
 static const struct xmp_callbacks file_callbacks =
 {
 	read_func,
 	seek_func,
-	tell_func
+	tell_func,
+	NULL
 };
 
 TEST(test_api_load_module_from_callbacks)
@@ -55,7 +62,6 @@ TEST(test_api_load_module_from_callbacks)
 
 	/* load */
 	ret = xmp_load_module_from_callbacks(ctx, (void *)f, file_callbacks);
-	fclose(f);
 	fail_unless(ret == 0, "load file");
 
 	state = xmp_get_player(ctx, XMP_PLAYER_STATE);
@@ -67,6 +73,14 @@ TEST(test_api_load_module_from_callbacks)
 	state = xmp_get_player(ctx, XMP_PLAYER_STATE);
 	fail_unless(state == XMP_STATE_UNLOADED, "state error");
 
+	/* load with close callback should not leak fp */
+	rewind(f);
+	t1 = file_callbacks;
+	t1.close_func = close_func;
+	ret = xmp_load_module_from_callbacks(ctx, (void *)f, t1);
+	fail_unless(ret == 0, "load file");
+
+	xmp_release_module(ctx);
 	xmp_free_context(ctx);
 }
 END_TEST

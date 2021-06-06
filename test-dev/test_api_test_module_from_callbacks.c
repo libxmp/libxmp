@@ -18,11 +18,18 @@ static long tell_func(void *priv)
 	return ftell(f);
 }
 
+static int close_func(void *priv)
+{
+	FILE *f = (FILE *)priv;
+	return fclose(f);
+}
+
 static const struct xmp_callbacks file_callbacks =
 {
 	read_func,
 	seek_func,
-	tell_func
+	tell_func,
+	NULL
 };
 
 static int test_module_from_callbacks_helper(const char *filename, struct xmp_test_info *tinfo)
@@ -70,7 +77,12 @@ TEST(test_api_test_module_from_callbacks)
 	fail_unless(ret == -XMP_ERROR_SYSTEM, "null seek_func fail");
 	ret = xmp_test_module_from_callbacks(f, t3, &tinfo);
 	fail_unless(ret == -XMP_ERROR_SYSTEM, "null tell_func fail");
-	fclose(f);
+
+	/* close_func should close. */
+	t1 = file_callbacks;
+	t1.close_func = close_func;
+	ret = xmp_test_module_from_callbacks(f, t1, &tinfo);
+	fail_unless(ret == 0, "test with close_func");
 
 	/* null info */
 	ret = test_module_from_callbacks_helper("data/storlek_05.it", NULL);
@@ -96,5 +108,11 @@ TEST(test_api_test_module_from_callbacks)
 	/* S3M (no unpacker for memory) */
 	ret = test_module_from_callbacks_helper("data/xzdata", &tinfo);
 	fail_unless(ret == -XMP_ERROR_FORMAT, "S3M test module compressed fail");
+
+	/* Prowizard */
+	ret = test_module_from_callbacks_helper("data/m/PRU1.crack the eggshell!", &tinfo);
+	fail_unless(ret == 0, "Prowizard test module fail");
+	fail_unless(strcmp(tinfo.name, "crack the eggshell!") == 0, "Prowizard module name fail");
+	fail_unless(strcmp(tinfo.type, "Prorunner 1.0") == 0, "Prowizard module type fail");
 }
 END_TEST

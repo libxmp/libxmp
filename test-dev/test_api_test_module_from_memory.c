@@ -57,6 +57,12 @@ TEST(test_api_test_module_from_memory)
 	ret = test_module_from_memory_helper("data/xzdata", &tinfo, buf);
 	fail_unless(ret == -XMP_ERROR_FORMAT, "S3M test module compressed fail");
 
+	/* Prowizard */
+	ret = test_module_from_memory_helper("data/m/PRU1.crack the eggshell!", &tinfo, buf);
+	fail_unless(ret == 0, "Prowizard test module fail");
+	fail_unless(strcmp(tinfo.name, "crack the eggshell!") == 0, "Prowizard module name fail");
+	fail_unless(strcmp(tinfo.type, "Prorunner 1.0") == 0, "Prowizard module type fail");
+
 	free(buf);
 }
 END_TEST
