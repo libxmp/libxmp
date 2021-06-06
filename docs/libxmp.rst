@@ -371,6 +371,51 @@ int xmp_test_module_from_file(FILE \*f, struct xmp_test_info \*test_info)
     and uncompression failed, or ``-XMP_ERROR_SYSTEM`` in case of system error
     (the system error code is set in ``errno``).
 
+.. _xmp_test_module_from_callbacks():
+
+int xmp_test_module_from_callbacks(void \*priv, struct xmp_callbacks callbacks, struct xmp_test_info \*test_info)
+`````````````````````````````````````````````````````````````````````````````````````````````````````````````````
+
+  *[Added in libxmp 4.5]* Test if a module from a custom stream is a valid
+  module. Testing custom streams does not affect the current player context
+  or any currently loaded module.
+
+  **Parameters:**
+    :priv: pointer to the custom stream. Multi-file modules
+      or compressed modules can't be tested using this function.
+
+    :callbacks: struct specifying stream callbacks for the custom stream.
+      These callbacks should behave as close to ``fread``/``fseek``/``ftell``/``fclose``
+      as possible, and ``fseek`` must be capable of seeking to ``SEEK_END``.
+      The ``close_func`` is optional, but all other functions must be provided.
+      If a ``close_func`` is provided, the stream will be closed once testing
+      has finished or upon returning an error code.
+      ``struct xmp_callbacks`` is defined as::
+
+        struct xmp_callbacks {
+            unsigned long (*read_func)(void *dest, unsigned long len,
+                                       unsigned long nmemb, void *priv);
+            int           (*seek_func)(void *priv, long offset, int whence);
+            long          (*tell_func)(void *priv);
+            int           (*close_func)(void *priv);
+        };
+
+    :test_info: NULL, or a pointer to a structure used to retrieve the
+      module title and format if the memory buffer is a valid module.
+
+      ``struct xmp_test_info`` is defined as::
+
+        struct xmp_test_info {
+            char name[XMP_NAME_SIZE];      /* Module title */
+            char type[XMP_NAME_SIZE];      /* Module format */
+        };
+
+  **Returns:**
+    0 if the custom stream is a valid module, or a negative error code
+    in case of error. Error codes can be ``-XMP_ERROR_FORMAT`` in case of an
+    unrecognized file format or ``-XMP_ERROR_SYSTEM`` in case of system error
+    (the system error code is set in ``errno``).
+
 .. _xmp_load_module():
 
 int xmp_load_module(xmp_context c, char \*path)
@@ -431,6 +476,43 @@ int xmp_load_module_from_file(xmp_context c, FILE \*f, long size)
       Caller is responsible for closing the file stream.
 
     :size: the size of the module (ignored.)
+
+  **Returns:**
+    0 if successful, or a negative error code in case of error.
+    Error codes can be ``-XMP_ERROR_FORMAT`` in case of an unrecognized file
+    format, ``-XMP_ERROR_LOAD`` if the file format was recognized but the
+    file loading failed, or ``-XMP_ERROR_SYSTEM`` in case of system error
+    (the system error code is set in ``errno``).
+
+.. _xmp_load_module_from_callbacks():
+
+int xmp_load_module_from_callbacks(xmp_context c, void \*priv, struct xmp_callbacks callbacks)
+``````````````````````````````````````````````````````````````````````````````````````````````
+
+  *[Added in libxmp 4.5]* Load a module from a custom stream into the specified
+  player context.
+
+  **Parameters:**
+    :c: the player context handle.
+
+    :priv: pointer to the custom stream. Multi-file modules
+      or compressed modules can't be loaded using this function.
+
+    :callbacks: struct specifying stream callbacks for the custom stream.
+      These callbacks should behave as close to ``fread``/``fseek``/``ftell``/``fclose``
+      as possible, and ``fseek`` must be capable of seeking to ``SEEK_END``.
+      The ``close_func`` is optional, but all other functions must be provided.
+      If a ``close_func`` is provided, the stream will be closed once loading
+      has finished or upon returning an error code.
+      ``struct xmp_callbacks`` is defined as::
+
+        struct xmp_callbacks {
+            unsigned long (*read_func)(void *dest, unsigned long len,
+                                       unsigned long nmemb, void *priv);
+            int           (*seek_func)(void *priv, long offset, int whence);
+            long          (*tell_func)(void *priv);
+            int           (*close_func)(void *priv);
+        };
 
   **Returns:**
     0 if successful, or a negative error code in case of error.
