@@ -52,7 +52,7 @@ test/$(TESTNAME): $(BLD_LIB) $(TEST_OBJS)
 
 check-build: test/$(TESTNAME) .symbolic
 !ifneq target static
-	cp $(DLLNAME) test/
+	$(CMD_CP) $(DLLNAME) test
 !endif
 
 check: check-build .symbolic
@@ -64,3 +64,9 @@ clean: .symbolic
 
 distclean: clean .symbolic
 	rm -f $(DLLNAME) $(EXPNAME) $(LIBNAME) $(LIBSTATIC) test/$(DLLNAME) test/$(TESTNAME)
+
+!ifdef __UNIX__
+CMD_CP=cp
+!else
+CMD_CP=copy
+!endif
