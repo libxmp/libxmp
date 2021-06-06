@@ -383,10 +383,11 @@ int xmp_test_module_from_callbacks(void \*priv, struct xmp_callbacks callbacks, 
   **Parameters:**
     :priv: pointer to the custom stream. Multi-file modules
       or compressed modules can't be tested using this function.
+      This should not be NULL.
 
     :callbacks: struct specifying stream callbacks for the custom stream.
       These callbacks should behave as close to ``fread``/``fseek``/``ftell``/``fclose``
-      as possible, and ``fseek`` must be capable of seeking to ``SEEK_END``.
+      as possible, and ``seek_func`` must be capable of seeking to ``SEEK_END``.
       The ``close_func`` is optional, but all other functions must be provided.
       If a ``close_func`` is provided, the stream will be closed once testing
       has finished or upon returning an error code.
@@ -497,10 +498,11 @@ int xmp_load_module_from_callbacks(xmp_context c, void \*priv, struct xmp_callba
 
     :priv: pointer to the custom stream. Multi-file modules
       or compressed modules can't be loaded using this function.
+      This should not be NULL.
 
     :callbacks: struct specifying stream callbacks for the custom stream.
       These callbacks should behave as close to ``fread``/``fseek``/``ftell``/``fclose``
-      as possible, and ``fseek`` must be capable of seeking to ``SEEK_END``.
+      as possible, and ``seek_func`` must be capable of seeking to ``SEEK_END``.
       The ``close_func`` is optional, but all other functions must be provided.
       If a ``close_func`` is provided, the stream will be closed once loading
       has finished or upon returning an error code.
