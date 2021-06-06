@@ -382,15 +382,22 @@ int xmp_test_module_from_callbacks(void \*priv, struct xmp_callbacks callbacks, 
 
   **Parameters:**
     :priv: pointer to the custom stream. Multi-file modules
-      or compressed modules can't be tested in memory.
+      or compressed modules can't be tested using this function.
 
     :callbacks: struct specifying stream callbacks for the custom stream.
+      These callbacks should behave as close to ``fread``/``fseek``/``ftell``/``fclose``
+      as possible, and ``fseek`` must be capable of seeking to ``SEEK_END``.
+      The ``close_func`` is optional, but all other functions must be provided.
+      If a ``close_func`` is provided, the stream will be closed once testing
+      has finished or upon returning an error code.
       ``struct xmp_callbacks`` is defined as::
 
         struct xmp_callbacks {
-            unsigned long (*read_func)(void *dest, unsigned long len, unsigned long nmemb, void *priv);
+            unsigned long (*read_func)(void *dest, unsigned long len,
+                                       unsigned long nmemb, void *priv);
             int           (*seek_func)(void *priv, long offset, int whence);
             long          (*tell_func)(void *priv);
+            int           (*close_func)(void *priv);
         };
 
     :test_info: NULL, or a pointer to a structure used to retrieve the
@@ -488,16 +495,23 @@ int xmp_load_module_from_callbacks(xmp_context c, void \*priv, struct xmp_callba
   **Parameters:**
     :c: the player context handle.
 
-    :priv: pointer to the custom stream. On return, the stream position is
-      undefined. Caller is responsible for closing their custom stream.
+    :priv: pointer to the custom stream. Multi-file modules
+      or compressed modules can't be loaded using this function.
 
     :callbacks: struct specifying stream callbacks for the custom stream.
+      These callbacks should behave as close to ``fread``/``fseek``/``ftell``/``fclose``
+      as possible, and ``fseek`` must be capable of seeking to ``SEEK_END``.
+      The ``close_func`` is optional, but all other functions must be provided.
+      If a ``close_func`` is provided, the stream will be closed once loading
+      has finished or upon returning an error code.
       ``struct xmp_callbacks`` is defined as::
 
         struct xmp_callbacks {
-            unsigned long (*read_func)(void *dest, unsigned long len, unsigned long nmemb, void *priv);
+            unsigned long (*read_func)(void *dest, unsigned long len,
+                                       unsigned long nmemb, void *priv);
             int           (*seek_func)(void *priv, long offset, int whence);
             long          (*tell_func)(void *priv);
+            int           (*close_func)(void *priv);
         };
 
   **Returns:**

@@ -14,7 +14,6 @@ typedef struct {
 extern "C" {
 #endif
 
-
 static inline uint8 cbread8(CBFILE *f, int *err)
 {
 	uint8 x = 0xff;
@@ -35,7 +34,7 @@ static inline uint16 cbread16l(CBFILE *f, int *err)
 {
 	uint8 buf[2];
 	uint16 x = EOF;
-	size_t r = f->callbacks.read_func(&buf, 2, 1, f->priv);
+	size_t r = f->callbacks.read_func(buf, 2, 1, f->priv);
 	f->eof = (r == 1) ? 0 : EOF;
 
 	if (r)   x = readmem16l(buf);
@@ -48,7 +47,7 @@ static inline uint16 cbread16b(CBFILE *f, int *err)
 {
 	uint8 buf[2];
 	uint16 x = EOF;
-	size_t r = f->callbacks.read_func(&buf, 2, 1, f->priv);
+	size_t r = f->callbacks.read_func(buf, 2, 1, f->priv);
 	f->eof = (r == 1) ? 0 : EOF;
 
 	if (r)   x = readmem16b(buf);
@@ -61,7 +60,7 @@ static inline uint32 cbread24l(CBFILE *f, int *err)
 {
 	uint8 buf[3];
 	uint32 x = EOF;
-	size_t r = f->callbacks.read_func(&buf, 3, 1, f->priv);
+	size_t r = f->callbacks.read_func(buf, 3, 1, f->priv);
 	f->eof = (r == 1) ? 0 : EOF;
 
 	if (r)   x = readmem24l(buf);
@@ -74,7 +73,7 @@ static inline uint32 cbread24b(CBFILE *f, int *err)
 {
 	uint8 buf[3];
 	uint32 x = EOF;
-	size_t r = f->callbacks.read_func(&buf, 3, 1, f->priv);
+	size_t r = f->callbacks.read_func(buf, 3, 1, f->priv);
 	f->eof = (r == 1) ? 0 : EOF;
 
 	if (r)   x = readmem24b(buf);
@@ -87,7 +86,7 @@ static inline uint32 cbread32l(CBFILE *f, int *err)
 {
 	uint8 buf[4];
 	uint32 x = EOF;
-	size_t r = f->callbacks.read_func(&buf, 4, 1, f->priv);
+	size_t r = f->callbacks.read_func(buf, 4, 1, f->priv);
 	f->eof = (r == 1) ? 0 : EOF;
 
 	if (r)   x = readmem32l(buf);
@@ -100,7 +99,7 @@ static inline uint32 cbread32b(CBFILE *f, int *err)
 {
 	uint8 buf[4];
 	uint32 x = EOF;
-	size_t r = f->callbacks.read_func(&buf, 4, 1, f->priv);
+	size_t r = f->callbacks.read_func(buf, 4, 1, f->priv);
 	f->eof = (r == 1) ? 0 : EOF;
 
 	if (r)   x = readmem32b(buf);
@@ -156,23 +155,32 @@ static inline CBFILE *cbopen(void *priv, struct xmp_callbacks callbacks)
 	CBFILE *f;
 	if (priv == NULL || callbacks.read_func == NULL ||
 	    callbacks.seek_func == NULL || callbacks.tell_func == NULL)
-		return NULL;
-
+		goto err;
 
 	f = (CBFILE *)calloc(1, sizeof(CBFILE));
 	if (f == NULL)
-		return NULL;
+		goto err;
 
 	f->priv = priv;
 	f->callbacks = callbacks;
 	f->eof = 0;
 	return f;
+
+    err:
+	if (priv && callbacks.close_func)
+		callbacks.close_func(priv);
+
+	return NULL;
 }
 
 static inline int cbclose(CBFILE *f)
 {
+	int r = 0;
+	if (f->callbacks.close_func != NULL)
+		r = f->callbacks.close_func(f->priv);
+
 	free(f);
-	return 0;
+	return r;
 }
 
 #ifdef __cplusplus

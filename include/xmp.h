@@ -321,9 +321,11 @@ struct xmp_frame_info {			/* Current frame information */
 };
 
 struct xmp_callbacks {
-	unsigned long (*read_func)(void *dest, unsigned long len, unsigned long nmemb, void *priv);
-	int           (*seek_func)(void *priv, long offset, int whence);
-	long          (*tell_func)(void *priv);
+	unsigned long	(*read_func)(void *dest, unsigned long len,
+				     unsigned long nmemb, void *priv);
+	int		(*seek_func)(void *priv, long offset, int whence);
+	long		(*tell_func)(void *priv);
+	int		(*close_func)(void *priv);
 };
 
 typedef char *xmp_context;
