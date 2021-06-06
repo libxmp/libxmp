@@ -20,7 +20,8 @@ USE_PROWIZARD	= 1
 USE_DEPACKERS	= 1
 
 CC = wcc386
-SYSTEM = nt_dll
+SYSTEM = nt
+SYSTEM_DLL = nt_dll
 
 CFLAGS = -zq -bt=nt -bm -fp5 -fpi87 -mf -oeatxh -w4 -ei -zp8
 # newer OpenWatcom versions enable W303 by default.
