@@ -36,6 +36,7 @@ test_depack_gzip
 test_depack_compress
 test_depack_arc_method2
 test_depack_arc_method8
+test_depack_rar
 test_depack_spark
 test_depack_j2b
 test_depack_lzx

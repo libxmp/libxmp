@@ -3,6 +3,7 @@
  * Written somewhere in the 90s by Kurt Keller
  * Comments translated by Steve Donovan
  * Modified for use in xmp by Mirko Buffoni and Claudio Matsuoka
+ * Reentrancy patch added for xmp by Alice Rowan
  */
 
 /*
@@ -11,7 +12,7 @@
  * useful. -- Kurt Keller, Aug 2013
  */
 
-#if !defined(HAVE_POPEN) && defined(_WIN32)
+#ifdef _WIN32
 
 #include "ptpopen.h"
 
@@ -50,8 +51,16 @@ Web:    www.parity-soft.de
 typedef LONG LONG_PTR;
 #endif
 
-static HANDLE my_pipein[2], my_pipeout[2], my_pipeerr[2];
-static char my_popenmode = ' ';
+struct pt_popen_data
+{
+  HANDLE pipein[2];
+  HANDLE pipeout[2];
+  HANDLE pipeerr[2];
+  char popenmode;
+  BOOL is_open;
+};
+
+static struct pt_popen_data static_data;
 
 static int my_pipe(HANDLE *readwrite)
 {
@@ -75,26 +84,41 @@ static int my_pipe(HANDLE *readwrite)
   Replacement for 'popen()' under WIN32.
   NOTE: if cmd contains '2>&1', we connect the standard error file handle
     to the standard output file handle.
+  NOTE: a pointer to allocate a pt_popen_data struct to may be provided. If
+    this pointer is NULL, a static (non-reentrant) struct will be used instead.
 ----------------------------------------------------------------------------*/
-FILE * pt_popen(const char *cmd, const char *mode)
+FILE * pt_popen(const char *cmd, const char *mode, struct pt_popen_data **data)
 {
   FILE *fptr = (FILE *)0;
   PROCESS_INFORMATION piProcInfo;
   STARTUPINFO siStartInfo;
   int success, umlenkung;
+  struct pt_popen_data *my_data = &static_data;
+  BOOL user_data = FALSE;
 
-  my_pipein[0]   = INVALID_HANDLE_VALUE;
-  my_pipein[1]   = INVALID_HANDLE_VALUE;
-  my_pipeout[0]  = INVALID_HANDLE_VALUE;
-  my_pipeout[1]  = INVALID_HANDLE_VALUE;
-  my_pipeerr[0]  = INVALID_HANDLE_VALUE;
-  my_pipeerr[1]  = INVALID_HANDLE_VALUE;
+  if (data) {
+    my_data = malloc(sizeof(struct pt_popen_data));
+    if (!my_data)
+      return NULL;
+
+    user_data = TRUE;
+  } else if (static_data.is_open) {
+    return NULL;
+  }
+
+  my_data->pipein[0]   = INVALID_HANDLE_VALUE;
+  my_data->pipein[1]   = INVALID_HANDLE_VALUE;
+  my_data->pipeout[0]  = INVALID_HANDLE_VALUE;
+  my_data->pipeout[1]  = INVALID_HANDLE_VALUE;
+  my_data->pipeerr[0]  = INVALID_HANDLE_VALUE;
+  my_data->pipeerr[1]  = INVALID_HANDLE_VALUE;
+  my_data->is_open     = TRUE;
 
   if (!mode || !*mode)
     goto finito;
 
-  my_popenmode = *mode;
-  if (my_popenmode != 'r' && my_popenmode != 'w')
+  my_data->popenmode = *mode;
+  if (my_data->popenmode != 'r' && my_data->popenmode != 'w')
     goto finito;
 
   /*
@@ -103,22 +127,22 @@ FILE * pt_popen(const char *cmd, const char *mode)
 
   /*
    * Create the Pipes... */
-  if (my_pipe(my_pipein)  == -1 ||
-      my_pipe(my_pipeout) == -1)
+  if (my_pipe(my_data->pipein)  == -1 ||
+      my_pipe(my_data->pipeout) == -1)
     goto finito;
-  if (!umlenkung && my_pipe(my_pipeerr) == -1)
+  if (!umlenkung && my_pipe(my_data->pipeerr) == -1)
     goto finito;
 
   /*
    * Now create the child process */
   ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
   siStartInfo.cb           = sizeof(STARTUPINFO);
-  siStartInfo.hStdInput    = my_pipein[0];
-  siStartInfo.hStdOutput   = my_pipeout[1];
+  siStartInfo.hStdInput    = my_data->pipein[0];
+  siStartInfo.hStdOutput   = my_data->pipeout[1];
   if (umlenkung)
-    siStartInfo.hStdError  = my_pipeout[1];
+    siStartInfo.hStdError  = my_data->pipeout[1];
   else
-    siStartInfo.hStdError  = my_pipeerr[1];
+    siStartInfo.hStdError  = my_data->pipeerr[1];
   siStartInfo.dwFlags    = STARTF_USESTDHANDLES;
 
   success = CreateProcess(NULL,
@@ -137,48 +161,74 @@ FILE * pt_popen(const char *cmd, const char *mode)
 
   /*
    * These handles listen to the child process */
-  CloseHandle(my_pipein[0]);  my_pipein[0]  = INVALID_HANDLE_VALUE;
-  CloseHandle(my_pipeout[1]); my_pipeout[1] = INVALID_HANDLE_VALUE;
-  CloseHandle(my_pipeerr[1]); my_pipeerr[1] = INVALID_HANDLE_VALUE;
+  CloseHandle(my_data->pipein[0]);  my_data->pipein[0]  = INVALID_HANDLE_VALUE;
+  CloseHandle(my_data->pipeout[1]); my_data->pipeout[1] = INVALID_HANDLE_VALUE;
+  CloseHandle(my_data->pipeerr[1]); my_data->pipeerr[1] = INVALID_HANDLE_VALUE;
 
-  if (my_popenmode == 'r')
-    fptr = _fdopen(_open_osfhandle((LONG_PTR)my_pipeout[0],_O_BINARY),"r");
+  if (my_data->popenmode == 'r')
+    fptr = _fdopen(_open_osfhandle((LONG_PTR)my_data->pipeout[0],_O_BINARY),"r");
   else
-    fptr = _fdopen(_open_osfhandle((LONG_PTR)my_pipein[1],_O_BINARY),"w");
+    fptr = _fdopen(_open_osfhandle((LONG_PTR)my_data->pipein[1],_O_BINARY),"w");
 
 finito:
   if (!fptr)
   {
-    if (my_pipein[0]  != INVALID_HANDLE_VALUE)
-      CloseHandle(my_pipein[0]);
-    if (my_pipein[1]  != INVALID_HANDLE_VALUE)
-      CloseHandle(my_pipein[1]);
-    if (my_pipeout[0] != INVALID_HANDLE_VALUE)
-      CloseHandle(my_pipeout[0]);
-    if (my_pipeout[1] != INVALID_HANDLE_VALUE)
-      CloseHandle(my_pipeout[1]);
-    if (my_pipeerr[0] != INVALID_HANDLE_VALUE)
-      CloseHandle(my_pipeerr[0]);
-    if (my_pipeerr[1] != INVALID_HANDLE_VALUE)
-      CloseHandle(my_pipeerr[1]);
+    if (my_data->pipein[0]  != INVALID_HANDLE_VALUE)
+      CloseHandle(my_data->pipein[0]);
+    if (my_data->pipein[1]  != INVALID_HANDLE_VALUE)
+      CloseHandle(my_data->pipein[1]);
+    if (my_data->pipeout[0] != INVALID_HANDLE_VALUE)
+      CloseHandle(my_data->pipeout[0]);
+    if (my_data->pipeout[1] != INVALID_HANDLE_VALUE)
+      CloseHandle(my_data->pipeout[1]);
+    if (my_data->pipeerr[0] != INVALID_HANDLE_VALUE)
+      CloseHandle(my_data->pipeerr[0]);
+    if (my_data->pipeerr[1] != INVALID_HANDLE_VALUE)
+      CloseHandle(my_data->pipeerr[1]);
+    my_data->is_open = FALSE;
+
+    if (user_data)
+    {
+      free(my_data);
+      my_data = NULL;
+    }
   }
+  if (user_data)
+    *data = my_data;
   return fptr;
 }
 
 /*----------------------------------------------------------------------------
   Replacement for 'pclose()' under WIN32
 ----------------------------------------------------------------------------*/
-int pt_pclose(FILE *fle)
+int pt_pclose(FILE *fle, struct pt_popen_data **data)
 {
-  if (fle)
+  struct pt_popen_data *my_data = &static_data;
+  BOOL free_data = FALSE;
+  if (data)
+  {
+    if (!*data)
+      return -1;
+
+    my_data = *data;
+    free_data = TRUE;
+  }
+
+  if (fle && my_data->is_open)
   {
     (void)fclose(fle);
 
-    CloseHandle(my_pipeerr[0]);
-    if (my_popenmode == 'r')
-      CloseHandle(my_pipein[1]);
+    CloseHandle(my_data->pipeerr[0]);
+    if (my_data->popenmode == 'r')
+      CloseHandle(my_data->pipein[1]);
     else
-     CloseHandle(my_pipeout[0]);
+      CloseHandle(my_data->pipeout[0]);
+
+    if (free_data)
+    {
+      free(my_data);
+      *data = NULL;
+    }
     return 0;
   }
   return -1;

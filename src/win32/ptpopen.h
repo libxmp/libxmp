@@ -4,16 +4,18 @@
 #include <stdio.h>
 
 #undef  popen
-#define popen pt_popen
+#define popen(cmd, mode) pt_popen(cmd, mode, NULL)
 #undef  pclose
-#define pclose pt_pclose
+#define pclose(f) pt_pclose(f, NULL)
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-FILE *	pt_popen(const char *cmd, const char *mode);
-int	pt_pclose(FILE *fle);
+struct pt_popen_data;
+
+FILE *	pt_popen(const char *cmd, const char *mode, struct pt_popen_data **data);
+int	pt_pclose(FILE *fle, struct pt_popen_data **data);
 
 #ifdef __cplusplus
 }

@@ -6,6 +6,7 @@ AC_ARG_ENABLE(static,    [  --enable-static         Build static library])
 AC_ARG_ENABLE(shared,    [  --disable-shared        Don't build shared library])
 AC_SUBST(LD_VERSCRIPT)
 AC_SUBST(DARWIN_VERSION)
+AC_SUBST(PLATFORM_DIR)
 AC_CANONICAL_HOST
 AC_PROG_CC
 AC_PROG_INSTALL
@@ -52,6 +53,9 @@ darwin*)
 cygwin* | *djgpp | mint* | amigaos* |aros* | morphos*)
   enable_static=yes
   enable_shared=no
+  ;;
+mingw* | msys*)
+  PLATFORM_DIR=win32
   ;;
 esac
 
@@ -190,6 +194,13 @@ darwin*|*djgpp|mingw*)
 esac
 AC_CHECK_HEADERS(dirent.h)
 AC_CHECK_FUNCS(popen mkstemp fnmatch umask round powf)
+dnl fork, execv & co don't work with djgpp
+case "${host_os}" in
+*djgpp|mingw*)
+  ;;
+*) AC_CHECK_FUNCS(wait pipe fork execvp dup2)
+  ;;
+esac
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([libxmp.pc])
