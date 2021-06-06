@@ -282,7 +282,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  liq liq_no \
 		  masi \
 		  mdl0 mdl \
-		  med3 med4 \
+		  med2 med3 med4 \
 		  mmd0 mmd0_compattempo mmd1_longpat \
 		  mmd3 mmd_iff3oct \
 		  mfp \
