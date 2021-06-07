@@ -211,19 +211,21 @@ struct lzma_dec {
 	uint16 literal[LITERAL_CODERS_MAX][LITERAL_CODER_SIZE];
 };
 
+enum lzma2_seq {
+	SEQ_CONTROL,
+	SEQ_UNCOMPRESSED_1,
+	SEQ_UNCOMPRESSED_2,
+	SEQ_COMPRESSED_0,
+	SEQ_COMPRESSED_1,
+	SEQ_PROPERTIES,
+	SEQ_LZMA_PREPARE,
+	SEQ_LZMA_RUN,
+	SEQ_COPY
+};
+
 struct lzma2_dec {
 	/* Position in xz_dec_lzma2_run(). */
-	enum lzma2_seq {
-		SEQ_CONTROL,
-		SEQ_UNCOMPRESSED_1,
-		SEQ_UNCOMPRESSED_2,
-		SEQ_COMPRESSED_0,
-		SEQ_COMPRESSED_1,
-		SEQ_PROPERTIES,
-		SEQ_LZMA_PREPARE,
-		SEQ_LZMA_RUN,
-		SEQ_COPY
-	} sequence;
+	enum lzma2_seq sequence;
 
 	/* Next position after decoding the compressed size of the chunk. */
 	enum lzma2_seq next_sequence;

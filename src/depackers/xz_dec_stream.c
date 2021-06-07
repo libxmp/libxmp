@@ -18,20 +18,28 @@ struct xz_dec_hash {
 	uint32 crc32;
 };
 
+enum dec_sequence_main  {
+	SEQ_STREAM_HEADER,
+	SEQ_BLOCK_START,
+	SEQ_BLOCK_HEADER,
+	SEQ_BLOCK_UNCOMPRESS,
+	SEQ_BLOCK_PADDING,
+	SEQ_BLOCK_CHECK,
+	SEQ_INDEX,
+	SEQ_INDEX_PADDING,
+	SEQ_INDEX_CRC32,
+	SEQ_STREAM_FOOTER
+};
+
+enum dec_sequence_index {
+	SEQ_INDEX_COUNT,
+	SEQ_INDEX_UNPADDED,
+	SEQ_INDEX_UNCOMPRESSED
+};
+
 struct xz_dec {
 	/* Position in dec_main() */
-	enum {
-		SEQ_STREAM_HEADER,
-		SEQ_BLOCK_START,
-		SEQ_BLOCK_HEADER,
-		SEQ_BLOCK_UNCOMPRESS,
-		SEQ_BLOCK_PADDING,
-		SEQ_BLOCK_CHECK,
-		SEQ_INDEX,
-		SEQ_INDEX_PADDING,
-		SEQ_INDEX_CRC32,
-		SEQ_STREAM_FOOTER
-	} sequence;
+	enum dec_sequence_main sequence;
 
 	/* Position in variable-length integers and Check fields */
 	uint32 pos;
@@ -97,11 +105,7 @@ struct xz_dec {
 	/* Variables needed when verifying the Index field */
 	struct {
 		/* Position in dec_index() */
-		enum {
-			SEQ_INDEX_COUNT,
-			SEQ_INDEX_UNPADDED,
-			SEQ_INDEX_UNCOMPRESSED
-		} sequence;
+		enum dec_sequence_index sequence;
 
 		/* Size of the Index in bytes */
 		vli_type size;
