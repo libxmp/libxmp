@@ -162,12 +162,18 @@ int libxmp_iff_register(iff_handle opaque, const char *id,
 {
 	struct iff_data *data = (struct iff_data *)opaque;
 	struct iff_info *f;
+	int i = 0;
 
 	f = malloc(sizeof(struct iff_info));
 	if (f == NULL)
 		return -1;
 
-	strncpy(f->id, id, 4);
+	/* Note: previously was an strncpy */
+	for (; i < 4 && id && id[i]; i++)
+		f->id[i] = id[i];
+	for (; i < 4; i++)
+		f->id[i] = '\0';
+
 	f->loader = loader;
 
 	list_add_tail(&f->list, &data->iff_list);
