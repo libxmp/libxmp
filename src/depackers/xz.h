@@ -11,21 +11,10 @@
 #ifndef XZ_H
 #define XZ_H
 
-#ifdef __KERNEL__
-#	include <linux/stddef.h>
-#	include <linux/types.h>
-#else
-/*
-#	include <stddef.h>
-#	include <stdint.h>
-*/
-#	include "common.h"
-#	define false 0
-#	define true 1
-#ifndef B_BEOS_VERSION
-	typedef int bool;
-#endif
-#endif
+#include "common.h"
+#define xz_false 0
+#define xz_true 1
+typedef int xz_bool;
 
 #ifdef __cplusplus
 extern "C" {
@@ -252,11 +241,7 @@ XZ_EXTERN void xz_dec_end(struct xz_dec *s);
  * care about the functions below.
  */
 #ifndef XZ_INTERNAL_CRC32
-#	ifdef __KERNEL__
-#		define XZ_INTERNAL_CRC32 0
-#	else
 #		define XZ_INTERNAL_CRC32 1
-#	endif
 #endif
 
 #if XZ_INTERNAL_CRC32
