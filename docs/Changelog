@@ -1,18 +1,30 @@
 Stable versions
 ---------------
 
-4.5.0 ():
+4.5.0 (20210606):
 	Changes by Alice Rowan:
+	- xmp_load_module_from_callbacks and xmp_test_module_from_callbacks
+	  added to api
 	- fix xmp_set_position et al. when used during loops, pattern delay
 	- make xmp_set_position() consistently clear pattern break/jump vars
+	- avoid shell command injection when calling external unmo3 or unrar
 	- fix volume event handling for FAR modules
 	- fix GDM loader to correctly handle empty notes
 	- fix GDM fine effects
+	- fix incorrect handling of GDM speed effect
+	- implement GDM surround effect
+	- add support for DSMI 0.8 and 0.9 AMF modules
+	- fix incorrect DSMI AMF volume and note 0x7f handling
+	- fix DSMI AMF track 0 remapping bug
+	- fix DSMI AMF speed effect and pan command conversions
+	- fix IMAGO Orpheus channel panning and status values
 	- fix S3M ADPCM4 samples
-	- fix OctaMED 'tracker compatibility' tempos
+	- fix OctaMED 'tracker compatibility' tempos, more accurate OctaMED
+	  8-channel mode BPM tables.
 	- ignore MED volume/slide effects with param of 0, fix speed bound.
 	- improve MOD loader checks for Mod's Grave WOW files
 	- fix Schism Tracker version date calculation
+	- fix MED2 BPM handling
 	- fix MED modules with pattern lengths > 256
 	- fix MED instrument corruption
 	- allow up to 512 rows in X-Tracker patterns
@@ -75,6 +87,8 @@ Stable versions
 	- fix mute status on player creation
 	Changes by Cameron Cawley:
 	- fix sanity check in Digital Symphony loader
+	- fix and enable the Coconizer loader
+	- support compiling for Windows with OpenWatcom
 	Changes by Ghabry:
 	- add xmp_test_module_from_memory and xmp_test_module_from_file
 	  calls to api

@@ -1,7 +1,7 @@
 Stable versions
 ---------------
 
-4.5.0 ():
+4.5.0 (20210606):
 	- fix xmp_set_position et al. when used during loops, pattern delay
 	- make xmp_set_position() consistently clear pattern break/jump vars
 	- xmp_get_format_list() now returns const char* const*, not char**
@@ -31,6 +31,8 @@ Stable versions
 	- add xmp_test_module_from_memory and xmp_test_module_from_file
 	  calls to api
 	- add new xmp_syserrno call to the api
+	- xmp_load_module_from_callbacks and xmp_test_module_from_callbacks
+	  added to api
 	- fix IT pattern delay volume reset bug (read row events only
 	  once per row)
 	- IT: T00 now repeats previous slide
@@ -56,6 +58,7 @@ Stable versions
 	- fix compatibility with old gcc, mingw, djgpp
 	- fix warnings in configure script
 	- fix Watcom C build on OS/2
+	- support compiling for Windows with OpenWatcom
 	- fix Amiga build
 	- fix Emscripten builds
 	- fix linkage errors with MSVC debug builds
