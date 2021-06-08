@@ -10,13 +10,6 @@
 #ifndef XZ_STREAM_H
 #define XZ_STREAM_H
 
-#if defined(__KERNEL__) && !XZ_INTERNAL_CRC32
-#	include <linux/crc32.h>
-#	undef crc32
-#	define xz_crc32(buf, size, crc) \
-		(~crc32_le(~(uint32)(crc), buf, size))
-#endif
-
 /*
  * See the .xz file format specification at
  * http://tukaani.org/xz/xz-file-format.txt

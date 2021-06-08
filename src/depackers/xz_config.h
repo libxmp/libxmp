@@ -20,13 +20,9 @@
 
 #define XZ_DEC_ANY_CHECK 1
 
-/*
-#include <stdlib.h>
-#include <string.h>
-*/
-
 #include "xz.h"
 
+#define GFP_KERNEL (0)
 #define kmalloc(size, flags) malloc(size)
 #define kfree(ptr) free(ptr)
 #define vmalloc(size) malloc(size)

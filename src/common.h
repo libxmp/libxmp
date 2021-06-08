@@ -321,6 +321,33 @@ struct module_data {
 };
 
 
+struct pattern_loop {
+	int start;
+	int count;
+};
+
+struct flow_control {
+	int pbreak;
+	int jump;
+	int delay;
+	int jumpline;
+	int loop_chn;
+
+	struct pattern_loop *loop;
+
+	int num_rows;
+	int end_point;
+#define ROWDELAY_ON		(1 << 0)
+#define ROWDELAY_FIRST_FRAME	(1 << 1)
+	int rowdelay;		/* For IT pattern row delay */
+	int rowdelay_set;
+};
+
+struct virt_channel {
+	int count;
+	int map;
+};
+
 struct player_data {
 	int ord;
 	int pos;
@@ -343,25 +370,7 @@ struct player_data {
 	int master_vol;			/* Music volume */
 	int gvol;
 
-	struct flow_control {
-		int pbreak;
-		int jump;
-		int delay;
-		int jumpline;
-		int loop_chn;
-
-		struct pattern_loop {
-			int start;
-			int count;
-		} *loop;
-
-		int num_rows;
-		int end_point;
-#define ROWDELAY_ON		(1 << 0)
-#define ROWDELAY_FIRST_FRAME	(1 << 1)
-		int rowdelay;		/* For IT pattern row delay */
-		int rowdelay_set;
-	} flow;
+	struct flow_control flow;
 
 	struct {
 		int time;		/* replay time in ms */
@@ -381,10 +390,7 @@ struct player_data {
 		int virt_used;		/* Number of voices currently in use */
 		int maxvoc;		/* Number of sound card voices */
 
-		struct virt_channel {
-			int count;
-			int map;
-		} *virt_channel;
+		struct virt_channel *virt_channel;
 
 		struct mixer_voice *voice_array;
 	} virt;

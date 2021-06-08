@@ -6,12 +6,14 @@
 
 #define HIO_HANDLE_TYPE(x) ((x)->type)
 
+enum hio_type {
+	HIO_HANDLE_TYPE_FILE,
+	HIO_HANDLE_TYPE_MEMORY,
+	HIO_HANDLE_TYPE_CBFILE
+};
+
 typedef struct {
-	enum {
-		HIO_HANDLE_TYPE_FILE,
-		HIO_HANDLE_TYPE_MEMORY,
-		HIO_HANDLE_TYPE_CBFILE
-	} type;
+	enum hio_type type;
 	long size;
 	union {
 		FILE *file;
