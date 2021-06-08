@@ -25,9 +25,8 @@ TEST(test_depack_rar)
 
 		ret = compare_module(info.mod, f);
 		fail_unless(ret == 0, "RARed module not correctly loaded");
-
-		xmp_release_module(c);
-		xmp_free_context(c);
 	}
+	xmp_release_module(c);
+	xmp_free_context(c);
 }
 END_TEST
