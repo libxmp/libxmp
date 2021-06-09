@@ -13,7 +13,7 @@
 #define END_TEST \
 	return 0; }
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__riscos__)
 /* exit() prevents the failure message from being printed! */
 #define FAIL_MSG "**fail**\n"
 #else

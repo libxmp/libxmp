@@ -196,7 +196,7 @@ AC_CHECK_HEADERS(dirent.h)
 AC_CHECK_FUNCS(popen mkstemp fnmatch umask round powf)
 dnl fork, execv & co don't work with djgpp
 case "${host_os}" in
-*djgpp|mingw*)
+*djgpp|mingw*|riscos*)
   ;;
 *) AC_CHECK_FUNCS(wait pipe fork execvp dup2)
   ;;
