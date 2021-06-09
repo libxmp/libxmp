@@ -336,7 +336,7 @@ Stable versions
 	- minor Visual C++ port fixes
 	- add Visual C++ nmake Makefile
 	- fix double free in module loaded from memory (by Arnaud Troël)
-	- fix Win64 portability issues (reported by Ozkan Sezer)
+	- fix Win64 portability issues (reported by Özkan Sezer)
 	- fix IT tempo slide effect
 	- generate Android NDK static libraries
 

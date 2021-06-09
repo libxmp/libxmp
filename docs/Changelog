@@ -47,7 +47,7 @@ Stable versions
 	Changes by viiri:
 	- fix samples corruption in STM modules
 	- support more versions of STM modules
-	Changes by Ozkan Sezer:
+	Changes by Özkan Sezer:
 	- add new xmp_syserrno call to the api
 	- xmp_get_format_list() now returns const char* const*, not char**
 	  (no ABI change)
@@ -556,7 +556,7 @@ Stable versions
 	Other changes:
 	- fix double free in module loaded from memory (by Arnaud Troël)
 	- fix old Soundtracker sample loops (reported by Dennis Lindroos)
-	- fix Win64 portability issues (reported by Ozkan Sezer)
+	- fix Win64 portability issues (reported by Özkan Sezer)
 	- fix OctaMED 3 octave limit for sampled instruments
 	- fix OctaMED hold/decay event support
 	- fix OctaMED vibrato effect depth
