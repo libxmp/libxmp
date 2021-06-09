@@ -1,5 +1,6 @@
 #include <xmp.h>
 
+#include <unistd.h>
 #include "../src/common.h"
 #include "../src/md5.h"
 

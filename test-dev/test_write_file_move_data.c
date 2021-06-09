@@ -24,7 +24,10 @@ TEST(test_write_file_move_data)
 	f2 = fopen("write_test", "rb");
 	fread(b1, 1, 4000, f1);
 	fread(b2, 1, 4000, f2);
+	fclose(f1);
+	fclose(f2);
 
 	fail_unless(memcmp(b1, b2, 4000) == 0, "read error");
+	unlink("write_test");
 }
 END_TEST

@@ -1,5 +1,4 @@
 #include <errno.h>
-#include <unistd.h>
 #include "test.h"
 
 TEST(test_api_load_module)

@@ -26,5 +26,6 @@ TEST(test_depack_it_sample_8bit)
 
 	ret = check_md5(TMP_FILE, "299c9144ae2349b90b430aafde8d799a");
 	fail_unless(ret == 0, "MD5 error");
+	unlink(TMP_FILE);
 }
 END_TEST
