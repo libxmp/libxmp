@@ -80,7 +80,7 @@ int test_oxm		(FILE *);
     defined(HAVE_DUP2) && defined(HAVE_WAIT)
 #define DECRUNCH_USE_FORK
 #elif defined(HAVE_POPEN) && \
-    (defined(_WIN32) || defined(__OS2__) || defined(__EMX__) || defined(__DJGPP__))
+    (defined(_WIN32) || defined(__OS2__) || defined(__EMX__) || defined(__DJGPP__) || defined(__riscos__))
 #define DECRUNCH_USE_POPEN
 #else
 static int execute_command(const char * const cmd[], FILE *t) {

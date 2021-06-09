@@ -1,6 +1,6 @@
 #ifdef WIN32
 #include <process.h> /* _spawnl, _P_WAIT */
-#else
+#elif !defined(__riscos__)
 #define FORK_TEST
 #endif
 
