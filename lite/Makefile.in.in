@@ -27,7 +27,7 @@ SHELL		= /bin/sh
 DIST		= libxmp-lite-$(VERSION)
 DFILES		= README INSTALL Changelog install-sh configure configure.ac \
 		  config.sub config.guess Makefile.in libxmp-lite.pc.in \
-		  Makefile.vc Makefile.os2 Makefile.nt watcom.mif libxmp.map
+		  Makefile.vc Makefile.os2 Makefile.w32 watcom.mif libxmp.map
 DDIRS		= include src loaders os2 test
 V		= 0
 LIB		= libxmp-lite.a
@@ -204,7 +204,6 @@ distcheck:
 	rm -Rf $(DIST)
 	tar xf $(DIST).tar.gz
 	(cd $(DIST); ./configure --enable-static --prefix=`pwd`/test-install; make; make check; make install; find test-install)
-
 
 devcheck:
 	$(MAKE) -C test-dev
