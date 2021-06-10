@@ -74,10 +74,10 @@ The Authors
 - Johan Samuelsson <spot@triad.se>
   * Amiga port and fixes
 
-- Özkan Sezer
+- Özkan Sezer <sezeroz@gmail.com>
   * build system/portability improvements
   * stability fixes and cleanup
-  * UMX loader
+  * Unreal UMX loader
 
 - Attila Sipos <h430827@stud.u-szeged.hu>
   * SQSH decruncher checksum
