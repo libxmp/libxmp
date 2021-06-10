@@ -1,9 +1,13 @@
+# Visual Studio makefile for Windows:
+#	nmake -f Makefile.vc
+#
 # To disable module depacker functionality:
 #	nmake -f Makefile.vc USE_DEPACKERS=0
-USE_DEPACKERS	= 1
-
+#
 # To disable ProWizard:
 #	nmake -f Makefile.vc USE_PROWIZARD=0
+#
+USE_DEPACKERS	= 1
 USE_PROWIZARD	= 1
 
 CC	= cl
