@@ -20,6 +20,8 @@ TEST(test_api_set_row)
 	create_simple_module(ctx, 1, 1);
 	libxmp_free_scan(ctx);
 	set_order(ctx, 0, 0);
+	set_order(ctx, 1, 0xff); /* End marker. */
+	set_quirk(ctx, QUIRK_MARKER, READ_EVENT_IT);
 
 	libxmp_prepare_scan(ctx);
 	libxmp_scan_sequences(ctx);
@@ -34,6 +36,14 @@ TEST(test_api_set_row)
 
 	ret = xmp_set_row(opaque, 64);
 	fail_unless(ret == -XMP_ERROR_INVALID, "return value error");
+
+	/* Go to end marker. */
+	ret = xmp_set_position(opaque, 1);
+	fail_unless(ret == 1, "set_position error");
+
+	/* Set row on a marker should just fail (meaningless). */
+	ret = xmp_set_row(opaque, 0);
+	fail_unless(ret == -XMP_ERROR_INVALID, "set row at marker");
 
 	xmp_free_context(opaque);
 }
