@@ -185,16 +185,17 @@ int xmp_set_row(xmp_context opaque, int row)
 	struct xmp_module *mod = &m->mod;
 	struct flow_control *f = &p->flow;
 	int pos = p->pos;
-	int pattern = mod->xxo[pos];
+	int pattern;
 
 	if (pos < 0 || pos >= mod->len) {
 		pos = 0;
 	}
+	pattern = mod->xxo[pos];
 
 	if (ctx->state < XMP_STATE_PLAYING)
 		return -XMP_ERROR_STATE;
 
-	if (row >= mod->xxp[pattern]->rows)
+	if (pattern >= mod->pat || row >= mod->xxp[pattern]->rows)
 		return -XMP_ERROR_INVALID;
 
 	/* See set_position. */
