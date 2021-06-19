@@ -233,7 +233,7 @@ int libxmp_snprintf (char *, size_t, const char *, ...);
 #define DEFAULT_TIME_FACTOR	10.0
 #define MED_TIME_FACTOR		2.64
 
-#define MAX_SEQUENCES		16
+#define MAX_SEQUENCES		255
 #define MAX_SAMPLE_SIZE		0x10000000
 #define MAX_SAMPLES		1024
 #define MAX_INSTRUMENTS		255
@@ -348,6 +348,13 @@ struct virt_channel {
 	int map;
 };
 
+struct scan_data {
+	int time;			/* replay time in ms */
+	int row;
+	int ord;
+	int num;
+};
+
 struct player_data {
 	int ord;
 	int pos;
@@ -372,12 +379,7 @@ struct player_data {
 
 	struct flow_control flow;
 
-	struct {
-		int time;		/* replay time in ms */
-		int ord;
-		int row;
-		int num;
-	} scan[MAX_SEQUENCES];
+	struct scan_data *scan;
 
 	struct channel_data *xc_data;
 

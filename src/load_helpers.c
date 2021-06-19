@@ -309,6 +309,7 @@ int libxmp_prepare_scan(struct context_data *ctx)
 
 void libxmp_free_scan(struct context_data *ctx)
 {
+	struct player_data *p = &ctx->p;
 	struct module_data *m = &ctx->m;
 	struct xmp_module *mod = &m->mod;
 	int i;
@@ -320,6 +321,9 @@ void libxmp_free_scan(struct context_data *ctx)
 		free(m->scan_cnt);
 		m->scan_cnt = NULL;
 	}
+
+	free(p->scan);
+	p->scan = NULL;
 }
 
 /* Process player personality flags */
