@@ -525,9 +525,17 @@ int libxmp_scan_sequences(struct context_data *ctx)
 	struct player_data *p = &ctx->p;
 	struct module_data *m = &ctx->m;
 	struct xmp_module *mod = &m->mod;
+	struct scan_data *s;
 	int i, ep;
 	int seq;
 	unsigned char temp_ep[XMP_MAX_MOD_LENGTH];
+
+	s = realloc(p->scan, MAX(1, mod->len) * sizeof(struct scan_data));
+	if (!s) {
+		D_(D_CRIT "failed to allocate scan data");
+		return -1;
+	}
+	p->scan = s;
 
 	/* Initialize order data to prevent overwrite when a position is used
 	 * multiple times at different starting points (see janosik.xm).
@@ -567,6 +575,12 @@ int libxmp_scan_sequences(struct context_data *ctx)
 		}
 	}
 
+	if (seq < mod->len) {
+		s = realloc(p->scan, seq * sizeof(struct scan_data));
+		if (s != NULL) {
+			p->scan = s;
+		}
+	}
 	m->num_sequences = seq;
 
 	/* Now place entry points in the public accessible array */
