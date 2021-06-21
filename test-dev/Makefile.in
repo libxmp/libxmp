@@ -347,6 +347,7 @@ FUZZER		= mod_no_null_terminator \
 		  xm_zero_samples \
 		  it_dca_3 \
 		  it_invalid_compressed \
+		  it_long_patterns \
 		  it_truncated_pattern \
 		  669_truncated \
 		  abk_0_instruments \
