@@ -15,8 +15,11 @@
 *.cov
 a.out
 lib/
+test-dev/gen_mixer_data
+test-dev/gen_module_data
 test-dev/libxmp-covertest
-test-dev/libxmp-test
+test-dev/libxmp-tests
+test-dev/libxmp_fuzz_*
 
 # VC++ files
 /.vs
@@ -73,7 +76,11 @@ test/.test
 test/libxmp-covertest
 test/libxmp-tests
 test/test8.raw
+test-dev/.fuzzer
 test-dev/.read_test
+test-dev/ARTIFACTS
+test-dev/CORPUS
+test-dev/NEW_CORPUS
 test-dev/all_tests.c
 test-dev/write_test
 coverage/
