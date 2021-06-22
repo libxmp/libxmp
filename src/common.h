@@ -24,6 +24,11 @@
 #if (defined(__GNUC__) || defined(__clang__)) && defined(XMP_SYM_VISIBILITY)
 #if !defined(_WIN32) && !defined(__ANDROID__) && !defined(__APPLE__) && !defined(LIBXMP_AMIGA) && !defined(__MSDOS__) && !defined(B_BEOS_VERSION) && !defined(__ATHEOS__) && !defined(EMSCRIPTEN) && !defined(__MINT__)
 #define USE_VERSIONED_SYMBOLS
+#ifdef HAVE_EXTERNAL_VISIBILITY
+#define LIBXMP_EXPORT_VERSIONED __attribute__((visibility("default"),externally_visible))
+#else
+#define LIBXMP_EXPORT_VERSIONED __attribute__((visibility("default")))
+#endif
 #endif
 #endif
 

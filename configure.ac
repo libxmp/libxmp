@@ -118,24 +118,34 @@ XMP_TRY_COMPILE(whether compiler understands -xldscope=hidden,
 __attribute__((visibility("default"))) int foo(void);
 __attribute__((visibility("hidden")))  int bar(void);
 int foo(void) { return 0; }
-int bar(void) { return 1; }],
-    [CFLAGS="${old_CFLAGS} -fvisibility=hidden -DXMP_SYM_VISIBILITY"
-     LD_VERSCRIPT="-Wl,--version-script,libxmp.map"],
-    [CFLAGS="${old_CFLAGS}"])]
-  )
-dnl we want symbol -fvisibility for elf targets, however it works
-dnl with darwin/macho too.  other than that, windows, dos, os/2,
-dnl amiga do not want it:  for any such targets, the -Werror switch
-dnl is should fail the above check, but it does not.  adding the
-dnl manual test below for that, instead.
+int bar(void) { return 1; }])]
+)
 case $host_os in
     mingw*|cygwin*|emx*|*djgpp|amigaos*|aros*|morphos*)
-	CFLAGS="${old_CFLAGS}"
 	if test $ac_cv_c_flag_f_visibility_hidden = yes; then
 	  AC_MSG_NOTICE([ignoring -fvisibility flags for $host_os])
 	fi
+	ac_cv_c_flag_f_visibility_hidden=no
 	;;
 esac
+if test $ac_cv_c_flag_f_visibility_hidden = no; then
+   CFLAGS="${old_CFLAGS}"
+else
+   CFLAGS="${old_CFLAGS} -fvisibility=hidden -DXMP_SYM_VISIBILITY"
+   LD_VERSCRIPT="-Wl,--version-script,libxmp.map"
+
+dnl https://github.com/libxmp/libxmp/issues/385
+   old_CFLAGS="${CFLAGS}"
+   if test $ac_cv_c_flag_w_all = yes; then
+      CFLAGS="${CFLAGS} -Werror"
+   fi
+   XMP_TRY_COMPILE(whether compiler understands externally_visible attribute,
+    ac_cv_c_attribute_visibility_external,[],[
+__attribute__((visibility("default"),externally_visible)) int foo(void);
+int foo(void) { return 0; }],
+    [CFLAGS="${old_CFLAGS} -DHAVE_EXTERNAL_VISIBILITY"],
+    [CFLAGS="${old_CFLAGS}"])
+fi
 
 dnl for clang
 XMP_TRY_COMPILE(whether compiler understands -Wunknown-warning-option,
