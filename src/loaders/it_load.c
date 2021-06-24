@@ -1099,6 +1099,11 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	hio_read(ifh.chpan, 64, 1, f);
 	hio_read(ifh.chvol, 64, 1, f);
 
+	if (hio_error(f)) {
+		D_(D_CRIT "error reading IT header");
+		goto err;
+	}
+
 	memcpy(mod->name, ifh.name, sizeof(ifh.name));
 	/* sizeof(ifh.name) == 26, sizeof(mod->name) == 64. */
 	mod->name[sizeof(ifh.name)] = '\0';

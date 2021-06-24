@@ -116,7 +116,8 @@ static int ims_test(HIO_HANDLE *f, char *t, const int start)
     ih.len = hio_read8(f);
     ih.zero = hio_read8(f);
     hio_read(ih.orders, 128, 1, f);
-    hio_read(ih.magic, 4, 1, f);
+    if (hio_read(ih.magic, 4, 1, f) == 0)
+	return -1;
 
     if (ih.zero > 1)		/* not sure what this is */
 	return -1;
