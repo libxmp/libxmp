@@ -1,0 +1,149 @@
+name: Regression tests
+
+on:
+  - pull_request
+  - push
+
+jobs:
+  linux:
+    strategy:
+       matrix:
+         distro: [ubuntu-latest, ubuntu-18.04, ubuntu-16.04]
+    runs-on: ${{ matrix.distro }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Create and run configure script
+        run: |
+          autoconf
+          ./configure
+      - name: Build
+        run: |
+          make
+      - name: Run check
+        run: |
+          make check
+      - name: Run devcheck
+        run: |
+          (cd test-dev && autoconf && ./configure)
+          make devcheck
+
+  linux-clang:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Create and run configure script
+        run: |
+          autoconf
+          CC=clang ./configure
+      - name: Build
+        run: |
+          make
+      - name: Run check
+        run: |
+          make check
+      - name: Run devcheck
+        run: |
+          (cd test-dev && autoconf && CC=clang CFLAGS="-fPIE" ./configure)
+          make devcheck
+
+  emscripten:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: sudo apt update && sudo apt install autoconf
+      - name: Install emscripten
+        run: |
+          cd ..
+          git clone https://github.com/emscripten-core/emsdk.git
+          cd emsdk
+          ./emsdk install latest
+          ./emsdk activate latest
+      - name: Create and run configure script
+        run: |
+          source ../emsdk/emsdk_env.sh
+          autoreconf -iv
+          emconfigure ./configure --enable-static --disable-shared
+      - name: Build
+        run: |
+          source ../emsdk/emsdk_env.sh
+          emmake make
+      - name: Run check
+        run: |
+          source ../emsdk/emsdk_env.sh
+          cd test
+          emcc test.c ../src/md5.c -o test.js -O3 -Wall -I../include -I../src -L../lib/ --embed-file test.itz -lxmp
+          node test.js
+
+  macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Create and run configure script
+        run: |
+          autoconf
+          ./configure
+      - name: Build
+        run: |
+          make
+      - name: Run check
+        run: |
+          make check
+      - name: Run devcheck
+        run: |
+          (cd test-dev && autoconf && ./configure)
+          make devcheck
+
+  windows-vc:
+    strategy:
+       matrix:
+         targetplatform: [x86, amd64]
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Build
+        run: |
+          cmd.exe /C "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" ${{ matrix.targetplatform }} "&&" nmake -f Makefile.vc
+      - name: Run check
+        run: |
+          cmd.exe /C "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" ${{ matrix.targetplatform }} "&&" nmake -f Makefile.vc check
+      - name: Run devcheck
+        run: |
+          cmd.exe /C "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" ${{ matrix.targetplatform }} "&&" cd test-dev "&&" nmake -f Makefile.vc
+
+  windows-msys2:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        installs: ["MINGW32", "MINGW64"]
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - name: Setup msys2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.installs }}
+          update: true
+          install: base-devel git gcc autoconf
+      - name: Checkout repository 
+        uses: actions/checkout@v2
+      - name: Create and run configure script
+        run: |
+          autoconf
+          ./configure
+      - name: Build
+        run: |
+          make
+      - name: Run check
+        run: |
+          make check
+      - name: Run devcheck
+        run: |
+          (cd test-dev && autoconf && ./configure)
+          make devcheck
