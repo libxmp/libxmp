@@ -162,12 +162,6 @@ int xmp_test_module(const char *path, struct xmp_test_info *info)
 		ret = -XMP_ERROR_DEPACK;
 		goto err;
 	}
-
-	/* get size after decrunch */
-	if (hio_size(h) < 256) {	/* set minimum valid module size */
-		ret = -XMP_ERROR_FORMAT;
-		goto err;
-	}
 #endif
 
 	ret = test_module(info, h);
@@ -214,12 +208,6 @@ int xmp_test_module_from_file(void *file, struct xmp_test_info *info)
 #ifndef LIBXMP_NO_DEPACKERS
 	if (libxmp_decrunch(&h, NULL, &temp) < 0) {
 		ret = -XMP_ERROR_DEPACK;
-		goto err;
-	}
-
-	/* get size after decrunch */
-	if (hio_size(h) < 256) {	/* set minimum valid module size */
-		ret = -XMP_ERROR_FORMAT;
 		goto err;
 	}
 #endif
@@ -358,7 +346,6 @@ int xmp_load_module(xmp_context opaque, const char *path)
 	struct context_data *ctx = (struct context_data *)opaque;
 #ifndef LIBXMP_CORE_PLAYER
 	struct module_data *m = &ctx->m;
-	long size;
 #endif
 #ifndef LIBXMP_NO_DEPACKERS
 	char *temp_name;
@@ -390,14 +377,6 @@ int xmp_load_module(xmp_context opaque, const char *path)
 	}
 #endif
 
-#ifndef LIBXMP_CORE_PLAYER
-	size = hio_size(h);
-	if (size < 256) {		/* get size after decrunch */
-		ret = -XMP_ERROR_FORMAT;
-		goto err;
-	}
-#endif
-
 	if (ctx->state > XMP_STATE_UNLOADED)
 		xmp_release_module(opaque);
 
@@ -415,7 +394,7 @@ int xmp_load_module(xmp_context opaque, const char *path)
 	}
 
 	m->filename = path;	/* For ALM, SSMT, etc */
-	m->size = size;
+	m->size = hio_size(h);
 #else
 	ctx->m.filename = NULL;
 	ctx->m.dirname = NULL;
