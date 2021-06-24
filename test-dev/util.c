@@ -1,7 +1,43 @@
 #include <math.h>
+#include "../src/hio.h"
 #include "test.h"
 
 #define BUFLEN 16384
+
+void read_file_to_memory(const char *filename, void **_buffer, long *_size)
+{
+	HIO_HANDLE *f = hio_open(filename, "rb");
+	void *buffer = NULL;
+	long size;
+
+	*_buffer = NULL;
+	*_size = 0;
+
+	if (f == NULL)
+		return;
+
+	size = hio_size(f);
+	if (size <= 0) {
+		hio_close(f);
+		return;
+	}
+
+	buffer = malloc(size);
+	if (buffer == NULL) {
+		hio_close(f);
+		return;
+	}
+
+	if (hio_read(buffer, 1, size, f) != size) {
+		hio_close(f);
+		free(buffer);
+		return;
+	}
+
+	hio_close(f);
+	*_buffer = buffer;
+	*_size = size;
+}
 
 int check_randomness(int *array, int size, double sdev)
 {

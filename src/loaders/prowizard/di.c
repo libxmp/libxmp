@@ -146,7 +146,7 @@ static int test_di(const uint8 *data, char *t, int s)
 	int numsmp, ssize, psize;
 	int ptab_offs, pat_offs, smp_offs;
 
-	PW_REQUEST_DATA (s, 21);
+	PW_REQUEST_DATA(s, 14);
 
 #if 0
 	/* test #1 */
@@ -161,13 +161,15 @@ static int test_di(const uint8 *data, char *t, int s)
 	if (numsmp > 31)
 		return -1;
 
+	PW_REQUEST_DATA(s, 14 + numsmp*8);
+
 	/* test #3 (finetunes and whole sample size) */
 	ssize = 0;
 	for (i = 0; i < numsmp; i++) {
-		int len = readmem16b(data + 14) << 1;
-		int start = readmem16b(data + 18) << 1;
-		int lsize = readmem16b(data + 20) << 1;
 		const uint8 *d = data + i * 8;
+		int len = readmem16b(d + 14) << 1;
+		int start = readmem16b(d + 18) << 1;
+		int lsize = readmem16b(d + 20) << 1;
 
 		if (len > 0xffff || start > 0xffff || lsize > 0xffff)
 			return -1;

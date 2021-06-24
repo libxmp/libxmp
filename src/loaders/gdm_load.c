@@ -202,7 +202,10 @@ static int gdm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 					vermaj, vermin, tvmaj, tvmin);
 	}
 
-	hio_read(panmap, 32, 1, f);
+	if (hio_read(panmap, 32, 1, f) == 0) {
+		D_(D_CRIT "error reading header");
+		return -1;
+	}
 	for (i = 0; i < 32; i++) {
 		if (panmap[i] == 255) {
 			panmap[i] = 8;

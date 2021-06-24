@@ -85,7 +85,11 @@ static int get_init(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	hio_read16l(f);		/* unknown - 0x01c5 */
 	hio_read16l(f);		/* unknown - 0xff00 */
 	hio_read8(f);		/* unknown - 0x80 */
-	hio_read(data->chn_pan, 1, 64, f);
+
+	if (hio_read(data->chn_pan, 1, 64, f) != 64) {
+		D_(D_CRIT "error reading INIT");
+		return -1;
+	}
 
 	/* Sanity check */
 	if (mod->chn > XMP_MAX_CHANNELS)
