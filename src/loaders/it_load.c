@@ -91,11 +91,6 @@ static const uint8 fx[32] = {
 	/* ? */ FX_NONE
 };
 
-
-int itsex_decompress8 (HIO_HANDLE *, void *, int, int);
-int itsex_decompress16 (HIO_HANDLE *, void *, int, int);
-
-
 static void xlat_fx(int c, struct xmp_event *e, uint8 *last_fxp, int new_fx)
 {
 	uint8 h = MSN(e->fxp), l = LSN(e->fxp);
@@ -863,7 +858,7 @@ static int load_it_sample(struct module_data *m, int i, int start,
 				return -1;
 
 			if (ish.flags & IT_SMP_16BIT) {
-				itsex_decompress16(f, buf, xxs->len,
+				itsex_decompress16(f, (int16 *)buf, xxs->len,
 						   ish.convert & IT_CVT_DIFF);
 
 #ifdef WORDS_BIGENDIAN
