@@ -3,6 +3,7 @@
 /* Public domain IT sample decompressor by Olivier Lapicque */
 
 #include "loader.h"
+#include "it.h"
 
 static inline uint32 read_bits(HIO_HANDLE *ibuf, uint32 *bitbuf, int *bitnum, int n)
 {
