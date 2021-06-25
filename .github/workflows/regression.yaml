@@ -48,6 +48,32 @@ jobs:
           (cd test-dev && autoconf && CC=clang CFLAGS="-fPIE" ./configure)
           make devcheck
 
+  # Simulate Fedora RPM builds, usage of __symver__.
+  linux-gcc-10-lto:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: sudo apt update && sudo apt install gcc-10
+      - name: Create and run configure script
+        run: |
+          export CC=gcc-10
+          export CFLAGS="-flto"
+          export LDFLAGS="-flto"
+          autoconf
+          ./configure
+          (cd test-dev && autoconf && ./configure)
+      - name: Build
+        run: |
+          make
+      - name: Run check
+        run: |
+          make check
+      - name: Run devcheck
+        run: |
+          make devcheck
+
   emscripten:
     runs-on: ubuntu-latest
     steps:
