@@ -626,7 +626,7 @@ gen_mixer_data: gen_mixer_data.o
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
 	eval $$CMD
 
-gen_module_data: gen_module_data.o util.o ${SRC_PATH}/md5.o
+gen_module_data: gen_module_data.o util.o ${SRC_PATH}/hio.o ${SRC_PATH}/dataio.o ${SRC_PATH}/memio.o ${SRC_PATH}/md5.o
 	@CMD='$(LD) $(LDFLAGS) -o $@ $^ -L../lib -lxmp $(LIBS)'; \
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
 	eval $$CMD
