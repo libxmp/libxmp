@@ -85,6 +85,13 @@ TEST(test_api_load_module)
 	state = xmp_get_player(ctx, XMP_PLAYER_STATE);
 	fail_unless(state == XMP_STATE_LOADED, "state error");
 
+	/* valid file (<256 bytes) */
+	ret = xmp_load_module(ctx, "data/small.gdm");
+	fail_unless(ret == 0, "load file <256 bytes");
+
+	state = xmp_get_player(ctx, XMP_PLAYER_STATE);
+	fail_unless(state == XMP_STATE_LOADED, "state error");
+
 	/* unload */
 	xmp_release_module(ctx);
 

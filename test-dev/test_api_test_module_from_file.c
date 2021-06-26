@@ -57,6 +57,12 @@ TEST(test_api_test_module_from_file)
 	fail_unless(strcmp(tinfo.name, "Inspiration") == 0, "S3M module name fail");
 	fail_unless(strcmp(tinfo.type, "Scream Tracker 3") == 0, "S3M module type fail");
 
+	/* Small file (<256 bytes) */
+	ret = test_module_from_file_helper("data/small.gdm", &tinfo);
+	fail_unless(ret == 0, "GDM (<256) test module fail");
+	fail_unless(strcmp(tinfo.name, "") == 0, "GDM (<256) module name fail");
+	fail_unless(strcmp(tinfo.type, "General Digital Music") == 0, "GDM (<256) module type fail");
+
 	/* Prowizard */
 	ret = test_module_from_file_helper("data/PRU1.intro-electro", &tinfo);
 	fail_unless(ret == 0, "Prowizard test module fail");
