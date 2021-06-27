@@ -29,6 +29,11 @@
 #else
 #define LIBXMP_EXPORT_VERSIONED __attribute__((visibility("default")))
 #endif
+#ifdef HAVE_ATTRIBUTE_SYMVER
+#define LIBXMP_ATTRIB_SYMVER(_sym) __attribute__((__symver__(_sym)))
+#else
+#define LIBXMP_ATTRIB_SYMVER(_sym)
+#endif
 #endif
 #endif
 

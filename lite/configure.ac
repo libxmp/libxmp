@@ -144,6 +144,12 @@ __attribute__((visibility("default"),externally_visible)) int foo(void);
 int foo(void) { return 0; }],
     [CFLAGS="${old_CFLAGS} -DHAVE_EXTERNAL_VISIBILITY"],
     [CFLAGS="${old_CFLAGS}"])
+
+   XMP_TRY_COMPILE(whether compiler understands attribute __symver__,
+    ac_cv_c_attribute_symver,[-Werror=attributes],[
+void foo(void) __attribute__((__symver__("foo@bar")));],
+    [CFLAGS="${CFLAGS} -DHAVE_ATTRIBUTE_SYMVER"],
+    [CFLAGS="${CFLAGS}"])
 fi
 
 dnl for clang
