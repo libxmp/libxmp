@@ -138,7 +138,7 @@ dnl https://github.com/libxmp/libxmp/issues/385
    if test $ac_cv_c_flag_w_all = yes; then
       CFLAGS="${CFLAGS} -Werror"
    fi
-   XMP_TRY_COMPILE(whether compiler understands externally_visible attribute,
+   XMP_TRY_COMPILE(whether compiler understands attribute externally_visible,
     ac_cv_c_attribute_visibility_external,[],[
 __attribute__((visibility("default"),externally_visible)) int foo(void);
 int foo(void) { return 0; }],
