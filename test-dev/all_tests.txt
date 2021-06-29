@@ -532,6 +532,7 @@ test_fuzzer_it_truncated_header
 test_fuzzer_it_truncated_pattern
 test_fuzzer_669_truncated
 test_fuzzer_abk_0_instruments
+test_fuzzer_abk_truncated
 test_fuzzer_amf_truncated
 test_fuzzer_arch_invalid_patterns
 test_fuzzer_chip_truncated

@@ -352,6 +352,7 @@ FUZZER		= mod_no_null_terminator \
 		  it_truncated_pattern \
 		  669_truncated \
 		  abk_0_instruments \
+		  abk_truncated \
 		  amf_truncated \
 		  arch_invalid_patterns \
 		  chip_truncated \
