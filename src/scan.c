@@ -73,7 +73,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 	return 0;
 
     for (i = 0; i < mod->len; i++) {
-	int pat = mod->xxo[i];
+	pat = mod->xxo[i];
 	memset(m->scan_cnt[i], 0, pat >= mod->pat ? 1 :
 			mod->xxp[pat]->rows ? mod->xxp[pat]->rows : 1);
     }

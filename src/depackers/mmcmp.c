@@ -354,8 +354,6 @@ static int decrunch_mmcmp(FILE *in, FILE *out)
 			goto err2;
 
 		for (j = 0; j < block.sub_blk; j++) {
-			uint8 buf[8];
-
 			if (fread(buf, 1, 8, in) != 8) {
 				free(sub_block);
 				goto err2;
@@ -364,7 +362,7 @@ static int decrunch_mmcmp(FILE *in, FILE *out)
 			sub_block[j].unpk_pos  = readmem32l(buf);
 			sub_block[j].unpk_size = readmem32l(buf + 4);
 
-	                /* Sanity check */
+			/* Sanity check */
 			if (sub_block[j].unpk_pos < 0 ||
 			    sub_block[j].unpk_size < 0) {
 				free(sub_block);

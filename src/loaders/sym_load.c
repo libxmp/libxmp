@@ -428,15 +428,14 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		return -1;
 
 	/* Load and convert instruments */
-
 	D_(D_INFO "Instruments: %d", mod->ins);
 
 	for (i = 0; i < mod->ins; i++) {
-		uint8 buf[128];
+		uint8 namebuf[128];
 
-		memset(buf, 0, sizeof(buf));
-		hio_read(buf, 1, sn[i] & 0x7f, f);
-		libxmp_instrument_name(mod, i, buf, 32);
+		memset(namebuf, 0, sizeof(namebuf));
+		hio_read(namebuf, 1, sn[i] & 0x7f, f);
+		libxmp_instrument_name(mod, i, namebuf, 32);
 
 		if (~sn[i] & 0x80) {
 			int looplen;
@@ -471,14 +470,14 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		}
 
 		if (a == 1) {
-			uint8 *b = malloc(mod->xxs[i].len);
-			libxmp_read_lzw_dynamic(f->handle.file, b, 13, 0,
-					mod->xxs[i].len, mod->xxs[i].len,
+			void *dec = malloc(mod->xxs[i].len);
+			libxmp_read_lzw_dynamic(f->handle.file, (uint8 *)dec,
+					13, 0, mod->xxs[i].len, mod->xxs[i].len,
 					XMP_LZW_QUIRK_DSYM);
 			ret = libxmp_load_sample(m, NULL,
 					SAMPLE_FLAG_NOLOAD | SAMPLE_FLAG_DIFF,
-					&mod->xxs[i], (char*)b);
-			free(b);
+					&mod->xxs[i], dec);
+			free(dec);
 		/*} else if (a == 4) {
 			ret = libxmp_load_sample(m, f, SAMPLE_FLAG_VIDC,
 					&mod->xxs[i], NULL);*/

@@ -463,13 +463,13 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 				samples = 0;
 				usmp = 1;
 			} else {
-				int s = ceil(((double)vi->end - vi->pos) / step);
+				int c = ceil(((double)vi->end - vi->pos) / step);
 				/* ...inside the tick boundaries */
-				if (s > size) {
-					s = size;
+				if (c > size) {
+					c = size;
 				}
 
-				samples = s;
+				samples = c;
 				if (samples > 0) {
 					usmp = 0;
 				}

@@ -142,11 +142,11 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (mod->xxs[i].len > 0)
 			mod->xxi[i].nsm = 1;
 
-               	D_(D_INFO "[%2X] %04x %04x %04x %c V%02x %+d",
-                       	i, mod->xxs[i].len, mod->xxs[i].lps,
-                       	mod->xxs[i].lpe,
+		D_(D_INFO "[%2X] %04x %04x %04x %c V%02x %+d",
+			i, mod->xxs[i].len, mod->xxs[i].lps,
+			mod->xxs[i].lpe,
 			loop_size > 1 ? 'L' : ' ',
-                       	mod->xxi[i].sub[0].vol, mod->xxi[i].sub[0].fin >> 4);
+			mod->xxi[i].sub[0].vol, mod->xxi[i].sub[0].fin >> 4);
 	}
 
 	mod->len = mod->pat = hio_read8(f);
@@ -225,11 +225,10 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	snprintf(smp_filename, PATH_MAX, "%s%s", m->dirname, m->basename);
 	if (stat(smp_filename, &st) < 0) {
 		/* handle .set filenames like in Kid Chaos*/
-		char *x;
 		if (strchr(m->basename, '-')) {
-			x = strrchr(smp_filename, '-');
-			if (x != NULL)
-				strcpy(x, ".set");
+			char *p = strrchr(smp_filename, '-');
+			if (p != NULL)
+				strcpy(p, ".set");
 		}
 		if (stat(smp_filename, &st) < 0) {
 			fprintf(stderr, "libxmp: missing file %s\n",

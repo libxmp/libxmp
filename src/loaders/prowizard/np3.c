@@ -99,7 +99,7 @@ static int depack_np3(HIO_HANDLE *in, FILE *out)
 
 			hio_seek(in, trk_start + trk_addr[i][3 - j], SEEK_SET);
 			for (k = 0; k < 64; k++) {
-				int x = k * 16 + j * 4;
+				x = k * 16 + j * 4;
 
 				if ((c1 = hio_read8(in)) >= 0x80) {
 					k += (0x100 - c1) - 1;

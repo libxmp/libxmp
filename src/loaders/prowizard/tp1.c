@@ -176,14 +176,14 @@ static int test_tp1(const uint8 *data, char *t, int s)
 	/* test sample sizes */
 	for (i = 0; i < 31; i++) {
 		const uint8 *d = data + i * 8 + 32;
-		int len = readmem16b(d + 2) << 1;	/* size */
+		int sz  = readmem16b(d + 2) << 1;	/* size */
 		int start = readmem16b(d + 4) << 1;	/* loop start */
 		int lsize = readmem16b(d + 6) << 1;	/* loop size */
 
-		if (len > 0xffff || start > 0xffff || lsize > 0xffff)
+		if (sz > 0xffff || start > 0xffff || lsize > 0xffff)
 			return -1;
 
-		if (start + lsize > len + 2)
+		if (start + lsize > sz + 2)
 			return -1;
 
 		if (start != 0 && lsize == 0)

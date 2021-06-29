@@ -117,15 +117,15 @@ static int decrunch_compress(FILE * in, FILE * out)
 	do {
 	      resetbuf:;
 		{
-			int i;
+			int idx;
 			int e;
 			int o;
 
 			o = posbits >> 3;
 			e = o <= insize ? insize - o : 0;
 
-			for (i = 0; i < e; ++i)
-				inbuf[i] = inbuf[i + o];
+			for (idx = 0; idx < e; ++idx)
+				inbuf[idx] = inbuf[idx + o];
 
 			insize = e;
 			posbits = 0;

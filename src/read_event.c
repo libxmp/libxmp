@@ -67,7 +67,7 @@ static void reset_envelopes(struct context_data *ctx, struct channel_data *xc)
 	if (!IS_VALID_INSTRUMENT(xc->ins))
 		return;
 
- 	RESET_NOTE(NOTE_ENV_END);
+	RESET_NOTE(NOTE_ENV_END);
 
 	xc->v_idx = -1;
 	xc->p_idx = -1;
@@ -457,19 +457,17 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 	/* FT2: Retrieve old instrument volume */
 	if (ins) {
 		if (key == 0 || key >= XMP_KEY_OFF) {
-			struct xmp_subinstrument *sub;
-
 			/* Previous instrument */
 			sub = get_subinstrument(ctx, xc->ins, xc->key);
 
 			/* No note */
 			if (sub != NULL) {
-				int p = mod->xxc[chn].pan - 128;
+				int pan = mod->xxc[chn].pan - 128;
 				xc->volume = sub->vol;
 
 				if (!HAS_QUIRK(QUIRK_FTMOD)) {
-					xc->pan.val = p + ((sub->pan - 128) *
-						(128 - abs(p))) / 128 + 128;
+					xc->pan.val = pan + ((sub->pan - 128) *
+						(128 - abs(pan))) / 128 + 128;
 				}
 
 				xc->ins_fade = mod->xxi[xc->ins].rls;
@@ -516,11 +514,8 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 	}
 
 	/* Check note */
-
 	if (ins) {
 		if (key > 0 && key < XMP_KEY_OFF) {
-			struct xmp_subinstrument *sub;
-
 			/* Retrieve volume when we have note */
 
 			/* and only if we have instrument, otherwise we're in
@@ -530,12 +525,12 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 			/* Current instrument */
 			sub = get_subinstrument(ctx, xc->ins, key - 1);
 			if (sub != NULL) {
-				int p = mod->xxc[chn].pan - 128;
+				int pan = mod->xxc[chn].pan - 128;
 				xc->volume = sub->vol;
 
 				if (!HAS_QUIRK(QUIRK_FTMOD)) {
-					xc->pan.val = p + ((sub->pan - 128) *
-						(128 - abs(p))) / 128 + 128;
+					xc->pan.val = pan + ((sub->pan - 128) *
+						(128 - abs(pan))) / 128 + 128;
 				}
 
 				xc->ins_fade = mod->xxi[xc->ins].rls;
