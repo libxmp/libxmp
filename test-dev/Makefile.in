@@ -403,6 +403,7 @@ FUZZER		= mod_no_null_terminator \
 		  mdl_invalid_sample \
 		  mdl_truncated \
 		  mdl_umr \
+		  med2_truncated \
 		  med3_invalid_pattern \
 		  med4_instrument_name \
 		  mfp_truncated \

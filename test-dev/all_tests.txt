@@ -583,6 +583,7 @@ test_fuzzer_mdl_invalid_run
 test_fuzzer_mdl_invalid_sample
 test_fuzzer_mdl_truncated
 test_fuzzer_mdl_umr
+test_fuzzer_med2_truncated
 test_fuzzer_med3_invalid_pattern
 test_fuzzer_med4_instrument_name
 test_fuzzer_mfp_truncated

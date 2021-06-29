@@ -78,7 +78,9 @@ int med2_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	/* read instrument names */
 	hio_read(buf, 1, 40, f);	/* skip 0 */
 	for (i = 0; i < 31; i++) {
-		hio_read(buf, 1, 40, f);
+		if (hio_read(buf, 1, 40, f) != 40)
+			return -1;
+
 		libxmp_instrument_name(mod, i, buf, 32);
 		if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 			return -1;
