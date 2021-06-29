@@ -360,6 +360,7 @@ FUZZER		= mod_no_null_terminator \
 		  dbm_name_buffer_overflow \
 		  dbm_sample_count \
 		  dbm_truncated \
+		  dbm_truncated_inst \
 		  digi_truncated \
 		  dt_channels_bound \
 		  dt_duplicate_chunk \
