@@ -422,6 +422,7 @@ FUZZER		= mod_no_null_terminator \
 		  pt3_truncated \
 		  rtm_zero_samples \
 		  sfx_truncated \
+		  stim_truncated \
 		  stm_patterns_bound \
 		  stx_instruments_bound \
 		  stx_truncated \
