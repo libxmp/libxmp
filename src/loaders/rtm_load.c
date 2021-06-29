@@ -213,7 +213,7 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	rh.extraDataSize = hio_read32l(f);
 
 	/* Sanity check */
-	if (rh.nposition > 255 || rh.ntrack > 32 || rh.npattern > 255) {
+	if (hio_error(f) || rh.nposition > 255 || rh.ntrack > 32 || rh.npattern > 255) {
 		return -1;
 	}
 

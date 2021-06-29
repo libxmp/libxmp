@@ -425,6 +425,7 @@ FUZZER		= mod_no_null_terminator \
 		  pt3_ptdt_leak \
 		  pt3_truncated \
 		  ptm_truncated \
+		  rtm_truncated \
 		  rtm_zero_samples \
 		  sfx_truncated \
 		  stim_truncated \
