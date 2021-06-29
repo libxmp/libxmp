@@ -603,6 +603,7 @@ test_fuzzer_okt_sbod_leak
 test_fuzzer_psm_samples_bound
 test_fuzzer_pt3_ptdt_leak
 test_fuzzer_pt3_truncated
+test_fuzzer_ptm_truncated
 test_fuzzer_rtm_zero_samples
 test_fuzzer_sfx_truncated
 test_fuzzer_stim_truncated

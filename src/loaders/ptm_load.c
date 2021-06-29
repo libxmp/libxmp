@@ -138,6 +138,9 @@ static int ptm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	for (i = 0; i < 128; i++)
 		pfh.patseg[i] = hio_read16l(f);
 
+	if (hio_error(f))
+		return -1;
+
 	mod->len = pfh.ordnum;
 	mod->ins = pfh.insnum;
 	mod->pat = pfh.patnum;
