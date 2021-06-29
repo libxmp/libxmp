@@ -366,6 +366,7 @@ FUZZER		= mod_no_null_terminator \
 		  dt_channels_bound \
 		  dt_duplicate_chunk \
 		  dt_instrument_count \
+		  dt_truncated \
 		  emod_duplicate_chunk \
 		  far_truncated \
 		  flt_umr \

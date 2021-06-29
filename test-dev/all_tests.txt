@@ -546,6 +546,7 @@ test_fuzzer_digi_truncated
 test_fuzzer_dt_channels_bound
 test_fuzzer_dt_duplicate_chunk
 test_fuzzer_dt_instrument_count
+test_fuzzer_dt_truncated
 test_fuzzer_emod_duplicate_chunk
 test_fuzzer_far_truncated
 test_fuzzer_flt_umr
