@@ -420,7 +420,7 @@ static int get_samp(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	mod->xxi[i].sub[0].sid = i;
 	mod->xxi[i].sub[0].pan = 0x80;
 
-	m->vol_table = (int *)libxmp_arch_vol_table;
+	m->vol_table = libxmp_arch_vol_table;
 	m->volbase = 0xff;
 
 	if (mod->xxs[i].lpe > 2) {

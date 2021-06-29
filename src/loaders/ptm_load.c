@@ -357,7 +357,7 @@ static int ptm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			return -1;
 	}
 
-	m->vol_table = (int *)ptm_vol;
+	m->vol_table = ptm_vol;
 
 	for (i = 0; i < mod->chn; i++)
 		mod->xxc[i].pan = pfh.chset[i] << 4;

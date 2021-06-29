@@ -303,7 +303,7 @@ struct module_data {
 	int volbase;			/* Volume base */
 	int gvolbase;			/* Global volume base */
 	int gvol;			/* Global volume */
-	int *vol_table;			/* Volume translation table */
+	const int *vol_table;		/* Volume translation table */
 	int quirk;			/* player quirks */
 #define READ_EVENT_MOD	0
 #define READ_EVENT_FT2	1
