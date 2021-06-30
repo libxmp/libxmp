@@ -124,15 +124,15 @@ static int test_mp_noid(const uint8 *data, char *t, int s)
 	/* test #5  ptk notes .. gosh ! (testing all patterns !) */
 	for (i = 0; i < psize; i++) {
 		const uint8 *d = data + 378 + i * 4;
-		uint16 data;
+		uint16 val;
 
 		/* MadeInCroatia has l == 74 */
 		if (*d > 19 && *d != 74)
 			return -1;
 
-		data = readmem16b(d) & 0x0fff;
+		val = readmem16b(d) & 0x0fff;
 
-		if (data > 0 && data < 0x71)
+		if (val > 0 && val < 0x71)
 			return -1;
 	}
 

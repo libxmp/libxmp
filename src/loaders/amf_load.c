@@ -180,7 +180,7 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	 */
 	if (ver == 0x0a) {
 		uint8 b;
-		uint32 len, start, end;
+		uint32 len, val;
 		long pos = hio_tell(f);
 		if (pos < 0) {
 			return -1;
@@ -209,13 +209,13 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 				no_loopend = 1;
 				break;
 			}
-			start = hio_read32l(f);
-			if (start > len) {		/* check loop start */
+			val = hio_read32l(f);		/* check loop start */
+			if (val > len) {
 				no_loopend = 1;
 				break;
 			}
-			end = hio_read32l(f);
-			if (end > len) {		/* check loop end */
+			val = hio_read32l(f);		/* check loop end */
+			if (val > len) {
 				no_loopend = 1;
 				break;
 			}

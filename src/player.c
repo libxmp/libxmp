@@ -69,15 +69,15 @@ static const struct retrig_control rval[] = {
 static int check_envelope_end(struct xmp_envelope *env, int x)
 {
 	int16 *data = env->data;
-	int index;
+	int idx;
 
 	if (~env->flg & XMP_ENVELOPE_ON || env->npt <= 0)
 		return 0;
 
-	index = (env->npt - 1) * 2;
+	idx = (env->npt - 1) * 2;
 
 	/* last node */
-	if (x >= data[index] || index == 0) {
+	if (x >= data[idx] || idx == 0) {
 		if (~env->flg & XMP_ENVELOPE_LOOP) {
 			return 1;
 		}
@@ -90,27 +90,27 @@ static int get_envelope(struct xmp_envelope *env, int x, int def)
 {
 	int x1, x2, y1, y2;
 	int16 *data = env->data;
-	int index;
+	int idx;
 
 	if (x < 0 || ~env->flg & XMP_ENVELOPE_ON || env->npt <= 0)
 		return def;
 
-	index = (env->npt - 1) * 2;
+	idx = (env->npt - 1) * 2;
 
-	x1 = data[index];		/* last node */
-	if (x >= x1 || index == 0) {
-		return data[index + 1];
+	x1 = data[idx]; /* last node */
+	if (x >= x1 || idx == 0) {
+		return data[idx + 1];
 	}
 
 	do {
-		index -= 2;
-		x1 = data[index];
-	} while (index > 0 && x1 > x);
+		idx -= 2;
+		x1 = data[idx];
+	} while (idx > 0 && x1 > x);
 
 	/* interpolate */
-	y1 = data[index + 1];
-	x2 = data[index + 2];
-	y2 = data[index + 3];
+	y1 = data[idx + 1];
+	x2 = data[idx + 2];
+	y2 = data[idx + 3];
 
 	return x2 == x1 ? y2 : ((y2 - y1) * (x - x1) / (x2 - x1)) + y1;
 }
@@ -232,14 +232,14 @@ static int update_envelope(struct xmp_envelope *env, int x, int release, int key
 static int check_envelope_fade(struct xmp_envelope *env, int x)
 {
 	int16 *data = env->data;
-	int index;
+	int idx;
 
 	if (~env->flg & XMP_ENVELOPE_ON)
 		return 0;
 
-	index = (env->npt - 1) * 2;		/* last node */
-	if (x > data[index]) {
-		if (data[index + 1] == 0)
+	idx = (env->npt - 1) * 2;		/* last node */
+	if (x > data[idx]) {
+		if (data[idx + 1] == 0)
 			return -1;
 		else
 			return 1;

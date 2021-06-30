@@ -68,11 +68,11 @@ static void set_md5sum(HIO_HANDLE *f, unsigned char *digest)
 static char *get_dirname(const char *name)
 {
 	char *dirname;
-	const char *div;
+	const char *p;
 	ptrdiff_t len;
 
-	if ((div = strrchr(name, '/')) != NULL) {
-		len = div - name + 1;
+	if ((p = strrchr(name, '/')) != NULL) {
+		len = p - name + 1;
 		dirname = malloc(len + 1);
 		if (dirname != NULL) {
 			memcpy(dirname, name, len);
@@ -87,11 +87,11 @@ static char *get_dirname(const char *name)
 
 static char *get_basename(const char *name)
 {
-	const char *div;
+	const char *p;
 	char *basename;
 
-	if ((div = strrchr(name, '/')) != NULL) {
-		basename = strdup(div + 1);
+	if ((p = strrchr(name, '/')) != NULL) {
+		basename = strdup(p + 1);
 	} else {
 		basename = strdup(name);
 	}

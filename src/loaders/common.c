@@ -309,7 +309,6 @@ int libxmp_copy_name_for_fopen(char *dest, const char *name, int n)
 	    name[0] == '\\' || name[0] == '/' || name[0] == ':')
 		return -1;
 
-
 	for (i = 0; i < n - 1; i++) {
 		uint8 t = name[i];
 		if (!t)
@@ -472,14 +471,14 @@ int libxmp_check_filename_case(const char *dir, const char *name, char *new_name
 int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
 {
 	int found = 0;
-	DIR *dirfd;
+	DIR *dirp;
 	struct dirent *d;
 
-	dirfd = opendir(dir);
-	if (dirfd == NULL)
+	dirp = opendir(dir);
+	if (dirp == NULL)
 		return 0;
 
-	while ((d = readdir(dirfd)) != NULL) {
+	while ((d = readdir(dirp)) != NULL) {
 		if (!strcasecmp(d->d_name, name)) {
 			found = 1;
 			break;
@@ -489,7 +488,7 @@ int libxmp_check_filename_case(const char *dir, const char *name, char *new_name
 	if (found)
 		strncpy(new_name, d->d_name, size);
 
-	closedir(dirfd);
+	closedir(dirp);
 
 	return found;
 }

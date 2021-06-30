@@ -30,7 +30,6 @@
 #define MAGIC_IMPI	MAGIC4('I','M','P','I')
 #define MAGIC_IMPS	MAGIC4('I','M','P','S')
 
-
 static int it_test(HIO_HANDLE *, char *, const int);
 static int it_load(struct module_data *, HIO_HANDLE *, const int);
 
@@ -54,7 +53,6 @@ static int it_test(HIO_HANDLE *f, char *t, const int start)
 #define	FX_NONE	0xff
 #define FX_XTND 0xfe
 #define L_CHANNELS 64
-
 
 static const uint8 fx[32] = {
 	/*   */ FX_NONE,
@@ -828,7 +826,7 @@ static int load_it_sample(struct module_data *m, int i, int start,
 		/* compressed samples */
 		if (ish.flags & IT_SMP_COMP) {
 			long min_size, file_len, left;
-			uint8 *buf;
+			void *decbuf;
 			int ret;
 
 			/* Sanity check - the lower bound on IT compressed
@@ -853,12 +851,12 @@ static int load_it_sample(struct module_data *m, int i, int start,
 					force_sample_length(xsmp, left << 3);
 			}
 
-			buf = calloc(1, xxs->len * 2);
-			if (buf == NULL)
+			decbuf = calloc(1, xxs->len * 2);
+			if (decbuf == NULL)
 				return -1;
 
 			if (ish.flags & IT_SMP_16BIT) {
-				itsex_decompress16(f, (int16 *)buf, xxs->len,
+				itsex_decompress16(f, (int16 *)decbuf, xxs->len,
 						   ish.convert & IT_CVT_DIFF);
 
 #ifdef WORDS_BIGENDIAN
@@ -868,33 +866,33 @@ static int load_it_sample(struct module_data *m, int i, int start,
 				cvt |= SAMPLE_FLAG_BIGEND;
 #endif
 			} else {
-				itsex_decompress8(f, buf, xxs->len,
+				itsex_decompress8(f, (uint8 *)decbuf, xxs->len,
 						  ish.convert & IT_CVT_DIFF);
 			}
 
 			if (ish.flags & IT_SMP_SLOOP) {
 				long pos = hio_tell(f);
 				if (pos < 0) {
-					free(buf);
+					free(decbuf);
 					return -1;
 				}
 				ret = libxmp_load_sample(m, NULL, SAMPLE_FLAG_NOLOAD |
-							cvt, &m->xsmp[i], buf);
+							cvt, &m->xsmp[i], decbuf);
 				if (ret < 0) {
-					free(buf);
+					free(decbuf);
 					return -1;
 				}
 				hio_seek(f, pos, SEEK_SET);
 			}
 
 			ret = libxmp_load_sample(m, NULL, SAMPLE_FLAG_NOLOAD | cvt,
-					  &mod->xxs[i], buf);
+					  &mod->xxs[i], decbuf);
 			if (ret < 0) {
-				free(buf);
+				free(decbuf);
 				return -1;
 			}
 
-			free(buf);
+			free(decbuf);
 		} else {
 			if (ish.flags & IT_SMP_SLOOP) {
 				long pos = hio_tell(f);

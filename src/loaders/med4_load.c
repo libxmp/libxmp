@@ -148,13 +148,14 @@ static inline uint16 stream_read_aligned16(struct stream* s, int bits)
 {
 	if (bits <= 4) {
 		return stream_read4(s) << 12;
-	} else if (bits <= 8) {
-		return stream_read8(s) << 8;
-	} else if (bits <= 12) {
-		return stream_read12(s) << 4;
-	} else {
-		return stream_read16(s);
 	}
+	if (bits <= 8) {
+		return stream_read8(s) << 8;
+	}
+	if (bits <= 12) {
+		return stream_read12(s) << 4;
+	}
+	return stream_read16(s);
 }
 
 struct temp_inst {
@@ -172,7 +173,8 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	uint8 m0;
 	uint64 mask;
 	int transp, masksz;
-	int pos, vermaj, vermin;
+	int32 pos;
+	int vermaj, vermin;
 	uint8 trkvol[16], buf[1024];
 	struct xmp_event *event;
 	int flags, hexvol = 0;
@@ -586,8 +588,7 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		 */
 
 		if (type == -2) {			/* Hybrid */
-			int length, type;
-			int pos = hio_tell(f);
+			pos = hio_tell(f);
 			if (pos < 0) {
 				return -1;
 			}
@@ -659,7 +660,7 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		}
 
 		if (type == -1) {		/* Synthetic */
-			int pos = hio_tell(f);
+			pos = hio_tell(f);
 			if (pos < 0) {
 				return -1;
 			}
@@ -804,7 +805,7 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	/* IFF-like section */
 parse_iff:
 	while (!hio_eof(f)) {
-		int32 id, size, s2, pos, ver;
+		int32 id, size, s2, ver;
 
 		if ((id = hio_read32b(f)) <= 0)
 			break;

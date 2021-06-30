@@ -79,7 +79,7 @@ static int depack_crb(HIO_HANDLE *in, FILE *out)
 
 					hio_seek(in, taddr[m >> 2], SEEK_SET);
 					for (m = 0; m < 64; m++) {
-						int x = m * 16 + j * 4;
+						x = m * 16 + j * 4;
 
 						c1 = hio_read8(in);
 						if (c1 == 0x80) {

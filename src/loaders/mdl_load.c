@@ -99,16 +99,16 @@ struct local_data {
 
 
 static void fix_env(int i, struct xmp_envelope *ei, struct mdl_envelope *env,
-		    int *index, int envnum)
+		    int *idx, int envnum)
 {
     int j, k, lastx;
 
-    if (index[i] >= 0) {
+    if (idx[i] >= 0) {
 	ei->flg = XMP_ENVELOPE_ON;
 	ei->npt = 15;
 
 	for (j = 0; j < envnum; j++) {
-    	    if (index[i] == env[j].num) {
+    	    if (idx[i] == env[j].num) {
     	        ei->flg |= env[j].sus & 0x10 ? XMP_ENVELOPE_SUS : 0;
     	        ei->flg |= env[j].sus & 0x20 ? XMP_ENVELOPE_LOOP : 0;
     	        ei->sus = env[j].sus & 0x0f;
