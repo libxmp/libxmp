@@ -138,6 +138,9 @@ static int ptm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	for (i = 0; i < 128; i++)
 		pfh.patseg[i] = hio_read16l(f);
 
+	if (hio_error(f))
+		return -1;
+
 	mod->len = pfh.ordnum;
 	mod->ins = pfh.insnum;
 	mod->pat = pfh.patnum;
@@ -357,7 +360,7 @@ static int ptm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			return -1;
 	}
 
-	m->vol_table = (int *)ptm_vol;
+	m->vol_table = ptm_vol;
 
 	for (i = 0; i < mod->chn; i++)
 		mod->xxc[i].pan = pfh.chset[i] << 4;

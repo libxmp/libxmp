@@ -53,7 +53,8 @@ static int coco_test(HIO_HANDLE *f, char *t, const int start)
 	if (x != 0x84 && x != 0x88)
 		return -1;
 
-	hio_read(buf, 1, 20, f);		/* read title */
+	if (hio_read(buf, 1, 20, f) != 20)	/* read title */
+		return -1;
 	if (check_cr(buf, 20) != 0)
 		return -1;
 
@@ -106,7 +107,7 @@ static int coco_test(HIO_HANDLE *f, char *t, const int start)
 			t[i] = 0;
 	}
 #endif
-	
+
 	return 0;
 }
 
@@ -214,7 +215,7 @@ static int coco_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	if (libxmp_init_instrument(m) < 0)
 		return -1;
 
-	m->vol_table = (int *)libxmp_arch_vol_table;
+	m->vol_table = libxmp_arch_vol_table;
 	m->volbase = 0xff;
 
 	for (i = 0; i < mod->ins; i++) {

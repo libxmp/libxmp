@@ -172,7 +172,7 @@ static int read_abk_song(HIO_HANDLE *f, struct abk_song *song, uint32 songs_sect
 }
 
 /**
- * @brief reads an ABK pattern into a xmp_event structure. 
+ * @brief reads an ABK pattern into a xmp_event structure.
  * @param f stream to read data from.
  * @param events events object to populate.
  * @param pattern_offset_abs the absolute file offset to the start of the patter to read.
@@ -387,20 +387,20 @@ static struct abk_instrument* read_abk_insts(HIO_HANDLE *f, uint32 inst_section_
     for (i = 0; i < count; i++)
     {
         uint32 sampleLength;
-    
+
         inst[i].sample_offset = hio_read32b(f);
         inst[i].repeat_offset = hio_read32b(f);
         inst[i].sample_length = hio_read16b(f);
         inst[i].repeat_end = hio_read16b(f);
         inst[i].sample_volume = hio_read16b(f);
         sampleLength = hio_read16b(f);
-    
+
         /* detect a potential bug where the sample length is not specified (and we might already know the length) */
         if (sampleLength > 4)
         {
             inst[i].sample_length = sampleLength;
         }
-    
+
         if (hio_read(inst[i].sample_name, 1, 16, f) != 16) {
             free(inst);
             return NULL;
@@ -427,7 +427,8 @@ static int abk_test(HIO_HANDLE *f, char *t, const int start)
     /* skip over length and chip/fastmem.*/
     hio_seek(f, 6, SEEK_CUR);
 
-    hio_read(music, 1, 8, f);	/* get the "Music   " */
+    if (hio_read(music, 1, 8, f) != 8)	/* get the "Music   " */
+        return -1;
 
     if (memcmp(music, "Music   ", 8))
     {
@@ -608,7 +609,7 @@ static int abk_load(struct module_data *m, HIO_HANDLE *f, const int start)
     	free(playlist.pattern);
 	return -1;
     }
-	
+
     mod->len = playlist.length;
 
     /* now push all the patterns into the module and set the length */

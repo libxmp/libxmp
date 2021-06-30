@@ -337,7 +337,8 @@ PROBLEMATIC	= length_data_jack \
 		  length_roadblast \
 		  length_ode2ptk
 
-FUZZER		= mod_no_null_terminator \
+FUZZER		= misc \
+		  mod_no_null_terminator \
 		  mod_no_valid_orders \
 		  mod_scan_row_limit \
 		  st_invalid_sample_count \
@@ -352,7 +353,9 @@ FUZZER		= mod_no_null_terminator \
 		  it_truncated_pattern \
 		  669_truncated \
 		  abk_0_instruments \
+		  abk_truncated \
 		  amf_truncated \
+		  amf_truncated2 \
 		  arch_invalid_patterns \
 		  chip_truncated \
 		  dbm_chunk_order \
@@ -360,10 +363,12 @@ FUZZER		= mod_no_null_terminator \
 		  dbm_name_buffer_overflow \
 		  dbm_sample_count \
 		  dbm_truncated \
+		  dbm_truncated_inst \
 		  digi_truncated \
 		  dt_channels_bound \
 		  dt_duplicate_chunk \
 		  dt_instrument_count \
+		  dt_truncated \
 		  emod_duplicate_chunk \
 		  far_truncated \
 		  flt_umr \
@@ -401,6 +406,7 @@ FUZZER		= mod_no_null_terminator \
 		  mdl_invalid_sample \
 		  mdl_truncated \
 		  mdl_umr \
+		  med2_truncated \
 		  med3_invalid_pattern \
 		  med4_instrument_name \
 		  mfp_truncated \
@@ -420,8 +426,11 @@ FUZZER		= mod_no_null_terminator \
 		  psm_samples_bound \
 		  pt3_ptdt_leak \
 		  pt3_truncated \
+		  ptm_truncated \
+		  rtm_truncated \
 		  rtm_zero_samples \
 		  sfx_truncated \
+		  stim_truncated \
 		  stm_patterns_bound \
 		  stx_instruments_bound \
 		  stx_truncated \
