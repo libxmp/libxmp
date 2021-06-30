@@ -53,7 +53,8 @@ static int coco_test(HIO_HANDLE *f, char *t, const int start)
 	if (x != 0x84 && x != 0x88)
 		return -1;
 
-	hio_read(buf, 1, 20, f);		/* read title */
+	if (hio_read(buf, 1, 20, f) != 20)	/* read title */
+		return -1;
 	if (check_cr(buf, 20) != 0)
 		return -1;
 

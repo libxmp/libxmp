@@ -337,7 +337,8 @@ PROBLEMATIC	= length_data_jack \
 		  length_roadblast \
 		  length_ode2ptk
 
-FUZZER		= mod_no_null_terminator \
+FUZZER		= misc \
+		  mod_no_null_terminator \
 		  mod_no_valid_orders \
 		  mod_scan_row_limit \
 		  st_invalid_sample_count \
@@ -354,6 +355,7 @@ FUZZER		= mod_no_null_terminator \
 		  abk_0_instruments \
 		  abk_truncated \
 		  amf_truncated \
+		  amf_truncated2 \
 		  arch_invalid_patterns \
 		  chip_truncated \
 		  dbm_chunk_order \

@@ -78,7 +78,9 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	hio_read(buf, 1, 3, f);
 	ver = hio_read8(f);
 
-	hio_read(buf, 1, 32, f);
+	if (hio_read(buf, 1, 32, f) != 32)
+		return -1;
+
 	memcpy(mod->name, buf, 32);
 	mod->name[32] = '\0';
 	libxmp_set_type(m, "DSMI %d.%d AMF", ver / 10, ver % 10);
@@ -105,7 +107,9 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		hio_read(buf, 1, 16, f);	/* channel remap table */
 
 	if (ver >= 0x0d) {
-		hio_read(buf, 1, 32, f);	/* panning table */
+		if (hio_read(buf, 1, 32, f) != 32)	/* panning table */
+			return -1;
+
 		for (i = 0; i < 32; i++) {
 			mod->xxc->pan = 0x80 + 2 * (int8)buf[i];
 		}
