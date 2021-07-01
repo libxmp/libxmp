@@ -54,7 +54,7 @@
 #define BUFLEN 16384
 
 static struct depacker *depacker_list[] = {
-#if defined LIBXMP_AMIGA && !defined __AROS__
+#if defined(LIBXMP_AMIGA) && defined(HAVE_PROTO_XFDMASTER_H)
 	&libxmp_depacker_xfd,
 #endif
 	&libxmp_depacker_zip,

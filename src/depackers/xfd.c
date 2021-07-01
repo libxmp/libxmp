@@ -6,17 +6,15 @@
  * for more information.
  */
 
-#ifdef __SUNPRO_C
-#pragma error_messages (off,E_EMPTY_TRANSLATION_UNIT)
-#endif
+#include "common.h"
 
-#ifdef AMIGA
+#if defined(LIBXMP_AMIGA) && defined(HAVE_PROTO_XFDMASTER_H)
+
 #define __USE_INLINE__
 #include <proto/exec.h>
 #include <proto/xfdmaster.h>
 #include <exec/types.h>
 #include <sys/stat.h>
-#include "common.h"
 #include "depacker.h"
 
 static int _test_xfd(unsigned char *buffer, int length)

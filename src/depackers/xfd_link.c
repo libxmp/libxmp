@@ -1,8 +1,7 @@
-#ifdef __SUNPRO_C
-#pragma error_messages (off,E_EMPTY_TRANSLATION_UNIT)
-#endif
+#include "common.h"
 
-#ifdef AMIGA
+#if defined(LIBXMP_AMIGA) && defined(HAVE_PROTO_XFDMASTER_H)
+
 #ifdef __amigaos4__
 #define __USE_INLINE__
 #endif

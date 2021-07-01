@@ -208,7 +208,15 @@ darwin*|*djgpp|mingw*)
   LIBS="${old_LIBS}"
   ;;
 esac
+
 AC_CHECK_HEADERS(dirent.h)
+case "${host_os}" in
+amigaos*|aros*|morphos*)
+dnl for depackers/xfd.c
+  AC_CHECK_HEADERS(proto/xfdmaster.h)
+  ;;
+esac
+
 AC_CHECK_FUNCS(popen mkstemp fnmatch umask round powf)
 dnl fork, execv & co don't work with djgpp
 case "${host_os}" in
