@@ -9,6 +9,13 @@ AC_SUBST(DARWIN_VERSION)
 AC_SUBST(PLATFORM_DIR)
 AC_CANONICAL_HOST
 AC_PROG_CC
+AC_CHECK_TOOL(LD, [ld], [:])
+AC_CACHE_CHECK([whether $LD is GNU ld], ac_cv_prog_gnu_ld,
+[case `$LD -v 2>&1 </dev/null` in
+  *GNU* | *'with BFD'*)
+     ac_cv_prog_gnu_ld=yes ;;
+  *) ac_cv_prog_gnu_ld=no ;;
+esac])
 AC_CHECK_TOOL(AR, [ar], [:])
 AC_PROG_RANLIB
 AC_PROG_INSTALL
