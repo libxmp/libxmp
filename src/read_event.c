@@ -76,6 +76,20 @@ static void reset_envelopes(struct context_data *ctx, struct channel_data *xc)
 
 #ifndef LIBXMP_CORE_DISABLE_IT
 
+static void reset_envelope_volume(struct context_data *ctx,
+				struct channel_data *xc)
+{
+	struct module_data *m = &ctx->m;
+	struct xmp_module *mod = &m->mod;
+
+	if (!IS_VALID_INSTRUMENT(xc->ins))
+		return;
+
+	RESET_NOTE(NOTE_ENV_END);
+
+	xc->v_idx = -1;
+}
+
 static void reset_envelopes_carry(struct context_data *ctx,
 				struct channel_data *xc)
 {
@@ -111,7 +125,7 @@ static void set_effect_defaults(struct context_data *ctx, int note,
 	struct module_data *m = &ctx->m;
 	struct xmp_module *mod = &m->mod;
 	struct smix_data *smix = &ctx->smix;
-	
+
 	if (sub != NULL && note >= 0) {
 		struct xmp_instrument *xxi;
 
@@ -565,7 +579,7 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 					env_on = 1;
 				}
 			}
-			
+
 			if (env_on || (!vol_set && (!ev.ins || !delay_fx))) {
 				if (sustain_check(env, xc->v_idx)) {
 					/* See OpenMPT EnvOff.xm. In certain
@@ -1263,10 +1277,11 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 	 * finished (OpenMPT test EnvReset.it). This must take place after
 	 * channel copies in case of NNA (see test/test.it)
 	 * Also if we have envelope in carry mode, check fadeout
+	 * Also, only reset the volume envelope. (it_fade_env_reset_carry.it)
 	 */
 	if (ev.ins && TEST_NOTE(NOTE_ENV_END)) {
 		if (check_fadeout(ctx, xc, candidate_ins)) {
-			reset_envelopes(ctx, xc);
+			reset_envelope_volume(ctx, xc);
 		} else {
 			reset_env = 0;
 		}
