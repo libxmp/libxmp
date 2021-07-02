@@ -149,6 +149,10 @@ static unsigned int get_alder(FILE *out)
 static int reverse_bitstream(struct bitstream_t *bitstream)
 {
   unsigned int i;
+  if (bitstream->bitptr <= 0) {
+    bitstream->holding = 0;
+    return 0;
+  }
 
   i=reverse[((bitstream->holding>>24)&255)]|
     (reverse[((bitstream->holding>>16)&255)]<<8)|
