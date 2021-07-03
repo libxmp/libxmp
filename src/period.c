@@ -255,7 +255,7 @@ void libxmp_c2spd_to_note(int c2spd, int *n, int *f)
 {
 	int c;
 
-	if (c2spd == 0) {
+	if (c2spd <= 0) {
 		*n = *f = 0;
 		return;
 	}

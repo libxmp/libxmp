@@ -177,7 +177,7 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
 	                }
 	                c4 = c3 - 0x80;
 
-	                for (l = 0; l < c4; l++) {
+	                for (l = 0; l < c4 && k < max_row; l++) {
 	                    k++;
 			    x = &tdata[i * 4 + j][k * 4];
 	                    *x++ = (c2 & 0x10) | ptk_table[c6 / 2][0];
@@ -216,7 +216,7 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
 	                    continue;
 	                }
 	                c4 = c3 - 0x80;		/* repeat current row */
-	                for (l = 0; l < c4; l++) {
+	                for (l = 0; l < c4 && k < max_row; l++) {
 	                    k++;
 			    x = &tdata[i * 4 + j][k * 4] + 2;
 	                    *x++ = c1 & 0x0f;
@@ -265,7 +265,7 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
 	            }
 	            c4 = c4 - 0x80;
 
-	            for (l = 0; l < c4; l++) {	/* repeat row c4-0x80 times */
+	            for (l = 0; l < c4 && k < max_row; l++) {	/* repeat row c4-0x80 times */
 	                k++;
 			x = &tdata[i * 4 + j][k * 4];
 
@@ -333,7 +333,7 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
 	                            continue;
 	                        }
 	                        c4 = c3 - 0x80;	/* repeat row c3-0x80 times */
-	                        for (b = 0; b < c4; b++) {
+	                        for (b = 0; b < c4 && k < max_row; b++) {
 	                            k++;
 			            x = &tdata[i * 4 + j][k * 4];
 	                            *x++ = (c2 & 0x10) | ptk_table[c6 / 2][0];
@@ -375,7 +375,7 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
 	                            continue;
 	                        }
 	                        c4 = c3 - 0x80;	/* repeat row c3-0x80 times */
-	                        for (b = 0; b < c4; b++) {
+	                        for (b = 0; b < c4 && k < max_row; b++) {
 	                            k++;
 			            x = &tdata[i * 4 + j][k * 4] + 2;
 	                            *x++ = c1 & 0x0f;
@@ -422,8 +422,8 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
 	                        continue;
 	                    }
 	                    c4 = c4 - 0x80;	/* repeat row c4-0x80 times */
-	                    for (b = 0; b < c4; b++) {
-	                        k += 1;
+	                    for (b = 0; b < c4 && k < max_row; b++) {
+	                        k++;
 			        x = &tdata[i * 4 + j][k * 4];
 
 	                        *x++ = ((c1 << 4) & 0x10) |ptk_table[c1 / 2][0];
