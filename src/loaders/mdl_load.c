@@ -379,6 +379,7 @@ static int get_chunk_in(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 
     /* Sanity check */
     if (data->has_in) {
+	D_(D_CRIT "duplicate IN chunk");
 	return -1;
     }
     data->has_in = 1;
@@ -426,6 +427,7 @@ static int get_chunk_pa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 
     /* Sanity check */
     if (data->has_pa || !data->has_in) {
+	D_(D_CRIT "duplicate PA chunk or missing IN chunk");
 	return -1;
     }
     data->has_pa = 1;
@@ -465,6 +467,7 @@ static int get_chunk_p0(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 
     /* Sanity check */
     if (data->has_pa || !data->has_in) {
+	D_(D_CRIT "duplicate PA (0.0) chunk or missing IN chunk");
 	return -1;
     }
     data->has_pa = 1;
@@ -501,6 +504,7 @@ static int get_chunk_tr(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 
     /* Sanity check */
     if (data->has_tr || !data->has_pa) {
+	D_(D_CRIT "duplicate TR chunk or missing PA chunk");
 	return -1;
     }
     data->has_tr = 1;
@@ -636,10 +640,11 @@ static int get_chunk_ii(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     struct local_data *data = (struct local_data *)parm;
     int i, j, k;
     int map, last_map;
-    char buf[40];
+    uint8 buf[40];
 
     /* Sanity check */
     if (data->has_ii) {
+	D_(D_CRIT "duplicate II chunk");
 	return -1;
     }
     data->has_ii = 1;
@@ -660,8 +665,7 @@ static int get_chunk_ii(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	    return -1;
 	}
 	buf[32] = 0;
-	strncpy(xxi->name, buf, 31);
-	xxi->name[31] = '\0';
+	libxmp_instrument_name(mod, i, buf, 32);
 
 	D_(D_INFO "[%2X] %-32.32s %2d", data->i_index[i], xxi->name, xxi->nsm);
 
@@ -726,11 +730,12 @@ static int get_chunk_is(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     struct xmp_module *mod = &m->mod;
     struct local_data *data = (struct local_data *)parm;
     int i;
-    char buf[64];
+    uint8 buf[64];
     uint8 x;
 
     /* Sanity check */
     if (data->has_is) {
+	D_(D_CRIT "duplicate IS chunk");
 	return -1;
     }
     data->has_is = 1;
@@ -757,8 +762,7 @@ static int get_chunk_is(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	    return -1;
 	}
 	buf[32] = 0;
-	strncpy(xxs->name, buf, 31);
-	xxs->name[31] = '\0';
+	libxmp_copy_adjust(xxs->name, buf, 31);
 
 	hio_seek(f, 8, SEEK_CUR);		/* Sample filename */
 
@@ -767,6 +771,14 @@ static int get_chunk_is(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	xxs->len = hio_read32l(f);
 	xxs->lps = hio_read32l(f);
 	xxs->lpe = hio_read32l(f);
+
+	/* Sanity check */
+	if (xxs->len < 0 || xxs->lps < 0 ||
+	    xxs->lps > xxs->len || xxs->lpe > (xxs->len - xxs->lps)) {
+		D_(D_CRIT "invalid sample %d - len:%d s:%d l:%d",
+			i, xxs->len, xxs->lps, xxs->lpe);
+		return -1;
+	}
 
 	xxs->flg = xxs->lpe > 0 ? XMP_SAMPLE_LOOP : 0;
 	xxs->lpe = xxs->lps + xxs->lpe;
@@ -785,7 +797,7 @@ static int get_chunk_is(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	data->packinfo[i] = (x & 0x0c) >> 2;
 
 	D_(D_INFO "[%2X] %-32.32s %05x%c %05x %05x %c %6d %d",
-			data->s_index[i], buf, xxs->len,
+			data->s_index[i], xxs->name, xxs->len,
 			xxs->flg & XMP_SAMPLE_16BIT ? '+' : ' ',
 			xxs->lps, xxs->lpe,
 			xxs->flg & XMP_SAMPLE_LOOP ? 'L' : ' ',
@@ -800,11 +812,12 @@ static int get_chunk_i0(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     struct xmp_module *mod = &m->mod;
     struct local_data *data = (struct local_data *)parm;
     int i;
-    char buf[64];
+    uint8 buf[64];
     uint8 x;
 
     /* Sanity check */
     if (data->has_ii || data->has_is) {
+	D_(D_CRIT "duplicate IS (0.0) chunk");
 	return -1;
     }
     data->has_ii = 1;
@@ -812,7 +825,7 @@ static int get_chunk_i0(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 
     mod->ins = mod->smp = hio_read8(f);
 
-    D_(D_INFO "Instruments: %d", mod->ins);
+    D_(D_INFO "Instruments (0.0): %d", mod->ins);
 
     if (libxmp_init_instrument(m) < 0)
 	return -1;
@@ -839,14 +852,22 @@ static int get_chunk_i0(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	}
 	buf[32] = 0;
 	hio_seek(f, 8, SEEK_CUR);	/* Sample filename */
-	strncpy(xxi->name, buf, 31);
-	xxi->name[31] = '\0';
+	libxmp_instrument_name(mod, i, buf, 32);
 
 	c5spd = hio_read16l(f);
 
 	xxs->len = hio_read32l(f);
 	xxs->lps = hio_read32l(f);
 	xxs->lpe = hio_read32l(f);
+
+	/* Sanity check */
+	if (xxs->len < 0 || xxs->lps < 0 ||
+	    xxs->lps > xxs->len || xxs->lpe > (xxs->len - xxs->lps)) {
+		D_(D_CRIT "invalid sample %d - len:%d s:%d l:%d",
+			i, xxs->len, xxs->lps, xxs->lpe);
+		return -1;
+	}
+
 	xxs->flg = xxs->lpe > 0 ? XMP_SAMPLE_LOOP : 0;
 	xxs->lpe = xxs->lps + xxs->lpe;
 
@@ -866,7 +887,7 @@ static int get_chunk_i0(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	data->packinfo[i] = (x & 0x0c) >> 2;
 
 	D_(D_INFO "[%2X] %-32.32s %5d V%02x %05x%c %05x %05x %d",
-		data->i_index[i], buf, c5spd, sub->vol,
+		data->i_index[i], xxi->name, c5spd, sub->vol,
 		xxs->len, xxs->flg & XMP_SAMPLE_16BIT ? '+' : ' ',
 		xxs->lps, xxs->lpe, data->packinfo[i]);
     }
@@ -885,6 +906,7 @@ static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 
     /* Sanity check */
     if (data->has_sa || !data->has_is || data->packinfo == NULL) {
+	D_(D_CRIT "duplicate SA chunk or missing IS chunk");
 	return -1;
     }
     data->has_sa = 1;
@@ -898,8 +920,6 @@ static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	struct xmp_sample *xxs = &mod->xxs[i];
 
         len = xxs->len;
-	if (len < 0)
-	    goto err2;
 	if (xxs->flg & XMP_SAMPLE_16BIT)
 	    len <<= 1;
 
@@ -918,6 +938,7 @@ static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	    break;
 	default:
 	    /* Sanity check */
+	    D_(D_CRIT "sample %d invalid pack %d", i, data->packinfo[i]);
 	    goto err2;
 	}
 
@@ -939,8 +960,10 @@ static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 
 	switch (data->packinfo[i]) {
 	case 0:
-	    if (hio_read(smpbuf, 1, len, f) < len)
+	    if (hio_read(smpbuf, 1, len, f) < len) {
+		D_(D_CRIT "sample %d read error (no pack)", i);
 		goto err2;
+	    }
 	    left -= len;
 	    break;
 	case 1:
@@ -952,12 +975,16 @@ static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
                 goto err2;
 	    if ((buf = malloc(len + 4)) == NULL)
 		goto err2;
-	    if (hio_read(buf, 1, len, f) != len)
-                goto err3;
+	    if (hio_read(buf, 1, len, f) != len) {
+		D_(D_CRIT "sample %d read error (8-bit)", i);
+		goto err3;
+	    }
 	    /* The unpack function may read slightly beyond the end. */
 	    buf[len] = buf[len + 1] = buf[len + 2] = buf[len + 3] = 0;
-            if (unpack_sample8(smpbuf, buf, len, xxs->len) < 0)
-                goto err3;
+            if (unpack_sample8(smpbuf, buf, len, xxs->len) < 0) {
+		D_(D_CRIT "sample %d unpack error (8-bit)", i);
+		goto err3;
+	    }
 	    free(buf);
 	    left -= len + 4;
 	    break;
@@ -970,12 +997,16 @@ static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
                 goto err2;
 	    if ((buf = malloc(len + 4)) == NULL)
 		goto err2;
-	    if (hio_read(buf, 1, len, f) != len)
-                goto err3;
+	    if (hio_read(buf, 1, len, f) != len) {
+		D_(D_CRIT "sample %d read error (16-bit)", i);
+		goto err3;
+	    }
 	    /* The unpack function may read slightly beyond the end. */
 	    buf[len] = buf[len + 1] = buf[len + 2] = buf[len + 3] = 0;
-            if (unpack_sample16(smpbuf, buf, len, xxs->len) < 0)
-                goto err3;
+            if (unpack_sample16(smpbuf, buf, len, xxs->len) < 0) {
+		D_(D_CRIT "sample %d unpack error (16-bit)", i);
+		goto err3;
+	    }
 	    free(buf);
 	    left -= len + 4;
 	    break;
@@ -1001,6 +1032,7 @@ static int get_chunk_ve(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 
     /* Sanity check */
     if (data->v_env) {
+	D_(D_CRIT "duplicate VE chunk");
 	return -1;
     }
 
@@ -1031,6 +1063,7 @@ static int get_chunk_pe(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 
     /* Sanity check */
     if (data->p_env) {
+	D_(D_CRIT "duplicate PE chunk");
 	return -1;
     }
 
@@ -1061,6 +1094,7 @@ static int get_chunk_fe(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 
     /* Sanity check */
     if (data->f_env) {
+	D_(D_CRIT "duplicate FE chunk");
 	return -1;
     }
 
