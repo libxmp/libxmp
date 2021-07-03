@@ -130,6 +130,11 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 		if (id == MAGIC_P41A)
 			ins.fine = hio_read16b(in);	/* finetune */
 
+		/* Sanity check */
+		if (ins.addr < 0 || ins.loop_addr < 0 || ins.loop_addr < ins.addr) {
+			return -1;
+		}
+
 		/* writing now */
 		pw_write_zero(out, 22);			/* sample name */
 		write16b(out, ins.size);

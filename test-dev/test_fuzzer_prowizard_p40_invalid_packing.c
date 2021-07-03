@@ -10,7 +10,7 @@ TEST(test_fuzzer_prowizard_p40_invalid_packing)
 	int ret;
 
 	opaque = xmp_create_context();
-	ret = xmp_load_module(opaque, "data/f/prowizard_p40_invalid_packing.xz");
+	ret = xmp_load_module(opaque, "data/f/prowizard_p40_invalid_packing");
 	fail_unless(ret == -XMP_ERROR_LOAD, "module load");
 
 	xmp_free_context(opaque);
