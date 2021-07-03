@@ -111,6 +111,11 @@ static unsigned char *convert_lzw_dynamic(unsigned char *data_in,
 	}
 
 	if (max_bits == 16) {
+	    /* Sanity check - don't shift by garbage values. */
+	    if (*(data->io.data_in_point) > 16) {
+		free(data_out);
+		return NULL;
+	    }
 	    data->maxstr = (1 << *data->io.data_in_point++);	 /* but compress-type *may* change it (!) */
 	}
 
@@ -347,7 +352,8 @@ static void inittable(int orgcsize, struct local_data *data)
 static int oldver_getidx(int oldcode,int chr, struct local_data *data)
 {
 	int lasthash, hashval;
-	int a, f;
+	unsigned int a;
+	int f;
 
 	/* in type 5/6 crunched files, we hash the code into the array. This
 	 * means we don't have a real data->st_last, but for compatibility with
