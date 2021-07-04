@@ -641,12 +641,17 @@ enum STBVorbisError
 #define MAX_BLOCKSIZE      (1 << MAX_BLOCKSIZE_LOG)
 
 
+/* libxmp-specific change */
+#if 1
+#include "common.h"
+#else
 typedef unsigned char  uint8;
 typedef   signed char   int8;
 typedef unsigned short uint16;
 typedef   signed short  int16;
 typedef unsigned int   uint32;
 typedef   signed int    int32;
+#endif
 
 #ifndef TRUE
 #define TRUE 1
