@@ -3721,6 +3721,7 @@ static int start_decoder(vorb *f)
       uint32 *values;
       int ordered, sorted_count;
       int total=0;
+      int res=TRUE;
       uint8 *lengths;
       Codebook *c = f->codebooks+i;
       CHECK(f);
@@ -3737,12 +3738,13 @@ static int start_decoder(vorb *f)
 
       if (c->dimensions == 0 && c->entries != 0)    return error(f, VORBIS_invalid_setup);
 
+      if (f->valid_bits < 0) return error(f, VORBIS_unexpected_eof);
+
       if (c->sparse)
          lengths = (uint8 *) setup_temp_malloc(f, c->entries);
       else
          lengths = c->codeword_lengths = (uint8 *) setup_malloc(f, c->entries);
 
-      if (f->valid_bits < 0) return error(f, VORBIS_unexpected_eof);
       if (!lengths) return error(f, VORBIS_outofmem);
 
       if (ordered) {
@@ -3751,9 +3753,9 @@ static int start_decoder(vorb *f)
          while (current_entry < c->entries) {
             int limit = c->entries - current_entry;
             int n = get_bits(f, ilog(limit));
-            if (f->valid_bits < 0) return error(f, VORBIS_unexpected_eof);
-            if (current_length >= 32) return error(f, VORBIS_invalid_setup);
-            if (current_entry + n > (int) c->entries) { return error(f, VORBIS_invalid_setup); }
+            if (f->valid_bits < 0) { res = error(f, VORBIS_unexpected_eof); break; }
+            if (current_length >= 32) { res = error(f, VORBIS_invalid_setup); break; }
+            if (current_entry + n > (int) c->entries) { res = error(f, VORBIS_invalid_setup); break; }
             memset(lengths + current_entry, current_length, n);
             current_entry += n;
             ++current_length;
@@ -3761,16 +3763,21 @@ static int start_decoder(vorb *f)
       } else {
          for (j=0; j < c->entries; ++j) {
             int present = c->sparse ? get_bits(f,1) : 1;
-            if (f->valid_bits < 0) return error(f, VORBIS_unexpected_eof);
+            if (f->valid_bits < 0) { res = error(f, VORBIS_unexpected_eof); break; }
             if (present) {
                lengths[j] = get_bits(f, 5) + 1;
                ++total;
-               if (lengths[j] == 32)
-                  return error(f, VORBIS_invalid_setup);
+               if (lengths[j] == 32) { res = error(f, VORBIS_invalid_setup); break; }
             } else {
                lengths[j] = NO_CODE;
             }
          }
+      }
+      if (res != TRUE) {
+         if (c->sparse) {
+            setup_temp_free(f, lengths, c->entries);
+         }
+         return res;
       }
 
       if (c->sparse && total >= c->entries >> 2) {
