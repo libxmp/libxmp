@@ -369,6 +369,7 @@ FUZZER		= misc \
 		  dt_channels_bound \
 		  dt_duplicate_chunk \
 		  dt_instrument_count \
+		  dt_invalid_loop \
 		  dt_truncated \
 		  emod_duplicate_chunk \
 		  far_truncated \
