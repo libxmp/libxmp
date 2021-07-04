@@ -962,7 +962,7 @@ static void *setup_malloc(vorb *f, int sz)
       f->setup_offset += sz;
       return p;
    }
-   return sz ? malloc(sz) : NULL;
+   return sz ? calloc(sz, 1) : NULL;
 }
 
 static void setup_free(vorb *f, void *p)
@@ -979,7 +979,7 @@ static void *setup_temp_malloc(vorb *f, int sz)
       f->temp_offset -= sz;
       return (char *) f->alloc.alloc_buffer + f->temp_offset;
    }
-   return malloc(sz);
+   return calloc(sz, 1);
 }
 
 static void setup_temp_free(vorb *f, void *p, int sz)
@@ -1096,7 +1096,11 @@ static int compute_codewords(Codebook *c, uint8 *len, int n, uint32 *values)
    memset(available, 0, sizeof(available));
    // find the first entry
    for (k=0; k < n; ++k) if (len[k] < NO_CODE) break;
-   if (k == n) { assert(c->sorted_entries == 0); return TRUE; }
+
+   // sanity check
+   if (k == n) return (c->sorted_entries == 0);
+   if (len[k] >= 32) return FALSE;
+
    assert(len[k] < 32); // no error return required, code reading lens checks this
    // add to the list
    add_entry(c, 0, k, m++, len[k], values);
@@ -1118,6 +1122,12 @@ static int compute_codewords(Codebook *c, uint8 *len, int n, uint32 *values)
       // more than one free leaf at a given level, isn't totally
       // trivial to prove, but it seems true and the assert never
       // fires, so!
+
+      /* Sanity check */
+      if (z >= 32) {
+        return FALSE;
+      }
+
       while (z > 0 && !available[z]) --z;
       if (z == 0) { return FALSE; }
       res = available[z];
@@ -1173,7 +1183,7 @@ static int STBV_CDECL uint32_compare(const void *p, const void *q)
 
 static int include_in_sort(Codebook *c, uint8 len)
 {
-   if (c->sparse) { assert(len != NO_CODE); return TRUE; }
+   if (c->sparse) { return (len != NO_CODE); }
    if (len == NO_CODE) return FALSE;
    if (len > STB_VORBIS_FAST_HUFFMAN_LENGTH) return TRUE;
    return FALSE;
@@ -1284,8 +1294,14 @@ static void compute_bitreverse(int n, uint16 *rev)
 {
    int ld = ilog(n) - 1; // ilog is off-by-one from normal definitions
    int i, n8 = n >> 3;
-   for (i=0; i < n8; ++i)
-      rev[i] = (bit_reverse(i) >> (32-ld+3)) << 2;
+   for (i=0; i < n8; ++i) {
+      /* CID 128660 (#1 of 1): Bad bit shift operation (BAD_SHIFT)
+       * large_shift: right shifting by more than 31 bits has undefined
+       * behavior. The shift amount, 32 - ld + 3, is 36.
+       */
+      int s = 32-ld+3;
+      rev[i] = s > 31 ? 0 : (bit_reverse(i) >> s) << 2;
+   }
 }
 
 static int init_blocksize(vorb *f, int b, int n)
@@ -2036,7 +2052,7 @@ static float inverse_db_table[256] =
 int8 integer_divide_table[DIVTAB_NUMER][DIVTAB_DENOM]; // 2KB
 #endif
 
-static __forceinline void draw_line(float *output, int x0, int y0, int x1, int y1, int n)
+static __forceinline int draw_line(float *output, int x0, int y0, int x1, int y1, int n)
 {
    int dy = y1 - y0;
    int adx = x1 - x0;
@@ -2045,6 +2061,11 @@ static __forceinline void draw_line(float *output, int x0, int y0, int x1, int y
    int x=x0,y=y0;
    int err = 0;
    int sy;
+
+   /* Sanity check */
+   if (adx == 0) {
+	return -1;
+   }
 
 #ifdef STB_VORBIS_DIVIDE_TABLE
    if (adx < DIVTAB_DENOM && ady < DIVTAB_NUMER) {
@@ -2071,6 +2092,12 @@ static __forceinline void draw_line(float *output, int x0, int y0, int x1, int y
 #endif
    ady -= abs(base) * adx;
    if (x1 > n) x1 = n;
+
+   /* Sanity check */
+   if (x >= n * 2 || y >= 256) {
+     return -1;
+   }
+
    if (x < x1) {
       LINE_OP(output[x], inverse_db_table[y&255]);
       for (++x; x < x1; ++x) {
@@ -2078,11 +2105,20 @@ static __forceinline void draw_line(float *output, int x0, int y0, int x1, int y
          if (err >= adx) {
             err -= adx;
             y += sy;
-         } else
+         } else {
             y += base;
+         }
+
+         /* Sanity check */
+         if (y >= 256) {
+            return -1;
+         }
+
          LINE_OP(output[x], inverse_db_table[y&255]);
       }
    }
+
+   return 0;
 }
 
 static int residue_decode(vorb *f, Codebook *book, float *target, int offset, int n, int rtype)
@@ -2106,7 +2142,7 @@ static int residue_decode(vorb *f, Codebook *book, float *target, int offset, in
 
 // n is 1/2 of the blocksize --
 // specification: "Correct per-vector decode length is [n]/2"
-static void decode_residue(vorb *f, float *residue_buffers[], int ch, int n, int rn, uint8 *do_not_decode)
+static int decode_residue(vorb *f, float *residue_buffers[], int ch, int n, int rn, uint8 *do_not_decode)
 {
    int i,j,pass;
    Residue *r = f->residue_config + rn;
@@ -2266,7 +2302,14 @@ static void decode_residue(vorb *f, float *residue_buffers[], int ch, int n, int
                      float *target = residue_buffers[j];
                      int offset = r->begin + pcount * r->part_size;
                      int n = r->part_size;
-                     Codebook *book = f->codebooks + b;
+                     Codebook *book;
+
+                     /* Sanity check */
+                     if (offset + n >= f->blocksize_1) {
+                        return FALSE;
+                     }
+
+                     book = f->codebooks + b;
                      if (!residue_decode(f, book, target, offset, n, rtype))
                         goto done;
                   }
@@ -2275,6 +2318,10 @@ static void decode_residue(vorb *f, float *residue_buffers[], int ch, int n, int
          }
          #ifndef STB_VORBIS_DIVIDES_IN_RESIDUE
          ++class_set;
+         /* Sanity check */
+         if (class_set >= part_read) {
+             return FALSE;
+         }
          #endif
       }
    }
@@ -2286,6 +2333,8 @@ static void decode_residue(vorb *f, float *residue_buffers[], int ch, int n, int
    temp_free(f,classifications);
    #endif
    temp_alloc_restore(f,temp_alloc_point);
+
+   return TRUE;
 }
 
 
@@ -3097,7 +3146,8 @@ static int do_floor(vorb *f, Mapping *map, int i, int n, float *target, YTYPE *f
             int hy = finalY[j] * g->floor1_multiplier;
             int hx = g->Xlist[j];
             if (lx != hx)
-               draw_line(target, lx,ly, hx,hy, n2);
+               if (draw_line(target, lx,ly, hx,hy, n2) < 0)
+                  return FALSE;
             CHECK(f);
             lx = hx, ly = hy;
          }
@@ -3274,6 +3324,10 @@ static int vorbis_decode_packet_rest(vorb *f, int *len, Mode *m, int left_start,
             }
 
 #ifdef STB_VORBIS_NO_DEFER_FLOOR
+	    /* Sanity check */
+	    if (n >= f->blocksize_1)
+		return FALSE;
+
             do_floor(f, map, i, n, f->floor_buffers[i], finalY, step2_flag);
 #else
             // defer final floor computation until _after_ residue
@@ -3311,6 +3365,9 @@ static int vorbis_decode_packet_rest(vorb *f, int *len, Mode *m, int left_start,
       int r;
       uint8 do_not_decode[256];
       int ch = 0;
+
+      memset(do_not_decode, 0, 256);
+
       for (j=0; j < f->channels; ++j) {
          if (map->chan[j].mux == i) {
             if (zero_channel[j]) {
@@ -3324,7 +3381,9 @@ static int vorbis_decode_packet_rest(vorb *f, int *len, Mode *m, int left_start,
          }
       }
       r = map->submap_residue[i];
-      decode_residue(f, residue_buffers, ch, n2, r, do_not_decode);
+      if (!decode_residue(f, residue_buffers, ch, n2, r, do_not_decode)) {
+         return FALSE;
+      }
    }
 
    if (f->alloc.alloc_buffer)
@@ -3516,7 +3575,7 @@ static int vorbis_pump_first_frame(stb_vorbis *f)
    int len, right, left, res;
    res = vorbis_decode_packet(f, &len, &left, &right);
    if (res)
-      vorbis_finish_frame(f, len, left, right);
+      res = vorbis_finish_frame(f, len, left, right);
    return res;
 }
 
@@ -3587,6 +3646,7 @@ static int start_decoder(vorb *f)
    uint8 header[6], x,y;
    int len,i,j,k, max_submaps = 0;
    int longest_floorlist=0;
+   int val;
 
    // first page, first packet
    f->first_decode = TRUE;
@@ -3621,8 +3681,9 @@ static int start_decoder(vorb *f)
    if (!vorbis_validate(header))                    return error(f, VORBIS_invalid_first_page);
    // vorbis_version
    if (get32(f) != 0)                               return error(f, VORBIS_invalid_first_page);
-   f->channels = get8(f); if (!f->channels)         return error(f, VORBIS_invalid_first_page);
-   if (f->channels > STB_VORBIS_MAX_CHANNELS)       return error(f, VORBIS_too_many_channels);
+   val = get8(f); if (val == 0)                     return error(f, VORBIS_invalid_first_page);
+   if (val > STB_VORBIS_MAX_CHANNELS)               return error(f, VORBIS_too_many_channels);
+   f->channels = val;
    f->sample_rate = get32(f); if (!f->sample_rate)  return error(f, VORBIS_invalid_first_page);
    get32(f); // bitrate_maximum
    get32(f); // bitrate_nominal
@@ -3833,7 +3894,10 @@ static int start_decoder(vorb *f)
       }
 
       if (!compute_codewords(c, lengths, c->entries, values)) {
-         if (c->sparse) setup_temp_free(f, values, 0);
+         if (c->sparse) {
+            setup_temp_free(f, values, 0);
+            setup_temp_free(f, lengths, c->entries);
+         }
          return error(f, VORBIS_invalid_setup);
       }
 
@@ -3890,7 +3954,10 @@ static int start_decoder(vorb *f)
             float last=0;
             // pre-expand the lookup1-style multiplicands, to avoid a divide in the inner loop
             if (sparse) {
-               if (c->sorted_entries == 0) goto skip;
+               if (c->sorted_entries == 0) {
+                  setup_temp_free(f,mults,sizeof(mults[0])*c->lookup_values);
+                  goto skip;
+               }
                c->multiplicands = (codetype *) setup_malloc(f, sizeof(c->multiplicands[0]) * c->sorted_entries * c->dimensions);
             } else
                c->multiplicands = (codetype *) setup_malloc(f, sizeof(c->multiplicands[0]) * c->entries        * c->dimensions);
@@ -4039,6 +4106,12 @@ static int start_decoder(vorb *f)
       if (f->residue_types[i] > 2) return error(f, VORBIS_invalid_setup);
       r->begin = get_bits(f, 24);
       r->end = get_bits(f, 24);
+
+      /* Sanity check */
+      if (r->end - r->begin > 1024) {
+        return error(f, VORBIS_invalid_setup);
+      }
+
       if (r->end < r->begin) return error(f, VORBIS_invalid_setup);
       r->part_size = get_bits(f,24)+1;
       r->classifications = get_bits(f,6)+1;
@@ -4066,6 +4139,12 @@ static int start_decoder(vorb *f)
             }
          }
       }
+
+      /* Sanity check */
+      if (r->classbook >= f->codebook_count) {
+         return error(f, VORBIS_invalid_setup);
+      }
+
       // precompute the classifications[] array to avoid inner-loop mod/divide
       // call it 'classdata' since we already have r->classifications
       r->classdata = (uint8 **) setup_malloc(f, sizeof(*r->classdata) * f->codebooks[r->classbook].entries);
@@ -4527,6 +4606,12 @@ int stb_vorbis_decode_frame_pushdata(
 
    // success!
    len = vorbis_finish_frame(f, len, left, right);
+
+   /* Sanity check */
+   if (len < 0) {
+      return -1;
+   }
+
    for (i=0; i < f->channels; ++i)
       f->outputs[i] = f->channel_buffers[i] + left;
 
@@ -4927,7 +5012,8 @@ int stb_vorbis_seek_frame(stb_vorbis *f, unsigned int sample_number)
          return 1; // the next frame will contain the sample
       } else if (f->current_loc + frame_samples + max_frame_samples > sample_number) {
          // there's a chance the frame after this could contain the sample
-         vorbis_pump_first_frame(f);
+         if (vorbis_pump_first_frame(f) < 0)
+            return -1;
       } else {
          // this frame is too early to be relevant
          f->current_loc += frame_samples;
@@ -5060,7 +5146,18 @@ int stb_vorbis_get_frame_float(stb_vorbis *f, int *channels, float ***output)
       return 0;
    }
 
+   /* Sanity check */
+   if (len > f->blocksize_1) {
+      return -1;
+   }
+
    len = vorbis_finish_frame(f, len, left, right);
+
+   /* Sanity check */
+   if (len < 0) {
+      return -1;
+   }
+
    for (i=0; i < f->channels; ++i)
       f->outputs[i] = f->channel_buffers[i] + left;
 
@@ -5086,7 +5183,8 @@ stb_vorbis * stb_vorbis_open_file_section(FILE *file, int close_on_free, int *er
       f = vorbis_alloc(&p);
       if (f) {
          *f = p;
-         vorbis_pump_first_frame(f);
+         if (vorbis_pump_first_frame(f))
+            return NULL;
          return f;
       }
    }
@@ -5138,7 +5236,8 @@ stb_vorbis * stb_vorbis_open_memory(const unsigned char *data, int len, int *err
       f = vorbis_alloc(&p);
       if (f) {
          *f = p;
-         vorbis_pump_first_frame(f);
+         if (vorbis_pump_first_frame(f) < 0)
+            return NULL;
          if (error) *error = VORBIS__no_error;
          return f;
       }
@@ -5286,6 +5385,11 @@ int stb_vorbis_get_frame_short(stb_vorbis *f, int num_c, short **buffer, int num
 {
    float **output = NULL;
    int len = stb_vorbis_get_frame_float(f, NULL, &output);
+
+   /* Sanity check */
+   if (len < 0)
+      return -1;
+
    if (len > num_samples) len = num_samples;
    if (len)
       convert_samples_short(num_c, buffer, 0, f->channels, output, 0, len);
