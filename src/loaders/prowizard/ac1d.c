@@ -24,12 +24,12 @@ static int depack_ac1d(HIO_HANDLE *in, FILE *out)
 	int saddr;
 	int ssize = 0;
 	int paddr[128];
-	int psize[128];
+	/*int psize[128];*/
 	/*int tsize1, tsize2, tsize3;*/
 	int i, j, k;
 
 	memset(paddr, 0, sizeof(paddr));
-	memset(psize, 0, sizeof(psize));
+	/*memset(psize, 0, sizeof(psize));*/
 
 	npos = hio_read8(in);
 	ntk_byte = hio_read8(in);
@@ -60,8 +60,8 @@ static int depack_ac1d(HIO_HANDLE *in, FILE *out)
 
 	npat--;
 
-	for (i = 0; i < (npat - 1); i++)
-		psize[i] = paddr[i + 1] - paddr[i];
+	/*for (i = 0; i < (npat - 1); i++)
+		psize[i] = paddr[i + 1] - paddr[i];*/
 
 	write8(out, npos);		/* write number of pattern pos */
 	write8(out, ntk_byte);		/* write "noisetracker" byte */
@@ -80,6 +80,9 @@ static int depack_ac1d(HIO_HANDLE *in, FILE *out)
 
 		memset(tmp, 0, sizeof(tmp));
 		for (k = 0; k < 4; k++) {
+			if (hio_error(in))
+				break;
+
 			for (j = 0; j < 64; j++) {
 				int x = j * 16 + k * 4;
 
