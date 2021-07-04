@@ -444,6 +444,7 @@ FUZZER		= misc \
 		  ult_v000 \
 		  prowizard_ac1d_invalid_note \
 		  prowizard_ac1d_invalid_paddr \
+		  prowizard_di_invalid_offsets \
 		  prowizard_di_patterns_bound \
 		  prowizard_di_patterns_test \
 		  prowizard_di_truncated \

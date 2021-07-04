@@ -198,6 +198,10 @@ static int test_di(const uint8 *data, char *t, int s)
 	pat_offs = readmem32b(data + 6);	/* address of pattern data */
 	smp_offs = readmem32b(data + 10);	/* address of sample data */
 
+	/* test #4,1 :) */
+	if (ptab_offs < psize)
+		return -1;
+
 	if (pat_offs <= ptab_offs || smp_offs <= ptab_offs || smp_offs <= pat_offs)
 		return -1;
 
@@ -208,10 +212,6 @@ static int test_di(const uint8 *data, char *t, int s)
 	if (k > in_size || l > in_size || l > in_size)
 		return -1;
 #endif
-
-	/* test #4,1 :) */
-	if (ptab_offs < psize)
-		return -1;
 
 #if 0
 	/* test #5 */
