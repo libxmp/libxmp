@@ -5356,12 +5356,10 @@ int stb_vorbis_decode_filename(const char *filename, int *channels, int *sample_
    offset = data_len = 0;
    total = limit;
    data = (short *) malloc(total * sizeof(*data));
-   if (data == NULL) {
-      stb_vorbis_close(v);
-      return -2;
-   }
+   if (data == NULL) goto error;
    for (;;) {
       int n = stb_vorbis_get_frame_short_interleaved(v, v->channels, data+offset, total-offset);
+      if (n < 0) goto error;
       if (n == 0) break;
       data_len += n;
       offset += n * v->channels;
@@ -5369,17 +5367,18 @@ int stb_vorbis_decode_filename(const char *filename, int *channels, int *sample_
          short *data2;
          total *= 2;
          data2 = (short *) realloc(data, total * sizeof(*data));
-         if (data2 == NULL) {
-            free(data);
-            stb_vorbis_close(v);
-            return -2;
-         }
+         if (data2 == NULL) goto error;
          data = data2;
       }
    }
    *output = data;
    stb_vorbis_close(v);
    return data_len;
+
+error:
+   free(data);
+   stb_vorbis_close(v);
+   return -2;
 }
 #endif // NO_STDIO
 
@@ -5396,12 +5395,10 @@ int stb_vorbis_decode_memory(const uint8 *mem, int len, int *channels, int *samp
    offset = data_len = 0;
    total = limit;
    data = (short *) malloc(total * sizeof(*data));
-   if (data == NULL) {
-      stb_vorbis_close(v);
-      return -2;
-   }
+   if (data == NULL) goto error;
    for (;;) {
       int n = stb_vorbis_get_frame_short_interleaved(v, v->channels, data+offset, total-offset);
+      if (n < 0) goto error;
       if (n == 0) break;
       data_len += n;
       offset += n * v->channels;
@@ -5409,17 +5406,18 @@ int stb_vorbis_decode_memory(const uint8 *mem, int len, int *channels, int *samp
          short *data2;
          total *= 2;
          data2 = (short *) realloc(data, total * sizeof(*data));
-         if (data2 == NULL) {
-            free(data);
-            stb_vorbis_close(v);
-            return -2;
-         }
+         if (data2 == NULL) goto error;
          data = data2;
       }
    }
    *output = data;
    stb_vorbis_close(v);
    return data_len;
+
+error:
+   free(data);
+   stb_vorbis_close(v);
+   return -2;
 }
 #endif // STB_VORBIS_NO_INTEGER_CONVERSION
 
