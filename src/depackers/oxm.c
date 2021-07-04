@@ -123,7 +123,7 @@ int test_oxm(FILE *f)
 
 static char *oggdec(FILE *f, int len, int res, int *newlen)
 {
-	int i, n, ch;
+	int i, n, ch, rate;
 	/*int size;*/
 	uint8 *data, *pcm;
 	int16 *pcm16 = NULL;
@@ -156,7 +156,7 @@ static char *oggdec(FILE *f, int len, int res, int *newlen)
 		return (char *)data;
 	}
 
-	n = stb_vorbis_decode_memory(data, len, &ch, &pcm16);
+	n = stb_vorbis_decode_memory(data, len, &ch, &rate, &pcm16);
 	free(data);
 
 	if (n <= 0) {
