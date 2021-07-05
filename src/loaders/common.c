@@ -267,7 +267,7 @@ void libxmp_read_title(HIO_HANDLE *f, char *t, int s)
 {
 	uint8 buf[XMP_NAME_SIZE];
 
-	if (t == NULL)
+	if (t == NULL || s < 0)
 		return;
 
 	if (s >= XMP_NAME_SIZE)

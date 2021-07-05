@@ -160,7 +160,8 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 		return -1;
 
 	for (i = 0; i < mod->ins; i++) {
-		int fine, replen, flag;
+		uint32 repstart, replen;
+		int fine, flag;
 
 		if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 			return -1;
@@ -171,9 +172,10 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 		fine = hio_read8s(f);	/* finetune */
 		mod->xxi[i].sub[0].vol = hio_read8(f);
 		mod->xxi[i].sub[0].pan = 0x80;
-		mod->xxs[i].lps = hio_read32b(f);
+		repstart = hio_read32b(f);
 		replen = hio_read32b(f);
-		mod->xxs[i].lpe = mod->xxs[i].lps + replen - 1;
+		mod->xxs[i].lps = repstart;
+		mod->xxs[i].lpe = repstart + replen - 1;
 		mod->xxs[i].flg = replen > 2 ?  XMP_SAMPLE_LOOP : 0;
 
 		if (hio_read(name, 22, 1, f) == 0)
@@ -202,7 +204,7 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 			i, mod->xxi[i].name,
 			mod->xxs[i].len,
 			mod->xxs[i].flg & XMP_SAMPLE_16BIT ? '+' : ' ',
-			mod->xxs[i].lps,
+			repstart,
 			replen,
 			mod->xxs[i].flg & XMP_SAMPLE_LOOP ? 'L' : ' ',
 			flag & 0x100 ? 'S' : ' ',

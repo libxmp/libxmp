@@ -369,6 +369,7 @@ FUZZER		= misc \
 		  dt_channels_bound \
 		  dt_duplicate_chunk \
 		  dt_instrument_count \
+		  dt_invalid_loop \
 		  dt_truncated \
 		  emod_duplicate_chunk \
 		  far_truncated \
@@ -413,6 +414,7 @@ FUZZER		= misc \
 		  mfp_truncated \
 		  mgt_patterns_bound \
 		  mmd0_sample_count \
+		  mmd0_truncated \
 		  mmd1_channel_count \
 		  mmd1_truncated \
 		  mmd3_invalid_blockarr \
@@ -441,6 +443,8 @@ FUZZER		= misc \
 		  ult_truncated \
 		  ult_v000 \
 		  prowizard_ac1d_invalid_note \
+		  prowizard_ac1d_invalid_paddr \
+		  prowizard_di_invalid_offsets \
 		  prowizard_di_patterns_bound \
 		  prowizard_di_patterns_test \
 		  prowizard_di_truncated \
@@ -455,6 +459,7 @@ FUZZER		= misc \
 		  prowizard_np2_patterns_bound \
 		  prowizard_np3_invalid_note \
 		  prowizard_np3_patterns_bound \
+		  prowizard_p40_invalid_offsets \
 		  prowizard_p40_invalid_packing \
 		  prowizard_p40_invalid_sample \
 		  prowizard_p40_zero_length \
