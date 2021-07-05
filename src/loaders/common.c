@@ -36,7 +36,7 @@
 #elif defined(__DJGPP__)
 #include <dos.h>
 #include <io.h>
-#elif defined(HAVE_DIRENT_H)
+#elif defined(HAVE_DIRENT)
 #include <dirent.h>
 #endif
 #endif /* LIBXMP_CORE_PLAYER */
@@ -467,7 +467,7 @@ int libxmp_check_filename_case(const char *dir, const char *name, char *new_name
 	strncpy(new_name, name, size);
 	return 1;
 }
-#elif defined(HAVE_DIRENT_H)
+#elif defined(HAVE_DIRENT)
 int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
 {
 	int found = 0;

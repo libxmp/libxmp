@@ -218,13 +218,15 @@ darwin*|*djgpp|mingw*)
   ;;
 esac
 
-AC_CHECK_HEADERS(dirent.h)
-case "${host_os}" in
-amigaos*|aros*|morphos*)
-dnl for depackers/xfd.c
-  AC_CHECK_HEADERS(proto/xfdmaster.h)
-  ;;
-esac
+AC_MSG_CHECKING(for dirent)
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <dirent.h>]], [[
+  DIR *dirp = opendir(".");
+  struct dirent *d = readdir(dirp);
+  (void)d; closedir(dirp);]])],
+ [have_dirent=yes
+  AC_DEFINE(HAVE_DIRENT,1,[])],
+ [have_dirent=no])
+AC_MSG_RESULT($have_dirent)
 
 AC_CHECK_FUNCS(popen mkstemp fnmatch umask round powf)
 dnl fork, execv & co don't work with djgpp
@@ -232,6 +234,13 @@ case "${host_os}" in
 *djgpp|mingw*|riscos*)
   ;;
 *) AC_CHECK_FUNCS(wait pipe fork execvp dup2)
+  ;;
+esac
+
+case "${host_os}" in
+amigaos*|aros*|morphos*)
+dnl for depackers/xfd.c
+  AC_CHECK_HEADERS(proto/xfdmaster.h)
   ;;
 esac
 
