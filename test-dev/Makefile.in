@@ -459,6 +459,7 @@ FUZZER		= misc \
 		  prowizard_np2_patterns_bound \
 		  prowizard_np3_invalid_note \
 		  prowizard_np3_patterns_bound \
+		  prowizard_p40_invalid_offsets \
 		  prowizard_p40_invalid_packing \
 		  prowizard_p40_invalid_sample \
 		  prowizard_p40_zero_length \

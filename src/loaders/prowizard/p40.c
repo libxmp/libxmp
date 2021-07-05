@@ -61,6 +61,7 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 	uint8 len, npat, nsmp;
 	uint8 *tdata;
 	uint16 track_addr[128][4];
+	long in_size;
 	int trkdat_ofs, trktab_ofs, smp_ofs;
 	int ssize = 0;
 	int SampleAddress[31];
@@ -107,7 +108,12 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 	trktab_ofs = hio_read32b(in);	/* read track table address */
 	smp_ofs = hio_read32b(in);	/* read sample data address */
 
-	if (hio_error(in)) {
+	if (hio_error(in) || trkdat_ofs < 0 || trktab_ofs < 0 || smp_ofs < 0) {
+		return -1;
+	}
+
+	in_size = hio_size(in);
+	if (trkdat_ofs >= in_size || trktab_ofs >= in_size || smp_ofs >= in_size) {
 		return -1;
 	}
 
@@ -131,7 +137,8 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 			ins.fine = hio_read16b(in);	/* finetune */
 
 		/* Sanity check */
-		if (ins.addr < 0 || ins.loop_addr < 0 || ins.loop_addr < ins.addr) {
+		if (ins.addr < 0 || ins.loop_addr < 0 || ins.loop_addr < ins.addr ||
+		    ins.addr > in_size - smp_ofs) {
 			return -1;
 		}
 
