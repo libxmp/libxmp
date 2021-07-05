@@ -22,6 +22,8 @@
 
 #include <ctype.h>
 
+#include "common.h"
+
 #ifndef LIBXMP_CORE_PLAYER
 #if defined(_WIN32)
 #ifndef WIN32_LEAN_AND_MEAN
@@ -36,13 +38,17 @@
 #elif defined(__DJGPP__)
 #include <dos.h>
 #include <io.h>
+#elif defined(LIBXMP_AMIGA)
+#ifdef __amigaos4__
+#define __USE_INLINE__
+#endif
+#include <proto/dos.h>
 #elif defined(HAVE_DIRENT)
 #include <dirent.h>
 #endif
 #endif /* LIBXMP_CORE_PLAYER */
 
 #include "xmp.h"
-#include "common.h"
 #include "period.h"
 #include "loader.h"
 
@@ -467,6 +473,33 @@ int libxmp_check_filename_case(const char *dir, const char *name, char *new_name
 	strncpy(new_name, name, size);
 	return 1;
 }
+#elif defined(LIBXMP_AMIGA)
+#ifdef __amigaos4__
+#include <dos/obsolete.h>
+#endif
+int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
+{
+	char path[256]; BPTR lock;
+	struct FileInfoBlock *fib;
+	int found = 0;
+	/* amigados is case-insensitive: directly probe the file. */
+	snprintf(path, sizeof(path), "%s/%s", dir, name);
+	lock = Lock((const STRPTR)path, ACCESS_READ);
+	if (lock) {
+		fib = (struct FileInfoBlock*) AllocDosObject(DOS_FIB, NULL);
+		if (fib != NULL) {
+		    if (Examine(lock, fib)) {
+			if (fib->fib_DirEntryType < 0) {
+				found = 1;
+				strncpy(new_name, name, size);
+			}
+		    }
+		    FreeDosObject(DOS_FIB, fib);
+		}
+		UnLock(lock);
+	}
+	return found;
+}
 #elif defined(HAVE_DIRENT)
 int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
 {
@@ -481,12 +514,10 @@ int libxmp_check_filename_case(const char *dir, const char *name, char *new_name
 	while ((d = readdir(dirp)) != NULL) {
 		if (!strcasecmp(d->d_name, name)) {
 			found = 1;
+			strncpy(new_name, d->d_name, size);
 			break;
 		}
 	}
-
-	if (found)
-		strncpy(new_name, d->d_name, size);
 
 	closedir(dirp);
 
