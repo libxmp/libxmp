@@ -57,11 +57,11 @@ int test_oxm(FILE *f)
 	if (memcmp(buf, "Extended Module:", 16)) {
 		return -1;
 	}
-	
+
 	if (npat > 256 || nins > 128) {
 		return -1;
 	}
-	
+
 	if (fseek(f, 60 + hlen, SEEK_SET) < 0) {
 		return -1;
 	}
@@ -73,7 +73,7 @@ int test_oxm(FILE *f)
 		len = readmem32l(buf);
 		plen = readmem16l(buf + 7);
 
-		if (fseek(f, len - 9 + plen, SEEK_CUR) < 0) {
+		if (len < 9 || len > 256 || fseek(f, len - 9 + plen, SEEK_CUR) < 0) {
 			return -1;
 		}
 	}
@@ -155,7 +155,7 @@ static char *oggdec(FILE *f, int len, int res, int *newlen)
 		*newlen = len;
 		return (char *)data;
 	}
-	
+
 	n = stb_vorbis_decode_memory(data, len, &ch, &pcm16);
 	free(data);
 
