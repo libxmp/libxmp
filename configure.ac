@@ -210,13 +210,13 @@ XMP_TRY_COMPILE(whether alloca() needs alloca.h,
 old_LIBS="${LIBS}"
 AC_CHECK_LIB(m,pow)
 dnl -lm not needed with darwin and mingw.
-dnl -lm not needed with djgpp either: c89 math funcs are in libc.a,
-dnl       we do just fine without the c99 ones.
+dnl  neither with djgpp.
 case "${host_os}" in
 darwin*|*djgpp|mingw*)
   LIBS="${old_LIBS}"
   ;;
 esac
+AC_CHECK_FUNCS(powf)
 
 AC_MSG_CHECKING(for dirent)
 AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <dirent.h>]], [[
@@ -228,7 +228,7 @@ AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <dirent.h>]], [[
  [have_dirent=no])
 AC_MSG_RESULT($have_dirent)
 
-AC_CHECK_FUNCS(popen mkstemp fnmatch umask round powf)
+AC_CHECK_FUNCS(popen mkstemp fnmatch umask)
 dnl fork, execv & co don't work with djgpp
 case "${host_os}" in
 *djgpp|mingw*|riscos*)
