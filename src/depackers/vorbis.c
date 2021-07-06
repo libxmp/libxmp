@@ -66,6 +66,11 @@
 // See end of file for full version history.
 
 
+/* libxmp customizations: */
+#define STB_VORBIS_C
+#include "vorbis.h"
+
+
 //////////////////////////////////////////////////////////////////////////////
 //
 //  HEADER BEGINS HERE
@@ -544,6 +549,10 @@ enum STBVorbisError
 //     you'd ever want to do it except for debugging.
 // #define STB_VORBIS_NO_DEFER_FLOOR
 
+// STB_VORBIS_NO_COMMENTS
+//     disables reading and storing user comments
+// #define STB_VORBIS_NO_COMMENTS
+
 
 
 
@@ -793,9 +802,11 @@ struct stb_vorbis
    unsigned int temp_memory_required;
    unsigned int setup_temp_memory_required;
 
+#ifndef STB_VORBIS_NO_COMMENTS
    char *vendor;
    int comment_list_length;
    char **comment_list;
+#endif
 
   // input config
 #ifndef STB_VORBIS_NO_STDIO
@@ -1365,6 +1376,7 @@ static uint8 get8(vorb *z)
    return c;
    }
    #endif
+   return 0;  /* silence warnings */
 }
 
 static uint32 get32(vorb *f)
@@ -1394,6 +1406,7 @@ static int getn(vorb *z, uint8 *data, int n)
       return 0;
    }
    #endif
+   return 0;  /* silence warnings */
 }
 
 static void skip(vorb *z, int n)
@@ -1440,6 +1453,7 @@ static int set_file_offset(stb_vorbis *f, unsigned int loc)
    fseek(f->f, f->f_start, SEEK_END);
    return 0;
    #endif
+   return 0;  /* silence warnings */
 }
 
 
@@ -1596,6 +1610,7 @@ static int get8_packet(vorb *f)
    return x;
 }
 
+#ifndef STB_VORBIS_NO_COMMENTS
 static int get32_packet(vorb *f)
 {
    uint32 x;
@@ -1605,6 +1620,7 @@ static int get32_packet(vorb *f)
    x += (uint32) get8_packet(f) << 24;
    return x;
 }
+#endif
 
 static void flush_packet(vorb *f)
 {
@@ -3705,6 +3721,7 @@ static int start_decoder(vorb *f)
 
    if (!start_packet(f))                            return FALSE;
 
+#ifndef STB_VORBIS_NO_COMMENTS
    if (!next_segment(f))                            return FALSE;
 
    if (get8_packet(f) != VORBIS_packet_comment)            return error(f, VORBIS_invalid_setup);
@@ -3745,6 +3762,7 @@ static int start_decoder(vorb *f)
 
    skip(f, f->bytes_in_seg);
    f->bytes_in_seg = 0;
+#endif // STB_VORBIS_NO_COMMENTS
 
    do {
       len = next_segment(f);
@@ -4309,11 +4327,13 @@ static void vorbis_deinit(stb_vorbis *p)
 {
    int i,j;
 
+#ifndef STB_VORBIS_NO_COMMENTS
    setup_free(p, p->vendor);
    for (i=0; i < p->comment_list_length; ++i) {
       setup_free(p, p->comment_list[i]);
    }
    setup_free(p, p->comment_list);
+#endif
 
    if (p->residue_config) {
       for (i=0; i < p->residue_count; ++i) {
@@ -4414,6 +4434,7 @@ stb_vorbis_info stb_vorbis_get_info(stb_vorbis *f)
    return d;
 }
 
+#ifndef STB_VORBIS_NO_COMMENTS
 stb_vorbis_comment stb_vorbis_get_comment(stb_vorbis *f)
 {
    stb_vorbis_comment d;
@@ -4422,6 +4443,7 @@ stb_vorbis_comment stb_vorbis_get_comment(stb_vorbis *f)
    d.comment_list = f->comment_list;
    return d;
 }
+#endif
 
 int stb_vorbis_get_error(stb_vorbis *f)
 {
@@ -4657,6 +4679,7 @@ unsigned int stb_vorbis_get_file_offset(stb_vorbis *f)
    #ifndef STB_VORBIS_NO_STDIO
    return (unsigned int) (ftell(f->f) - f->f_start);
    #endif
+   return 0;  /* silence warnings */
 }
 
 #ifndef STB_VORBIS_NO_PULLDATA_API
