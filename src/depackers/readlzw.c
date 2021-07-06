@@ -546,7 +546,7 @@ static void outputchr(int chr, struct local_data *data)
 
 static int findfirstchr(int code, struct local_data *data)
 {
-	if (data->st_ptr[code] != LZW_UNUSED) { /* not first? then use brand new st_ptr1st! */
+	if (data->st_ptr[code] != LZW_UNUSED && data->st_ptr1st[code] != LZW_UNUSED) { /* not first? then use brand new st_ptr1st! */
 	    code = data->st_ptr1st[code];    /* now with no artificial colouring */
 	}
 	return data->st_chr[code];

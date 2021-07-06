@@ -488,6 +488,7 @@ FUZZER		= misc \
 		  prowizard_tp3_samples_bound \
 		  prowizard_unic_truncated \
 		  prowizard_zen_invalid_note \
+		  depack_arc_lzw_invalid \
 		  depack_arcfs_lzw_leak \
 		  depack_arcfs_negative_header_size \
 		  depack_arcfs_negative_size \
