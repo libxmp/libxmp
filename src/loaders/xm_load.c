@@ -340,8 +340,8 @@ err:
 }
 
 /* Packed structures size */
-#define XM_INST_HEADER_SIZE 33
-#define XM_INST_SIZE 208
+#define XM_INST_HEADER_SIZE 29
+#define XM_INST_SIZE 212
 
 /* grass.near.the.house.xm defines 23 samples in instrument 1. FT2 docs
  * specify at most 16. See https://github.com/libxmp/libxmp/issues/168
@@ -376,8 +376,12 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 		 * instruments, but file may end abruptly before that. Also covers
 		 * XMLiTE stripped modules and truncated files. This test will not
 		 * work if file has trailing garbage.
+		 *
+		 * Note: loading 4 bytes past the instrument header to get the
+		 * sample header size (if it exists). This is NOT considered to
+		 * be part of the instrument header.
 		 */
-		if (hio_read(buf, 33, 1, f) != 1) {
+		if (hio_read(buf, XM_INST_HEADER_SIZE + 4, 1, f) != 1) {
 			D_(D_WARN "short read in instrument header data");
 			break;
 		}
@@ -389,6 +393,11 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 		xih.sh_size = readmem32l(buf + 29);	/* Sample header size */
 
 		/* Sanity check */
+		if ((int)xih.size < XM_INST_HEADER_SIZE) {
+			D_(D_CRIT "instrument %d: instrument header size:%d", i + 1, xih.size);
+			return -1;
+		}
+
 		if (xih.samples > XM_MAX_SAMPLES_PER_INST || (xih.samples > 0 && xih.sh_size > 0x100)) {
 			D_(D_CRIT "instrument %d: samples:%d sample header size:%d", i + 1, xih.samples, xih.sh_size);
 			return -1;
@@ -416,7 +425,7 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 			 * generalization should take care of both cases.
 			 */
 
-			if (hio_seek(f, (int)xih.size - XM_INST_HEADER_SIZE, SEEK_CUR) < 0) {
+			if (hio_seek(f, (int)xih.size - (XM_INST_HEADER_SIZE + 4), SEEK_CUR) < 0) {
 				return -1;
 			}
 
@@ -427,17 +436,13 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 			return -1;
 		}
 
-		if (xih.size < XM_INST_HEADER_SIZE) {
-			return -1;
-		}
-
 		/* for BoobieSqueezer (see http://boobie.rotfl.at/)
 		 * It works pretty much the same way as Impulse Tracker's sample
 		 * only mode, where it will strip off the instrument data.
 		 */
 		if (xih.size < XM_INST_HEADER_SIZE + XM_INST_SIZE) {
 			memset(&xi, 0, sizeof(struct xm_instrument));
-			hio_seek(f, xih.size - XM_INST_HEADER_SIZE, SEEK_CUR);
+			hio_seek(f, xih.size - (XM_INST_HEADER_SIZE + 4), SEEK_CUR);
 		} else {
 			uint8 *b = buf;
 
