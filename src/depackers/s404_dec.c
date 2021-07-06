@@ -17,7 +17,7 @@
 #include "common.h"
 #include "depacker.h"
 
-/* #include "compat.h" 
+/* #include "compat.h"
 
 #include "s404_dec.h" */
 
@@ -92,7 +92,7 @@ static int getb(struct bitstream *bs, int nbits)
 
 /* Returns bytes still to read.. or < 0 if error. */
 static int checkS404File(uint32 *buf, /*size_t len,*/
-			 int32 *oLen, int32 *pLen, int32 *sLen )
+                         int32 *oLen, int32 *pLen, int32 *sLen )
 {
   /*if (len < 16)
     return -1;*/
@@ -115,7 +115,7 @@ static int checkS404File(uint32 *buf, /*size_t len,*/
 
 
 static int decompressS404(uint8 *src, uint8 *orgdst,
-			   int32 dst_length, int32 src_length)
+                          int32 dst_length, int32 src_length)
 {
   uint16 w;
   int32 eff;
@@ -128,6 +128,10 @@ static int decompressS404(uint8 *src, uint8 *orgdst,
   dst = orgdst + oLen;
 
   eff = initGetb(&bs, src, src_length);
+
+  /* Sanity check--prevent invalid shift exponents. */
+  if (eff < 6 || eff >= 32)
+    return -1;
 
   /*printf("_bl: %02X, _bb: %04X, eff: %d\n",_bl,_bb, eff);*/
 
@@ -171,7 +175,7 @@ static int decompressS404(uint8 *src, uint8 *orgdst,
         w = x;
 
         /*printf("1+001+1111+[4] -> [8] -> %02X\n",w);*/
-	/*assert(dst > orgdst);*/
+        /*assert(dst > orgdst);*/
         if (orgdst >= dst) {
           return -1;
         }
@@ -182,7 +186,7 @@ static int decompressS404(uint8 *src, uint8 *orgdst,
       if (w >= 0x180) {
         /* copy 2-3 */
         n = w & 0x40 ? 3 : 2;
-        
+
         if (w & 0x20) {
           /* dist 545 -> */
           w = (w & 0x1f) << (eff - 5);
@@ -219,7 +223,7 @@ static int decompressS404(uint8 *src, uint8 *orgdst,
       } else if (w >= 0x140) {
         /* copy 4-7 */
         n = ((w & 0x30) >> 4) + 4;
-        
+
         if (w & 0x08) {
           /* dist 545 -> */
           w = (w & 0x07) << (eff - 3);
@@ -256,7 +260,7 @@ static int decompressS404(uint8 *src, uint8 *orgdst,
       } else if (w >= 0x120) {
         /* copy 8-22 */
         n = ((w & 0x1e) >> 1) + 8;
-        
+
         if (w & 0x01) {
           /* dist 545 -> */
           x = getb(&bs, eff);
@@ -295,7 +299,7 @@ static int decompressS404(uint8 *src, uint8 *orgdst,
         }
       } else {
         w = (w & 0x1f) << 3;
-	x = getb(&bs, 3);
+        x = getb(&bs, 3);
         /* Sanity check */
         if (x < 0) {
           return -1;
@@ -335,7 +339,7 @@ static int decompressS404(uint8 *src, uint8 *orgdst,
         } else {
           /* dist 33 -> 544; */
           w <<= 4;
-	  x = getb(&bs, 4);
+          x = getb(&bs, 4);
           /* Sanity check */
           if (x < 0) {
             return -1;
@@ -352,10 +356,10 @@ static int decompressS404(uint8 *src, uint8 *orgdst,
 
       while (n-- > 0) {
         /* printf("Copying: %02X\n",dst[w]); */
-	dst--;
-	if (dst < orgdst || (dst + w + 1) >= (orgdst + dst_length))
+        dst--;
+        if (dst < orgdst || (dst + w + 1) >= (orgdst + dst_length))
             return -1;
-	*dst = dst[w + 1];
+        *dst = dst[w + 1];
       }
     }
   }
