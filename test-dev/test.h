@@ -1,6 +1,11 @@
 #include <xmp.h>
 
+#if defined(_MSC_VER) || defined(__WATCOMC__)
+#include <io.h>
+#else
 #include <unistd.h>
+#endif
+
 #include "../src/common.h"
 #include "../src/md5.h"
 
