@@ -189,12 +189,13 @@ XMP_TRY_COMPILE(whether compiler understands -Warray-bounds,
 old_LIBS="${LIBS}"
 AC_CHECK_LIB(m,pow)
 dnl -lm not needed with darwin and mingw.
+dnl  neither with djgpp.
 case "${host_os}" in
-darwin*|mingw*)
+darwin*|*djgpp|mingw*)
   LIBS="${old_LIBS}"
   ;;
 esac
-AC_CHECK_FUNCS(round powf)
+AC_CHECK_FUNCS(powf)
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([libxmp-lite.pc])
