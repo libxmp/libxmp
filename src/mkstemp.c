@@ -38,7 +38,6 @@
  */
 
 #include <string.h>
-#include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
 
@@ -46,6 +45,12 @@
 #include <process.h>
 #define getpid _getpid
 #define open _open
+#endif
+
+#if defined(_MSC_VER) || defined(__WATCOMC__)
+#include <io.h>
+#else
+#include <unistd.h>
 #endif
 
 #ifndef O_BINARY

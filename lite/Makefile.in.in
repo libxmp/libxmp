@@ -28,7 +28,7 @@ DIST		= libxmp-lite-$(VERSION)
 DFILES		= README INSTALL Changelog install-sh configure configure.ac \
 		  config.sub config.guess Makefile.in libxmp-lite.pc.in \
 		  Makefile.vc Makefile.os2 Makefile.w32 watcom.mif libxmp.map
-DDIRS		= include src loaders os2 test
+DDIRS		= include src loaders test
 V		= 0
 LIB		= libxmp-lite.a
 SOLIB		= libxmp-lite.so
@@ -54,7 +54,6 @@ all: @STATIC@ @SHARED@
 include include/libxmp-lite/Makefile
 include src/Makefile
 include src/loaders/Makefile
-include src/os2/Makefile
 include test/Makefile
 
 LOBJS = $(OBJS:.o=.lo)

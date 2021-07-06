@@ -27,7 +27,12 @@
 #ifndef LIBXMP_CORE_PLAYER
 
 #include <limits.h>
+
+#if defined(_MSC_VER) || defined(__WATCOMC__)
+#include <io.h>
+#else
 #include <unistd.h>
+#endif
 
 #ifdef HAVE_UMASK
 #include <sys/stat.h>
