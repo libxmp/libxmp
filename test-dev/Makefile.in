@@ -497,6 +497,7 @@ FUZZER		= misc \
 		  depack_bz2_invalid_selector \
 		  depack_gzip_invalid_name \
 		  depack_gzip_truncated \
+		  depack_lha_invalid_clen \
 		  depack_lha_invalid_tree \
 		  depack_lha_truncated \
 		  depack_lzx_invalid \
