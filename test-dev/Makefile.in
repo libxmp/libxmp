@@ -412,6 +412,8 @@ FUZZER		= misc \
 		  med2_truncated \
 		  med3_invalid_pattern \
 		  med4_instrument_name \
+		  med4_invalid_iff \
+		  med4_invalid_sample \
 		  mfp_truncated \
 		  mgt_patterns_bound \
 		  mmd0_sample_count \
