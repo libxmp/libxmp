@@ -4,6 +4,7 @@ AC_ARG_ENABLE(it,        [  --disable-it            Don't build IT format suppor
 AC_ARG_ENABLE(static,    [  --enable-static         Build static library])
 AC_ARG_ENABLE(shared,    [  --disable-shared        Don't build shared library])
 AC_SUBST(LD_VERSCRIPT)
+AC_SUBST(LIBM)
 AC_SUBST(DARWIN_VERSION)
 AC_CANONICAL_HOST
 AC_PROG_CC
@@ -186,13 +187,16 @@ XMP_TRY_COMPILE(whether compiler understands -Warray-bounds,
   int main(void){return 0;}],
   CFLAGS="${CFLAGS} -Wno-array-bounds")
 
-old_LIBS="${LIBS}"
-AC_CHECK_LIB(m,pow)
-dnl -lm not needed with darwin and mingw.
-dnl  neither with djgpp.
+LIBM=
 case "${host_os}" in
-darwin*|*djgpp|mingw*)
-  LIBS="${old_LIBS}"
+dnl These systems don't have libm or don't need it (list based on libtool)
+mingw*|darwin*|cygwin*|haiku*|beos*|cegcc*|pw32*)
+  ;;
+dnl djgpp has all c89 math funcs in libc.a
+*djgpp)
+  ;;
+*) AC_CHECK_LIB(m, ceil, LIBM="-lm")
+  LIBS="${LIBS} ${LIBM}"
   ;;
 esac
 AC_CHECK_FUNCS(powf)

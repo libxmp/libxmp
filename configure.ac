@@ -5,6 +5,7 @@ AC_ARG_ENABLE(prowizard, [  --disable-prowizard     Don't build ProWizard])
 AC_ARG_ENABLE(static,    [  --enable-static         Build static library])
 AC_ARG_ENABLE(shared,    [  --disable-shared        Don't build shared library])
 AC_SUBST(LD_VERSCRIPT)
+AC_SUBST(LIBM)
 AC_SUBST(DARWIN_VERSION)
 AC_SUBST(PLATFORM_DIR)
 AC_CANONICAL_HOST
@@ -207,13 +208,16 @@ XMP_TRY_COMPILE(whether alloca() needs alloca.h,
   int main(void){return 0;}],
   AC_DEFINE(HAVE_ALLOCA_H, 1, [ ]))
 
-old_LIBS="${LIBS}"
-AC_CHECK_LIB(m,pow)
-dnl -lm not needed with darwin and mingw.
-dnl  neither with djgpp.
+LIBM=
 case "${host_os}" in
-darwin*|*djgpp|mingw*)
-  LIBS="${old_LIBS}"
+dnl These systems don't have libm or don't need it (list based on libtool)
+mingw*|darwin*|cygwin*|haiku*|beos*|cegcc*|pw32*)
+  ;;
+dnl djgpp has all c89 math funcs in libc.a
+*djgpp)
+  ;;
+*) AC_CHECK_LIB(m, ceil, LIBM="-lm")
+  LIBS="${LIBS} ${LIBM}"
   ;;
 esac
 AC_CHECK_FUNCS(powf)
