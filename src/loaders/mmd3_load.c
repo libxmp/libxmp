@@ -249,6 +249,10 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		} else {
 			mod->smp++;
 		}
+		if (hio_error(f)) {
+			D_(D_CRIT "read error at sample %d", i);
+			goto err_cleanup;
+		}
 	}
 
 	/*
@@ -395,7 +399,7 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		block.numtracks = hio_read16b(f);
 		block.lines = hio_read16b(f);
-		hio_read32b(f);
+		hio_read32b(f); /* FIXME: should try to load extra command pages when they exist. */
 
 		/* Sanity check--Amiga OctaMED files have an upper bound of 3200 lines per block,
 		 * but MED Soundstudio for Windows allows up to 9999 lines.
@@ -493,7 +497,7 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			}
 		}
 		if (hio_error(f)) {
-			D_(D_CRIT "read error at expsmp", i);
+			D_(D_CRIT "read error at expsmp");
 			goto err_cleanup;
 		}
 	}

@@ -419,11 +419,9 @@ FUZZER		= misc \
 		  mmd0_sample_count \
 		  mmd1_channel_count \
 		  mmd1_invalid \
-		  mmd3_invalid_blockarr \
-		  mmd3_invalid_expdata \
+		  mmd3_invalid \
 		  mmd3_invalid_mmdinfo \
 		  mmd3_invalid_sample_size \
-		  mmd3_truncated \
 		  mtm_channels_bound \
 		  okt_duplicate_chunk \
 		  okt_invalid_chunk_order \

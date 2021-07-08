@@ -518,7 +518,7 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			}
 		}
 		if (hio_error(f)) {
-			D_(D_CRIT "read error at expsmp", i);
+			D_(D_CRIT "read error at expsmp");
 			goto err_cleanup;
 		}
 	}
