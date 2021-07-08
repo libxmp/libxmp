@@ -417,9 +417,8 @@ FUZZER		= misc \
 		  mfp_truncated \
 		  mgt_patterns_bound \
 		  mmd0_sample_count \
-		  mmd0_truncated \
 		  mmd1_channel_count \
-		  mmd1_truncated \
+		  mmd1_invalid \
 		  mmd3_invalid_blockarr \
 		  mmd3_invalid_expdata \
 		  mmd3_invalid_mmdinfo \

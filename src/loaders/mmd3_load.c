@@ -492,6 +492,10 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 				goto err_cleanup;
 			}
 		}
+		if (hio_error(f)) {
+			D_(D_CRIT "read error at expsmp", i);
+			goto err_cleanup;
+		}
 	}
 
 	/* Instrument names */
