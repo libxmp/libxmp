@@ -530,16 +530,11 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		int _len, _type;
 		uint64 _mask = mask;
 		for (i = 0; _mask != 0 && i < 64; i++, _mask <<= 1) {
-			int _pos;
-
 			if ((int64)_mask > 0)
 				continue;
 
 			_len = hio_read32b(f);
 			_type = (int16)hio_read16b(f);
-			if ((_pos = hio_tell(f)) < 0) {
-				return -1;
-			}
 
 			if (_type == 0 || _type == -2) {
 				num_smp++;
