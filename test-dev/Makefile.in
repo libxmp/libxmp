@@ -346,6 +346,7 @@ FUZZER		= misc \
 		  st_truncated \
 		  s3m_invalid_sample_size \
 		  s3m_invalid_sample_size2 \
+		  xm_negative_instsize \
 		  xm_zero_samples \
 		  it_dca_3 \
 		  it_invalid_compressed \
@@ -411,17 +412,16 @@ FUZZER		= misc \
 		  med2_truncated \
 		  med3_invalid_pattern \
 		  med4_instrument_name \
+		  med4_invalid_iff \
+		  med4_invalid_sample \
 		  mfp_truncated \
 		  mgt_patterns_bound \
 		  mmd0_sample_count \
-		  mmd0_truncated \
 		  mmd1_channel_count \
-		  mmd1_truncated \
-		  mmd3_invalid_blockarr \
+		  mmd1_invalid \
+		  mmd3_invalid \
 		  mmd3_invalid_mmdinfo \
 		  mmd3_invalid_sample_size \
-		  mmd3_invalid_text_size \
-		  mmd3_truncated \
 		  mtm_channels_bound \
 		  okt_duplicate_chunk \
 		  okt_invalid_chunk_order \
@@ -488,6 +488,7 @@ FUZZER		= misc \
 		  prowizard_tp3_samples_bound \
 		  prowizard_unic_truncated \
 		  prowizard_zen_invalid_note \
+		  depack_arc_lzw_invalid \
 		  depack_arcfs_lzw_leak \
 		  depack_arcfs_negative_header_size \
 		  depack_arcfs_negative_size \
@@ -495,6 +496,7 @@ FUZZER		= misc \
 		  depack_bz2_invalid_selector \
 		  depack_gzip_invalid_name \
 		  depack_gzip_truncated \
+		  depack_lha_invalid_clen \
 		  depack_lha_invalid_tree \
 		  depack_lha_truncated \
 		  depack_lzx_invalid \
@@ -503,6 +505,7 @@ FUZZER		= misc \
 		  depack_oxm_invalid \
 		  depack_oxm_pcm_leak \
 		  depack_oxm_truncated \
+		  depack_s404_invalid_shift \
 		  depack_sqsh_invalid_verbatim \
 		  depack_sqsh_truncated \
 		  depack_sqsh_truncated2 \

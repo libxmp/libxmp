@@ -394,6 +394,10 @@ static int read_c_len(struct LhADecrData *dat)
   }
   else
   {
+    /* Sanity check */
+    if (n > NC)
+      return -1;
+
     i = 0;
     while(i < n)
     {
@@ -422,9 +426,9 @@ static int read_c_len(struct LhADecrData *dat)
         else
           c = getbits(dat, CBIT) + 20;
 
-	/* Sanity check */
-	if (i + c >= NC)
-	  return -1;
+        /* Sanity check */
+        if (i + c >= NC)
+          return -1;
 
         while(--c >= 0)
           dat->d.st.c_len[i++] = 0;

@@ -182,7 +182,7 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	int smp_idx;
 	int tempo;
 	struct temp_inst temp_inst[64];
-	
+
 	LOAD_INIT();
 
 	hio_read32b(f);		/* Skip magic */
@@ -530,25 +530,24 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		int _len, _type;
 		uint64 _mask = mask;
 		for (i = 0; _mask != 0 && i < 64; i++, _mask <<= 1) {
-			int _pos;
-
 			if ((int64)_mask > 0)
 				continue;
 
 			_len = hio_read32b(f);
 			_type = (int16)hio_read16b(f);
-			if ((_pos = hio_tell(f)) < 0) {
-				return -1;
-			}
 
 			if (_type == 0 || _type == -2) {
 				num_smp++;
 			} else if (_type == -1) {
 				hio_seek(f, 20, SEEK_CUR);
 				num_smp += hio_read16b(f);
+				_len -= 22;
 			}
 
-			hio_seek(f, _pos + _len, SEEK_SET);
+			if (_len < 0) {
+				return -1;
+			}
+			hio_seek(f, _len, SEEK_CUR);
 		}
 	}
 	hio_seek(f, pos, SEEK_SET);
@@ -686,7 +685,7 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 			hio_read(synth.voltbl, 1, synth.voltbllen, f);;
 			hio_read(synth.wftbl, 1, synth.wftbllen, f);;
-			if (synth.wforms == 0xffff)	
+			if (synth.wforms == 0xffff)
 				continue;
 			if (synth.wforms > 64)
 				return -1;
@@ -756,7 +755,7 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		xxi->nsm = 1;
 		if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 			return -1;
-		
+
 		sub = &xxi->sub[0];
 
 		sub->vol = temp_inst[i].volume;
@@ -787,12 +786,12 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		for (j = 0; j < 9; j++) {
 			for (k = 0; k < 12; k++) {
 				int xpo = 0;
-	
+
 				if (j < 4)
 					xpo = 12 * (4 - j);
 				else if (j > 6)
 					xpo = -12 * (j - 6);
-	
+
 				xxi->map[12 * j + k].xpo = xpo;
 			}
 		}
@@ -820,6 +819,7 @@ parse_iff:
 		switch (id) {
 		case MAGIC4('M','E','D','V'):
 			ver = hio_read32b(f);
+			size -= 4;
 			D_(D_INFO "MED Version: %d.%0d\n",
 					(ver & 0xff00) >> 8, ver & 0xff);
 			break;
@@ -829,13 +829,14 @@ parse_iff:
 			hio_read(buf, 1, s2, f);
 			buf[s2] = 0;
 			D_(D_INFO "Annotation: %s\n", buf);
+			size -= s2;
 			break;
 		case MAGIC4('H','L','D','C'):
 			/* hold & decay */
 			break;
 		}
 
-		hio_seek(f, pos + size, SEEK_SET);
+		hio_seek(f, size, SEEK_CUR);
 	}
 
 	m->read_event_type = READ_EVENT_MED;

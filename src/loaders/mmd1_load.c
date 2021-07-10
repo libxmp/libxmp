@@ -76,9 +76,11 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	struct MMD1Block block;
 	struct InstrHdr instr;
 	struct SynthInstr synth;
-	struct InstrExt exp_smp;
+	struct InstrExt *exp_smp = NULL;
 	struct MMD0exp expdata;
 	struct xmp_event *event;
+	uint32 *blockarr = NULL;
+	uint32 *smplarr = NULL;
 	int ver = 0;
 	int smp_idx = 0;
 	uint8 e[4];
@@ -90,9 +92,8 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	int songname_offset;
 	int iinfo_offset;
 	int annotxt_offset;
-	int pos;
 	int bpm_on, bpmlen, med_8ch, hexvol;
-	char name[40];
+	int retval = -1;
 
 	LOAD_INIT();
 
@@ -127,8 +128,10 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	 * song structure
 	 */
 	D_(D_WARN "load song");
-	if (hio_seek(f, start + song_offset, SEEK_SET) != 0)
-	  return -1;
+	if (hio_seek(f, start + song_offset, SEEK_SET) != 0) {
+		D_(D_CRIT "seek error at song");
+		return -1;
+	}
 	for (i = 0; i < 63; i++) {
 		song.sample[i].rep = hio_read16b(f);
 		song.sample[i].replen = hio_read16b(f);
@@ -142,6 +145,8 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	/* Sanity check */
 	if (song.numblocks > 255 || song.songlen > 256) {
+		D_(D_CRIT "unsupported block count (%d) or song length (%d)",
+		   song.numblocks, song.songlen);
 		return -1;
 	}
 
@@ -160,6 +165,7 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	/* Sanity check */
 	if (song.numsamples > 63) {
+		D_(D_CRIT "invalid instrument count %d", song.numsamples);
 		return -1;
 	}
 
@@ -176,7 +182,7 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	mmd_set_bpm(m, med_8ch, song.deftempo, bpm_on, bpmlen);
 
-        mod->spd = song.tempo2;
+	mod->spd = song.tempo2;
 	mod->pat = song.numblocks;
 	mod->ins = song.numsamples;
 	mod->len = song.songlen;
@@ -186,19 +192,37 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	mod->name[0] = 0;
 
 	/*
+	 * Read smplarr
+	 */
+	D_(D_WARN "read smplarr");
+	if ((smplarr = malloc(mod->ins * sizeof(uint32))) == NULL) {
+		return -1;
+	}
+	if (hio_seek(f, start + smplarr_offset, SEEK_SET) != 0) {
+		D_(D_CRIT "seek error at smplarr");
+		goto err_cleanup;
+	}
+	for (i = 0; i < mod->ins; i++) {
+		smplarr[i] = hio_read32b(f);
+		if (hio_eof(f)) {
+			D_(D_CRIT "read error at smplarr pos %d", i);
+			goto err_cleanup;
+		}
+	}
+
+	/*
 	 * Obtain number of samples from each instrument
 	 */
 	mod->smp = 0;
 	for (i = 0; i < mod->ins; i++) {
-		uint32 smpl_offset;
 		int16 type;
-		if (hio_seek(f, start + smplarr_offset + i * 4, SEEK_SET) != 0)
-		  return -1;
-		smpl_offset = hio_read32b(f);
-		if (smpl_offset == 0)
+		if (smplarr[i] == 0)
 			continue;
-		if (hio_seek(f, start + smpl_offset, SEEK_SET) != 0)
-		  return -1;
+		if (hio_seek(f, start + smplarr[i], SEEK_SET) != 0) {
+			D_(D_CRIT "seek error at instrument %d", i);
+			goto err_cleanup;
+		}
+
 		hio_read32b(f);				/* length */
 		type = hio_read16b(f);
 		if (type == -1) {			/* type is synth? */
@@ -207,8 +231,10 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			wforms = hio_read16b(f);
 
 			/* Sanity check */
-			if (wforms > 256)
-				return -1;
+			if (wforms > 256) {
+				D_(D_CRIT "invalid wform count at instrument %d", i);
+				goto err_cleanup;
+			}
 
 			mod->smp += wforms;
 		} else if (type >= 1 && type <= 6) {
@@ -229,8 +255,10 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	expsmp_offset = 0;
 	iinfo_offset = 0;
 	if (expdata_offset) {
-		if (hio_seek(f, start + expdata_offset, SEEK_SET) != 0)
-		  return -1;
+		if (hio_seek(f, start + expdata_offset, SEEK_SET) != 0) {
+			D_(D_CRIT "seek error at expdata");
+			goto err_cleanup;
+		}
 		hio_read32b(f);
 		expsmp_offset = hio_read32b(f);
 		D_(D_INFO "expsmp_offset = 0x%08x", expsmp_offset);
@@ -246,9 +274,11 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		/* Sanity check */
 		if (expsmp_offset < 0 ||
 		    annotxt_offset < 0 ||
-                    expdata.annolen > 0x10000 ||
+		    expdata.annolen > 0x10000 ||
 		    iinfo_offset < 0) {
-			return -1;
+			D_(D_CRIT "invalid expdata (annotxt=0x%08x annolen=0x%08x)",
+			   annotxt_offset, expdata.annolen);
+			goto err_cleanup;
 		}
 
 		hio_read32b(f);
@@ -280,21 +310,38 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	}
 
 	/*
+	 * Read blockarr.
+	 */
+	D_(D_WARN "read blockarr");
+	if ((blockarr = malloc(mod->pat * sizeof(uint32))) == NULL) {
+		goto err_cleanup;
+	}
+	if (hio_seek(f, start + blockarr_offset, SEEK_SET) != 0) {
+		D_(D_CRIT "seek error at blockarr");
+		goto err_cleanup;
+	}
+	for (i = 0; i < mod->pat; i++) {
+		blockarr[i] = hio_read32b(f);
+		if (hio_error(f)) {
+			D_(D_CRIT "read error at blockarr pos %d", i);
+			goto err_cleanup;
+		}
+	}
+
+	/*
 	 * Quickly scan patterns to check the number of channels
 	 */
 	D_(D_WARN "find number of channels");
 
 	for (i = 0; i < mod->pat; i++) {
-		int block_offset;
-
-		if (hio_seek(f, start + blockarr_offset + i * 4, SEEK_SET) != 0)
-			return -1;
-		block_offset = hio_read32b(f);
-		D_(D_INFO "block %d block_offset = 0x%08x", i, block_offset);
-		if (block_offset == 0)
+		D_(D_INFO "block %d block_offset = 0x%08x", i, blockarr[i]);
+		if (blockarr[i] == 0)
 			continue;
-		if (hio_seek(f, start + block_offset, SEEK_SET) != 0)
-			return -1;
+
+		if (hio_seek(f, start + blockarr[i], SEEK_SET) != 0) {
+			D_(D_CRIT "seek error at block %d", i);
+			goto err_cleanup;
+		}
 
 		if (ver > 0) {
 			block.numtracks = hio_read16b(f);
@@ -312,7 +359,8 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	/* Sanity check */
 	/* MMD0/MMD1 can't have more than 16 channels... */
 	if (mod->chn > MIN(16, XMP_MAX_CHANNELS)) {
-		return -1;
+		D_(D_CRIT "invalid channel count %d", mod->chn);
+		goto err_cleanup;
 	}
 
 	mod->trk = mod->pat * mod->chn;
@@ -331,18 +379,16 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	 */
 	D_(D_WARN "read patterns");
 	if (libxmp_init_pattern(mod) < 0)
-		return -1;
+		goto err_cleanup;
 
 	for (i = 0; i < mod->pat; i++) {
-		int block_offset;
-
-		if (hio_seek(f, start + blockarr_offset + i * 4, SEEK_SET) != 0)
-		  return -1;
-		block_offset = hio_read32b(f);
-		if (block_offset == 0)
+		if (blockarr[i] == 0)
 			continue;
-		if (hio_seek(f, start + block_offset, SEEK_SET) != 0)
-		  return -1;
+
+		if (hio_seek(f, start + blockarr[i], SEEK_SET) != 0) {
+			D_(D_CRIT "seek error at block %d", i);
+			goto err_cleanup;
+		}
 
 		if (ver > 0) {
 			block.numtracks = hio_read16b(f);
@@ -354,11 +400,13 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		}
 
 		/* Sanity check--Amiga OctaMED files have an upper bound of 3200 lines per block. */
-		if (block.lines + 1 > 3200)
-			return -1;
+		if (block.lines + 1 > 3200) {
+			D_(D_CRIT "invalid line count %d in block %d", block.lines + 1, i);
+			goto err_cleanup;
+		}
 
 		if (libxmp_alloc_pattern_tracks_long(mod, i, block.lines + 1) < 0)
-			return -1;
+			goto err_cleanup;
 
 		if (ver > 0) {		/* MMD1 */
 			for (j = 0; j < mod->xxp[i]->rows; j++) {
@@ -388,6 +436,10 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 					event->fxp = e[3];
 					mmd_xlat_fx(event, bpm_on, bpmlen,
 							med_8ch, hexvol);
+				}
+				if (hio_error(f)) {
+					D_(D_CRIT "read error in block %d", i);
+					goto err_cleanup;
 				}
 			}
 		} else {		/* MMD0 */
@@ -419,118 +471,145 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 					mmd_xlat_fx(event, bpm_on, bpmlen,
 							med_8ch, hexvol);
 				}
+				if (hio_error(f)) {
+					D_(D_CRIT "read error in block %d", i);
+					goto err_cleanup;
+				}
 			}
 		}
 	}
 
 	if (libxmp_med_new_module_extras(m))
-		return -1;
+		goto err_cleanup;
 
 	/*
 	 * Read and convert instruments and samples
 	 */
 	D_(D_WARN "read instruments");
 	if (libxmp_init_instrument(m) < 0)
-		return -1;
+		goto err_cleanup;
 
 	D_(D_INFO "Instruments: %d", mod->ins);
 
+	/* Instrument extras */
+	if ((exp_smp = calloc(mod->ins, sizeof(struct InstrExt))) == NULL) {
+		goto err_cleanup;
+	}
+
+	if (expsmp_offset) {
+		if (hio_seek(f, start + expsmp_offset, SEEK_SET) != 0) {
+			D_(D_CRIT "seek error at expsmp");
+			goto err_cleanup;
+		}
+
+		for (i = 0; i < mod->ins && i < expdata.s_ext_entries; i++) {
+			int skip = expdata.s_ext_entrsz - 4;
+
+			D_(D_INFO "sample %d expsmp_offset = 0x%08lx", i, hio_tell(f));
+
+			exp_smp[i].hold = hio_read8(f);
+			exp_smp[i].decay = hio_read8(f);
+			exp_smp[i].suppress_midi_off = hio_read8(f);
+			exp_smp[i].finetune = hio_read8(f);
+
+			if (skip && hio_seek(f, skip, SEEK_CUR) != 0) {
+				D_(D_CRIT "seek error at expsmp");
+				goto err_cleanup;
+			}
+		}
+		if (hio_error(f)) {
+			D_(D_CRIT "read error at expsmp");
+			goto err_cleanup;
+		}
+	}
+
+	/* Instrument names */
+	if (iinfo_offset) {
+		uint8 name[40];
+
+		if (hio_seek(f, start + iinfo_offset, SEEK_SET) != 0) {
+			D_(D_CRIT "seek error at iinfo");
+			goto err_cleanup;
+		}
+
+		for (i = 0; i < mod->ins && i < expdata.i_ext_entries; i++) {
+			int skip = expdata.i_ext_entrsz - 40;
+
+			D_(D_INFO "sample %d iinfo_offset = 0x%08lx", i, hio_tell(f));
+
+			if (hio_read(name, 40, 1, f) < 1) {
+				D_(D_CRIT "read error at iinfo %d", i);
+				goto err_cleanup;
+			}
+			libxmp_instrument_name(mod, i, name, 40);
+
+			if (skip && hio_seek(f, skip, SEEK_CUR) != 0) {
+				D_(D_CRIT "seek error at iinfo %d", i);
+				goto err_cleanup;
+			}
+		}
+	}
+
+	/* Sample data */
 	for (smp_idx = i = 0; i < mod->ins; i++) {
-		int smpl_offset;
-
-		if (hio_seek(f, start + smplarr_offset + i * 4, SEEK_SET) != 0)
-			return -1;
-		smpl_offset = hio_read32b(f);
-
-		D_(D_INFO "sample %d smpl_offset = 0x%08x", i, smpl_offset);
-
-		if (smpl_offset == 0) {
+		D_(D_INFO "sample %d smpl_offset = 0x%08x", i, smplarr[i]);
+		if (smplarr[i] == 0) {
 			continue;
 		}
-		if (hio_seek(f, start + smpl_offset, SEEK_SET) < 0) {
-			return -1;
+
+		if (hio_seek(f, start + smplarr[i], SEEK_SET) < 0) {
+			D_(D_CRIT "seek error at instrument %d", i);
+			goto err_cleanup;
 		}
 		instr.length = hio_read32b(f);
 		instr.type = hio_read16b(f);
 
-		if ((pos = hio_tell(f)) < 0) {
-			return -1;
-		}
-
-		if (expdata_offset && i < expdata.i_ext_entries) {
-			struct xmp_instrument *xxi = &mod->xxi[i];
-			int offset = iinfo_offset + i * expdata.i_ext_entrsz;
-			D_(D_INFO "sample %d iinfo_offset = 0x%08x", i, offset);
-
-			if (offset < 0 || hio_seek(f, start + offset, SEEK_SET) < 0) {
-				return -1;
-			}
-			if (hio_read(name, 40, 1, f) < 1) {
-				D_(D_CRIT "read error at iinfo %d", i);
-				return -1;
-			}
-			strncpy(xxi->name, name, 32);
-			xxi->name[31] = '\0';
-		}
-
 		D_(D_INFO "[%2x] %-40.40s %d", i, mod->xxi[i].name, instr.type);
-
-		exp_smp.finetune = 0;
-		if (expdata_offset && i < expdata.s_ext_entries) {
-			int offset = expsmp_offset + i * expdata.s_ext_entrsz;
-			D_(D_INFO "sample %d expsmp_offset = 0x%08x", i, offset);
-
-			if (offset < 0 || hio_seek(f, start + offset, SEEK_SET) < 0) {
-				return -1;
-			}
-			exp_smp.hold = hio_read8(f);
-			exp_smp.decay = hio_read8(f);
-			exp_smp.suppress_midi_off = hio_read8(f);
-			exp_smp.finetune = hio_read8(f);
-		}
-
-		hio_seek(f, pos, SEEK_SET);
 
 		if (instr.type == -2) {			/* Hybrid */
 			int ret = mmd_load_hybrid_instrument(f, m, i, smp_idx,
-				&synth, &exp_smp, &song.sample[i]);
+				&synth, &exp_smp[i], &song.sample[i]);
 
 			smp_idx++;
 
-			if (ret < 0)
-				return -1;
+			if (ret < 0) {
+				D_(D_CRIT "error loading hybrid instrument %d", i);
+				goto err_cleanup;
+			}
 
 			if (mmd_alloc_tables(m, i, &synth) != 0)
-				return -1;
+				goto err_cleanup;
 
 			continue;
 		} else if (instr.type == -1) {			/* Synthetic */
 			int ret = mmd_load_synth_instrument(f, m, i, smp_idx,
-				&synth, &exp_smp, &song.sample[i]);
+				&synth, &exp_smp[i], &song.sample[i]);
 
 			if (ret > 0)
 				continue;
 
-			if (ret < 0)
-				return -1;
+			if (ret < 0) {
+				D_(D_CRIT "error loading synthetic instrument %d", i);
+				goto err_cleanup;
+			}
 
 			smp_idx += synth.wforms;
 
 			if (mmd_alloc_tables(m, i, &synth) != 0)
-				return -1;
+				goto err_cleanup;
 
 			continue;
 		} else if (instr.type >= 1 && instr.type <= 6) { /* IFFOCT */
 			int ret;
 			const int oct = num_oct[instr.type - 1];
 
-			hio_seek(f, start + smpl_offset + 6, SEEK_SET);
-
 			ret = mmd_load_iffoct_instrument(f, m, i, smp_idx,
-				&instr, oct, &exp_smp, &song.sample[i]);
+				&instr, oct, &exp_smp[i], &song.sample[i]);
 
-			if (ret < 0)
-				return -1;
+			if (ret < 0) {
+				D_(D_CRIT "error loading IFFOCT instrument %d", i);
+				goto err_cleanup;
+			}
 
 			smp_idx += oct;
 
@@ -538,21 +617,22 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		} else if (instr.type == 0) {			/* Sample */
 			int ret;
 
-			hio_seek(f, start + smpl_offset + 6, SEEK_SET);
-
 			ret = mmd_load_sampled_instrument(f, m, i, smp_idx,
-				&instr, &expdata, &exp_smp, &song.sample[i],
+				&instr, &expdata, &exp_smp[i], &song.sample[i],
 				ver);
 
-			if (ret < 0)
-				return -1;
+			if (ret < 0) {
+				D_(D_CRIT "error loading sample %d", i);
+				goto err_cleanup;
+			}
 
 			smp_idx++;
 
 			continue;
 		} else {
 			/* Invalid instrument type */
-			return -1;
+			D_(D_CRIT "invalid instrument type: %d", instr.type);
+			goto err_cleanup;
 		}
 	}
 
@@ -562,6 +642,12 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	}
 
 	m->read_event_type = READ_EVENT_MED;
+	retval = 0;
 
-	return 0;
+    err_cleanup:
+	free(exp_smp);
+	free(blockarr);
+	free(smplarr);
+
+	return retval;
 }
