@@ -385,8 +385,6 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	 * Read and convert patterns
 	 */
 	D_(D_WARN "read patterns");
-	fflush(stdout);
-	fflush(stderr);
 
 	if (libxmp_init_pattern(mod) < 0)
 		goto err_cleanup;
