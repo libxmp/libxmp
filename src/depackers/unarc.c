@@ -10,12 +10,12 @@
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
@@ -24,6 +24,7 @@
 #define NOMARCH_VER	"1.4"
 
 #include <ctype.h>
+#include <sys/stat.h>
 #include "common.h"
 #include "depacker.h"
 #if 0
@@ -157,8 +158,13 @@ static int skip_sfx_header(FILE * in)
 static unsigned char *read_file_data(FILE * in,
 				     struct archived_file_header_tag *hdrp)
 {
+	struct stat st;
 	unsigned char *data;
 	int siz = hdrp->compressed_size;
+
+	/* Precheck: if the file can't hold this size, don't bother. */
+	if (siz <= 0 || fstat(fileno(in), &st) != 0 || st.st_size < siz)
+		return NULL;
 
 	if ((data = malloc(siz)) == NULL)
 		return NULL;
