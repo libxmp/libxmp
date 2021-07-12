@@ -1,8 +1,7 @@
 /*
  * Win32 debug message helper by Mirko Buffoni
  */
-
-#if defined(_WIN32) && defined(_DEBUG)
+#if defined(_MSC_VER) && (defined(DEBUG)||defined(_DEBUG))
 
 #include "common.h"
 
@@ -16,5 +15,4 @@ void D_(const char *format, ...)
 	printf("\n");
 	va_end(argptr);
 }
-
 #endif
