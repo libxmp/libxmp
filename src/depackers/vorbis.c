@@ -154,8 +154,10 @@ typedef struct
 // get general information about the file
 extern stb_vorbis_info stb_vorbis_get_info(stb_vorbis *f);
 
+#ifndef STB_VORBIS_NO_COMMENTS
 // get ogg comments
 extern stb_vorbis_comment stb_vorbis_get_comment(stb_vorbis *f);
+#endif
 
 // get the last error detected (clears it, too)
 extern int stb_vorbis_get_error(stb_vorbis *f);
@@ -355,8 +357,10 @@ extern int stb_vorbis_get_frame_short            (stb_vorbis *f, int num_c, shor
 //    Note that this is not _good_ surround etc. mixing at all! It's just so
 //    you get something useful.
 
+#ifndef STB_VORBIS_NO_FLOAT_CONVERSION
 extern int stb_vorbis_get_samples_float_interleaved(stb_vorbis *f, int channels, float *buffer, int num_floats);
 extern int stb_vorbis_get_samples_float(stb_vorbis *f, int channels, float **buffer, int num_samples);
+#endif
 // gets num_samples samples, not necessarily on a frame boundary--this requires
 // buffering so you have to supply the buffers. DOES NOT APPLY THE COERCION RULES.
 // Returns the number of samples stored per channel; it may be less than requested
@@ -2352,7 +2356,7 @@ static int decode_residue(vorb *f, float *residue_buffers[], int ch, int n, int 
 
 #if 0
 // slow way for debugging
-void inverse_mdct_slow(float *buffer, int n)
+static void inverse_mdct_slow(float *buffer, int n)
 {
    int i,j;
    int n2 = n >> 1;
@@ -2375,7 +2379,7 @@ void inverse_mdct_slow(float *buffer, int n)
 }
 #elif 0
 // same as above, but just barely able to run in real time on modern machines
-void inverse_mdct_slow(float *buffer, int n, vorb *f, int blocktype)
+static void inverse_mdct_slow(float *buffer, int n, vorb *f, int blocktype)
 {
    float mcos[16384];
    int i,j;
@@ -2396,7 +2400,7 @@ void inverse_mdct_slow(float *buffer, int n, vorb *f, int blocktype)
 #elif 0
 // transform to use a slow dct-iv; this is STILL basically trivial,
 // but only requires half as many ops
-void dct_iv_slow(float *buffer, int n)
+static void dct_iv_slow(float *buffer, int n)
 {
    float mcos[16384];
    float x[2048];
@@ -2413,7 +2417,7 @@ void dct_iv_slow(float *buffer, int n)
    }
 }
 
-void inverse_mdct_slow(float *buffer, int n, vorb *f, int blocktype)
+static void inverse_mdct_slow(float *buffer, int n, vorb *f, int blocktype)
 {
    int i, n4 = n >> 2, n2 = n >> 1, n3_4 = n - n4;
    float temp[4096];
@@ -2451,7 +2455,7 @@ extern void mdct_backward(mdct_lookup *init, float *in, float *out);
 
 mdct_lookup M1,M2;
 
-void inverse_mdct(float *buffer, int n, vorb *f, int blocktype)
+static void inverse_mdct(float *buffer, int n, vorb *f, int blocktype)
 {
    mdct_lookup *M;
    if (M1.n == n) M = &M1;
@@ -2996,7 +3000,7 @@ static void inverse_mdct(float *buffer, int n, vorb *f, int blocktype)
 
 #if 0
 // this is the original version of the above code, if you want to optimize it from scratch
-void inverse_mdct_naive(float *buffer, int n)
+static void inverse_mdct_naive(float *buffer, int n)
 {
    float s;
    float A[1 << 12], B[1 << 12], C[1 << 11];
@@ -5569,6 +5573,7 @@ error:
 }
 #endif // STB_VORBIS_NO_INTEGER_CONVERSION
 
+#ifndef STB_VORBIS_NO_FLOAT_CONVERSION
 int stb_vorbis_get_samples_float_interleaved(stb_vorbis *f, int channels, float *buffer, int num_floats)
 {
    float **outputs;
@@ -5621,6 +5626,7 @@ int stb_vorbis_get_samples_float(stb_vorbis *f, int channels, float **buffer, in
    }
    return n;
 }
+#endif // STB_VORBIS_NO_FLOAT_CONVERSION
 #endif // STB_VORBIS_NO_PULLDATA_API
 
 /* Version history
