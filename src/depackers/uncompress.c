@@ -162,9 +162,11 @@ static int decrunch_compress(FILE * in, FILE * out)
 
 			if (oldcode == -1) {
 				if (code >= 256) {
+					/*
 					fprintf(stderr, "oldcode:-1 code:%i\n",
 						(int)(code));
 					fprintf(stderr, "uncompress: corrupt input\n");
+					*/
 					/* abort_compress(); */
 					return -1;
 				}
@@ -197,9 +199,10 @@ static int decrunch_compress(FILE * in, FILE * out)
 						"insize:%d posbits:%d inbuf:%02X %02X %02X %02X %02X (%d)\n",
 						insize, posbits, p[-1], p[0],
 						p[1], p[2], p[3],
-						(posbits & 07));*/
+						(posbits & 07));
 					fprintf(stderr,
 						"uncompress: corrupt input\n");
+					*/
 					/* abort_compress(); */
 					return -1;
 				}
