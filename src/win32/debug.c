@@ -1,7 +1,7 @@
 /*
  * Win32 debug message helper by Mirko Buffoni
  */
-#if defined(_MSC_VER) && (defined(DEBUG)||defined(_DEBUG))
+#if defined(_MSC_VER) && defined(DEBUG)
 
 #include "common.h"
 
