@@ -81,7 +81,7 @@ int med2_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (hio_read(buf, 1, 40, f) != 40)
 			return -1;
 
-		libxmp_instrument_name(mod, i, buf, 32);
+		libxmp_instrument_name(mod, i, buf, 40);
 		if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 			return -1;
 	}
@@ -192,16 +192,28 @@ int med2_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	for (i = 0; i < 31; i++) {
 		char path[PATH_MAX];
 		char ins_path[256];
+		char ins_name[32];
 		char name[256];
 		HIO_HANDLE *s = NULL;
-		int found;
+		int found = 0;
+
+		if (libxmp_copy_name_for_fopen(ins_name, mod->xxi[i].name, 32) != 0)
+			continue;
 
 		libxmp_get_instrument_path(m, ins_path, 256);
-		found = libxmp_check_filename_case(ins_path,
-					mod->xxi[i].name, name, 256);
+		if (libxmp_check_filename_case(ins_path, ins_name, name, 256)) {
+			snprintf(path, PATH_MAX, "%s/%s", ins_path, name);
+			found = 1;
+		}
+
+		/* Try the module dir if the instrument path didn't work. */
+		if (!found && m->dirname != NULL &&
+		    libxmp_check_filename_case(m->dirname, ins_name, name, 256)) {
+			snprintf(path, PATH_MAX, "%s%s", m->dirname, name);
+			found = 1;
+		}
 
 		if (found) {
-			snprintf(path, PATH_MAX, "%s/%s", ins_path, name);
 			if ((s = hio_open(path,"rb")) != NULL) {
 				mod->xxs[i].len = hio_size(s);
 			}
