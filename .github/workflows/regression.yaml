@@ -74,6 +74,65 @@ jobs:
         run: |
           make devcheck
 
+  linux-cmake:
+    strategy:
+       matrix:
+         distro: [ubuntu-latest, ubuntu-18.04, ubuntu-16.04]
+    runs-on: ${{ matrix.distro }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Run CMake script
+        run: |
+          mkdir build
+          cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
+      - name: Build
+        run: |
+          cmake --build build --target all
+      - name: Run checks
+        run: |
+          cd build
+          ctest --output-on-failure
+
+  linux-clang-cmake:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Run CMake script
+        run: |
+          mkdir build
+          CC=clang cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
+      - name: Build
+        run: |
+          cmake --build build --target all
+      - name: Run checks
+        run: |
+          cd build
+          ctest --output-on-failure
+          
+  # Simulate Fedora RPM builds, usage of __symver__.
+  linux-gcc-10-lto-cmake:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: sudo apt update && sudo apt install gcc-10
+      - name: Run CMake script
+        run: |
+          export CC=gcc-10
+          export CFLAGS="-flto"
+          export LDFLAGS="-flto"
+          cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
+      - name: Build
+        run: |
+          cmake --build build --target all
+      - name: Run checks
+        run: |
+          cd build
+          ctest --output-on-failure
+
   emscripten:
     runs-on: ubuntu-latest
     steps:
@@ -104,6 +163,35 @@ jobs:
           emcc test.c ../src/md5.c -o test.js -O3 -Wall -I../include -I../src -L../lib/ --embed-file test.itz -lxmp
           node test.js
 
+  emscripten-cmake:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: sudo apt update && sudo apt install autoconf
+      - name: Install emscripten
+        run: |
+          cd ..
+          git clone https://github.com/emscripten-core/emsdk.git
+          cd emsdk
+          ./emsdk install latest
+          ./emsdk activate latest
+      - name: Run CMake script
+        run: |
+          source ../emsdk/emsdk_env.sh
+          emcmake cmake . -DCMAKE_BUILD_TYPE=Debug -B build
+      - name: Build
+        run: |
+          source ../emsdk/emsdk_env.sh
+          cmake --build build --target all
+      - name: Run check
+        run: |
+          source ../emsdk/emsdk_env.sh
+          cd test
+          emcc test.c ../src/md5.c -o test.js -O3 -Wall -I../include -I../src -L../build/ --embed-file test.itz -lxmp
+          node test.js
+
   macos:
     runs-on: macos-latest
     steps:
@@ -124,6 +212,34 @@ jobs:
           (cd test-dev && autoconf && ./configure)
           make devcheck
 
+  macos-cmake:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Run CMake script
+        run: |
+          cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
+      - name: Build
+        run: |
+          cmake --build build --target all
+      - name: Run checks
+        run: |
+          cd build
+          ctest --output-on-failure
+          
+  macos-cmake-m1:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Run CMake script
+        run: |
+          cmake . -DCMAKE_OSX_ARCHITECTURES="arm64" -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=OFF -B build
+      - name: Build
+        run: |
+          cmake --build build --target all
+
   windows-vc:
     strategy:
        matrix:
@@ -141,6 +257,25 @@ jobs:
       - name: Run devcheck
         run: |
           cmd.exe /C "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" ${{ matrix.targetplatform }} "&&" cd test-dev "&&" nmake -f Makefile.vc
+          
+  windows-vc-cmake:
+    strategy:
+       matrix:
+         targetplatform: [x86, amd64]
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Run CMake script
+        run: |
+          cmd.exe /C "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" ${{ matrix.targetplatform }} "&&" cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
+      - name: Build
+        run: |
+          cmake --build build --config Debug --target ALL_BUILD
+      - name: Run checks
+        run: |
+          cd build
+          ctest -C Debug --output-on-failure
 
   windows-msys2:
     runs-on: windows-latest
@@ -176,6 +311,37 @@ jobs:
         run: |
           (cd test-dev && autoconf && ./configure)
           make devcheck
+
+  windows-msys2-cmake:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        include: [
+          {installs: "MINGW32", pkg: "mingw-w64-i686-gcc mingw-w64-i686-cmake mingw-w64-i686-ninja"},
+          {installs: "MINGW64", pkg: "mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja"},
+        ]
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - name: Setup msys2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.installs }}
+          update: true
+          install: base-devel git autoconf ${{ matrix.pkg }}
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Create and run configure script
+        run: |
+          cmake . -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
+      - name: Build
+        run: |
+          cmake --build build --target all
+      - name: Run checks
+        run: |
+          cd build
+          ctest --output-on-failure
 
   AddressSanitizer:
     runs-on: ubuntu-latest

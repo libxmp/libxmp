@@ -96,3 +96,16 @@ commit-*
 *.swp
 *.patch
 *.exp
+
+# Qt Creator caches and settings
+build-*
+*.user*
+
+# Clion and other Idea-based IDEs
+.idea/
+
+# CMake build files
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
