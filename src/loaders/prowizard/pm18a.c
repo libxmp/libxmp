@@ -39,7 +39,13 @@ static int depack_p18a(HIO_HANDLE *in, FILE *out)
 	pw_write_zero(out, 20);				/* title */
 
 	/* bypass replaycode routine */
-	hio_seek(in, 4464, SEEK_SET);
+	hio_seek(in, 4460, SEEK_SET);
+	psize = hio_read32b(in);
+
+	/* Sanity check */
+	if (psize < 0) {
+		return -1;
+	}
 
 	ssize = 0;
 	for (i = 0; i < 31; i++) {
@@ -62,8 +68,15 @@ static int depack_p18a(HIO_HANDLE *in, FILE *out)
 	write8(out, num_pat);
 	write8(out, 0x7f);				/* NoiseTracker byte */
 
-	for (i = 0; i < 128; i++)
+	for (i = 0; i < 128; i++) {
 		paddr[i] = hio_read32b(in);
+
+		/* Sanity check */
+		if (paddr[i] < 0 || paddr[i] - 5226 > psize) {
+			return -1;
+		}
+	}
+	/* At 5226 now, the start of the pattern data. */
 
 	/* ordering of patterns addresses */
 
@@ -90,9 +103,6 @@ static int depack_p18a(HIO_HANDLE *in, FILE *out)
 	/* a little pre-calc code ... no other way to deal with these unknown
 	 * pattern data sizes ! :(
 	 */
-	hio_seek(in, 4460, SEEK_SET);
-	psize = hio_read32b(in);
-	hio_seek(in, 5226, SEEK_SET);	/* back to pattern data start */
 
 	/* now, reading all pattern data to get the max value of note */
 	refmax = 0;
@@ -120,7 +130,7 @@ static int depack_p18a(HIO_HANDLE *in, FILE *out)
 
 	for (j = 0; j <= pat_max; j++) {
 		int flag = 0;
-		hio_seek(in, paddr[j] + 5226, 0);
+		hio_seek(in, paddr[j] + 5226, SEEK_SET);
 		for (i = 0; i < 64; i++) {
 			for (k = 0; k < 4; k++) {
 				uint8 *p = &pat[j][i * 16 + k * 4];
