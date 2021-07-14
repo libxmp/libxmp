@@ -347,6 +347,7 @@ FUZZER		= misc \
 		  s3m_invalid_sample_size \
 		  s3m_invalid_sample_size2 \
 		  xm_negative_instsize \
+		  xm_vorbis_crash \
 		  xm_zero_samples \
 		  it_dca_3 \
 		  it_invalid_compressed \
@@ -442,6 +443,7 @@ FUZZER		= misc \
 		  ult_invalid_tracks \
 		  ult_truncated \
 		  ult_v000 \
+		  umx_invalid_names \
 		  prowizard_ac1d_invalid_note \
 		  prowizard_ac1d_invalid_paddr \
 		  prowizard_di_invalid_offsets \
