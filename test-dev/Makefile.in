@@ -454,6 +454,7 @@ FUZZER		= misc \
 		  prowizard_fuchs_pattern_length \
 		  prowizard_heatseek_truncated \
 		  prowizard_ksm_invalid_pattern \
+		  prowizard_noiserun_invalid_sample \
 		  prowizard_noiserun_truncated \
 		  prowizard_novotrade_invalid_order \
 		  prowizard_novotrade_orders_bound \
