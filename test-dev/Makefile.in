@@ -487,6 +487,7 @@ FUZZER		= misc \
 		  prowizard_theplayer_invalid_sample_dup \
 		  prowizard_titanics_truncated \
 		  prowizard_tp1_invalid_length \
+		  prowizard_tp1_invalid_paddr \
 		  prowizard_tp3_patterns_bound \
 		  prowizard_tp3_samples_bound \
 		  prowizard_unic_truncated \
