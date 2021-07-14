@@ -219,13 +219,13 @@ static int read_typname(HIO_HANDLE *f, const struct upkg_hdr *hdr,
 	char buf[64];
 
 	if (idx >= hdr->name_count) return -1;
-	buf[63] = '\0';
+	memset(buf, 0, 64);
 	for (i = 0, l = 0; i <= idx; i++) {
-		hio_seek(f, hdr->name_offset + l, SEEK_SET);
-		hio_read(buf, 1, 63, f);
+		if (hio_seek(f, hdr->name_offset + l, SEEK_SET) < 0) return -1;
+		if (!hio_read(buf, 1, 63, f)) return -1;
 		if (hdr->file_version >= 64) {
 			s = *(signed char *)buf; /* numchars *including* terminator */
-			if (s <= 0 || s > 64) return -1;
+			if (s <= 0) return -1;
 			l += s + 5;	/* 1 for buf[0], 4 for int32 name_flags */
 		} else {
 			l += (long)strlen(buf);
@@ -247,6 +247,13 @@ static int probe_umx   (HIO_HANDLE *f, const struct upkg_hdr *hdr,
 
 	idx = 0;
 	fsiz = hio_size(f);
+
+	if (hdr->name_offset	>= fsiz ||
+	    hdr->export_offset	>= fsiz ||
+	    hdr->import_offset	>= fsiz) {
+		D_(D_INFO "UMX: Illegal values in header.\n");
+		return -1;
+	}
 
 	/* Find the offset and size of the first IT, S3M or XM
 	 * by parsing the exports table. The umx files should
@@ -303,12 +310,12 @@ static int32 probe_header (HIO_HANDLE *f, struct upkg_hdr *hdr)
 		return -1;
 	}
 	if (hdr->name_count	< 0	||
-	    hdr->name_offset	< 0	||
 	    hdr->export_count	< 0	||
-	    hdr->export_offset	< 0	||
 	    hdr->import_count	< 0	||
-	    hdr->import_offset	< 0	) {
-		D_(D_INFO "UMX: Negative values in header\n");
+	    hdr->name_offset	< 36	||
+	    hdr->export_offset	< 36	||
+	    hdr->import_offset	< 36) {
+		D_(D_INFO "UMX: Illegal values in header.\n");
 		return -1;
 	}
 
