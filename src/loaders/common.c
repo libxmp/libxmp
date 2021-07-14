@@ -22,7 +22,7 @@
 
 #include <ctype.h>
 
-#include "common.h"
+#include "../common.h"
 
 #ifndef LIBXMP_CORE_PLAYER
 #if defined(_WIN32)
@@ -49,7 +49,7 @@
 #endif /* LIBXMP_CORE_PLAYER */
 
 #include "xmp.h"
-#include "period.h"
+#include "../period.h"
 #include "loader.h"
 
 int libxmp_init_instrument(struct module_data *m)

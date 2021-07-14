@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-#include "common.h"
+#include "../common.h"
 #include "loader.h"
 
 #ifndef LIBXMP_CORE_PLAYER

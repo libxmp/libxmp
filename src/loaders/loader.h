@@ -1,10 +1,10 @@
 #ifndef XMP_LOADER_H
 #define XMP_LOADER_H
 
-#include "common.h"
-#include "effects.h"
-#include "format.h"
-#include "hio.h"
+#include "../common.h"
+#include "../effects.h"
+#include "../format.h"
+#include "../hio.h"
 
 /* Sample flags */
 #define SAMPLE_FLAG_DIFF	0x0001	/* Differential */
