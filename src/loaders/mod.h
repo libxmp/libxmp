@@ -57,4 +57,6 @@ struct st_header {
 };
 #endif
 
+extern const struct format_loader libxmp_loader_mod;
+
 #endif

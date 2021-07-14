@@ -98,4 +98,6 @@ struct xm_event {
 	uint8 fx_parm;		/* Effect parameter */
 };
 
+extern const struct format_loader libxmp_loader_xm;
+
 #endif
