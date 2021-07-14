@@ -100,9 +100,9 @@
 } while (0)
 
 #define MIX_MONO_FILTER() do { \
-    sl = (a0 * smp_in * vl + b0 * fl1 + b1 * fl2) >> FILTER_SHIFT; \
+    sl = (a0 * smp_in + b0 * fl1 + b1 * fl2) >> FILTER_SHIFT; \
     fl2 = fl1; fl1 = sl; \
-    *(buffer++) += sl; \
+    *(buffer++) += sl * vl; \
 } while (0)
 
 #define MIX_MONO_FILTER_AC() do { \
@@ -122,20 +122,12 @@
 } while (0)
 
 #define MIX_STEREO_FILTER() do { \
-    sr = (a0 * smp_in * vr + b0 * fr1 + b1 * fr2) >> FILTER_SHIFT; \
+    sr = (a0 * smp_in + b0 * fr1 + b1 * fr2) >> FILTER_SHIFT; \
     fr2 = fr1; fr1 = sr; \
-    sl = (a0 * smp_in * vl + b0 * fl1 + b1 * fl2) >> FILTER_SHIFT; \
+    sl = (a0 * smp_in + b0 * fl1 + b1 * fl2) >> FILTER_SHIFT; \
     fl2 = fl1; fl1 = sl; \
-    *(buffer++) += sr; \
-    *(buffer++) += sl; \
-} while (0)
-
-#define MIX_STEREO_FILTER_AC() do { \
-    int vr = old_vr >> 8; \
-    int vl = old_vl >> 8; \
-    MIX_STEREO_FILTER(); \
-    old_vr += delta_r; \
-    old_vl += delta_l; \
+    *(buffer++) += sr * vr; \
+    *(buffer++) += sl * vl; \
 } while (0)
 
 #define MIX_STEREO_FILTER_AC() do { \
