@@ -20,7 +20,7 @@ static int depack_xann(HIO_HANDLE *in, FILE *out)
 	uint8 note, ins, fxt, fxp;
 	uint8 fine, vol;
 	uint8 pdata[1025];
-	int i, j, k;
+	uint32 i, j, k;
 	int size, ssize = 0;
 	int lsize;
 

@@ -491,6 +491,7 @@ FUZZER		= misc \
 		  prowizard_tp3_patterns_bound \
 		  prowizard_tp3_samples_bound \
 		  prowizard_unic_truncated \
+		  prowizard_xann_invalid \
 		  prowizard_zen_invalid_note \
 		  depack_arc_lzw_invalid \
 		  depack_arcfs_lzw_leak \
