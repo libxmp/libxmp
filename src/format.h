@@ -10,6 +10,8 @@ struct format_loader {
 	int (*loader)(struct module_data *, HIO_HANDLE *, const int);
 };
 
+extern const struct format_loader *const format_loaders[];
+
 const char *const *format_list(void);
 
 #ifndef LIBXMP_CORE_PLAYER
