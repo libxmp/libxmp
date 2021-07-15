@@ -479,7 +479,7 @@ static int load_old_it_instrument(struct xmp_instrument *xxi, HIO_HANDLE *f)
 	xxi->vol = 0x40;
 
 	if (k) {
-		xxi->sub = (struct xmp_subinstrument*)calloc(sizeof(struct xmp_subinstrument), k);
+		xxi->sub = (struct xmp_subinstrument *)calloc(sizeof(struct xmp_subinstrument), k);
 		if (xxi->sub == NULL) {
 			return -1;
 		}
@@ -630,7 +630,7 @@ static int load_new_it_instrument(struct xmp_instrument *xxi, HIO_HANDLE *f)
 	xxi->vol = i2h.gbv >> 1;
 
 	if (k) {
-		xxi->sub = (struct xmp_subinstrument*)calloc(sizeof(struct xmp_subinstrument), k);
+		xxi->sub = (struct xmp_subinstrument *)calloc(sizeof(struct xmp_subinstrument), k);
 		if (xxi->sub == NULL)
 			return -1;
 
@@ -685,7 +685,7 @@ static int load_it_sample(struct module_data *m, int i, int start,
 	uint8 buf[80];
 
 	if (sample_mode) {
-		mod->xxi[i].sub = (struct xmp_subinstrument*)calloc(sizeof(struct xmp_subinstrument), 1);
+		mod->xxi[i].sub = (struct xmp_subinstrument *)calloc(sizeof(struct xmp_subinstrument), 1);
 		if (mod->xxi[i].sub == NULL) {
 			return -1;
 		}
@@ -851,7 +851,7 @@ static int load_it_sample(struct module_data *m, int i, int start,
 					force_sample_length(xsmp, left << 3);
 			}
 
-			decbuf = (uint8*)calloc(1, xxs->len * 2);
+			decbuf = (uint8 *)calloc(1, xxs->len * 2);
 			if (decbuf == NULL)
 				return -1;
 
@@ -1113,18 +1113,18 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	}
 
 	if (mod->ins) {
-		pp_ins = (uint32*)calloc(4, mod->ins);
+		pp_ins = (uint32 *)calloc(4, mod->ins);
 		if (pp_ins == NULL)
 			goto err;
 	} else {
 		pp_ins = NULL;
 	}
 
-	pp_smp = (uint32*)calloc(4, mod->smp);
+	pp_smp = (uint32 *)calloc(4, mod->smp);
 	if (pp_smp == NULL)
 		goto err2;
 
-	pp_pat = (uint32*)calloc(4, mod->pat);
+	pp_pat = (uint32 *)calloc(4, mod->pat);
 	if (pp_pat == NULL)
 		goto err3;
 
@@ -1194,7 +1194,7 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	/* Alloc extra samples for sustain loop */
 	if (mod->smp > 0) {
-		m->xsmp = (struct xmp_sample*)calloc(sizeof (struct xmp_sample), mod->smp);
+		m->xsmp = (struct xmp_sample *)calloc(sizeof (struct xmp_sample), mod->smp);
 		if (m->xsmp == NULL) {
 			goto err4;
 		}
@@ -1368,7 +1368,7 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	/* Song message */
 
 	if (ifh.special & IT_HAS_MSG) {
-		if ((m->comment = (char*)malloc(ifh.msglen)) != NULL) {
+		if ((m->comment = (char *)malloc(ifh.msglen)) != NULL) {
 			hio_seek(f, start + ifh.msgofs, SEEK_SET);
 
 			D_(D_INFO "Message length : %d", ifh.msglen);
