@@ -347,6 +347,7 @@ FUZZER		= misc \
 		  s3m_invalid_sample_size \
 		  s3m_invalid_sample_size2 \
 		  xm_negative_instsize \
+		  xm_vorbis_crash \
 		  xm_zero_samples \
 		  it_dca_3 \
 		  it_invalid_compressed \
@@ -442,6 +443,7 @@ FUZZER		= misc \
 		  ult_invalid_tracks \
 		  ult_truncated \
 		  ult_v000 \
+		  umx_invalid_names \
 		  prowizard_ac1d_invalid_note \
 		  prowizard_ac1d_invalid_paddr \
 		  prowizard_di_invalid_offsets \
@@ -452,6 +454,7 @@ FUZZER		= misc \
 		  prowizard_fuchs_pattern_length \
 		  prowizard_heatseek_truncated \
 		  prowizard_ksm_invalid_pattern \
+		  prowizard_noiserun_invalid_sample \
 		  prowizard_noiserun_truncated \
 		  prowizard_novotrade_invalid_order \
 		  prowizard_novotrade_orders_bound \
@@ -468,6 +471,7 @@ FUZZER		= misc \
 		  prowizard_p61a_truncated \
 		  prowizard_pha_invalid_note \
 		  prowizard_pha_invalid_offset \
+		  prowizard_pha_invalid_paddr \
 		  prowizard_pha_patterns_bound \
 		  prowizard_pha_truncated \
 		  prowizard_pm10c_invalid_note \
@@ -475,6 +479,7 @@ FUZZER		= misc \
 		  prowizard_pm10c_invalid_psize \
 		  prowizard_pm10c_zero_length \
 		  prowizard_pm18a_invalid_note \
+		  prowizard_pm18a_invalid_paddr \
 		  prowizard_pm18a_zero_length \
 		  prowizard_pp10_invalid_pattern \
 		  prowizard_pp21_truncated \
@@ -484,9 +489,11 @@ FUZZER		= misc \
 		  prowizard_theplayer_invalid_sample_dup \
 		  prowizard_titanics_truncated \
 		  prowizard_tp1_invalid_length \
+		  prowizard_tp1_invalid_paddr \
 		  prowizard_tp3_patterns_bound \
 		  prowizard_tp3_samples_bound \
 		  prowizard_unic_truncated \
+		  prowizard_xann_invalid \
 		  prowizard_zen_invalid_note \
 		  depack_arc_lzw_invalid \
 		  depack_arcfs_lzw_leak \

@@ -137,7 +137,14 @@ static int test_nru(const uint8 *data, char *t, int s)
 
 	/* test #3 volumes */
 	for (i = 0; i < 31; i++) {
+		int addr, start;
 		if (data[1 + i * 16] > 0x40)
+			return -1;
+
+		/* Also check sample offsets. */
+		addr = readmem32b(data + 2 + i * 16);
+		start = readmem32b(data + 8 + i * 16);
+		if (addr < 0 || start < 0 || start < addr)
 			return -1;
 	}
 

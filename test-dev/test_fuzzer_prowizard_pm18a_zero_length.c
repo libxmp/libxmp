@@ -12,7 +12,7 @@ TEST(test_fuzzer_prowizard_pm18a_zero_length)
 
 	opaque = xmp_create_context();
 	ret = xmp_load_module(opaque, "data/f/prowizard_pm18a_zero_length");
-	fail_unless(ret == -XMP_ERROR_LOAD, "module load");
+	fail_unless(ret == 0, "module load");
 
 	xmp_free_context(opaque);
 }

@@ -17,9 +17,9 @@ static int depack_tp1(HIO_HANDLE *in, FILE *out)
 	uint8 npat = 0x00;
 	uint8 len;
 	int i, j;
-	int pat_ofs = 999999;
-	int paddr[128];
-	int paddr_ord[128];
+	uint32 pat_ofs = 999999;
+	uint32 paddr[128];
+	uint32 paddr_ord[128];
 	int size, ssize = 0;
 	int smp_ofs;
 

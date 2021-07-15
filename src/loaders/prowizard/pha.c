@@ -319,7 +319,7 @@ static int test_pha(const uint8 *data, char *t, int s)
 	for (i = 0; i < 128; i++) {
 		ptr = readmem32b(data + 448 + i * 4);
 
-		if (ptr < 960 || ptr + 2 - 960 < ssize)
+		if (ptr < ssize + 960 - 2)
 			return -1;
 	}
 
