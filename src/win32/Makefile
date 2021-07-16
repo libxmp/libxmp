@@ -1,5 +1,5 @@
 
-WIN32_OBJS	= ptpopen.o debug.o
+WIN32_OBJS	= ptpopen.o
 WIN32_DFILES	= Makefile $(WIN32_OBJS:.o=.c) ptpopen.h
 WIN32_PATH	= src/win32
 
@@ -13,4 +13,3 @@ dist-win32:
 	cp -RPp $(addprefix $(WIN32_PATH)/,$(WIN32_DFILES)) $(DIST)/$(WIN32_PATH)
 
 W_OBJS		= $(addprefix $(WIN32_PATH)/,$(WIN32_OBJS))
-
