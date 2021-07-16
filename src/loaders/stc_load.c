@@ -7,7 +7,7 @@
  */
 
 #include "loader.h"
-#include "period.h"
+#include "../period.h"
 #include "spectrum.h"
 
 /* ZX Spectrum Sound Tracker loader

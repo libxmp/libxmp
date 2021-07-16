@@ -25,7 +25,7 @@
  */
 
 #include "loader.h"
-#include "period.h"
+#include "../period.h"
 
 
 struct liq_header {

@@ -1,8 +1,8 @@
 #ifndef LIBXMP_DEPACKER_H
 #define LIBXMP_DEPACKER_H
 
-#include "common.h"
-#include "hio.h"
+#include "../common.h"
+#include "../hio.h"
 
 extern struct depacker libxmp_depacker_zip;
 extern struct depacker libxmp_depacker_lha;

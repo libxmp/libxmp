@@ -22,9 +22,9 @@
 
 #include "loader.h"
 #include "mod.h"
-#include "period.h"
+#include "../period.h"
 #include "prowizard/prowiz.h"
-#include "tempfile.h"
+#include "../tempfile.h"
 
 #ifndef LIBXMP_NO_PROWIZARD
 

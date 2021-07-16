@@ -30,7 +30,7 @@ code.  The contents of this file are hereby released to the public domain.
                                  -- Rahul Dhesi 1986/11/14
 */
 
-#include "common.h"
+#include "../common.h"
 
 #define  STACKSIZE	4000
 #define  INBUFSIZ 	(IN_BUF_SIZE - 10)	/* avoid obo errors */
@@ -336,7 +336,7 @@ static int lzd(BLOCKFILE input_f, BLOCKFILE output_f, uint32 *crc_table)
 **
 *****************************************************************************/
 
-#include "common.h"
+#include "../common.h"
 
 struct description {
 	char text[20];	/* "ZOO 2.10 Archive.<ctr>Z"       */

@@ -27,7 +27,7 @@
 
 #include "med.h"
 #include "loader.h"
-#include "med_extras.h"
+#include "../med_extras.h"
 
 #ifdef DEBUG
 const char *const mmd_inst_type[] = {

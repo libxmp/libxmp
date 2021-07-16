@@ -7,7 +7,7 @@
  * to use.
  */
 
-#include "common.h"
+#include "../common.h"
 #include "readrle.h"
 
 

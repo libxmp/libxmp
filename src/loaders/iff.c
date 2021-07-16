@@ -20,8 +20,8 @@
  * THE SOFTWARE.
  */
 
-#include "common.h"
-#include "list.h"
+#include "../common.h"
+#include "../list.h"
 #include "iff.h"
 
 #include "loader.h"

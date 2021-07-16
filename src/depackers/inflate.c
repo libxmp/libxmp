@@ -1,4 +1,4 @@
-#include "common.h"
+#include "../common.h"
 #include "inflate.h"
 #include "crc32.h"
 

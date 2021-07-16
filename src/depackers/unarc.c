@@ -25,7 +25,7 @@
 
 #include <ctype.h>
 #include <sys/stat.h>
-#include "common.h"
+#include "../common.h"
 #include "depacker.h"
 #if 0
 #include "readrle.h"

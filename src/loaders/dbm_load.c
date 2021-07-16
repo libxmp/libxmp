@@ -26,7 +26,7 @@
 
 #include "loader.h"
 #include "iff.h"
-#include "period.h"
+#include "../period.h"
 
 #define MAGIC_DBM0	MAGIC4('D','B','M','0')
 

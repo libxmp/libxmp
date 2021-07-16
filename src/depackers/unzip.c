@@ -11,7 +11,7 @@ me and we can work something out.
 Michael Kohn <mike@mikekohn.net>
 
 */
-#include "common.h"
+#include "../common.h"
 #include "depacker.h"
 #include "inflate.h"
 #include "crc32.h"

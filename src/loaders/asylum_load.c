@@ -25,7 +25,7 @@
  */
 
 #include "loader.h"
-#include "period.h"
+#include "../period.h"
 
 static int asylum_test(HIO_HANDLE *, char *, const int);
 static int asylum_load(struct module_data *, HIO_HANDLE *, const int);

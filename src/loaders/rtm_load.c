@@ -21,7 +21,7 @@
  */
 
 #include "loader.h"
-#include "period.h"
+#include "../period.h"
 
 #ifndef __amigaos4__
 typedef uint8 BYTE;

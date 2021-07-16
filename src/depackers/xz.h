@@ -11,7 +11,7 @@
 #ifndef XZ_H
 #define XZ_H
 
-#include "common.h"
+#include "../common.h"
 #define xz_false 0
 #define xz_true 1
 typedef int xz_bool;

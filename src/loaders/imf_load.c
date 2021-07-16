@@ -25,7 +25,7 @@
  */
 
 #include "loader.h"
-#include "period.h"
+#include "../period.h"
 
 
 #define IMF_EOR		0x00

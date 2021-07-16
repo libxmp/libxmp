@@ -23,7 +23,7 @@
     Modified for xmp by Claudio Matsuoka, 20120812
  */
 
-#include "common.h"
+#include "../common.h"
 #include "depacker.h"
 
 #define LZHUFF0_METHOD          0x2D6C6830      /* -lh0- */

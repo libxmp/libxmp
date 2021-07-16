@@ -22,7 +22,7 @@
 
 #include "med.h"
 #include "loader.h"
-#include "med_extras.h"
+#include "../med_extras.h"
 
 static int mmd3_test (HIO_HANDLE *, char *, const int);
 static int mmd3_load (struct module_data *, HIO_HANDLE *, const int);

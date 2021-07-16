@@ -21,7 +21,7 @@
  */
 
 #include "vorbis.h"
-#include "common.h"
+#include "../common.h"
 #include "depacker.h"
 
 #define MAGIC_OGGS	0x4f676753

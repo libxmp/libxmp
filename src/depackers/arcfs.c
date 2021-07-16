@@ -10,7 +10,7 @@
  */
 
 #include <sys/stat.h>
-#include "common.h"
+#include "../common.h"
 #include "depacker.h"
 #include "readlzw.h"
 

@@ -21,7 +21,7 @@
  */
 
 #include "loader.h"
-#include "period.h"
+#include "../period.h"
 
 #define PTM_CH_MASK	0x1f
 #define PTM_NI_FOLLOW	0x20

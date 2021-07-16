@@ -17,7 +17,7 @@
 
 #include "readrle.h"
 
-#include "common.h"
+#include "../common.h"
 #include "readlzw.h"
 
 

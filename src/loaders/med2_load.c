@@ -30,7 +30,7 @@
 #include <limits.h>
 #endif
 #include "loader.h"
-#include "period.h"
+#include "../period.h"
 
 #define MAGIC_MED2	MAGIC4('M','E','D',2)
 

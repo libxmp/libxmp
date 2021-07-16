@@ -22,7 +22,7 @@
 
 #include "loader.h"
 #include "iff.h"
-#include "period.h"
+#include "../period.h"
 
 /* Galaxy Music System 5.0 module file loader
  *
