@@ -137,7 +137,7 @@ struct lzma_dec {
 	uint32 rep3;
 
 	/* Types of the most recently seen LZMA symbols */
-	enum lzma_state state;
+	lzma_state_t state;
 
 	/*
 	 * Length of a match. This is updated so that dict_repeat can
