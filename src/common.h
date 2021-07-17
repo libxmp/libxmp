@@ -15,6 +15,14 @@
 #define LIBXMP_EXPORT_VAR
 #endif
 
+#ifndef __cplusplus
+#define LIBXMP_BEGIN_DECLS
+#define LIBXMP_END_DECLS
+#else
+#define LIBXMP_BEGIN_DECLS	extern "C" {
+#define LIBXMP_END_DECLS	}
+#endif
+
 #if defined(__MORPHOS__) || defined(__AROS__) || defined(AMIGAOS) || \
     defined(__amigaos__) || defined(__amigaos4__) ||defined(__amigados__) || \
     defined(AMIGA) || defined(_AMIGA) || defined(__AMIGA__)
