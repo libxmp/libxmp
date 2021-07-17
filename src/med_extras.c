@@ -67,7 +67,7 @@ static const int sine[32] = {
 
 int libxmp_med_change_period(struct context_data *ctx, struct channel_data *xc)
 {
-	struct med_channel_extras *ce = xc->extra;
+	struct med_channel_extras *ce = (struct med_channel_extras *)xc->extra;
 	int vib;
 
 	/* Vibrato */
@@ -93,8 +93,8 @@ int libxmp_med_change_period(struct context_data *ctx, struct channel_data *xc)
 int libxmp_med_linear_bend(struct context_data *ctx, struct channel_data *xc)
 {
 	struct module_data *m = &ctx->m;
-	struct med_module_extras *me = m->extra;
-	struct med_channel_extras *ce = xc->extra;
+	struct med_module_extras *me = (struct med_module_extras *)m->extra;
+	struct med_channel_extras *ce = (struct med_channel_extras *)xc->extra;
 	int arp;
 
 	/* Arpeggio */
@@ -341,7 +341,7 @@ void libxmp_med_play_extras(struct context_data *ctx, struct channel_data *xc, i
 
 int libxmp_med_new_instrument_extras(struct xmp_instrument *xxi)
 {
-	xxi->extra = calloc(1, sizeof(struct med_instrument_extras));
+	xxi->extra = calloc (1, sizeof(struct med_instrument_extras));
 	if (xxi->extra == NULL)
 		return -1;
 	MED_INSTRUMENT_EXTRAS((*xxi))->magic = MED_EXTRAS_MAGIC;
@@ -382,10 +382,10 @@ int libxmp_med_new_module_extras(struct module_data *m)
 
 	me = (struct med_module_extras *)m->extra;
 
-	me->vol_table = calloc(sizeof(uint8 *), mod->ins);
+	me->vol_table = (uint8 **) calloc(sizeof(uint8 *), mod->ins);
 	if (me->vol_table == NULL)
 		return -1;
-	me->wav_table = calloc(sizeof(uint8 *), mod->ins);
+	me->wav_table = (uint8 **) calloc(sizeof(uint8 *), mod->ins);
 	if (me->wav_table == NULL)
 		return -1;
 

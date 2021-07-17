@@ -300,7 +300,8 @@ static int decrunch_mmcmp(FILE *in, FILE *out)
 		goto err;
 	}
 
-	if ((table = malloc(h.nblocks * 4)) == NULL) {
+	table = (uint32 *) malloc(h.nblocks * 4);
+	if (table == NULL) {
 		goto err;
 	}
 
@@ -349,7 +350,7 @@ static int decrunch_mmcmp(FILE *in, FILE *out)
 			}
 		}
 
-		sub_block = malloc(block.sub_blk * sizeof (struct sub_block));
+		sub_block = (struct sub_block *) malloc(block.sub_blk * sizeof (struct sub_block));
 		if (sub_block == NULL)
 			goto err2;
 

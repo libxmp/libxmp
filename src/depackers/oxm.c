@@ -142,7 +142,7 @@ static char *oggdec(FILE *f, int len, int res, int *newlen)
 	if (error != 0 || fseek(f, -8, SEEK_CUR) < 0)
 		return NULL;
 
-	if ((data = calloc(1, len)) == NULL)
+	if ((data = (uint8 *)calloc(1, len)) == NULL)
 		return NULL;
 
 	read32b(f, &error);
@@ -170,7 +170,7 @@ static char *oggdec(FILE *f, int len, int res, int *newlen)
 		for (i = 0; i < n; i++) {
 			pcm[i] = pcm16[i] >> 8;
 		}
-		pcm = realloc(pcm16, n);
+		pcm = (uint8 *)realloc(pcm16, n);
 		if (pcm == NULL) {
 			free(pcm16);
 			return NULL;
@@ -188,7 +188,6 @@ static char *oggdec(FILE *f, int len, int res, int *newlen)
 			pcm16[i] -= pcm16[i - 1];
 		*newlen = n * 2;
 	}
-
 
 	return (char *)pcm;
 }

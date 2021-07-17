@@ -47,7 +47,7 @@ static int savefile(FILE *fo, void *mem, size_t length)
 } while(0)
 
 #define PP_BYTE_OUT(byte) do {                                 \
-  if (out <= dest) return 0; /* output overflow */              \
+  if (out <= dest) return 0; /* output overflow */             \
   *--out = (byte);                                             \
   written++;                                                   \
 } while (0)
@@ -197,7 +197,7 @@ static int decrunch_pp(FILE *f, FILE *fo)
          goto err;
     }
 
-    packed = malloc(plen);
+    packed = (uint8 *) malloc(plen);
     if (packed == NULL) {
 	 /*fprintf(stderr, "can't allocate memory for packed data\n");*/
 	 goto err;

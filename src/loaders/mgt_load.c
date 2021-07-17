@@ -324,8 +324,8 @@ static int mgt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	/* Extra track */
 	if (mod->trk > 0) {
-		mod->xxt[0] = calloc(sizeof(struct xmp_track) +
-			sizeof(struct xmp_event) * 64 - 1, 1);
+		mod->xxt[0] = (struct xmp_track *) calloc(1, sizeof(struct xmp_track) +
+							     sizeof(struct xmp_event) * 64 - 1);
 		mod->xxt[0]->rows = 64;
 	}
 

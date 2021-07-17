@@ -78,7 +78,6 @@ static int sym_test(HIO_HANDLE *f, char *t, const int start)
 }
 
 
-
 static void fix_effect(struct xmp_event *e, int parm)
 {
 	switch (e->fxt) {
@@ -323,7 +322,7 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	D_(D_INFO "Packed sequence: %s", a ? "yes" : "no");
 
 	size = mod->len * mod->chn * 2;
-	if ((buf = malloc(size)) == NULL)
+	if ((buf = (uint8 *)malloc(size)) == NULL)
 		return -1;
 
 	if (a) {
@@ -377,7 +376,7 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	D_(D_INFO "Stored tracks: %d", mod->trk - 1);
 
 	size = 64 * (mod->trk - 1) * 4;
-	if ((buf = malloc(size)) == NULL)
+	if ((buf = (uint8 *)malloc(size)) == NULL)
 		return -1;
 
 	if (a) {

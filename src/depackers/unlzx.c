@@ -934,7 +934,7 @@ static int extract_normal(FILE * in_file, struct LZXDecrData *decr)
 		printf(" crc %s\n", (node->crc == sum) ? "good" : "bad");
 	}
 #endif
-    }				/* for */
+    } /* for */
 
     return (abort);
 }
@@ -1020,7 +1020,7 @@ static int extract_archive(FILE * in_file, struct LZXDecrData *decr)
 	decr->crc = readmem32l(decr->archive_header + 22);
 
 	/* allocate a filename node */
-	node = malloc(sizeof(struct filename_node));
+	node = (struct filename_node *) malloc(sizeof(struct filename_node));
 	if (node == NULL) {
 	    /* fprintf(stderr, "MAlloc(Filename_node)\n"); */
 	    continue;
@@ -1103,7 +1103,7 @@ static int decrunch_lzx(FILE *f, FILE *fo)
 	if (fo == NULL)
 		goto err;
 
-	decr = calloc(1, sizeof(struct LZXDecrData));
+	decr = (struct LZXDecrData *) calloc(1, sizeof(struct LZXDecrData));
 	if (decr == NULL)
 		goto err;
 

@@ -27,7 +27,7 @@ static int decrunch_xz(FILE *in, FILE *out)
 	libxmp_crc32_init_A();
 
 	memset(&b, 0, sizeof(b));
-	if ((membuf = malloc(2 * BUFFER_SIZE)) == NULL)
+	if ((membuf = (unsigned char *)malloc(2 * BUFFER_SIZE)) == NULL)
 		return -1;
 
 	b.in = membuf;

@@ -204,7 +204,7 @@ static int theplayer_depack(HIO_HANDLE *in, FILE *out, int version)
     int val;
     uint8 buf[1024];
 
-    if ((tdata = calloc(512, 256)) == NULL) {
+    if ((tdata = (uint8 *)calloc(512, 256)) == NULL) {
 	return -1;
     }
 
@@ -340,8 +340,7 @@ static int theplayer_depack(HIO_HANDLE *in, FILE *out, int version)
     /* read and write sample data */
     for (i = 0; i < nins; i++) {
 	hio_seek(in, sdata_addr + saddr[i], SEEK_SET);
-	smp_buffer = malloc(smp_size[i]);
-	memset(smp_buffer, 0, smp_size[i]);
+	smp_buffer = (signed char *) calloc(1, smp_size[i]);
 	hio_read(smp_buffer, smp_size[i], 1, in);
 	if (delta == 1) {
 	    for (j = 1; j < smp_size[i]; j++) {
@@ -438,10 +437,10 @@ static int theplayer_test(const uint8 *data, char *t, int s, int version)
 			if (pat > num_pat - 1)
 				return -1;
 		} else {
-                	if (pat & 0x01)
-                       		return -1;
+			if (pat & 0x01)
+				return -1;
 
-                	if (pat > num_pat * 2)
+			if (pat > num_pat * 2)
 				return -1;
 		}
 
@@ -482,7 +481,6 @@ static int theplayer_test(const uint8 *data, char *t, int s, int version)
 }
 
 
-
 static int depack_p50a(HIO_HANDLE *in, FILE *out)
 {
 	return theplayer_depack(in, out, 0x50);
@@ -500,7 +498,6 @@ const struct pw_format pw_p50a = {
 };
 
 
-
 static int depack_p60a(HIO_HANDLE *in, FILE *out)
 {
 	return theplayer_depack(in, out, 0x60);
@@ -516,10 +513,6 @@ const struct pw_format pw_p60a = {
 	test_p60a,
 	depack_p60a
 };
-
-
-
-
 
 
 #if 0
@@ -706,4 +699,3 @@ void testP60A_pack (void)
 	Test = GOOD;
 }
 #endif
-

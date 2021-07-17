@@ -60,7 +60,7 @@ static int decrunch_xfd(FILE *f1, FILE *f2)
     fstat(fileno(f1), &st);
     plen = st.st_size;
 
-    packed = AllocVec(plen,MEMF_CLEAR);
+    packed = (uint8 *) AllocVec(plen,MEMF_CLEAR);
     if (!packed) return -1;
 
     fread(packed,plen,1,f1);

@@ -128,7 +128,7 @@ iff_handle libxmp_iff_new()
 {
 	struct iff_data *data;
 
-	data = malloc(sizeof(struct iff_data));
+	data = (struct iff_data *) malloc(sizeof(struct iff_data));
 	if (data == NULL) {
 		return NULL;
 	}
@@ -146,10 +146,8 @@ int libxmp_iff_load(iff_handle opaque, struct module_data *m, HIO_HANDLE *f, voi
 
 	while (!hio_eof(f)) {
 		ret = iff_chunk(opaque, m, f, parm);
-
 		if (ret > 0)
 			break;
-
 		if (ret < 0)
 			return -1;
 	}
@@ -164,7 +162,7 @@ int libxmp_iff_register(iff_handle opaque, const char *id,
 	struct iff_info *f;
 	int i = 0;
 
-	f = malloc(sizeof(struct iff_info));
+	f = (struct iff_info *) malloc(sizeof(struct iff_info));
 	if (f == NULL)
 		return -1;
 
