@@ -36,7 +36,7 @@
 static int abk_test (HIO_HANDLE *, char *, const int);
 static int abk_load (struct module_data *, HIO_HANDLE *, const int);
 
-struct format_loader libxmp_loader_abk =
+const struct format_loader libxmp_loader_abk =
 {
     "AMOS Music Bank",
     abk_test,
@@ -596,7 +596,7 @@ static int abk_load(struct module_data *m, HIO_HANDLE *f, const int start)
         {
             pattern = hio_read16b(f);
             if (read_abk_pattern(f,  mod->xxt[(i*mod->chn)+k]->event, AMOS_MAIN_HEADER + main_header.patterns_offset + pattern) < 0) {
-    		free(playlist.pattern);
+		free(playlist.pattern);
 		return -1;
 	    }
         }
