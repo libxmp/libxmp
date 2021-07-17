@@ -100,4 +100,4 @@ struct xm_event {
 
 extern const struct format_loader libxmp_loader_xm;
 
-#endif
+#endif  /* LIBXMP_LOADERS_XM_H */

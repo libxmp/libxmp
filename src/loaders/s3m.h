@@ -119,4 +119,4 @@ struct s3m_adlib_header {
 
 extern const struct format_loader libxmp_loader_s3m;
 
-#endif
+#endif  /* LIBXMP_LOADERS_S3M_H */

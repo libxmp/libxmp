@@ -358,7 +358,7 @@ HIO_HANDLE *hio_open(const char *path, const char *mode)
 {
 	HIO_HANDLE *h;
 
-	h = (HIO_HANDLE *)calloc(1, sizeof (HIO_HANDLE));
+	h = (HIO_HANDLE *) calloc(1, sizeof(HIO_HANDLE));
 	if (h == NULL)
 		goto err;
 
@@ -386,7 +386,7 @@ HIO_HANDLE *hio_open_mem(const void *ptr, long size)
 	HIO_HANDLE *h;
 
 	if (size <= 0) return NULL;
-	h = (HIO_HANDLE *)calloc(1, sizeof (HIO_HANDLE));
+	h = (HIO_HANDLE *) calloc(1, sizeof(HIO_HANDLE));
 	if (h == NULL)
 		return NULL;
 
@@ -401,7 +401,7 @@ HIO_HANDLE *hio_open_file(FILE *f)
 {
 	HIO_HANDLE *h;
 
-	h = (HIO_HANDLE *)calloc(1, sizeof (HIO_HANDLE));
+	h = (HIO_HANDLE *) calloc(1, sizeof(HIO_HANDLE));
 	if (h == NULL)
 		return NULL;
 
@@ -436,7 +436,7 @@ HIO_HANDLE *hio_open_callbacks(void *priv, struct xmp_callbacks callbacks)
 	if (!f)
 		return NULL;
 
-	h = (HIO_HANDLE *)calloc(1, sizeof(HIO_HANDLE));
+	h = (HIO_HANDLE *) calloc(1, sizeof(HIO_HANDLE));
 	if (h == NULL) {
 		cbclose(f);
 		return NULL;
