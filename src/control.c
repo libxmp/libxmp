@@ -27,6 +27,16 @@
 const char *xmp_version LIBXMP_EXPORT_VAR = XMP_VERSION;
 const unsigned int xmp_vercode LIBXMP_EXPORT_VAR = XMP_VERCODE;
 
+const char *xmp_get_version(void)
+{
+    return XMP_VERSION;
+}
+
+const unsigned int xmp_get_vercode(void)
+{
+    return XMP_VERCODE;
+}
+
 xmp_context xmp_create_context(void)
 {
 	struct context_data *ctx;

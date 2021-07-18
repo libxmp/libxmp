@@ -336,6 +336,9 @@ typedef char *xmp_context;
 LIBXMP_EXPORT_VAR extern const char *xmp_version;
 LIBXMP_EXPORT_VAR extern const unsigned int xmp_vercode;
 
+LIBXMP_EXPORT const char *xmp_get_version     (void);
+LIBXMP_EXPORT const unsigned int xmp_get_vercode (void);
+
 LIBXMP_EXPORT int         xmp_syserrno        (void);
 
 LIBXMP_EXPORT xmp_context xmp_create_context  (void);
