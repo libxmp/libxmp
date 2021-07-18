@@ -50,15 +50,15 @@ static int mod_test(HIO_HANDLE *f, char *t, const int start)
 	if (hio_read(buf, 1, 4, f) < 4)
 		return -1;
 
-	if (!strncmp(buf + 2, "CH", 2) && isdigit((int)buf[0])
-	    && isdigit((int)buf[1])) {
+	if (!strncmp(buf + 2, "CH", 2) &&
+	    isdigit((unsigned char)buf[0]) && isdigit((unsigned char)buf[1])) {
 		i = (buf[0] - '0') * 10 + buf[1] - '0';
 		if (i > 0 && i <= 32) {
 			goto found;
 		}
 	}
 
-	if (!strncmp(buf + 1, "CHN", 3) && isdigit((int)*buf)) {
+	if (!strncmp(buf + 1, "CHN", 3) && isdigit((unsigned char)*buf)) {
 		if (*buf >= '0' && *buf <= '9') {
 			goto found;
 		}
@@ -111,9 +111,9 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	if (!memcmp(magic, "M.K.", 4)) {
 		mod->chn = 4;
 	} else if (!strncmp(magic + 2, "CH", 2) &&
-		   isdigit((int)magic[0]) && isdigit((int)magic[1])) {
+		   isdigit((unsigned char)magic[0]) && isdigit((unsigned char)magic[1])) {
 		mod->chn = (*magic - '0') * 10 + magic[1] - '0';
-	} else if (!strncmp(magic + 1, "CHN", 3) && isdigit((int)*magic)) {
+	} else if (!strncmp(magic + 1, "CHN", 3) && isdigit((unsigned char)*magic)) {
 		mod->chn = *magic - '0';
 	} else {
 		return -1;

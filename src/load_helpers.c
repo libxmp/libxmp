@@ -127,7 +127,7 @@ char *libxmp_adjust_string(char *s)
 	int i;
 
 	for (i = 0; i < strlen(s); i++) {
-		if (!isprint((int)s[i]) || ((uint8) s[i] > 127))
+		if (!isprint((unsigned char)s[i]) || ((uint8) s[i] > 127))
 			s[i] = ' ';
 	}
 
