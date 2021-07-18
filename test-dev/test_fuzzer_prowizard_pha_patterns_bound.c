@@ -7,7 +7,6 @@
 TEST(test_fuzzer_prowizard_pha_patterns_bound)
 {
 	xmp_context opaque;
-	struct xmp_module_info info;
 	int ret;
 
 	opaque = xmp_create_context();

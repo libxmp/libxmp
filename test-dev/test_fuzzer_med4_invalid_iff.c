@@ -6,7 +6,6 @@
 TEST(test_fuzzer_med4_invalid_iff)
 {
 	xmp_context opaque;
-	struct xmp_module_info info;
 	int ret;
 
 	opaque = xmp_create_context();

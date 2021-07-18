@@ -8,7 +8,6 @@
 TEST(test_fuzzer_mmd1_channel_count)
 {
 	xmp_context opaque;
-	struct xmp_module_info info;
 	int ret;
 
 	opaque = xmp_create_context();

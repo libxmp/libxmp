@@ -5,7 +5,7 @@ TEST(test_api_set_row)
 	xmp_context opaque;
 	struct context_data *ctx;
 	struct player_data *p;
-	int state, ret, i;
+	int state, ret;
 
 	opaque = xmp_create_context();
 	ctx = (struct context_data *)opaque;

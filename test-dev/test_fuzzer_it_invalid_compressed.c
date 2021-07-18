@@ -6,7 +6,6 @@
 TEST(test_fuzzer_it_invalid_compressed)
 {
 	xmp_context opaque;
-	struct xmp_module_info info;
 	int ret;
 
 	opaque = xmp_create_context();

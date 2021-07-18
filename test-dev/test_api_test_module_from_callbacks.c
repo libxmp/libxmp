@@ -48,7 +48,7 @@ TEST(test_api_test_module_from_callbacks)
 {
 	struct xmp_test_info tinfo;
 	struct xmp_callbacks t1, t2, t3;
-	int ret, err;
+	int ret;
 	FILE *f;
 
 	/* unsupported format */

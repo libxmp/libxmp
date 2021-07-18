@@ -7,7 +7,6 @@
 TEST(test_fuzzer_gal5_invalid_sample_num)
 {
 	xmp_context opaque;
-	struct xmp_module_info info;
 	int ret;
 
 	opaque = xmp_create_context();

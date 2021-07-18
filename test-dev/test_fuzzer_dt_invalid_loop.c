@@ -9,7 +9,6 @@
 TEST(test_fuzzer_dt_invalid_loop)
 {
 	xmp_context opaque;
-	struct xmp_module_info info;
 	int ret;
 
 	opaque = xmp_create_context();

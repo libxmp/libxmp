@@ -6,7 +6,6 @@
 TEST(test_fuzzer_xm_vorbis_crash)
 {
 	xmp_context opaque;
-	struct xmp_module_info info;
 	int ret;
 
 	opaque = xmp_create_context();

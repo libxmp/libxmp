@@ -6,7 +6,6 @@
 TEST(test_fuzzer_misc)
 {
 	xmp_context opaque;
-	struct xmp_module_info info;
 	/* 0x84 is specifically to check for a Coconizer bug. */
 	const char buf[9] = "\x84ZCDEFGH";
 	char msg[32];

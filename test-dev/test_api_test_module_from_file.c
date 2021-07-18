@@ -15,7 +15,7 @@ static int test_module_from_file_helper(const char* filename, struct xmp_test_in
 TEST(test_api_test_module_from_file)
 {
 	struct xmp_test_info tinfo;
-	int ret, err;
+	int ret;
 
 	/* unsupported format */
 	ret = test_module_from_file_helper("data/storlek_01.data", &tinfo);
