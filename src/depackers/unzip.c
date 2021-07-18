@@ -1,284 +1,28 @@
-/*
+/* Extended Module Player
+ * Copyright (C) 1996-2021 Claudio Matsuoka and Hipolito Carraro Jr
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 
-This code is Copyright 2005-2006 by Michael Kohn
-
-This package is licensed under the LGPL. You are free to use this library
-in both commercial and non-commercial applications as long as you dynamically
-link to it. If you statically link this library you must also release your
-software under the LGPL. If you need more flexibility in the license email
-me and we can work something out.
-
-Michael Kohn <mike@mikekohn.net>
-
-*/
 #include "../common.h"
 #include "depacker.h"
-#include "inflate.h"
-#include "crc32.h"
-
-struct zip_file_header
-{
-  unsigned int signature;
-  int version;
-  int general_purpose_bit_flag;
-  int compression_method;
-  int last_mod_file_time;
-  int last_mod_file_date;
-  unsigned int crc_32;
-  int compressed_size;
-  int uncompressed_size;
-  int file_name_length;
-  int extra_field_length;
-  char *file_name;
-  unsigned char *extra_field;
-};
-
-#define QUIET
-
-#define read_int(x) hio_read32l(x)
-#define read_word(x) hio_read16l(x)
-
-/*-------------------------- fileio.c ---------------------------*/
-
-
-static int read_chars(HIO_HANDLE *in, char *s, int count)
-{
-int t;
-
-  for (t=0; t<count; t++)
-  {
-    int x = hio_read8(in);
-    if (hio_eof(in)) {
-      return -1;
-    }
-    s[t]=x;
-  }
-
-  s[t]=0;
-
-  return 0;
-}
-
-static int read_buffer(HIO_HANDLE *in, unsigned char *buffer, int len)
-{
-int t;
-
-  t=0;
-  while (t<len)
-  {
-    t=t+hio_read(buffer+t,1,len-t,in);
-    if (t < len && (hio_eof(in) || hio_error(in)))
-      return -1;
-  }
-
-  return t;
-}
-
-static int write_buffer(FILE *out, unsigned char *buffer, int len)
-{
-int t;
-
-  t=0;
-  while (t<len)
-  {
-    t=t+fwrite(buffer+t,1,len-t,out);
-    if (ferror(out))
-      return -1;
-  }
-
-  return t;
-}
-
-/*----------------------- end of fileio.c -----------------------*/
-
-#define BUFFER_SIZE 16738
-
-
-static int copy_file(HIO_HANDLE *in, FILE *out, int len, uint32 *_checksum, struct inflate_data *data)
-{
-unsigned char buffer[BUFFER_SIZE];
-unsigned int checksum;
-int t,r;
-
-  checksum=0xffffffff;
-
-  t=0;
-
-  while(t<len)
-  {
-    if (t+BUFFER_SIZE<len)
-    { r=BUFFER_SIZE; }
-      else
-    { r=len-t; }
-
-    if (read_buffer(in,buffer,r) < r)
-      return -1;
-    if (write_buffer(out,buffer,r) < r)
-      return -1;
-    checksum=libxmp_crc32_A2(buffer,r,checksum);
-    t=t+r;
-  }
-
-  *_checksum = (checksum ^ 0xffffffff);
-  return 0;
-}
-
-static int read_zip_header(HIO_HANDLE *in, struct zip_file_header *header)
-{
-  header->signature=read_int(in);
-  if (header->signature!=0x04034b50) return -1;
-
-  header->version=read_word(in);
-  header->general_purpose_bit_flag=read_word(in);
-  header->compression_method=read_word(in);
-  header->last_mod_file_time=read_word(in);
-  header->last_mod_file_date=read_word(in);
-  header->crc_32=read_int(in);
-  header->compressed_size=read_int(in);
-  header->uncompressed_size=read_int(in);
-  header->file_name_length=read_word(in);
-  header->extra_field_length=read_word(in);
-
-  return 0;
-}
-
-
-/* For xmp:
- * pass an array of patterns containing files we want to exclude from
- * our search (such as README, *.nfo, etc)
- */
-static int kunzip_file_with_name(HIO_HANDLE *in, FILE *out)
-{
-struct zip_file_header header;
-int ret_code;
-uint32 checksum=0;
-long marker;
-struct inflate_data data;
-
-  ret_code=0;
-
-  if (read_zip_header(in,&header)==-1) return -1;
-
-  header.file_name=(char *)malloc(header.file_name_length+1);
-  if (header.file_name == NULL)
-    goto err;
-
-  header.extra_field=(unsigned char *)malloc(header.extra_field_length+1);
-  if (header.extra_field == NULL)
-    goto err2;
-
-  if (read_chars(in,header.file_name,header.file_name_length) < 0)
-    goto err3;
-
-  if (read_chars(in,(char *)header.extra_field,header.extra_field_length) < 0)
-    goto err3;
-
-  marker=hio_tell(in);
-
-  libxmp_crc32_init_A();
-
-  if (header.uncompressed_size!=0)
-  {
-    if (header.compression_method==0)
-    {
-      if (copy_file(in,out,header.uncompressed_size,&checksum,&data) < 0)
-        goto err3;
-    }
-    else
-    {
-      if (libxmp_inflate(in, out, &checksum, 1) < 0)
-	goto err3;
-    }
-
-    /* fclose(out); */
-
-    if (checksum!=header.crc_32)
-    {
-      /* fprintf(stderr, "unzip: crc error: %d %d\n",checksum,header.crc_32); */
-      ret_code=-4;
-    }
-  }
-
-  free(header.file_name);
-  free(header.extra_field);
-
-  if (hio_seek(in,marker+header.compressed_size,SEEK_SET) < 0) {
-    goto err;
-  }
-
-  if ((header.general_purpose_bit_flag&8)!=0)
-  {
-    read_int(in);
-    read_int(in);
-    read_int(in);
-  }
-
-  return ret_code;
-
- err3:
-  free(header.extra_field);
- err2:
-  free(header.file_name);
- err:
-  return -1;
-}
-
-static int kunzip_get_offset_excluding(HIO_HANDLE *in)
-{
-struct zip_file_header header;
-int i=0,curr;
-int name_size;
-long marker;
-char name[1024];
-
-  while(1)
-  {
-    curr=hio_tell(in);
-    if (curr < 0) {
-      return -1;
-    }
-    i=read_zip_header(in,&header);
-    if (i==-1) break;
-
-    /*if (skip_offset<0 || curr>skip_offset)*/
-    {
-      marker=hio_tell(in);  /* nasty code.. please make it nice later */
-      if (marker < 0) {
-        return -1;
-      }
-
-      name_size = header.file_name_length;
-      if (name_size > 1023) {
-	name_size = 1023;
-      }
-
-      if (read_chars(in,name,name_size) < 0) {
-        return -1;
-      }
-
-      name[name_size]=0;
-
-      if (hio_seek(in,marker,SEEK_SET) < 0) { /* and part 2 of nasty code */
-        return -1;
-      }
-
-      if (!libxmp_exclude_match(name)) {
-        break;
-      }
-    }
-
-    if (hio_seek(in,header.compressed_size+
-             header.file_name_length+
-             header.extra_field_length,SEEK_CUR) < 0) {
-      return -1;
-    }
-  }
-
-  if (i!=-1)
-  { return curr; }
-    else
-  { return -1; }
-}
+#include "miniz.h"
 
 static int test_zip(unsigned char *b)
 {
@@ -287,21 +31,71 @@ static int test_zip(unsigned char *b)
 		b[4] == 'P' && b[5] == 'K' && b[6] == 3 && b[7] == 4));
 }
 
+#ifndef MINIZ_NO_ARCHIVE_APIS
+static size_t mz_zip_file_read_func(void *pOpaque, mz_uint64 ofs, void *pBuf, size_t n)
+{
+	if (hio_seek((HIO_HANDLE *)pOpaque, (long)ofs, SEEK_SET))
+		return 0;
+
+	return hio_read(pBuf, 1, n, (HIO_HANDLE *)pOpaque);
+}
+
+static size_t mz_zip_file_write_callback(void *pOpaque, mz_uint64 ofs, const void *pBuf, size_t n)
+{
+	if (fseek((FILE *)pOpaque, (long)ofs, SEEK_SET))
+		return 0;
+
+	return fwrite(pBuf, 1, n, (FILE *)pOpaque);
+}
+#endif
+
 static int decrunch_zip(HIO_HANDLE *in, FILE *out, long inlen)
 {
-  int offset;
+#ifndef MINIZ_NO_ARCHIVE_APIS
+	mz_zip_archive archive;
+	char filename[MZ_ZIP_MAX_ARCHIVE_FILENAME_SIZE];
+	mz_uint32 i;
 
-  offset = kunzip_get_offset_excluding(in);
-  if (offset < 0)
-    return -1;
+	memset(&archive, 0, sizeof(archive));
+	archive.m_pRead = mz_zip_file_read_func;
+	archive.m_pIO_opaque = in;
 
-  if (hio_seek(in, offset, SEEK_SET) < 0)
-    return -1;
+	if (!mz_zip_reader_init(&archive, inlen, 0)) {
+		D_(D_CRIT "Failed to open archive: %s", mz_zip_get_error_string(archive.m_last_error));
+		return -1;
+	}
 
-  if (kunzip_file_with_name(in,out) < 0)
-    return -1;
+	for (i = 0; i < archive.m_total_files; i++) {
+		if (mz_zip_reader_get_filename(&archive, i, filename, MZ_ZIP_MAX_ARCHIVE_FILENAME_SIZE) == 0) {
+			D_(D_WARN "Could not get file name: %s", mz_zip_get_error_string(archive.m_last_error));
+			continue;
+		}
+		if (mz_zip_reader_is_file_a_directory(&archive, i)) {
+			D_(D_INFO "Skipping directory %s", filename);
+			continue;
+		}
+		if (!mz_zip_reader_is_file_supported(&archive, i)) {
+			D_(D_INFO "Skipping unsupported file %s", filename);
+			continue;
+		}
+		if (libxmp_exclude_match(filename)) {
+			D_(D_INFO "Skipping file %s", filename);
+			continue;
+		}
 
-  return 0;
+		if (!mz_zip_reader_extract_to_callback(&archive, i, mz_zip_file_write_callback, out, 0)) {
+			D_(D_CRIT "Failed to extract %s: %s", filename, mz_zip_get_error_string(archive.m_last_error));
+			break;
+		}
+
+		mz_zip_reader_end(&archive);
+		return 0;
+	}
+
+	mz_zip_reader_end(&archive);
+#endif
+
+	return -1;
 }
 
 struct depacker libxmp_depacker_zip = {
