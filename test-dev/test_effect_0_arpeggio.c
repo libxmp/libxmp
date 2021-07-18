@@ -1,5 +1,4 @@
 #include "test.h"
-#include <math.h>
 #include "../src/effects.h"
 
 
@@ -11,14 +10,6 @@ Periodtable for Tuning 0, Normal
 
 Amiga limits: 907 to 108
 */
-
-#define PERIOD ((int)round(1.0 * info.channel_info[0].period / 4096))
-
-/* Get period from note */
-static int note_to_period(int n)
-{
-        return round (13696.0 / pow(2, (double)n / 12));
-}
 
 static void check_arpeggio(xmp_context opaque, int note, int val, int spd)
 {
