@@ -32,7 +32,7 @@ DIST		= libxmp-$(VERSION)
 DFILES		= README INSTALL install-sh configure configure.ac config.sub \
 		  config.guess Makefile.in libxmp.pc.in libxmp.map Makefile.vc \
 		  Makefile.os2 Makefile.w32 watcom.mif
-DDIRS		= docs include src loaders prowiz depackers test
+DDIRS		= docs include src loaders prowiz depackers test vc
 V		= 0
 LIB		= libxmp.a
 SOLIB		= libxmp.so
@@ -62,6 +62,8 @@ include src/loaders/Makefile
 include src/loaders/prowizard/Makefile
 include src/depackers/Makefile
 include test/Makefile
+include vc/Makefile
+
 ALL_OBJS=$(OBJS) @PROWIZARD_OBJS@ @DEPACKER_OBJS@
 
 LOBJS = $(ALL_OBJS:.o=.lo)

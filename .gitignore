@@ -26,6 +26,8 @@ test-dev/libxmp-test
 *.suo
 *.ncb
 Makefile.vc.tmp
+vc/Release
+vc/*.user
 
 # Module formats
 *.mod

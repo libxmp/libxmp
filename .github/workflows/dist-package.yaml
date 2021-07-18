@@ -11,7 +11,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Install dependencies
-        run: sudo apt update && sudo apt install docutils-common rst2pdf
+        run: sudo apt update && sudo apt install docutils-common rst2pdf dos2unix
       - name: Create and run configure script
         run: |
           autoconf
