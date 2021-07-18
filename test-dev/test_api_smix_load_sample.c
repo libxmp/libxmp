@@ -6,8 +6,7 @@ TEST(test_api_smix_load_sample)
 	xmp_context opaque;
 	struct context_data *ctx;
 	struct player_data *p;
-	struct mixer_voice *vi;
-	int voc, ret;
+	int ret;
 
 	opaque = xmp_create_context();
 	ctx = (struct context_data *)opaque;

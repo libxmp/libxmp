@@ -17,7 +17,7 @@ static int test_module_from_memory_helper(const char* filename, struct xmp_test_
 TEST(test_api_test_module_from_memory)
 {
 	struct xmp_test_info tinfo;
-	int ret, err;
+	int ret;
 	char* buf;
 
 	/* Sufficient to hold all file buffers */

@@ -7,7 +7,6 @@
 TEST(test_fuzzer_mod_no_null_terminator)
 {
 	xmp_context opaque;
-	struct xmp_module_info info;
 	int ret;
 
 	opaque = xmp_create_context();

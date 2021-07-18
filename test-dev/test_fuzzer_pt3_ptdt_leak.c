@@ -7,7 +7,6 @@
 TEST(test_fuzzer_pt3_ptdt_leak)
 {
 	xmp_context opaque;
-	struct xmp_module_info info;
 	int ret;
 
 	opaque = xmp_create_context();

@@ -8,7 +8,6 @@
 TEST(test_fuzzer_gal5_truncated_info)
 {
 	xmp_context opaque;
-	struct xmp_module_info info;
 	void *buffer;
 	long size;
 	int ret;

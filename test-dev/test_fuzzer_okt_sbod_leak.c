@@ -7,7 +7,6 @@
 TEST(test_fuzzer_okt_sbod_leak)
 {
 	xmp_context opaque;
-	struct xmp_module_info info;
 	int ret;
 
 	opaque = xmp_create_context();

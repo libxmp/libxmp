@@ -7,7 +7,6 @@
 TEST(test_fuzzer_gal5_channels_bound)
 {
 	xmp_context opaque;
-	struct xmp_module_info info;
 	int ret;
 
 	opaque = xmp_create_context();
