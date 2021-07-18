@@ -1,4 +1,7 @@
 #ifdef _WIN32
+#ifndef NO_FORK_TEST
+#define NO_FORK_TEST
+#endif
 #ifdef _MSC_VER
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -7,10 +10,15 @@
 #include <crtdbg.h>
 #endif
 #include <process.h> /* _spawnl, _P_WAIT */
-#elif !defined(__riscos__)
-#define FORK_TEST
 #endif
 
+#if defined(__riscos__) && !defined(NO_FORK_TEST)
+#define NO_FORK_TEST
+#endif
+
+#ifndef NO_FORK_TEST
+#define FORK_TEST 1
+#endif
 
 #ifdef FORK_TEST
 #include <sys/types.h>
