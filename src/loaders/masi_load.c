@@ -488,7 +488,7 @@ D_(D_CRIT "p%d r%d c%d: compressed event %02x %02x\n", i, r, chan, fxt, fxp);
 D_(D_CRIT "p%d r%d c%d: unknown effect %02x %02x\n", i, r, chan, fxt, fxp);
 					fxt = fxp = 0;
 				}
-	
+
 				event->fxt = fxt;
 				event->fxp = fxp;
 			}
@@ -608,7 +608,7 @@ static int subchunk_oplh(struct module_data *m, int size, HIO_HANDLE *f, void *p
 				break;
 			case 2:		/* surround */
 				xxc->pan = 0x80;
-                        	xxc->flg |= XMP_CHANNEL_SURROUND;
+				xxc->flg |= XMP_CHANNEL_SURROUND;
 				break;
 			case 4:		/* center */
 				xxc->pan = 0x80;
@@ -760,11 +760,11 @@ static int masi_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	libxmp_iff_release(handle);
 
 	mod->trk = mod->pat * mod->chn;
-	data.pnam = malloc(mod->pat * 8);	/* pattern names */
+	data.pnam = (uint8 *) malloc(mod->pat * 8);	/* pattern names */
 	if (data.pnam == NULL)
 		goto err;
 
-	data.pord = malloc(XMP_MAX_MOD_LENGTH * 8);	/* pattern orders */
+	data.pord = (uint8 *) malloc(XMP_MAX_MOD_LENGTH * 8);	/* pattern orders */
 	if (data.pord == NULL)
 		goto err2;
 

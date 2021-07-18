@@ -524,11 +524,11 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
     }
 
     mod->smp = smp_num;
-    mod->xxs = realloc(mod->xxs, sizeof (struct xmp_sample) * mod->smp);
+    mod->xxs = (struct xmp_sample *) realloc(mod->xxs, sizeof(struct xmp_sample) * mod->smp);
     if (mod->xxs == NULL) {
         return -1;
     }
-    m->xtra = realloc(m->xtra, sizeof (struct extra_sample_data) * mod->smp);
+    m->xtra = (struct extra_sample_data *) realloc(m->xtra, sizeof(struct extra_sample_data) * mod->smp);
     if (m->xtra == NULL) {
         return -1;
     }

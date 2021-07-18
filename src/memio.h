@@ -2,6 +2,7 @@
 #define LIBXMP_MEMIO_H
 
 #include <stddef.h>
+#include "common.h"
 
 typedef struct {
 	const unsigned char *start;
@@ -9,9 +10,7 @@ typedef struct {
 	ptrdiff_t size;
 } MFILE;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+LIBXMP_BEGIN_DECLS
 
 MFILE  *mopen(const void *, long);
 int     mgetc(MFILE *stream);
@@ -21,8 +20,6 @@ long    mtell(MFILE *);
 int     mclose(MFILE *);
 int	meof(MFILE *);
 
-#ifdef __cplusplus
-}
-#endif
+LIBXMP_END_DECLS
 
 #endif

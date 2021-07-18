@@ -144,7 +144,7 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	D_(D_INFO "Stored patterns: %d", mod->pat);
 
-	mod->xxp = calloc(sizeof(struct xmp_pattern *), mod->pat);
+	mod->xxp = (struct xmp_pattern **) calloc(mod->pat, sizeof(struct xmp_pattern *));
 	if (mod->xxp == NULL)
 		return -1;
 
@@ -306,7 +306,7 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	 * breaking modules that directly reference the empty track in the
 	 * order table (see "cosmos st.amf").
 	 */
-	trkmap = calloc(sizeof(int), mod->trk + 1);
+	trkmap = (int *) calloc(mod->trk + 1, sizeof(int));
 	if (trkmap == NULL)
 		return -1;
 	newtrk = 0;
@@ -339,7 +339,7 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	D_(D_INFO "Stored tracks: %d", mod->trk - 1);
 
-	mod->xxt = calloc (sizeof (struct xmp_track *), mod->trk);
+	mod->xxt = (struct xmp_track **) calloc(mod->trk, sizeof(struct xmp_track *));
 	if (mod->xxt == NULL)
 		return -1;
 

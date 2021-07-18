@@ -37,6 +37,12 @@ enum dec_sequence_index {
 	SEQ_INDEX_UNCOMPRESSED
 };
 
+#ifndef __cplusplus
+typedef enum xz_check xz_check_t;
+#else
+typedef int xz_check_t;
+#endif
+
 struct xz_dec {
 	/* Position in dec_main() */
 	enum dec_sequence_main sequence;
@@ -55,7 +61,7 @@ struct xz_dec {
 	uint32 crc32;
 
 	/* Type of the integrity check calculated from uncompressed data */
-	enum xz_check check_type;
+	xz_check_t check_type;
 
 	/* Operation mode */
 	enum xz_mode mode;
@@ -774,7 +780,7 @@ XZ_EXTERN enum xz_ret xz_dec_run(struct xz_dec *s, struct xz_buf *b)
 
 XZ_EXTERN struct xz_dec *xz_dec_init(enum xz_mode mode, uint32 dict_max)
 {
-	struct xz_dec *s = kmalloc(sizeof(*s), GFP_KERNEL);
+	struct xz_dec *s = (struct xz_dec *) kmalloc(sizeof(*s), GFP_KERNEL);
 	if (s == NULL)
 		return NULL;
 

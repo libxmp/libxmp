@@ -10,9 +10,7 @@ typedef struct {
 	int eof;
 } CBFILE;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+LIBXMP_BEGIN_DECLS
 
 static inline uint8 cbread8(CBFILE *f, int *err)
 {
@@ -183,8 +181,6 @@ static inline int cbclose(CBFILE *f)
 	return r;
 }
 
-#ifdef __cplusplus
-}
-#endif
+LIBXMP_END_DECLS
 
 #endif /* LIBXMP_CALLBACKIO_H */

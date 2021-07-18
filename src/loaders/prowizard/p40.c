@@ -176,7 +176,7 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 
 	hio_seek(in, trkdat_ofs + 4, SEEK_SET);
 
-	if ((tdata = calloc(512, 256)) == NULL) {
+	if ((tdata = (uint8 *)calloc(512, 256)) == NULL) {
 		return -1;
 	}
 

@@ -100,16 +100,17 @@ static int load_xm_pattern(struct module_data *m, int num, int version, HIO_HAND
 
 	size = xph.datasize;
 
-	pat = patbuf = (uint8 *)calloc(1, size);
+	pat = patbuf = (uint8 *) calloc(1, size);
 	if (patbuf == NULL) {
 		goto err;
 	}
 
 	hio_read(patbuf, 1, size, f);
 	for (j = 0; j < (mod->chn * r); j++) {
-
-		/*if ((pat - patbuf) >= xph.datasize)
-		   break; */
+		/*
+		if ((pat - patbuf) >= xph.datasize)
+			break;
+		*/
 
 		event = &EVENT(num, j % mod->chn, j / mod->chn);
 

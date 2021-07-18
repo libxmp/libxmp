@@ -121,7 +121,7 @@ static void do_clock(struct paula_state *paula, int cycles)
 
 #define VAR_NORM(x) \
     int smp_in; \
-    x *sptr = vi->sptr; \
+    x *sptr = (x *)vi->sptr; \
     unsigned int pos = vi->pos; \
     int frac = (1 << SMIX_SHIFT) * (vi->pos - (int)vi->pos)
 
@@ -130,33 +130,32 @@ static void do_clock(struct paula_state *paula, int cycles)
     vl <<= 8; \
     vr <<= 8
 
-
 MIXER(mono_a500)
 {
 	VAR_PAULA(int8);
 
 	LOOP { PAULA_SIMULATION(0); MIX_MONO(); }
-} 
+}
 
 MIXER(mono_a500_filter)
 {
 	VAR_PAULA(int8);
 
 	LOOP { PAULA_SIMULATION(1); MIX_MONO(); }
-} 
+}
 
 MIXER(stereo_a500)
 {
 	VAR_PAULA(int8);
 
 	LOOP { PAULA_SIMULATION(0); MIX_STEREO(); }
-} 
+}
 
 MIXER(stereo_a500_filter)
 {
 	VAR_PAULA(int8);
 
 	LOOP { PAULA_SIMULATION(1); MIX_STEREO(); }
-} 
+}
 
 #endif /* LIBXMP_PAULA_SIMULATOR */

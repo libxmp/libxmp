@@ -12,14 +12,10 @@
    (couldn't keep stdint types, some platforms we build on didn't like them)
 */
 
-/* #include <assert.h> */
+/*#include <assert.h>*/
 #include <sys/stat.h>
 #include "common.h"
 #include "depacker.h"
-
-/* #include "compat.h"
-
-#include "s404_dec.h" */
 
 
 struct bitstream {
@@ -383,7 +379,7 @@ static int decrunch_s404(FILE *in, /* size_t s, */ FILE *out)
     return -1;
   if (st.st_size <= 16)
     return -1;
-  src = buf = malloc(st.st_size);
+  src = buf = (uint8 *) malloc(st.st_size);
   if (src == NULL)
     return -1;
   if (fread(buf, 1, st.st_size, in) != st.st_size) {
@@ -400,7 +396,7 @@ static int decrunch_s404(FILE *in, /* size_t s, */ FILE *out)
     goto error;
   }
 
-  if ((dst = malloc(oLen)) == NULL) {
+  if ((dst = (uint8 *)malloc(oLen)) == NULL) {
     /*fprintf(stderr,"S404 Error: malloc(%d) failed..\n", oLen);*/
     goto error;
   }

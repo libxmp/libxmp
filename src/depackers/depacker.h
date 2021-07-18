@@ -22,8 +22,8 @@ extern struct depacker libxmp_depacker_xfd;
 extern struct depacker libxmp_depacker_oxm;
 
 struct depacker {
-	int (*const test)(unsigned char *);
-	int (*const depack)(FILE *, FILE *);
+	int (*test)(unsigned char *);
+	int (*depack)(FILE *, FILE *);
 };
 
 int	libxmp_decrunch		(HIO_HANDLE **h, const char *filename, char **temp);

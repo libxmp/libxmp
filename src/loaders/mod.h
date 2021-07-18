@@ -44,7 +44,6 @@ struct mod_header {
 	uint8 magic[4];
 };
 
-
 #ifndef LIBXMP_CORE_PLAYER
 /* Soundtracker 15-instrument module header */
 
@@ -57,6 +56,4 @@ struct st_header {
 };
 #endif
 
-extern const struct format_loader libxmp_loader_mod;
-
-#endif
+#endif  /* LIBXMP_LOADERS_MOD_H */

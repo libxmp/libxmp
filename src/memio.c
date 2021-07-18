@@ -93,7 +93,7 @@ MFILE *mopen(const void *ptr, long size)
 {
 	MFILE *m;
 
-	m = (MFILE *)malloc(sizeof (MFILE));
+	m = (MFILE *) malloc(sizeof(MFILE));
 	if (m == NULL)
 		return NULL;
 

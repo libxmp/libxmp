@@ -60,7 +60,8 @@ static int chip_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	LOAD_INIT();
 
-	if ((tidx = calloc(1, 1024)) == NULL) {
+	tidx = (uint8 *) calloc(1, 1024);
+	if (tidx == NULL) {
 		goto err;
 	}
 

@@ -95,8 +95,7 @@ int pw_wizardry(HIO_HANDLE *file_in, FILE *file_out, const char **name)
 {
 	const struct pw_format *format;
 
-  /**************************   SEARCH   ******************************/
-
+	/**********   SEARCH   **********/
 	format = pw_check(file_in, NULL);
 	if (format == NULL) {
 		return -1;
@@ -130,7 +129,7 @@ const struct pw_format *pw_check(HIO_HANDLE *f, struct xmp_test_info *info)
 	unsigned char *b;
 	int s = BUF_SIZE;
 
-	b = calloc(1, BUF_SIZE);
+	b = (unsigned char *) calloc(1, BUF_SIZE);
 	if (b == NULL)
 		return NULL;
 
@@ -141,7 +140,7 @@ const struct pw_format *pw_check(HIO_HANDLE *f, struct xmp_test_info *info)
 		res = pw_formats[i]->test(b, title, s);
 		if (res > 0) {
 			/* Extra data was requested. */
-			unsigned char *buf = realloc(b, s + res);
+			unsigned char *buf = (unsigned char *) realloc(b, s + res);
 			if (buf == NULL) {
 				free(b);
 				return NULL;

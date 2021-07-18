@@ -184,8 +184,6 @@ struct it_sample_header {
 	uint8 vit;		/* Vibrato waveform */
 };
 
-extern const struct format_loader libxmp_loader_it;
-
 int itsex_decompress8(HIO_HANDLE *src, uint8 *dst, int len, int it215);
 int itsex_decompress16(HIO_HANDLE *src, int16 *dst, int len, int it215);
 

@@ -511,7 +511,6 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
     }
 
     /* write pattern data */
-
     for (i = 0; i < npat; i++) {
 	memset(tmp, 0, sizeof(tmp));
 	for (j = 0; j < 64; j++) {
@@ -529,8 +528,7 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
     /*printf ( "writing sample data ... " ); */
     for (i = 0; i < nins; i++) {
 	hio_seek(in, sdata_addr + saddr[i], 0);
-	smp_buffer = malloc(smp_size[i]);
-	memset(smp_buffer, 0, smp_size[i]);
+	smp_buffer = (signed char *) calloc(1, smp_size[i]);
 	hio_read(smp_buffer, smp_size[i], 1, in);
 	if (use_delta == 1) {
 	    c1 = 0;
@@ -799,9 +797,7 @@ void testP61A_pack (void)
     }
 
     /* test sample data address */
-    j =
-	(data[start] << 8) + data[start +
-	1];
+    j = (data[start] << 8) + data[start + 1];
     if (j < (k * 6 + 8 + m * 8)) {
 /*printf ( "#6 Start:%ld\n" , start );*/
 	Test = BAD;

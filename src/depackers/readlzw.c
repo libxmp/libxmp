@@ -84,7 +84,8 @@ static unsigned char *convert_lzw_dynamic(unsigned char *data_in,
 	    return NULL;
 	}
 
-	if ((data_out = calloc(1, orig_len)) == NULL) {
+	data_out = (unsigned char *) calloc(1, orig_len);
+	if (data_out == NULL) {
 	/*  fprintf(stderr,"nomarch: out of memory!\n");*/
 	    return NULL;
 	}
@@ -225,7 +226,8 @@ unsigned char *libxmp_convert_lzw_dynamic(unsigned char *data_in,
 	struct local_data *data;
 	unsigned char *d;
 
-	if ((data = malloc(sizeof (struct local_data))) == NULL) {
+	data = (struct local_data *) malloc(sizeof(struct local_data));
+	if (data == NULL) {
 		goto err;
 	}
 
@@ -258,11 +260,13 @@ unsigned char *libxmp_read_lzw_dynamic(FILE *f, uint8 *buf, int max_bits,int use
 	struct local_data *data;
 	size_t read_len;
 
-	if ((data = malloc(sizeof (struct local_data))) == NULL) {
+	data = (struct local_data *) malloc(sizeof(struct local_data));
+	if (data == NULL) {
 		goto err;
 	}
 
-	if ((buf2 = malloc(in_len)) == NULL) {
+	buf2 = (uint8 *) malloc(in_len);
+	if (buf2 == NULL) {
 		//perror("read_lzw_dynamic");
 		goto err2;
 	}
@@ -313,7 +317,6 @@ static void code_resync(int old, struct local_data *data)
 	}
 }
 
-
 static void inittable(int orgcsize, struct local_data *data)
 {
 	int f;
@@ -346,7 +349,6 @@ static void inittable(int orgcsize, struct local_data *data)
 	    }
 	}
 }
-
 
 /* required for finding true table index in ver 1.x files */
 static int oldver_getidx(int oldcode,int chr, struct local_data *data)
@@ -404,7 +406,6 @@ static int oldver_getidx(int oldcode,int chr, struct local_data *data)
 	return hashval;
 }
 
-
 /* add a string specified by oldstring + chr to string table */
 int addstring(int oldcode,int chr, struct local_data *data)
 {
@@ -446,7 +447,6 @@ int addstring(int oldcode,int chr, struct local_data *data)
 
 	return 1;
 }
-
 
 /* read a code of bitlength numbits */
 static int readcode(int *newcode, int numbits, struct local_data *data)
@@ -506,7 +506,6 @@ static int readcode(int *newcode, int numbits, struct local_data *data)
 	return 1;
 }
 
-
 static void outputstring(int code, struct local_data *data)
 {
 	int *ptr = data->outputstring_buf;
@@ -522,7 +521,6 @@ static void outputstring(int code, struct local_data *data)
 	}
 }
 
-
 static void rawoutput(int byte, struct data_in_out *io)
 {
 	//static int i = 0;
@@ -531,7 +529,6 @@ static void rawoutput(int byte, struct data_in_out *io)
 	}
 	//printf(" output = %02x <================ %06x\n", byte, i++);
 }
-
 
 static void outputchr(int chr, struct local_data *data)
 {
@@ -542,7 +539,6 @@ static void outputchr(int chr, struct local_data *data)
 	    rawoutput(chr,&data->io);
 	}
 }
-
 
 static int findfirstchr(int code, struct local_data *data)
 {

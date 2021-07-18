@@ -141,7 +141,7 @@ static int c669_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     MODULE_INFO();
 
-    m->comment = malloc(109);
+    m->comment = (char *) malloc(109);
     memcpy(m->comment, sfh.message, 108);
     m->comment[108] = 0;
 

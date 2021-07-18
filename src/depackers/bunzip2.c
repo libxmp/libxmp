@@ -514,8 +514,8 @@ static int start_bunzip(bunzip_data **bdp, FILE *in, char *inbuf, int len)
 	i=sizeof(bunzip_data);
 	if(in!=NULL) i+=IOBUF_SIZE;
 	/* Allocate bunzip_data.  Most fields initialize to zero. */
-	if(!(bd=*bdp=malloc(i))) return RETVAL_OUT_OF_MEMORY;
-	memset(bd,0,sizeof(bunzip_data));
+	bd=*bdp=(bunzip_data *) calloc(1,i);
+	if(!bd) return RETVAL_OUT_OF_MEMORY;
 	/* Setup input buffer */
 	if(NULL==(bd->in=in)) {
 		bd->inbuf=(unsigned char *)inbuf;
@@ -544,7 +544,8 @@ static int start_bunzip(bunzip_data **bdp, FILE *in, char *inbuf, int len)
 	   uncompressed data.  Allocate intermediate buffer for block. */
 	bd->dbufSize=100000*(i-BZh0);
 
-	if(!(bd->dbuf=malloc(bd->dbufSize * sizeof(unsigned int))))
+	bd->dbuf=(unsigned int *) malloc(bd->dbufSize * sizeof(unsigned int));
+	if (!bd->dbuf)
 		return RETVAL_OUT_OF_MEMORY;
 	return RETVAL_OK;
 }
@@ -564,7 +565,8 @@ static int decrunch_bzip2(FILE *src, FILE *dst)
 
 	libxmp_crc32_init_B();
 
-	if(!(outbuf=malloc(IOBUF_SIZE))) return RETVAL_OUT_OF_MEMORY;
+	outbuf=(char *)malloc(IOBUF_SIZE);
+	if(!outbuf) return RETVAL_OUT_OF_MEMORY;
 	if(!(i=start_bunzip(&bd,src,0,0))) {
 		for(;;) {
 			if((i=read_bunzip(bd,outbuf,IOBUF_SIZE)) <= 0) break;

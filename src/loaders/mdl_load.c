@@ -108,28 +108,28 @@ static void fix_env(int i, struct xmp_envelope *ei, struct mdl_envelope *env,
 	ei->npt = 15;
 
 	for (j = 0; j < envnum; j++) {
-    	    if (idx[i] == env[j].num) {
-    	        ei->flg |= env[j].sus & 0x10 ? XMP_ENVELOPE_SUS : 0;
-    	        ei->flg |= env[j].sus & 0x20 ? XMP_ENVELOPE_LOOP : 0;
-    	        ei->sus = env[j].sus & 0x0f;
-    	        ei->lps = env[j].loop & 0x0f;
-    	        ei->lpe = env[j].loop & 0xf0;
+	    if (idx[i] == env[j].num) {
+	        ei->flg |= env[j].sus & 0x10 ? XMP_ENVELOPE_SUS : 0;
+	        ei->flg |= env[j].sus & 0x20 ? XMP_ENVELOPE_LOOP : 0;
+	        ei->sus = env[j].sus & 0x0f;
+	        ei->lps = env[j].loop & 0x0f;
+	        ei->lpe = env[j].loop & 0xf0;
 
 		lastx = -1;
 
-    	        for (k = 0; k < ei->npt; k++) {
+		for (k = 0; k < ei->npt; k++) {
 		    int x = env[j].data[k * 2];
 
-        	    if (x == 0)
-        		    break;
-        	    ei->data[k * 2] = lastx + x;
-        	    ei->data[k * 2 + 1] = env[j].data[k * 2 + 1];
+		    if (x == 0)
+			break;
+		    ei->data[k * 2] = lastx + x;
+		    ei->data[k * 2 + 1] = env[j].data[k * 2 + 1];
 
 		    lastx = ei->data[k * 2];
-        	}
+		}
 
-        	ei->npt = k;
-        	break;
+		ei->npt = k;
+		break;
             }
         }
     }
@@ -434,7 +434,8 @@ static int get_chunk_pa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 
     mod->pat = hio_read8(f);
 
-    if ((mod->xxp = calloc(sizeof (struct xmp_pattern *), mod->pat)) == NULL)
+    mod->xxp = (struct xmp_pattern **) calloc(mod->pat, sizeof(struct xmp_pattern *));
+    if (mod->xxp == NULL)
         return -1;
 
     D_(D_INFO "Stored patterns: %d", mod->pat);
@@ -474,7 +475,8 @@ static int get_chunk_p0(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 
     mod->pat = hio_read8(f);
 
-    if ((mod->xxp = calloc(sizeof (struct xmp_pattern *), mod->pat)) == NULL)
+    mod->xxp = (struct xmp_pattern **) calloc(mod->pat, sizeof(struct xmp_pattern *));
+    if (mod->xxp == NULL)
         return -1;
 
     D_(D_INFO "Stored patterns: %d", mod->pat);
@@ -523,13 +525,14 @@ static int get_chunk_tr(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	return -1;
     }
 
-    if ((mod->xxt = calloc(sizeof (struct xmp_track *), mod->trk)) == NULL)
+    mod->xxt = (struct xmp_track **) calloc(mod->trk, sizeof(struct xmp_track *));
+    if (mod->xxt == NULL)
 	return -1;
 
     D_(D_INFO "Stored tracks: %d", mod->trk);
 
-    track = calloc(1, sizeof (struct xmp_track) +
-			sizeof (struct xmp_event) * 255);
+    track = (struct xmp_track *) calloc(1, sizeof(struct xmp_track) +
+					   sizeof(struct xmp_event) * 255);
     if (track == NULL)
 	goto err;
 
@@ -541,8 +544,8 @@ static int get_chunk_tr(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	/* Length of the track in bytes */
 	len = hio_read16l(f);
 
-	memset(track, 0, sizeof (struct xmp_track) +
-            			sizeof (struct xmp_event) * 255);
+	memset(track, 0, sizeof(struct xmp_track) +
+			 sizeof(struct xmp_event) * 255);
 
 	for (row = 0; len;) {
 	    struct xmp_event *ev;
@@ -652,7 +655,8 @@ static int get_chunk_ii(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     mod->ins = hio_read8(f);
     D_(D_INFO "Instruments: %d", mod->ins);
 
-    if ((mod->xxi = calloc(sizeof (struct xmp_instrument), mod->ins)) == NULL)
+    mod->xxi = (struct xmp_instrument *) calloc(mod->ins, sizeof(struct xmp_instrument));
+    if (mod->xxi == NULL)
 	return -1;
 
     for (i = 0; i < mod->ins; i++) {
@@ -741,12 +745,14 @@ static int get_chunk_is(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     data->has_is = 1;
 
     mod->smp = hio_read8(f);
-    if ((mod->xxs = calloc(sizeof (struct xmp_sample), mod->smp)) == NULL)
+    mod->xxs = (struct xmp_sample *) calloc(mod->smp, sizeof(struct xmp_sample));
+    if (mod->xxs == NULL)
 	return -1;
-    if ((m->xtra = calloc(sizeof (struct extra_sample_data), mod->smp)) == NULL)
+    m->xtra = (struct extra_sample_data *) calloc(mod->smp, sizeof(struct extra_sample_data));
+    if (m->xtra == NULL)
         return -1;
 
-    data->packinfo = calloc(sizeof (int), mod->smp);
+    data->packinfo = (int *) calloc(mod->smp, sizeof(int));
     if (data->packinfo == NULL)
 	return -1;
 
@@ -830,7 +836,8 @@ static int get_chunk_i0(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     if (libxmp_init_instrument(m) < 0)
 	return -1;
 
-    if ((data->packinfo = calloc(sizeof (int), mod->smp)) == NULL)
+    data->packinfo = (int *) calloc(mod->smp, sizeof(int));
+    if (data->packinfo == NULL)
 	return -1;
 
     for (i = 0; i < mod->ins; i++) {
@@ -950,7 +957,7 @@ static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	}
 
 	if (len > smpbuf_alloc) {
-	    uint8 *tmp = realloc(smpbuf, len);
+	    uint8 *tmp = (uint8 *) realloc(smpbuf, len);
 	    if (!tmp)
 		goto err2;
 
@@ -973,7 +980,7 @@ static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
                 goto err2;
             if (len <= 0 || len > 0x80000)  /* Max compressed sample size */
                 goto err2;
-	    if ((buf = malloc(len + 4)) == NULL)
+	    if ((buf = (uint8 *)malloc(len + 4)) == NULL)
 		goto err2;
 	    if (hio_read(buf, 1, len, f) != len) {
 		D_(D_CRIT "sample %d read error (8-bit)", i);
@@ -995,7 +1002,7 @@ static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
                 goto err2;
             if (len <= 0 || len > MAX_SAMPLE_SIZE)
                 goto err2;
-	    if ((buf = malloc(len + 4)) == NULL)
+	    if ((buf = (uint8 *)malloc(len + 4)) == NULL)
 		goto err2;
 	    if (hio_read(buf, 1, len, f) != len) {
 		D_(D_CRIT "sample %d read error (16-bit)", i);
@@ -1041,7 +1048,7 @@ static int get_chunk_ve(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 
     D_(D_INFO "Vol envelopes: %d", data->v_envnum);
 
-    data->v_env = calloc(data->v_envnum, sizeof (struct mdl_envelope));
+    data->v_env = (struct mdl_envelope *) calloc(data->v_envnum, sizeof(struct mdl_envelope));
     if (data->v_env == NULL) {
 	return -1;
     }
@@ -1072,7 +1079,7 @@ static int get_chunk_pe(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 
     D_(D_INFO "Pan envelopes: %d", data->p_envnum);
 
-    data->p_env = calloc(data->p_envnum, sizeof (struct mdl_envelope));
+    data->p_env = (struct mdl_envelope *) calloc(data->p_envnum, sizeof(struct mdl_envelope));
     if (data->p_env == NULL) {
 	return -1;
     }
@@ -1103,7 +1110,7 @@ static int get_chunk_fe(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 
     D_(D_INFO "Pitch envelopes: %d", data->f_envnum);
 
-    data->f_env = calloc(data->f_envnum, sizeof (struct mdl_envelope));
+    data->f_env = (struct mdl_envelope *) calloc(data->f_envnum, sizeof(struct mdl_envelope));
     if (data->f_env == NULL) {
 	return -1;
     }
@@ -1170,11 +1177,11 @@ static int mdl_load(struct module_data *m, HIO_HANDLE *f, const int start)
     m->c4rate = C4_NTSC_RATE;
 
     data.v_envnum = data.p_envnum = data.f_envnum = 0;
-    data.s_index = calloc(256, sizeof (int));
-    data.i_index = calloc(256, sizeof (int));
-    data.v_index = malloc(256 * sizeof (int));
-    data.p_index = malloc(256 * sizeof (int));
-    data.f_index = malloc(256 * sizeof (int));
+    data.s_index = (int *) calloc(256, sizeof(int));
+    data.i_index = (int *) calloc(256, sizeof(int));
+    data.v_index = (int *) malloc(256 * sizeof(int));
+    data.p_index = (int *) malloc(256 * sizeof(int));
+    data.f_index = (int *) malloc(256 * sizeof(int));
     if (!data.s_index || !data.i_index || !data.v_index || !data.p_index || !data.f_index) {
 	goto err;
     }
@@ -1185,7 +1192,7 @@ static int mdl_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     /* Load IFFoid chunks */
     if (libxmp_iff_load(handle, m, f, &data) < 0) {
-    	libxmp_iff_release(handle);
+	libxmp_iff_release(handle);
 	retval = -1;
 	goto err;
     }

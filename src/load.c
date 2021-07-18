@@ -71,7 +71,7 @@ static char *get_dirname(const char *name)
 
 	if ((p = strrchr(name, '/')) != NULL) {
 		len = p - name + 1;
-		dirname = malloc(len + 1);
+		dirname = (char *) malloc(len + 1);
 		if (dirname != NULL) {
 			memcpy(dirname, name, len);
 			dirname[len] = 0;

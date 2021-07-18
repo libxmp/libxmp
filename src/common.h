@@ -15,6 +15,14 @@
 #define LIBXMP_EXPORT_VAR
 #endif
 
+#ifndef __cplusplus
+#define LIBXMP_BEGIN_DECLS
+#define LIBXMP_END_DECLS
+#else
+#define LIBXMP_BEGIN_DECLS	extern "C" {
+#define LIBXMP_END_DECLS	}
+#endif
+
 #if defined(__MORPHOS__) || defined(__AROS__) || defined(AMIGAOS) || \
     defined(__amigaos__) || defined(__amigaos4__) ||defined(__amigados__) || \
     defined(AMIGA) || defined(_AMIGA) || defined(__AMIGA__)
@@ -106,7 +114,8 @@ typedef signed long long int64;
 #endif
 void CLIB_DECL D_(const char *text, ...) ATTR_PRINTF(1,2);
 #else
-// VS prior to VC7.1 does not support variadic macros. VC8.0 does not optimize unused parameters passing
+/* VS prior to VC7.1 does not support variadic macros.
+ * VC8.0 does not optimize unused parameters passing. */
 #if _MSC_VER < 1400
 void __inline CLIB_DECL D_(const char *text, ...) { do {} while (0); }
 #else
@@ -257,7 +266,6 @@ struct ord_data {
 	int st26_speed;
 #endif
 };
-
 
 
 /* Context */

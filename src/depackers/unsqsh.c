@@ -400,10 +400,10 @@ static int decrunch_sqsh(FILE * f, FILE * fo)
 	if (destlen < 0 || destlen > 0x100000)
 		goto err;
 
-	if ((src = malloc(srclen + 3)) == NULL)
+	if ((src = (unsigned char *)malloc(srclen + 3)) == NULL)
 		goto err;
 
-	if ((dest = malloc(destlen + 100)) == NULL)
+	if ((dest = (unsigned char *)malloc(destlen + 100)) == NULL)
 		goto err2;
 
 	if (fread(src, srclen - 8, 1, f) != 1)

@@ -56,7 +56,7 @@ void libxmp_hmn_play_extras(struct context_data *ctx, struct channel_data *xc, i
 {
 	struct player_data *p = &ctx->p;
 	struct module_data *m = &ctx->m;
-	struct hmn_channel_extras *ce = xc->extra;
+	struct hmn_channel_extras *ce = (struct hmn_channel_extras *)xc->extra;
 	struct xmp_instrument *xxi;
 	int pos, waveform, volume;
 
@@ -88,7 +88,6 @@ int libxmp_hmn_new_instrument_extras(struct xmp_instrument *xxi)
 	if (xxi->extra == NULL)
 		return -1;
 	HMN_INSTRUMENT_EXTRAS((*xxi))->magic = HMN_EXTRAS_MAGIC;
-
 	return 0;
 }
 
@@ -98,7 +97,6 @@ int libxmp_hmn_new_channel_extras(struct channel_data *xc)
 	if (xc->extra == NULL)
 		return -1;
 	HMN_CHANNEL_EXTRAS((*xc))->magic = HMN_EXTRAS_MAGIC;
-
 	return 0;
 }
 
@@ -119,7 +117,6 @@ int libxmp_hmn_new_module_extras(struct module_data *m)
 	if (m->extra == NULL)
 		return -1;
 	HMN_MODULE_EXTRAS((*m))->magic = HMN_EXTRAS_MAGIC;
-
 	return 0;
 }
 

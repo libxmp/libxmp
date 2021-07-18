@@ -108,7 +108,8 @@ static unsigned char *read_file_data(FILE *in,
 	if (siz <= 0 || fstat(fileno(in), &st) != 0 || st.st_size < siz)
 		return NULL;
 
-	if ((data = malloc(siz)) == NULL) {
+	data = (unsigned char *) malloc(siz);
+	if (data == NULL) {
 		goto err;
 	}
 	if (fseek(in, hdrp->offset, SEEK_SET) < 0) {

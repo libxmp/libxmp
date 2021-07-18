@@ -137,7 +137,7 @@ struct lzma_dec {
 	uint32 rep3;
 
 	/* Types of the most recently seen LZMA symbols */
-	enum lzma_state state;
+	lzma_state_t state;
 
 	/*
 	 * Length of a match. This is updated so that dict_repeat can
@@ -1106,7 +1106,7 @@ XZ_EXTERN enum xz_ret xz_dec_lzma2_run(struct xz_dec_lzma2 *s,
 XZ_EXTERN struct xz_dec_lzma2 *xz_dec_lzma2_create(enum xz_mode mode,
 						   uint32 dict_max)
 {
-	struct xz_dec_lzma2 *s = kmalloc(sizeof(*s), GFP_KERNEL);
+	struct xz_dec_lzma2 *s = (struct xz_dec_lzma2 *) kmalloc(sizeof(*s), GFP_KERNEL);
 	if (s == NULL)
 		return NULL;
 
@@ -1114,7 +1114,7 @@ XZ_EXTERN struct xz_dec_lzma2 *xz_dec_lzma2_create(enum xz_mode mode,
 	s->dict.size_max = dict_max;
 
 	if (DEC_IS_PREALLOC(mode)) {
-		s->dict.buf = vmalloc(dict_max);
+		s->dict.buf = (uint8 *) vmalloc(dict_max);
 		if (s->dict.buf == NULL) {
 			kfree(s);
 			return NULL;
@@ -1145,7 +1145,7 @@ XZ_EXTERN enum xz_ret xz_dec_lzma2_reset(struct xz_dec_lzma2 *s, uint8 props)
 		if (DEC_IS_DYNALLOC(s->dict.mode)) {
 			if (s->dict.allocated < s->dict.size) {
 				vfree(s->dict.buf);
-				s->dict.buf = vmalloc(s->dict.size);
+				s->dict.buf = (uint8 *) vmalloc(s->dict.size);
 				if (s->dict.buf == NULL) {
 					s->dict.allocated = 0;
 					return XZ_MEM_ERROR;

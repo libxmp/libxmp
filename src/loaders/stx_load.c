@@ -206,11 +206,11 @@ static int stx_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	MODULE_INFO();
 
-	pp_pat = calloc(2, mod->pat);
+	pp_pat = (uint16 *) calloc(mod->pat, sizeof(uint16));
 	if (pp_pat == NULL)
 		goto err;
 
-	pp_ins = calloc(2, mod->ins);
+	pp_ins = (uint16 *) calloc(mod->ins, sizeof(uint16));
 	if (pp_ins == NULL)
 		goto err2;
 
@@ -237,7 +237,6 @@ static int stx_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		goto err3;
 
 	/* Read and convert instruments and samples */
-
 	for (i = 0; i < mod->ins; i++) {
 		if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 			goto err3;

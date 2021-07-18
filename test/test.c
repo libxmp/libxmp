@@ -29,7 +29,7 @@ static void convert_endian(unsigned char *p, int l)
 	}
 }
 
-static int compare_md5(unsigned char *d, char *digest)
+static int compare_md5(unsigned char *d, const char *digest)
 {
 	int i;
 
@@ -94,9 +94,9 @@ int main()
 		time += info.frame_time;
 
 		if (is_big_endian())
-			convert_endian(info.buffer, info.buffer_size >> 1);
+			convert_endian((unsigned char *)info.buffer, info.buffer_size >> 1);
 
-		MD5Update(&ctx, info.buffer, info.buffer_size);
+		MD5Update(&ctx, (unsigned char *)info.buffer, info.buffer_size);
 
 		printf(".");
 		fflush(stdout);

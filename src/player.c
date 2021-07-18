@@ -53,7 +53,6 @@ static const struct retrig_control rval[] = {
 	{   0,  1,  1 }, {   1,  1,  1 }, {   2,  1,  1 }, {   4,  1,  1 },
 	{   8,  1,  1 }, {  16,  1,  1 }, {   0,  3,  2 }, {   0,  2,  1 },
 	{   0,  0,  1 }		/* Note cut */
-
 };
 
 
@@ -1566,13 +1565,13 @@ int xmp_start_player(xmp_context opaque, int rate, int format)
 	f->pbreak = 0;
 	f->rowdelay_set = 0;
 
-	f->loop = (struct pattern_loop *)calloc(p->virt.virt_channels, sizeof(struct pattern_loop));
+	f->loop = (struct pattern_loop *) calloc(p->virt.virt_channels, sizeof(struct pattern_loop));
 	if (f->loop == NULL) {
 		ret = -XMP_ERROR_SYSTEM;
 		goto err;
 	}
 
-	p->xc_data = (struct channel_data *)calloc(p->virt.virt_channels, sizeof(struct channel_data));
+	p->xc_data = (struct channel_data *) calloc(p->virt.virt_channels, sizeof(struct channel_data));
 	if (p->xc_data == NULL) {
 		ret = -XMP_ERROR_SYSTEM;
 		goto err1;
