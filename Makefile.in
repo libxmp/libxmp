@@ -32,7 +32,7 @@ DIST		= libxmp-$(VERSION)
 DFILES		= README INSTALL install-sh configure configure.ac config.sub \
 		  config.guess Makefile.in libxmp.pc.in libxmp.map Makefile.vc \
 		  Makefile.os2 Makefile.w32 watcom.mif
-DDIRS		= docs include src loaders prowiz depackers win32 test
+DDIRS		= docs include src loaders prowiz depackers test
 V		= 0
 LIB		= libxmp.a
 SOLIB		= libxmp.so
@@ -45,7 +45,6 @@ GCLIB		= libxmp-gc.a
 DYLIB_COMPAT	= -compatibility_version,$(COMPAT_VERSION),
 
 DARWIN_VERSION	= @DARWIN_VERSION@
-PLATFORM_DIR	= @PLATFORM_DIR@
 
 # https://github.com/cmatsuoka/libxmp/issues/1
 ifneq ($(DARWIN_VERSION),)
@@ -62,7 +61,6 @@ include src/Makefile
 include src/loaders/Makefile
 include src/loaders/prowizard/Makefile
 include src/depackers/Makefile
-include src/win32/Makefile
 include test/Makefile
 ALL_OBJS=$(OBJS) @PROWIZARD_OBJS@ @DEPACKER_OBJS@
 

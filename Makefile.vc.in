@@ -25,7 +25,7 @@ CFLAGS	= $(CFLAGS) /DLIBXMP_NO_PROWIZARD
 CFLAGS  = $(CFLAGS) /DLIBXMP_NO_DEPACKERS
 !endif
 
-OBJS	= @OBJS@ src\win32\ptpopen.obj
+OBJS	= @OBJS@
 PROWIZ_OBJS	= @POBJS@
 DEPACKER_OBJS	= @DOBJS@
 ALL_OBJS	= $(OBJS)
@@ -56,3 +56,4 @@ check: $(TEST)
 	$(LD) /RELEASE /OUT:test\libxmp-test.exe $(TEST) libxmp.lib
 	copy libxmp.dll test
 	cd test & libxmp-test
+

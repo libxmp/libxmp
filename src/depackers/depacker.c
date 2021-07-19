@@ -38,7 +38,7 @@
  *
  * This popen reimplementation uses CreateProcess instead and should be safe.
  */
-#include "win32/ptpopen.h"
+#include "ptpopen.h"
 #ifndef HAVE_POPEN
 #define HAVE_POPEN 1
 #endif
@@ -79,9 +79,11 @@ int test_oxm		(FILE *);
 #if defined(HAVE_FORK) && defined(HAVE_PIPE) && defined(HAVE_EXECVP) && \
     defined(HAVE_DUP2) && defined(HAVE_WAIT)
 #define DECRUNCH_USE_FORK
+
 #elif defined(HAVE_POPEN) && \
     (defined(_WIN32) || defined(__OS2__) || defined(__EMX__) || defined(__DJGPP__) || defined(__riscos__))
 #define DECRUNCH_USE_POPEN
+
 #else
 static int execute_command(const char * const cmd[], FILE *t) {
 	return -1;
