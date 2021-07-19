@@ -7,7 +7,6 @@ AC_ARG_ENABLE(shared,    [  --disable-shared        Don't build shared library])
 AC_SUBST(LD_VERSCRIPT)
 AC_SUBST(LIBM)
 AC_SUBST(DARWIN_VERSION)
-AC_SUBST(PLATFORM_DIR)
 AC_CANONICAL_HOST
 AC_PROG_CC
 AC_CHECK_TOOL(LD, [ld], [:])
@@ -63,9 +62,6 @@ darwin*)
 cygwin* | *djgpp | mint* | amigaos* |aros* | morphos*)
   enable_static=yes
   enable_shared=no
-  ;;
-mingw* | msys*)
-  PLATFORM_DIR=win32
   ;;
 esac
 

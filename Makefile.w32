@@ -31,7 +31,4 @@ CFLAGS += -wcd=303
 CFLAGS += -5s
 CFLAGS += -I"$(%WATCOM)/h/nt"
 
-OS_OBJS = ptpopen.obj
-.c: src/win32
-
 !include watcom.mif

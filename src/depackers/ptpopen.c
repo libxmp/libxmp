@@ -234,4 +234,4 @@ int pt_pclose(FILE *fle, struct pt_popen_data **data)
   return -1;
 }
 
-#endif /* !HAVE_POPEN && WIN32 */
+#endif /* WIN32 */

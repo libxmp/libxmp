@@ -1,6 +1,8 @@
 #ifndef _PT_POPEN_H
 #define _PT_POPEN_H 1
 
+#ifdef _WIN32
+
 #include <stdio.h>
 
 #undef  popen
@@ -21,5 +23,6 @@ int	pt_pclose(FILE *fle, struct pt_popen_data **data);
 }
 #endif
 
-#endif /* _PT_POPEN_H */
+#endif /* _WIN32 */
 
+#endif /* _PT_POPEN_H */
