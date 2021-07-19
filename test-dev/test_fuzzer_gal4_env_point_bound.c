@@ -14,7 +14,7 @@ TEST(test_fuzzer_gal4_env_point_bound)
 	f = fopen("data/f/load_gal4_env_point_bound.data", "r");
 
 	opaque = xmp_create_context();
-	ret = xmp_load_module(opaque, "data/f/load_gal4_env_point_bound.j2b");
+	ret = xmp_load_module(opaque, "data/f/load_gal4_env_point_bound");
 	fail_unless(ret == 0, "module load");
 
 	xmp_get_module_info(opaque, &info);

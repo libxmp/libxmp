@@ -10,7 +10,7 @@ TEST(test_fuzzer_gal5_channels_bound)
 	int ret;
 
 	opaque = xmp_create_context();
-	ret = xmp_load_module(opaque, "data/f/load_gal5_channels_bound.j2b");
+	ret = xmp_load_module(opaque, "data/f/load_gal5_channels_bound");
 	fail_unless(ret == -XMP_ERROR_LOAD, "module load");
 
 	xmp_free_context(opaque);
