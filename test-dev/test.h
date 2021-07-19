@@ -1,4 +1,5 @@
 #include <xmp.h>
+#include <math.h>
 
 #if defined(_MSC_VER) || defined(__WATCOMC__)
 #include <io.h>
@@ -33,6 +34,19 @@ static inline int is_big_endian() {
 	uint16 w = 0x00ff;
 	return (*(char *)&w == 0x00);
 }
+
+static inline double libxmp_round(double val)
+{
+	return (val >= 0.0)? floor(val + 0.5) : ceil(val - 0.5);
+}
+
+/* Get period from note */
+static inline int note_to_period(int n)
+{
+        return (int)libxmp_round (13696.0 / pow(2, (double)n / 12));
+}
+
+#define PERIOD ((int)libxmp_round(1.0 * info.channel_info[0].period / 4096))
 
 int map_channel(struct player_data *, int);
 int play_frame(struct context_data *);

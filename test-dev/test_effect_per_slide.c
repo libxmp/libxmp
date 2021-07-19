@@ -1,5 +1,4 @@
 #include "test.h"
-#include <math.h>
 #include "../src/effects.h"
 
 /*
@@ -10,8 +9,6 @@ Periodtable for Tuning 0, Normal
 
 Amiga limits: 907 to 108
 */
-
-#define PERIOD ((int)round(1.0 * info.channel_info[0].period / 4096))
 
 TEST(test_effect_per_slide)
 {
