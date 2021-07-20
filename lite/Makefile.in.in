@@ -61,7 +61,7 @@ LOBJS = $(OBJS:.o=.lo)
 
 GCOBJS = $(OBJS:.o=.gco)
 
-CFLAGS += -Iinclude/libxmp-lite -Isrc
+CFLAGS += -Iinclude/libxmp-lite
 
 .SUFFIXES: .c .o .lo .a .so .dll .in .gco .gcda .gcno
 
