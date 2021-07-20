@@ -187,6 +187,8 @@ const char *mz_version(void)
 
 #ifndef MINIZ_NO_ZLIB_APIS
 
+#ifndef MINIZ_NO_DEFLATE_APIS
+
 int mz_deflateInit(mz_streamp pStream, int level)
 {
     return mz_deflateInit2(pStream, level, MZ_DEFLATED, MZ_DEFAULT_WINDOW_BITS, 9, MZ_DEFAULT_STRATEGY);
@@ -353,6 +355,10 @@ mz_ulong mz_compressBound(mz_ulong source_len)
 {
     return mz_deflateBound(NULL, source_len);
 }
+
+#endif /*#ifndef MINIZ_NO_DEFLATE_APIS*/
+
+#ifndef MINIZ_NO_INFLATE_APIS
 
 typedef struct
 {
@@ -589,6 +595,8 @@ int mz_uncompress(unsigned char *pDest, mz_ulong *pDest_len, const unsigned char
     return mz_uncompress2(pDest, pDest_len, pSource, &source_len);
 }
 
+#endif /*#ifndef MINIZ_NO_INFLATE_APIS*/
+
 const char *mz_error(int err)
 {
     static struct
@@ -665,6 +673,8 @@ const char *mz_error(int err)
  **************************************************************************/
 
 
+
+#ifndef MINIZ_NO_DEFLATE_APIS
 
 #ifdef __cplusplus
 extern "C" {
@@ -2215,6 +2225,8 @@ void tdefl_compressor_free(tdefl_compressor *pComp)
 #ifdef __cplusplus
 }
 #endif
+
+#endif /*#ifndef MINIZ_NO_DEFLATE_APIS*/
  /**************************************************************************
  *
  * Copyright 2013-2014 RAD Game Tools and Valve Software
@@ -2242,6 +2254,8 @@ void tdefl_compressor_free(tdefl_compressor *pComp)
  **************************************************************************/
 
 
+
+#ifndef MINIZ_NO_INFLATE_APIS
 
 #ifdef __cplusplus
 extern "C" {
@@ -2955,6 +2969,8 @@ void tinfl_decompressor_free(tinfl_decompressor *pDecomp)
 #ifdef __cplusplus
 }
 #endif
+
+#endif /*#ifndef MINIZ_NO_INFLATE_APIS*/
  /**************************************************************************
  *
  * Copyright 2013-2014 RAD Game Tools and Valve Software
