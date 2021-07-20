@@ -1,3 +1,6 @@
+#ifndef NDEBUG
+#define NDEBUG /* disable assert()s */
+#endif
 #define STB_VORBIS_NO_PUSHDATA_API
 #define STB_VORBIS_NO_STDIO
 #define STB_VORBIS_NO_COMMENTS
