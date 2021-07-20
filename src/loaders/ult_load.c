@@ -30,7 +30,7 @@
  */
 
 #include "loader.h"
-#include "period.h"
+#include "../period.h"
 
 
 static int ult_test (HIO_HANDLE *, char *, const int);

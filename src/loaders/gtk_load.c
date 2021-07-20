@@ -21,7 +21,7 @@
  */
 
 #include "loader.h"
-#include "period.h"
+#include "../period.h"
 
 
 static int gtk_test(HIO_HANDLE *, char *, const int);

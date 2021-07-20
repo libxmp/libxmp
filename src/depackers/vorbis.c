@@ -652,7 +652,7 @@ enum STBVorbisError
 
 /* libxmp-specific change */
 #if 1
-#include "common.h"
+#include "../common.h"
 #else
 typedef unsigned char  uint8;
 typedef   signed char   int8;

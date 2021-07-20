@@ -21,7 +21,7 @@
  */
 
 #include "loader.h"
-#include "period.h"
+#include "../period.h"
 
 #define MAGIC_MGT	MAGIC4(0x00,'M','G','T')
 #define MAGIC_MCS	MAGIC4(0xbd,'M','C','S')

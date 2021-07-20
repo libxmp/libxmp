@@ -65,7 +65,7 @@
 #include <limits.h>
 #include "loader.h"
 #include "iff.h"
-#include "period.h"
+#include "../period.h"
 
 #define MAGIC_PSM_	MAGIC4('P','S','M',' ')
 #define MAGIC_FILE	MAGIC4('F','I','L','E')

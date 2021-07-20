@@ -22,7 +22,7 @@
 
 #include "loader.h"
 #include "iff.h"
-#include "period.h"
+#include "../period.h"
 
 #define MAGIC_D_T_	MAGIC4('D','.','T','.')
 

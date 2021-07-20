@@ -26,7 +26,7 @@
 
 #include "med.h"
 #include "loader.h"
-#include "med_extras.h"
+#include "../med_extras.h"
 
 static int mmd1_test(HIO_HANDLE *, char *, const int);
 static int mmd1_load (struct module_data *, HIO_HANDLE *, const int);

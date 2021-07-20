@@ -22,10 +22,10 @@
 
 #include "loader.h"
 #ifndef LIBXMP_NO_DEPACKERS
-#include "depackers/readlzw.h"
+#include "../depackers/readlzw.h"
 #else
-#include "depackers/readrle.c"
-#include "depackers/readlzw.c"
+#include "../depackers/readrle.c"
+#include "../depackers/readlzw.c"
 #endif
 
 

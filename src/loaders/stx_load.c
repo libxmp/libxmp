@@ -36,7 +36,7 @@
 
 #include "loader.h"
 #include "s3m.h"
-#include "period.h"
+#include "../period.h"
 
 struct stx_file_header {
 	uint8 name[20];		/* Song name */

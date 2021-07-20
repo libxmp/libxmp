@@ -22,10 +22,10 @@
 
 #include <errno.h>
 
-#include "common.h"
+#include "../common.h"
 #include "depacker.h"
-#include "hio.h"
-#include "tempfile.h"
+#include "../hio.h"
+#include "../tempfile.h"
 #include "xfnmatch.h"
 
 #ifdef _WIN32

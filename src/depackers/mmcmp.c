@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 
-#include "common.h"
+#include "../common.h"
 #include "depacker.h"
 
 #define MMCMP_COMP	0x0001

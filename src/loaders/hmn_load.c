@@ -22,8 +22,8 @@
 
 #include "loader.h"
 #include "mod.h"
-#include "period.h"
-#include "hmn_extras.h"
+#include "../period.h"
+#include "../hmn_extras.h"
 
 /*
  * From http://www.livet.se/mahoney/:

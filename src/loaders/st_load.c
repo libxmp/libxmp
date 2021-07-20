@@ -26,7 +26,7 @@
 
 #include "loader.h"
 #include "mod.h"
-#include "period.h"
+#include "../period.h"
 
 static int st_test(HIO_HANDLE *, char *, const int);
 static int st_load(struct module_data *, HIO_HANDLE *, const int);

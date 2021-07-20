@@ -18,7 +18,7 @@
  */
 
 #include <sys/stat.h>
-#include "common.h"
+#include "../common.h"
 #include "depacker.h"
 
 /* #define val(p) ((p)[0]<<16 | (p)[1] << 8 | (p)[2]) */

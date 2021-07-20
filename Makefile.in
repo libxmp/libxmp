@@ -68,7 +68,7 @@ LOBJS = $(ALL_OBJS:.o=.lo)
 
 GCOBJS = $(ALL_OBJS:.o=.gco)
 
-CFLAGS += -Iinclude -Isrc
+CFLAGS += -Iinclude
 
 .SUFFIXES: .c .o .lo .a .so .dll .in .gco .gcda .gcno
 

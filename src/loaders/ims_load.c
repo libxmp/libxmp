@@ -40,7 +40,7 @@
  */
 
 #include "loader.h"
-#include "period.h"
+#include "../period.h"
 
 struct ims_instrument {
     uint8 name[20];

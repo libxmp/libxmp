@@ -1,8 +1,8 @@
 #ifndef LIBXMP_IFF_H
 #define LIBXMP_IFF_H
 
-#include "list.h"
-#include "hio.h"
+#include "../list.h"
+#include "../hio.h"
 
 #define IFF_NOBUFFER 0x0001
 

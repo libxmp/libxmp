@@ -12,7 +12,7 @@
  */
 
 #include "loader.h"
-#include "period.h"
+#include "../period.h"
 
 
 struct fcm_instrument {

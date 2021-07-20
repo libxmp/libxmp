@@ -30,7 +30,7 @@
  */
 
 #include "loader.h"
-#include "period.h"
+#include "../period.h"
 
 
 static int amf_test(HIO_HANDLE *, char *, const int);

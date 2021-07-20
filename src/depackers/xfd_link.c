@@ -1,4 +1,4 @@
-#include "common.h"
+#include "../common.h"
 
 #if defined(LIBXMP_AMIGA) && defined(HAVE_PROTO_XFDMASTER_H)
 

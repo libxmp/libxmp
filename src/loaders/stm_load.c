@@ -22,7 +22,7 @@
 
 #include <limits.h>
 #include "loader.h"
-#include "period.h"
+#include "../period.h"
 
 #define STM_TYPE_SONG	0x01
 #define STM_TYPE_MODULE	0x02

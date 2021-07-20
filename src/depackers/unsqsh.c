@@ -25,7 +25,7 @@
  * THE SOFTWARE.
  */
 
-#include "common.h"
+#include "../common.h"
 #include "depacker.h"
 
 struct io {

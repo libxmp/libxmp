@@ -6,7 +6,7 @@
  * for more information.
  */
 
-#include "common.h"
+#include "../common.h"
 #include "inflate.h"
 #include "depacker.h"
 #include "crc32.h"

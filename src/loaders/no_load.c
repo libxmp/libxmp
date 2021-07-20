@@ -21,7 +21,7 @@
  */
 
 #include "loader.h"
-#include "period.h"
+#include "../period.h"
 
 /* Nir Oren's Liquid Tracker old "NO" format. I have only one NO module,
  * Moti Radomski's "Time after time" from ftp.modland.com.

@@ -10,7 +10,7 @@
  * a bit unusual. So this is from scratch (though it wasn't too hard).
  */
 
-#include "common.h"
+#include "../common.h"
 #include "readhuff.h"
 #include "readrle.h"	/* for struct data_in_out */
 
