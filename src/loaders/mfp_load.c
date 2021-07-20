@@ -27,7 +27,6 @@
  */
 
 #include "loader.h"
-#include <sys/stat.h>
 #ifdef __native_client__
 #include <sys/syslimits.h>
 #else
@@ -102,7 +101,6 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	struct xmp_module *mod = &m->mod;
 	int i, j, k, x, y;
 	struct xmp_event *event;
-	struct stat st;
 	char smp_filename[PATH_MAX];
 	HIO_HANDLE *s;
 	int size1 /*, size2*/;
@@ -215,7 +213,7 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	/* first check smp.filename */
 	if (strlen(m->basename) < 5 || m->basename[3] != '.') {
-		fprintf(stderr, "libxmp: invalid filename %s\n", m->basename);
+		D_(D_CRIT "invalid filename %s", m->basename);
 		goto err;
 	}
 
@@ -223,23 +221,17 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	m->basename[1] = 'm';
 	m->basename[2] = 'p';
 	snprintf(smp_filename, PATH_MAX, "%s%s", m->dirname, m->basename);
-	if (stat(smp_filename, &st) < 0) {
+	if ((s = hio_open(smp_filename, "rb")) == NULL) {
 		/* handle .set filenames like in Kid Chaos*/
 		if (strchr(m->basename, '-')) {
 			char *p = strrchr(smp_filename, '-');
 			if (p != NULL)
 				strcpy(p, ".set");
 		}
-		if (stat(smp_filename, &st) < 0) {
-			fprintf(stderr, "libxmp: missing file %s\n",
-								smp_filename);
+		if ((s = hio_open(smp_filename, "rb")) == NULL) {
+			D_(D_CRIT "can't open sample file %s", smp_filename);
 			goto err;
 		}
-	}
-	if ((s = hio_open(smp_filename, "rb")) == NULL) {
-		fprintf(stderr, "libxmp: can't open sample file %s\n",
-								smp_filename);
-		goto err;
 	}
 
 	for (i = 0; i < mod->ins; i++) {
