@@ -10,7 +10,7 @@ TEST(test_fuzzer_gal4_duplicate_instrument)
 	int ret;
 
 	opaque = xmp_create_context();
-	ret = xmp_load_module(opaque, "data/f/load_gal4_duplicate_instrument.j2b");
+	ret = xmp_load_module(opaque, "data/f/load_gal4_duplicate_instrument");
 	fail_unless(ret == -XMP_ERROR_LOAD, "module load");
 
 	xmp_free_context(opaque);
