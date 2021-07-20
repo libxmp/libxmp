@@ -1,11 +1,9 @@
 #include "test.h"
-#include <sys/stat.h>
 
 TEST(test_write_file_move_data)
 {
 	FILE *f1, *f2;
 	uint8 b1[4000], b2[4000];
-	struct stat st;
 
 	f1 = fopen("data/bzip2data", "rb");
 	fail_unless(f1 != NULL, "can't open source file");
@@ -17,11 +15,11 @@ TEST(test_write_file_move_data)
 	fclose(f1);
 	fclose(f2);
 
-	stat("write_test", &st);
-	fail_unless(st.st_size == 4000, "wrong size");
-
 	f1 = fopen("data/bzip2data", "rb");
 	f2 = fopen("write_test", "rb");
+
+	fail_unless(get_file_size(f2) == 4000, "wrong size");
+
 	fread(b1, 1, 4000, f1);
 	fread(b2, 1, 4000, f2);
 	fclose(f1);

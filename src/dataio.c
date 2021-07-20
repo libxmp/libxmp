@@ -34,6 +34,25 @@
 } while (0)
 
 
+long get_file_size(FILE *f)
+{
+	long size, pos;
+
+	pos = ftell(f);
+	if (pos >= 0) {
+		if (fseek(f, 0, SEEK_END) < 0) {
+			return -1;
+		}
+		size = ftell(f);
+		if (fseek(f, pos, SEEK_SET) < 0) {
+			return -1;
+		}
+		return size;
+	} else {
+		return pos;
+	}
+}
+
 uint8 read8(FILE *f, int *err)
 {
 	int a;

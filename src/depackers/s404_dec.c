@@ -13,7 +13,6 @@
 */
 
 /*#include <assert.h>*/
-#include <sys/stat.h>
 #include "../common.h"
 #include "depacker.h"
 
@@ -372,17 +371,16 @@ static int decrunch_s404(FILE *in, /* size_t s, */ FILE *out)
 {
   int32 oLen, sLen, pLen;
   uint8 *dst = NULL;
-  struct stat st;
   uint8 *buf, *src;
+  long size;
 
-  if (fstat(fileno(in), &st))
+  size = get_file_size(in);
+  if (size <= 16)
     return -1;
-  if (st.st_size <= 16)
-    return -1;
-  src = buf = (uint8 *) malloc(st.st_size);
+  src = buf = (uint8 *) malloc(size);
   if (src == NULL)
     return -1;
-  if (fread(buf, 1, st.st_size, in) != st.st_size) {
+  if (fread(buf, 1, size, in) != size) {
     goto error;
   }
 
@@ -392,7 +390,7 @@ static int decrunch_s404(FILE *in, /* size_t s, */ FILE *out)
   }
 
   /* Sanity check */
-  if (pLen > st.st_size - 18) {
+  if (pLen > size - 18) {
     goto error;
   }
 

@@ -17,7 +17,6 @@
  * - decryption code removed
  */
 
-#include <sys/stat.h>
 #include "../common.h"
 #include "depacker.h"
 
@@ -174,15 +173,14 @@ static int decrunch_pp(FILE *f, FILE *fo)
 {
     uint8 *packed /*, *unpacked */;
     int plen, unplen;
-    struct stat st;
 
     if (fo == NULL)
         goto err;
 
-    if (fstat(fileno(f), &st) < 0)
-	goto err;
+    plen = get_file_size(f);
+    if (plen < 0)
+        goto err;
 
-    plen = st.st_size;
     //counter = 0;
 
     /* Amiga longwords are only on even addresses.

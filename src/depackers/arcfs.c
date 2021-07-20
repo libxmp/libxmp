@@ -9,7 +9,6 @@
  * for more information.
  */
 
-#include <sys/stat.h>
 #include "../common.h"
 #include "depacker.h"
 #include "readlzw.h"
@@ -100,12 +99,11 @@ static int read_file_header(FILE *in, struct archived_file_header_tag *hdrp)
 static unsigned char *read_file_data(FILE *in,
 				     struct archived_file_header_tag *hdrp)
 {
-	struct stat st;
 	unsigned char *data;
 	int siz = hdrp->compressed_size;
 
 	/* Precheck: if the file can't hold this size, don't bother. */
-	if (siz <= 0 || fstat(fileno(in), &st) != 0 || st.st_size < siz)
+	if (siz <= 0 || get_file_size(in) < siz)
 		return NULL;
 
 	data = (unsigned char *) malloc(siz);

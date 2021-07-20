@@ -26,25 +26,6 @@
 #include "callbackio.h"
 #include "mdataio.h"
 
-static long get_size(FILE *f)
-{
-	long size, pos;
-
-	pos = ftell(f);
-	if (pos >= 0) {
-		if (fseek(f, 0, SEEK_END) < 0) {
-			return -1;
-		}
-		size = ftell(f);
-		if (fseek(f, pos, SEEK_SET) < 0) {
-			return -1;
-		}
-		return size;
-	} else {
-		return pos;
-	}
-}
-
 int8 hio_read8s(HIO_HANDLE *h)
 {
 	int err;
@@ -367,7 +348,7 @@ HIO_HANDLE *hio_open(const char *path, const char *mode)
 	if (h->handle.file == NULL)
 		goto err2;
 
-	h->size = get_size(h->handle.file);
+	h->size = get_file_size(h->handle.file);
 	if (h->size < 0)
 		goto err3;
 
@@ -408,7 +389,7 @@ HIO_HANDLE *hio_open_file(FILE *f)
 	h->noclose = 1;
 	h->type = HIO_HANDLE_TYPE_FILE;
 	h->handle.file = f;
-	h->size = get_size(f);
+	h->size = get_file_size(f);
 	if (h->size < 0) {
 		free(h);
 		return NULL;

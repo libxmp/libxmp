@@ -1,12 +1,11 @@
 #include "test.h"
-#include <sys/stat.h>
 
 
 TEST(test_depack_vorbis_8bit)
 {
 	FILE *f;
-	struct stat st;
 	int i, ret;
+	long size;
 	int8 *buf, *pcm8;
 	xmp_context c;
 	struct xmp_module_info info;
@@ -20,13 +19,14 @@ TEST(test_depack_vorbis_8bit)
 	xmp_start_player(c, 44100, 0);
 	xmp_get_module_info(c, &info);
 
-	stat("data/sample4.raw", &st);
 	f = fopen("data/sample4.raw", "rb");
 	fail_unless(f != NULL, "can't open raw data file");
 
-	buf = malloc(st.st_size);
+	size = get_file_size(f);
+
+	buf = malloc(size);
 	fail_unless(buf != NULL, "can't alloc raw buffer");
-	fread(buf, 1, st.st_size, f);
+	fread(buf, 1, size, f);
 	fclose(f);
 
 	pcm8 = (int8 *)info.mod->xxs[4].data;

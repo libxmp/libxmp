@@ -14,7 +14,6 @@
 #include <proto/exec.h>
 #include <proto/xfdmaster.h>
 #include <exec/types.h>
-#include <sys/stat.h>
 #include "depacker.h"
 
 static int _test_xfd(unsigned char *buffer, int length)
@@ -49,7 +48,6 @@ static int decrunch_xfd(FILE *f1, FILE *f2)
     struct xfdBufferInfo *xfdobj;
     uint8 *packed;
     int plen,ret=-1;
-    struct stat st;
 
     if (xfdMasterBase == NULL)
 	return -1;
@@ -57,8 +55,7 @@ static int decrunch_xfd(FILE *f1, FILE *f2)
     if (f2 == NULL)
 	return -1;
 
-    fstat(fileno(f1), &st);
-    plen = st.st_size;
+    plen = get_file_size(f1);
 
     packed = (uint8 *) AllocVec(plen,MEMF_CLEAR);
     if (!packed) return -1;
