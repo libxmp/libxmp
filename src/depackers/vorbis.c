@@ -5029,7 +5029,8 @@ int stb_vorbis_seek(stb_vorbis *f, unsigned int sample_number)
    if (sample_number != f->current_loc) {
       int n;
       uint32 frame_start = f->current_loc;
-      stb_vorbis_get_frame_float(f, &n, NULL);
+      if (stb_vorbis_get_frame_float(f, &n, NULL) < 0)
+          return error(f, VORBIS_seek_failed);
       assert(sample_number > frame_start);
       assert(f->channel_buffer_start + (int) (sample_number-frame_start) <= f->channel_buffer_end);
       f->channel_buffer_start += (sample_number - frame_start);
@@ -5422,7 +5423,7 @@ int stb_vorbis_get_frame_short_interleaved(stb_vorbis *f, int num_c, short *buff
    int len;
    if (num_c == 1) return stb_vorbis_get_frame_short(f,num_c,&buffer, num_shorts);
    len = stb_vorbis_get_frame_float(f, NULL, &output);
-   if (len) {
+   if (len > 0) {
       if (len*num_c > num_shorts) len = num_shorts / num_c;
       convert_channels_short_interleaved(num_c, buffer, f->channels, output, 0, len);
    }
@@ -5433,7 +5434,7 @@ int stb_vorbis_get_samples_short_interleaved(stb_vorbis *f, int channels, short 
 {
    float **outputs;
    int len = num_shorts / channels;
-   int n=0;
+   int n=0, r;
    while (n < len) {
       int k = f->channel_buffer_end - f->channel_buffer_start;
       if (n+k >= len) k = len - n;
@@ -5443,7 +5444,9 @@ int stb_vorbis_get_samples_short_interleaved(stb_vorbis *f, int channels, short 
       n += k;
       f->channel_buffer_start += k;
       if (n == len) break;
-      if (!stb_vorbis_get_frame_float(f, NULL, &outputs)) break;
+      r = stb_vorbis_get_frame_float(f, NULL, &outputs);
+      if (!r) break;
+      if (r < 0) return r;
    }
    return n;
 }
@@ -5451,7 +5454,7 @@ int stb_vorbis_get_samples_short_interleaved(stb_vorbis *f, int channels, short 
 int stb_vorbis_get_samples_short(stb_vorbis *f, int channels, short **buffer, int len)
 {
    float **outputs;
-   int n=0;
+   int n=0, r;
    while (n < len) {
       int k = f->channel_buffer_end - f->channel_buffer_start;
       if (n+k >= len) k = len - n;
@@ -5460,7 +5463,9 @@ int stb_vorbis_get_samples_short(stb_vorbis *f, int channels, short **buffer, in
       n += k;
       f->channel_buffer_start += k;
       if (n == len) break;
-      if (!stb_vorbis_get_frame_float(f, NULL, &outputs)) break;
+      r = stb_vorbis_get_frame_float(f, NULL, &outputs);
+      if (!r) break;
+      if (r < 0) return r;
    }
    return n;
 }
@@ -5549,7 +5554,7 @@ int stb_vorbis_get_samples_float_interleaved(stb_vorbis *f, int channels, float 
 {
    float **outputs;
    int len = num_floats / channels;
-   int n=0;
+   int n=0, r;
    int z = f->channels;
    if (z > channels) z = channels;
    while (n < len) {
@@ -5566,8 +5571,9 @@ int stb_vorbis_get_samples_float_interleaved(stb_vorbis *f, int channels, float 
       f->channel_buffer_start += k;
       if (n == len)
          break;
-      if (!stb_vorbis_get_frame_float(f, NULL, &outputs))
-         break;
+      r = stb_vorbis_get_frame_float(f, NULL, &outputs);
+      if (!r) break;
+      if (r < 0) return r;
    }
    return n;
 }
@@ -5575,7 +5581,7 @@ int stb_vorbis_get_samples_float_interleaved(stb_vorbis *f, int channels, float 
 int stb_vorbis_get_samples_float(stb_vorbis *f, int channels, float **buffer, int num_samples)
 {
    float **outputs;
-   int n=0;
+   int n=0, r;
    int z = f->channels;
    if (z > channels) z = channels;
    while (n < num_samples) {
@@ -5592,8 +5598,9 @@ int stb_vorbis_get_samples_float(stb_vorbis *f, int channels, float **buffer, in
       f->channel_buffer_start += k;
       if (n == num_samples)
          break;
-      if (!stb_vorbis_get_frame_float(f, NULL, &outputs))
-         break;
+      r = stb_vorbis_get_frame_float(f, NULL, &outputs);
+      if (!r) break;
+      if (r < 0) return r;
    }
    return n;
 }
