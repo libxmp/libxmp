@@ -170,7 +170,6 @@ DEPACKER_OBJS= &
  src/depackers/unarc.obj &
  src/depackers/arcfs.obj &
  src/depackers/xfd.obj &
- src/depackers/inflate.obj &
  src/depackers/miniz.obj &
  src/depackers/muse.obj &
  src/depackers/unlzx.obj &
