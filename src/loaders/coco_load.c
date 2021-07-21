@@ -183,7 +183,7 @@ static int coco_load(struct module_data *m, HIO_HANDLE *f, const int start)
 {
 	struct xmp_module *mod = &m->mod;
 	struct xmp_event *event;
-	int i, j;
+	int i, j, k;
 	int seq_ptr, pat_ptr, smp_ptr[100];
 
 	LOAD_INIT();
@@ -227,7 +227,7 @@ static int coco_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		mod->xxi[i].sub[0].vol = 0xff - hio_read32l(f);
 		mod->xxi[i].sub[0].pan = 0x80;
 		mod->xxs[i].lps = hio_read32l(f);
-                mod->xxs[i].lpe = mod->xxs[i].lps + hio_read32l(f);
+		mod->xxs[i].lpe = mod->xxs[i].lps + hio_read32l(f);
 		if (mod->xxs[i].lpe)
 			mod->xxs[i].lpe -= 1;
 		mod->xxs[i].flg = mod->xxs[i].lps > 0 ?  XMP_SAMPLE_LOOP : 0;
@@ -260,7 +260,8 @@ static int coco_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		uint8 x = hio_read8(f);
 		if (x == 0xff)
 			break;
-		mod->xxo[i] = x;
+		if (i < mod->len)
+			mod->xxo[i] = x;
 	}
 	for (i++; i % 4; i++)	/* for alignment */
 		hio_read8(f);
@@ -276,20 +277,22 @@ static int coco_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (libxmp_alloc_pattern_tracks(mod, i, 64) < 0)
 			return -1;
 
-		for (j = 0; j < (64 * mod->chn); j++) {
-			event = &EVENT (i, j % mod->chn, j / mod->chn);
-			event->fxp = hio_read8(f);
-			event->fxt = hio_read8(f);
-			event->ins = hio_read8(f);
-			event->note = hio_read8(f);
-			if (event->note)
-				event->note += 12;
+		for (j = 0; j < 64; j++) {
+			for (k = 0; k < mod->chn; k++) {
+				event = &EVENT(i, k, j);
+				event->fxp = hio_read8(f);
+				event->fxt = hio_read8(f);
+				event->ins = hio_read8(f);
+				event->note = hio_read8(f);
+				if (event->note)
+					event->note += 12;
 
-			if (hio_error(f)) {
-				return -1;
+				if (hio_error(f)) {
+					return -1;
+				}
+
+				fix_effect(event);
 			}
-
-			fix_effect(event);
 		}
 	}
 
