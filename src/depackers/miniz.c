@@ -754,7 +754,7 @@ static tdefl_sym_freq *tdefl_radix_sort_syms(mz_uint num_syms, tdefl_sym_freq *p
 {
     mz_uint32 total_passes = 2, pass_shift, pass, i, hist[256 * 2];
     tdefl_sym_freq *pCur_syms = pSyms0, *pNew_syms = pSyms1;
-    MZ_CLEAR_OBJ(hist);
+    MZ_CLEAR_ARR(hist);
     for (i = 0; i < num_syms; i++)
     {
         mz_uint freq = pSyms0[i].m_key;
@@ -872,7 +872,7 @@ static void tdefl_optimize_huffman_table(tdefl_compressor *d, int table_num, int
 {
     int i, j, l, num_codes[1 + TDEFL_MAX_SUPPORTED_HUFF_CODESIZE];
     mz_uint next_code[TDEFL_MAX_SUPPORTED_HUFF_CODESIZE + 1];
-    MZ_CLEAR_OBJ(num_codes);
+    MZ_CLEAR_ARR(num_codes);
     if (static_table)
     {
         for (i = 0; i < table_len; i++)
@@ -898,8 +898,8 @@ static void tdefl_optimize_huffman_table(tdefl_compressor *d, int table_num, int
 
         tdefl_huffman_enforce_max_code_size(num_codes, num_used_syms, code_size_limit);
 
-        MZ_CLEAR_OBJ(d->m_huff_code_sizes[table_num]);
-        MZ_CLEAR_OBJ(d->m_huff_codes[table_num]);
+        MZ_CLEAR_ARR(d->m_huff_code_sizes[table_num]);
+        MZ_CLEAR_ARR(d->m_huff_codes[table_num]);
         for (i = 1, j = num_used_syms; i <= code_size_limit; i++)
             for (l = num_codes[i]; l > 0; l--)
                 d->m_huff_code_sizes[table_num][pSyms[--j].m_sym_index] = (mz_uint8)(i);
@@ -1952,8 +1952,8 @@ tdefl_status tdefl_compress(tdefl_compressor *d, const void *pIn_buf, size_t *pI
         d->m_finished = (flush == TDEFL_FINISH);
         if (flush == TDEFL_FULL_FLUSH)
         {
-            MZ_CLEAR_OBJ(d->m_hash);
-            MZ_CLEAR_OBJ(d->m_next);
+            MZ_CLEAR_ARR(d->m_hash);
+            MZ_CLEAR_ARR(d->m_next);
             d->m_dict_size = 0;
         }
     }
@@ -1976,7 +1976,7 @@ tdefl_status tdefl_init(tdefl_compressor *d, tdefl_put_buf_func_ptr pPut_buf_fun
     d->m_greedy_parsing = (flags & TDEFL_GREEDY_PARSING_FLAG) != 0;
     d->m_max_probes[1] = 1 + (((flags & 0xFFF) >> 2) + 2) / 3;
     if (!(flags & TDEFL_NONDETERMINISTIC_PARSING_FLAG))
-        MZ_CLEAR_OBJ(d->m_hash);
+        MZ_CLEAR_ARR(d->m_hash);
     d->m_lookahead_pos = d->m_lookahead_size = d->m_dict_size = d->m_total_lz_bytes = d->m_lz_code_buf_dict_pos = d->m_bits_in = 0;
     d->m_output_flush_ofs = d->m_output_flush_remaining = d->m_finished = d->m_block_index = d->m_bit_buffer = d->m_wants_to_finish = 0;
     d->m_pLZ_code_buf = d->m_lz_code_buf + 1;
@@ -1997,7 +1997,7 @@ tdefl_status tdefl_init(tdefl_compressor *d, tdefl_put_buf_func_ptr pPut_buf_fun
     d->m_src_buf_left = 0;
     d->m_out_buf_ofs = 0;
     if (!(flags & TDEFL_NONDETERMINISTIC_PARSING_FLAG))
-        MZ_CLEAR_OBJ(d->m_dict);
+        MZ_CLEAR_ARR(d->m_dict);
     memset(&d->m_huff_count[0][0], 0, sizeof(d->m_huff_count[0][0]) * TDEFL_MAX_HUFF_SYMBOLS_0);
     memset(&d->m_huff_count[1][0], 0, sizeof(d->m_huff_count[1][0]) * TDEFL_MAX_HUFF_SYMBOLS_1);
     return TDEFL_STATUS_OKAY;
@@ -2523,7 +2523,7 @@ tinfl_status tinfl_decompress(tinfl_decompressor *r, const mz_uint8 *pIn_buf_nex
                     TINFL_GET_BITS(11, r->m_table_sizes[counter], "\05\05\04"[counter]);
                     r->m_table_sizes[counter] += s_min_table_sizes[counter];
                 }
-                MZ_CLEAR_OBJ(r->m_tables[2].m_code_size);
+                MZ_CLEAR_ARR(r->m_tables[2].m_code_size);
                 for (counter = 0; counter < r->m_table_sizes[2]; counter++)
                 {
                     mz_uint s;
@@ -2538,9 +2538,9 @@ tinfl_status tinfl_decompress(tinfl_decompressor *r, const mz_uint8 *pIn_buf_nex
                 tinfl_huff_table *pTable;
                 mz_uint i, j, used_syms, total, sym_index, next_code[17], total_syms[16];
                 pTable = &r->m_tables[r->m_type];
-                MZ_CLEAR_OBJ(total_syms);
-                MZ_CLEAR_OBJ(pTable->m_look_up);
-                MZ_CLEAR_OBJ(pTable->m_tree);
+                MZ_CLEAR_ARR(total_syms);
+                MZ_CLEAR_ARR(pTable->m_look_up);
+                MZ_CLEAR_ARR(pTable->m_tree);
                 for (i = 0; i < r->m_table_sizes[r->m_type]; ++i)
                     total_syms[pTable->m_code_size[i]]++;
                 used_syms = 0, total = 0;
@@ -3818,7 +3818,7 @@ static mz_bool mz_zip_reader_read_central_dir(mz_zip_archive *pZip, mz_uint flag
 void mz_zip_zero_struct(mz_zip_archive *pZip)
 {
     if (pZip)
-        MZ_CLEAR_OBJ(*pZip);
+        MZ_CLEAR_PTR(pZip);
 }
 
 static mz_bool mz_zip_reader_end_internal(mz_zip_archive *pZip, mz_bool set_last_error)
@@ -5804,7 +5804,7 @@ mz_bool mz_zip_writer_init_file_v2(mz_zip_archive *pZip, const char *pFilename, 
         mz_uint64 cur_ofs = 0;
         char buf[4096];
 
-        MZ_CLEAR_OBJ(buf);
+        MZ_CLEAR_ARR(buf);
 
         do
         {
@@ -6260,7 +6260,7 @@ mz_bool mz_zip_writer_add_mem_ex_v2(mz_zip_archive *pZip, const char *pArchive_n
     }
     cur_archive_file_ofs += num_alignment_padding_bytes;
 
-    MZ_CLEAR_OBJ(local_dir_header);
+    MZ_CLEAR_ARR(local_dir_header);
 
     if (!store_data_uncompressed || (level_and_flags & MZ_ZIP_FLAG_COMPRESSED_DATA))
     {
@@ -6513,7 +6513,7 @@ mz_bool mz_zip_writer_add_read_buf_callback(mz_zip_archive *pZip, const char *pA
         method = MZ_DEFLATED;
     }
 
-    MZ_CLEAR_OBJ(local_dir_header);
+    MZ_CLEAR_ARR(local_dir_header);
     if (pState->m_zip64)
     {
         if (max_size >= MZ_UINT32_MAX || local_dir_header_ofs >= MZ_UINT32_MAX)
@@ -7300,7 +7300,7 @@ mz_bool mz_zip_writer_finalize_archive(mz_zip_archive *pZip)
         /* Write zip64 end of central directory header */
         mz_uint64 rel_ofs_to_zip64_ecdr = pZip->m_archive_size;
 
-        MZ_CLEAR_OBJ(hdr);
+        MZ_CLEAR_ARR(hdr);
         MZ_WRITE_LE32(hdr + MZ_ZIP64_ECDH_SIG_OFS, MZ_ZIP64_END_OF_CENTRAL_DIR_HEADER_SIG);
         MZ_WRITE_LE64(hdr + MZ_ZIP64_ECDH_SIZE_OF_RECORD_OFS, MZ_ZIP64_END_OF_CENTRAL_DIR_HEADER_SIZE - sizeof(mz_uint32) - sizeof(mz_uint64));
         MZ_WRITE_LE16(hdr + MZ_ZIP64_ECDH_VERSION_MADE_BY_OFS, 0x031E); /* TODO: always Unix */
@@ -7315,7 +7315,7 @@ mz_bool mz_zip_writer_finalize_archive(mz_zip_archive *pZip)
         pZip->m_archive_size += MZ_ZIP64_END_OF_CENTRAL_DIR_HEADER_SIZE;
 
         /* Write zip64 end of central directory locator */
-        MZ_CLEAR_OBJ(hdr);
+        MZ_CLEAR_ARR(hdr);
         MZ_WRITE_LE32(hdr + MZ_ZIP64_ECDL_SIG_OFS, MZ_ZIP64_END_OF_CENTRAL_DIR_LOCATOR_SIG);
         MZ_WRITE_LE64(hdr + MZ_ZIP64_ECDL_REL_OFS_TO_ZIP64_ECDR_OFS, rel_ofs_to_zip64_ecdr);
         MZ_WRITE_LE32(hdr + MZ_ZIP64_ECDL_TOTAL_NUMBER_OF_DISKS_OFS, 1);
@@ -7326,7 +7326,7 @@ mz_bool mz_zip_writer_finalize_archive(mz_zip_archive *pZip)
     }
 
     /* Write end of central directory record */
-    MZ_CLEAR_OBJ(hdr);
+    MZ_CLEAR_ARR(hdr);
     MZ_WRITE_LE32(hdr + MZ_ZIP_ECDH_SIG_OFS, MZ_ZIP_END_OF_CENTRAL_DIR_HEADER_SIG);
     MZ_WRITE_LE16(hdr + MZ_ZIP_ECDH_CDIR_NUM_ENTRIES_ON_DISK_OFS, MZ_MIN(MZ_UINT16_MAX, pZip->m_total_files));
     MZ_WRITE_LE16(hdr + MZ_ZIP_ECDH_CDIR_TOTAL_ENTRIES_OFS, MZ_MIN(MZ_UINT16_MAX, pZip->m_total_files));
