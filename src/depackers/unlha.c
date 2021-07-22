@@ -1832,7 +1832,7 @@ static int test_lha(unsigned char *b) {
 		b[20] <= 3;
 }
 
-static int decrunch_lha(FILE *in, FILE *out)
+static int decrunch_lha(FILE *in, FILE *out, long inlen)
 {
 	struct lha_data data;
 

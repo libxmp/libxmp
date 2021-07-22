@@ -44,12 +44,11 @@ static int test_xfd(unsigned char *b)
 	return _test_xfd(b, 1024);
 }
 
-static int decrunch_xfd(FILE *f1, FILE *f2)
+static int decrunch_xfd(FILE *f1, FILE *f2, long inlen)
 {
     struct xfdBufferInfo *xfdobj;
     uint8 *packed;
-    int plen,ret=-1;
-    struct stat st;
+    int ret = -1;
 
     if (xfdMasterBase == NULL)
 	return -1;
@@ -57,18 +56,15 @@ static int decrunch_xfd(FILE *f1, FILE *f2)
     if (f2 == NULL)
 	return -1;
 
-    fstat(fileno(f1), &st);
-    plen = st.st_size;
-
-    packed = (uint8 *) AllocVec(plen,MEMF_CLEAR);
+    packed = (uint8 *) AllocVec(inlen,MEMF_CLEAR);
     if (!packed) return -1;
 
-    fread(packed,plen,1,f1);
+    fread(packed,inlen,1,f1);
 
 	xfdobj = (struct xfdBufferInfo *) xfdAllocObject(XFDOBJ_BUFFERINFO);
 	if(xfdobj)
 	{
-		xfdobj->xfdbi_SourceBufLen = plen;
+		xfdobj->xfdbi_SourceBufLen = inlen;
 		xfdobj->xfdbi_SourceBuffer = packed;
 		xfdobj->xfdbi_Flags = XFDFF_RECOGEXTERN | XFDFF_RECOGTARGETLEN;
 		/* xfdobj->xfdbi_PackerFlags = XFDPFF_RECOGLEN; */

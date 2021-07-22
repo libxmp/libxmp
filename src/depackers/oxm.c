@@ -192,7 +192,7 @@ static char *oggdec(FILE *f, int len, int res, int *newlen)
 	return (char *)pcm;
 }
 
-static int decrunch_oxm(FILE *f, FILE *fo)
+static int decrunch_oxm(FILE *f, FILE *fo, long inlen)
 {
 	int i, j, pos;
 	int hlen, npat, len, plen;

@@ -263,7 +263,7 @@ static int test_mmcmp(unsigned char *b)
 	return memcmp(b, "ziRCONia", 8) == 0;
 }
 
-static int decrunch_mmcmp(FILE *in, FILE *out)
+static int decrunch_mmcmp(FILE *in, FILE *out, long inlen)
 {
 	struct header h;
 	uint32 *table;

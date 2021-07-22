@@ -17,7 +17,7 @@ static int test_xz(unsigned char *b)
 	return b[0] == 0xfd && b[3] == 'X' && b[4] == 'Z' && b[5] == 0x00;
 }
 
-static int decrunch_xz(FILE *in, FILE *out)
+static int decrunch_xz(FILE *in, FILE *out, long inlen)
 {
 	struct xz_buf b;
 	struct xz_dec *state;

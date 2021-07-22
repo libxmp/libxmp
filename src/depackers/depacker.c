@@ -299,7 +299,7 @@ int libxmp_decrunch(HIO_HANDLE **h, const char *filename, char **temp)
 		}
 	} else if (depacker) {
 		D_(D_INFO "Internal depacker");
-		if (depacker->depack(f, t) < 0) {
+		if (depacker->depack(f, t, hio_size(*h)) < 0) {
 			D_(D_CRIT "failed");
 			goto err2;
 		}

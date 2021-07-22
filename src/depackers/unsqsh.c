@@ -379,7 +379,7 @@ static int test_sqsh(unsigned char *b)
 	return memcmp(b, "XPKF", 4) == 0 && memcmp(b + 8, "SQSH", 4) == 0;
 }
 
-static int decrunch_sqsh(FILE * f, FILE * fo)
+static int decrunch_sqsh(FILE * f, FILE * fo, long inlen)
 {
 	unsigned char *src, *dest;
 	int srclen, destlen;

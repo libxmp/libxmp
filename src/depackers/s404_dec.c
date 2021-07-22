@@ -87,12 +87,9 @@ static int getb(struct bitstream *bs, int nbits)
 
 
 /* Returns bytes still to read.. or < 0 if error. */
-static int checkS404File(uint32 *buf, /*size_t len,*/
+static int checkS404File(uint32 *buf,
                          int32 *oLen, int32 *pLen, int32 *sLen )
 {
-  /*if (len < 16)
-    return -1;*/
-
   if (memcmp(buf, "S404", 4) != 0)
     return -1;
 
@@ -368,31 +365,28 @@ static int test_s404(unsigned char *b)
 	return memcmp(b, "S404", 4) == 0;
 }
 
-static int decrunch_s404(FILE *in, /* size_t s, */ FILE *out)
+static int decrunch_s404(FILE *in, FILE *out, long inlen)
 {
   int32 oLen, sLen, pLen;
   uint8 *dst = NULL;
-  struct stat st;
   uint8 *buf, *src;
 
-  if (fstat(fileno(in), &st))
+  if (inlen <= 16)
     return -1;
-  if (st.st_size <= 16)
-    return -1;
-  src = buf = (uint8 *) malloc(st.st_size);
+  src = buf = (uint8 *) malloc(inlen);
   if (src == NULL)
     return -1;
-  if (fread(buf, 1, st.st_size, in) != st.st_size) {
+  if (fread(buf, 1, inlen, in) != inlen) {
     goto error;
   }
 
-  if (checkS404File((uint32 *) src, /*s,*/ &oLen, &pLen, &sLen)) {
+  if (checkS404File((uint32 *) src, &oLen, &pLen, &sLen)) {
     /*fprintf(stderr,"S404 Error: checkS404File() failed..\n");*/
     goto error;
   }
 
   /* Sanity check */
-  if (pLen > st.st_size - 18) {
+  if (pLen > inlen - 18) {
     goto error;
   }
 

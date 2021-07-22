@@ -50,7 +50,7 @@ static int test_compress(unsigned char *b)
  * with those of the compress() routine.  See the definitions above.
  */
 
-static int decrunch_compress(FILE * in, FILE * out)
+static int decrunch_compress(FILE * in, FILE * out, long inlen)
 {
 	char_type *stackp;
 	code_int code;

@@ -1096,7 +1096,7 @@ static int test_lzx(unsigned char *b)
 	return memcmp(b, "LZX", 3) == 0;
 }
 
-static int decrunch_lzx(FILE *f, FILE *fo)
+static int decrunch_lzx(FILE *f, FILE *fo, long inlen)
 {
 	struct LZXDecrData *decr;
 

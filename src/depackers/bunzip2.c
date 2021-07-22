@@ -557,7 +557,7 @@ static int test_bzip2(unsigned char *b)
 
 /* Example usage: decompress src_fd to dst_fd.  (Stops at end of bzip data,
    not end of file.) */
-static int decrunch_bzip2(FILE *src, FILE *dst)
+static int decrunch_bzip2(FILE *src, FILE *dst, long inlen)
 {
 	char *outbuf;
 	bunzip_data *bd;
