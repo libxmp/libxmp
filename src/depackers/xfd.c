@@ -14,7 +14,6 @@
 #include <proto/exec.h>
 #include <proto/xfdmaster.h>
 #include <exec/types.h>
-#include <sys/stat.h>
 #include "depacker.h"
 
 static int _test_xfd(unsigned char *buffer, int length)

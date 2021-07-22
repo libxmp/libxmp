@@ -13,7 +13,6 @@
 */
 
 /*#include <assert.h>*/
-#include <sys/stat.h>
 #include "../common.h"
 #include "depacker.h"
 
