@@ -28,7 +28,6 @@
  */
 
 #include <ctype.h>
-#include <limits.h>
 #include "loader.h"
 #include "mod.h"
 

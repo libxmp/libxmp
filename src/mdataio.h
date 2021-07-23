@@ -2,7 +2,6 @@
 #define LIBXMP_MDATAIO_H
 
 #include <stddef.h>
-#include <limits.h>
 #include "common.h"
 
 static inline ptrdiff_t CAN_READ(MFILE *m)

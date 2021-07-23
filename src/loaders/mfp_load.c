@@ -27,11 +27,6 @@
  */
 
 #include "loader.h"
-#ifdef __native_client__
-#include <sys/syslimits.h>
-#else
-#include <limits.h>
-#endif
 
 static int mfp_test(HIO_HANDLE *, char *, const int);
 static int mfp_load(struct module_data *, HIO_HANDLE *, const int);
@@ -101,7 +96,7 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	struct xmp_module *mod = &m->mod;
 	int i, j, k, x, y;
 	struct xmp_event *event;
-	char smp_filename[PATH_MAX];
+	char smp_filename[XMP_MAXPATH];
 	HIO_HANDLE *s;
 	int size1 /*, size2*/;
 	int pat_addr, pat_table[128][4];
@@ -220,7 +215,7 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	m->basename[0] = 's';
 	m->basename[1] = 'm';
 	m->basename[2] = 'p';
-	snprintf(smp_filename, PATH_MAX, "%s%s", m->dirname, m->basename);
+	snprintf(smp_filename, XMP_MAXPATH, "%s%s", m->dirname, m->basename);
 	if ((s = hio_open(smp_filename, "rb")) == NULL) {
 		/* handle .set filenames like in Kid Chaos*/
 		if (strchr(m->basename, '-')) {

@@ -24,11 +24,6 @@
  * MED 1.12 is in Fish disk #255
  */
 
-#ifdef __native_client__
-#include <sys/syslimits.h>
-#else
-#include <limits.h>
-#endif
 #include "loader.h"
 #include "../period.h"
 
@@ -190,7 +185,7 @@ int med2_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	D_(D_INFO "Instruments    : %d ", mod->ins);
 
 	for (i = 0; i < 31; i++) {
-		char path[PATH_MAX];
+		char path[XMP_MAXPATH];
 		char ins_path[256];
 		char ins_name[32];
 		char name[256];
@@ -202,14 +197,14 @@ int med2_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		libxmp_get_instrument_path(m, ins_path, 256);
 		if (libxmp_check_filename_case(ins_path, ins_name, name, 256)) {
-			snprintf(path, PATH_MAX, "%s/%s", ins_path, name);
+			snprintf(path, XMP_MAXPATH, "%s/%s", ins_path, name);
 			found = 1;
 		}
 
 		/* Try the module dir if the instrument path didn't work. */
 		if (!found && m->dirname != NULL &&
 		    libxmp_check_filename_case(m->dirname, ins_name, name, 256)) {
-			snprintf(path, PATH_MAX, "%s%s", m->dirname, name);
+			snprintf(path, XMP_MAXPATH, "%s%s", m->dirname, name);
 			found = 1;
 		}
 

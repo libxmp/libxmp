@@ -26,19 +26,16 @@
 
 #ifndef LIBXMP_CORE_PLAYER
 
-#include <limits.h>
-
 #if defined(_MSC_VER) || defined(__WATCOMC__)
 #include <io.h>
 #else
 #include <unistd.h>
 #endif
-
 #ifdef HAVE_UMASK
 #include <sys/stat.h>
 #endif
 
-#include "common.h" /* for libxmp_snprintf */
+#include "common.h"
 #include "tempfile.h"
 
 #ifdef _WIN32
@@ -67,7 +64,7 @@ static int get_temp_dir(char *buf, size_t size)
 
 static int get_temp_dir(char *buf, size_t size)
 {
-	strcpy(buf, "C:\\"); /* size-safe against PATH_MAX */
+	strcpy(buf, "C:\\"); /* size-safe against XMP_MAXPATH */
 	return 0;
 }
 
@@ -75,7 +72,7 @@ static int get_temp_dir(char *buf, size_t size)
 
 static int get_temp_dir(char *buf, size_t size)
 {
-	strcpy(buf, "T:"); /* size-safe against PATH_MAX */
+	strcpy(buf, "T:"); /* size-safe against XMP_MAXPATH */
 	return 0;
 }
 
@@ -120,14 +117,14 @@ static int get_temp_dir(char *buf, size_t size)
 
 
 FILE *make_temp_file(char **filename) {
-	char tmp[PATH_MAX];
+	char tmp[XMP_MAXPATH];
 	FILE *temp;
 	int fd;
 
-	if (get_temp_dir(tmp, PATH_MAX) < 0)
+	if (get_temp_dir(tmp, XMP_MAXPATH) < 0)
 		return NULL;
 
-	strncat(tmp, "xmp_XXXXXX", PATH_MAX - 10);
+	strncat(tmp, "xmp_XXXXXX", XMP_MAXPATH - 10);
 
 	if ((*filename = strdup(tmp)) == NULL)
 		goto err;

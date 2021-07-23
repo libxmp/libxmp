@@ -20,7 +20,6 @@
  * THE SOFTWARE.
  */
 
-#include <limits.h>
 #include "loader.h"
 #include "../period.h"
 
@@ -364,7 +363,7 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 
 		if (sfh.type == STM_TYPE_SONG) {
 			HIO_HANDLE *s;
-			char sn[PATH_MAX];
+			char sn[XMP_MAXPATH];
 			char tmpname[32];
 			const char *instname = mod->xxi[i].name;
 
@@ -374,7 +373,7 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			if (libxmp_copy_name_for_fopen(tmpname, instname, 32))
 				continue;
 
-			snprintf(sn, PATH_MAX, "%s%s", m->dirname, tmpname);
+			snprintf(sn, XMP_MAXPATH, "%s%s", m->dirname, tmpname);
 
 			if ((s = hio_open(sn, "rb"))) {
 				if (libxmp_load_sample(m, s, SAMPLE_FLAG_UNS, &mod->xxs[i], NULL) < 0) {
