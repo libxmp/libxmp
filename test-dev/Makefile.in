@@ -501,6 +501,7 @@ FUZZER		= misc \
 		  depack_arcfs_lzw_leak \
 		  depack_arcfs_negative_header_size \
 		  depack_arcfs_negative_size \
+		  depack_arcfs_no_files \
 		  depack_arcfs_zero_length \
 		  depack_bz2_invalid_selector \
 		  depack_gzip_invalid_name \

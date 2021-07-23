@@ -85,10 +85,11 @@ static int read_file_header(FILE *in, struct archived_file_header_tag *hdrp)
 		hdrp->offset &= 0x7fffffff;
 		hdrp->offset += start;
 
-		break;
+		return 0;
 	}
 
-	return 0;
+	/* no usable files */
+	return -1;
 }
 
 /* read file data, assuming header has just been read from in
