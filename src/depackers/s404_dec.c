@@ -389,6 +389,18 @@ static int decrunch_s404(FILE *in, FILE *out, long inlen)
     goto error;
   }
 
+  /**
+   * Best case ratio of S404 sliding window:
+   *
+   *  2-3:  9b + (>=1b) -> 2-3B  ->  24:10
+   *  4-7:  9b + (>=3b) -> 4-7B  ->  56:12
+   *  8:22: 9b + (>=6b) -> 8-22B -> 176:15
+   *  23+:  9b + 3b + 8b * floor((n-23)/255) + 7b + (>=0b) -> n B -> ~255:1
+   */
+  if (pLen < (oLen / 255)) {
+    goto error;
+  }
+
   if ((dst = (uint8 *)malloc(oLen)) == NULL) {
     /*fprintf(stderr,"S404 Error: malloc(%d) failed..\n", oLen);*/
     goto error;

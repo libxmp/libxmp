@@ -519,6 +519,7 @@ FUZZER		= misc \
 		  depack_oxm_invalid \
 		  depack_oxm_pcm_leak \
 		  depack_oxm_truncated \
+		  depack_s404_invalid_length \
 		  depack_s404_invalid_shift \
 		  depack_sqsh_invalid_verbatim \
 		  depack_sqsh_truncated \
