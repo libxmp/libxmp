@@ -53,7 +53,7 @@ static int get_temp_dir(char *buf, size_t size)
 	return 0;
 }
 
-#elif defined(__OS2__)
+#elif defined(__OS2__) || defined(__EMX__)
 
 static int get_temp_dir(char *buf, size_t size)
 {
