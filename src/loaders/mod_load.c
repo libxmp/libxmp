@@ -36,7 +36,6 @@
  */
 
 #include <ctype.h>
-#include <limits.h>
 #include "loader.h"
 #include "mod.h"
 
@@ -526,9 +525,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	}
     }
 
-    /*
-     * Experimental tracker-detection routine
-     */
+    /* Experimental tracker-detection routine */
 
     if (detected)
 	goto skip_test;
@@ -772,7 +769,7 @@ skip_test:
 
 	if (ptsong) {
 	    HIO_HANDLE *s;
-	    char sn[PATH_MAX];
+	    char sn[XMP_MAXPATH];
 	    char tmpname[32];
 	    const char *instname = mod->xxi[i].name;
 
@@ -782,7 +779,7 @@ skip_test:
 	    if (libxmp_copy_name_for_fopen(tmpname, instname, 32))
 		continue;
 
-	    snprintf(sn, PATH_MAX, "%s%s", m->dirname, tmpname);
+	    snprintf(sn, XMP_MAXPATH, "%s%s", m->dirname, tmpname);
 
 	    if ((s = hio_open(sn, "rb")) != NULL) {
 	        if (libxmp_load_sample(m, s, flags, &mod->xxs[i], NULL) < 0) {

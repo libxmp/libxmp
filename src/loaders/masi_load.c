@@ -62,7 +62,6 @@
  * ugly, maybe caused by finetune issues?
  */
 
-#include <limits.h>
 #include "loader.h"
 #include "iff.h"
 #include "../period.h"

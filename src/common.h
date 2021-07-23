@@ -2,6 +2,7 @@
 #define LIBXMP_COMMON_H
 
 #include <stdarg.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -21,6 +22,18 @@
 #else
 #define LIBXMP_BEGIN_DECLS	extern "C" {
 #define LIBXMP_END_DECLS	}
+#endif
+
+#if defined(_MSC_VER) && !defined(__cplusplus)
+#define inline __inline
+#endif
+
+#if defined(_MSC_VER) ||  defined(__WATCOMC__) || defined(__EMX__)
+#define XMP_MAXPATH _MAX_PATH
+#elif defined(PATH_MAX)
+#define XMP_MAXPATH  PATH_MAX
+#else
+#define XMP_MAXPATH  1024
 #endif
 
 #if defined(__MORPHOS__) || defined(__AROS__) || defined(AMIGAOS) || \

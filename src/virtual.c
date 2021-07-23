@@ -20,7 +20,6 @@
  * THE SOFTWARE.
  */
 
-#include <limits.h>
 #include "common.h"
 #include "virtual.h"
 #include "mixer.h"

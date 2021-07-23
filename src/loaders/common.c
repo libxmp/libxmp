@@ -21,34 +21,11 @@
  */
 
 #include <ctype.h>
-
-#include "../common.h"
-
-#ifndef LIBXMP_CORE_PLAYER
-#if defined(_WIN32)
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <windows.h>
-#include <limits.h>
-#elif defined(__OS2__) || defined(__EMX__)
-#define INCL_DOS
-#include <os2.h>
-#elif defined(__DJGPP__)
-#include <dos.h>
-#include <io.h>
-#elif defined(__WATCOMC__) && defined(_DOS)
-#include <dos.h>
-#include <direct.h>
-#elif defined(LIBXMP_AMIGA)
-#ifdef __amigaos4__
-#define __USE_INLINE__
-#endif
-#include <proto/dos.h>
-#elif defined(HAVE_DIRENT)
+#if defined(HAVE_DIRENT)
 #include <dirent.h>
 #endif
-#endif /* LIBXMP_CORE_PLAYER */
+
+#include "../common.h"
 
 #include "xmp.h"
 #include "../period.h"
@@ -437,82 +414,19 @@ void libxmp_disable_continue_fx(struct xmp_event *event)
 /* libxmp_check_filename_case(): */
 /* Given a directory, see if file exists there, ignoring case */
 
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__DJGPP__)  || \
+    defined(__OS2__) || defined(__EMX__)   || \
+   (defined(__WATCOMC__) && defined(_DOS)) || \
+    defined(LIBXMP_AMIGA)
+/* case-insensitive file system: directly probe the file. */
 int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
 {
-	char path[_MAX_PATH];
-	DWORD rc;
-	/* win32 is case-insensitive: directly probe the file. */
+	char path[XMP_MAXPATH];
 	snprintf(path, sizeof(path), "%s/%s", dir, name);
-	rc = GetFileAttributesA(path);
-	if (rc == (DWORD)(-1)) return 0;
-	if (rc & FILE_ATTRIBUTE_DIRECTORY) return 0;
+	if (! (libxmp_get_filetype(path) & XMP_FILETYPE_FILE))
+		return 0;
 	strncpy(new_name, name, size);
 	return 1;
-}
-#elif defined(__OS2__) || defined(__EMX__)
-int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
-{
-	char path[CCHMAXPATH];
-	FILESTATUS3 fs;
-	/* os/2 is case-insensitive: directly probe the file. */
-	snprintf(path, sizeof(path), "%s/%s", dir, name);
-	if (DosQueryPathInfo(path, FIL_STANDARD, &fs, sizeof(fs)) != 0) return 0;
-	if (fs.attrFile & FILE_DIRECTORY) return 0;
-	strncpy(new_name, name, size);
-	return 1;
-}
-#elif defined(__DJGPP__)
-int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
-{
-	char path[256];
-	int attr;
-	/* dos is case-insensitive: directly probe the file. */
-	snprintf(path, sizeof(path), "%s/%s", dir, name);
-	attr = _chmod(path, 0);
-	if (attr == -1) return 0;
-	if (attr & (_A_SUBDIR|_A_VOLID)) return 0;
-	strncpy(new_name, name, size);
-	return 1;
-}
-#elif defined(__WATCOMC__) && defined(_DOS)
-int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
-{
-	char path[256];
-	unsigned int attr;
-	/* dos is case-insensitive: directly probe the file. */
-	snprintf(path, sizeof(path), "%s/%s", dir, name);
-	if (_dos_getfileattr(path, &attr)) return 0;
-	if (attr & (_A_SUBDIR | _A_VOLID)) return 0;
-	strncpy(new_name, name, size);
-	return 1;
-}
-#elif defined(LIBXMP_AMIGA)
-#ifdef __amigaos4__
-#include <dos/obsolete.h>
-#endif
-int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
-{
-	char path[256]; BPTR lock;
-	struct FileInfoBlock *fib;
-	int found = 0;
-	/* amigados is case-insensitive: directly probe the file. */
-	snprintf(path, sizeof(path), "%s/%s", dir, name);
-	lock = Lock((const STRPTR)path, ACCESS_READ);
-	if (lock) {
-		fib = (struct FileInfoBlock*) AllocDosObject(DOS_FIB, NULL);
-		if (fib != NULL) {
-		    if (Examine(lock, fib)) {
-			if (fib->fib_DirEntryType < 0) {
-				found = 1;
-				strncpy(new_name, name, size);
-			}
-		    }
-		    FreeDosObject(DOS_FIB, fib);
-		}
-		UnLock(lock);
-	}
-	return found;
 }
 #elif defined(HAVE_DIRENT)
 int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)

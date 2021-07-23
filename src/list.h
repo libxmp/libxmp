@@ -3,11 +3,8 @@
 
 #include <stddef.h> /* offsetof */
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__WATCOMC__)
 #define __inline__ __inline
-#endif
-#ifdef __WATCOMC__
-#define __inline__   inline
 #endif
 
 /*
@@ -145,4 +142,4 @@ static __inline__ void list_splice(struct list_head *list, struct list_head *hea
 #define list_for_each(pos, head) \
 	for (pos = (head)->next; pos != (head); pos = pos->next)
 
-#endif
+#endif  /* LIBXMP_LIST_H */

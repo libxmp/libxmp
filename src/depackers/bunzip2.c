@@ -34,7 +34,6 @@
  */
 
 #include <setjmp.h>
-#include <limits.h>
 #include "../common.h"
 #include "depacker.h"
 #include "crc32.h"
