@@ -347,6 +347,7 @@ FUZZER		= misc \
 		  s3m_invalid_sample_size \
 		  s3m_invalid_sample_size2 \
 		  xm_negative_instsize \
+		  xm_orders_mismatch \
 		  xm_vorbis_crash \
 		  xm_zero_samples \
 		  it_dca_3 \
