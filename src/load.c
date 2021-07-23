@@ -20,7 +20,6 @@
  * THE SOFTWARE.
  */
 
-#include <sys/stat.h>
 #include <errno.h>
 
 #include "format.h"
@@ -138,16 +137,17 @@ static int test_module(struct xmp_test_info *info, HIO_HANDLE *h)
 int xmp_test_module(const char *path, struct xmp_test_info *info)
 {
 	HIO_HANDLE *h;
-	struct stat st;
-	int ret;
 #ifndef LIBXMP_NO_DEPACKERS
 	char *temp = NULL;
 #endif
+	int ret;
 
-	if (stat(path, &st) < 0)
+	ret = libxmp_get_filetype(path);
+
+	if (ret == XMP_FILETYPE_NONE) {
 		return -XMP_ERROR_SYSTEM;
-
-	if (S_ISDIR(st.st_mode)) {
+	}
+	if (ret & XMP_FILETYPE_DIR) {
 		errno = EISDIR;
 		return -XMP_ERROR_SYSTEM;
 	}
@@ -349,16 +349,16 @@ int xmp_load_module(xmp_context opaque, const char *path)
 	char *temp_name;
 #endif
 	HIO_HANDLE *h;
-	struct stat st;
 	int ret;
 
 	D_(D_WARN "path = %s", path);
 
-	if (stat(path, &st) < 0) {
+	ret = libxmp_get_filetype(path);
+
+	if (ret == XMP_FILETYPE_NONE) {
 		return -XMP_ERROR_SYSTEM;
 	}
-
-	if (S_ISDIR(st.st_mode)) {
+	if (ret & XMP_FILETYPE_DIR) {
 		errno = EISDIR;
 		return -XMP_ERROR_SYSTEM;
 	}
