@@ -38,11 +38,13 @@ static int rawinput(struct data_in_out *io)
 	return -1;
 }
 
-static void rawoutput(int byte, struct data_in_out *io)
+static int rawoutput(int byte, struct data_in_out *io)
 {
 	if (io->data_out_point < io->data_out_max) {
 	    *io->data_out_point++ = byte;
+	    return 0;
 	}
+	return -1;
 }
 
 static void bit_init(struct bits *bits)
@@ -141,7 +143,8 @@ unsigned char *convert_huff(unsigned char *data_in,
 
 	    f = VALUE_CONV(f);
 	    if (f != HUFF_EOF) {
-		libxmp_outputrle(f,rawoutput,&rd,&io);
+		if (libxmp_outputrle(f,rawoutput,&rd,&io) != 0)
+		    break;
 	    }
 	}
 	while (f != HUFF_EOF);
