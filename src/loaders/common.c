@@ -33,11 +33,13 @@
 #include <limits.h>
 #elif defined(__OS2__) || defined(__EMX__)
 #define INCL_DOS
-#define INCL_DOSERRORS
 #include <os2.h>
 #elif defined(__DJGPP__)
 #include <dos.h>
 #include <io.h>
+#elif defined(__WATCOMC__) && defined(_DOS)
+#include <dos.h>
+#include <direct.h>
 #elif defined(LIBXMP_AMIGA)
 #ifdef __amigaos4__
 #define __USE_INLINE__
@@ -455,7 +457,7 @@ int libxmp_check_filename_case(const char *dir, const char *name, char *new_name
 	FILESTATUS3 fs;
 	/* os/2 is case-insensitive: directly probe the file. */
 	snprintf(path, sizeof(path), "%s/%s", dir, name);
-	if (DosQueryPathInfo(path, FIL_STANDARD, &fs, sizeof(fs)) != NO_ERROR) return 0;
+	if (DosQueryPathInfo(path, FIL_STANDARD, &fs, sizeof(fs)) != 0) return 0;
 	if (fs.attrFile & FILE_DIRECTORY) return 0;
 	strncpy(new_name, name, size);
 	return 1;
@@ -470,6 +472,18 @@ int libxmp_check_filename_case(const char *dir, const char *name, char *new_name
 	attr = _chmod(path, 0);
 	if (attr == -1) return 0;
 	if (attr & (_A_SUBDIR|_A_VOLID)) return 0;
+	strncpy(new_name, name, size);
+	return 1;
+}
+#elif defined(__WATCOMC__) && defined(_DOS)
+int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
+{
+	char path[256];
+	unsigned int attr;
+	/* dos is case-insensitive: directly probe the file. */
+	snprintf(path, sizeof(path), "%s/%s", dir, name);
+	if (_dos_getfileattr(path, &attr)) return 0;
+	if (attr & (_A_SUBDIR | _A_VOLID)) return 0;
 	strncpy(new_name, name, size);
 	return 1;
 }
