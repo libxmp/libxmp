@@ -20,6 +20,9 @@
 #include "../common.h"
 #include "readlzw.h"
 
+/* Arbitrary limit to prevent high RAM usage from this depacker. */
+#define LIBXMP_MAX_LZW_OUTPUT (1<<28)
+
 
 struct local_data {
   /* now this is for the string table.
@@ -59,8 +62,8 @@ static void code_resync(int old, struct local_data *);
 static void inittable(int orgcsize, struct local_data *);
 static int addstring(int oldcode,int chr, struct local_data *);
 static int readcode(int *newcode,int numbits, struct local_data *);
-static void outputstring(int code, struct local_data *);
-static void outputchr(int chr, struct local_data *);
+static int outputstring(int code, struct local_data *);
+static int outputchr(int chr, struct local_data *);
 static int findfirstchr(int code, struct local_data *);
 
 
@@ -82,6 +85,9 @@ static unsigned char *convert_lzw_dynamic(unsigned char *data_in,
 
 	if (data->maxstr > REALMAXSTR) {
 	    return NULL;
+	}
+	if (orig_len > LIBXMP_MAX_LZW_OUTPUT) {
+		return NULL;
 	}
 
 	data_out = (unsigned char *) calloc(1, orig_len);
@@ -506,7 +512,7 @@ static int readcode(int *newcode, int numbits, struct local_data *data)
 	return 1;
 }
 
-static void outputstring(int code, struct local_data *data)
+static int outputstring(int code, struct local_data *data)
 {
 	int *ptr = data->outputstring_buf;
 
@@ -515,28 +521,33 @@ static void outputstring(int code, struct local_data *data)
 	    code   = data->st_ptr[code];
 	}
 
-	outputchr(data->st_chr[code], data);
+	if (outputchr(data->st_chr[code], data) != 0)
+		return -1;
 	while (ptr > data->outputstring_buf) {
-	    outputchr(*--ptr, data);
+	    if (outputchr(*--ptr, data) != 0)
+		return -1;
 	}
+	return 0;
 }
 
-static void rawoutput(int byte, struct data_in_out *io)
+static int rawoutput(int byte, struct data_in_out *io)
 {
 	//static int i = 0;
-	if (io->data_out_point < io->data_out_max) {
-	    *io->data_out_point++ = byte;
+	if (io->data_out_point >= io->data_out_max) {
+	    return -1;
 	}
+	*io->data_out_point++ = byte;
 	//printf(" output = %02x <================ %06x\n", byte, i++);
+	return 0;
 }
 
-static void outputchr(int chr, struct local_data *data)
+static int outputchr(int chr, struct local_data *data)
 {
 	if (data->global_use_rle) {
-	    libxmp_outputrle(chr,rawoutput,&data->rd,&data->io);
+	    return libxmp_outputrle(chr,rawoutput,&data->rd,&data->io);
 	}
 	else {
-	    rawoutput(chr,&data->io);
+	    return rawoutput(chr,&data->io);
 	}
 }
 

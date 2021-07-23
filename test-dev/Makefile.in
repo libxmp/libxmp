@@ -496,7 +496,9 @@ FUZZER		= misc \
 		  prowizard_unic_truncated \
 		  prowizard_xann_invalid \
 		  prowizard_zen_invalid_note \
+		  depack_arc_large_output \
 		  depack_arc_lzw_invalid \
+		  depack_arc_slow_rle \
 		  depack_arcfs_lzw_leak \
 		  depack_arcfs_negative_header_size \
 		  depack_arcfs_negative_size \
