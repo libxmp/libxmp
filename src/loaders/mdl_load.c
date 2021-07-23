@@ -1141,7 +1141,8 @@ static int mdl_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     /* Check magic and get version */
     hio_read32b(f);
-    hio_read(buf, 1, 1, f);
+    if (hio_read(buf, 1, 1, f) < 1)
+	return -1;
 
     handle = libxmp_iff_new();
     if (handle == NULL)
