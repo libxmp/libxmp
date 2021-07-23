@@ -281,7 +281,7 @@ void libxmp_read_title(HIO_HANDLE *f, char *t, int s)
 
 	memset(t, 0, s + 1);
 
-	hio_read(buf, 1, s, f);		/* coverity[check_return] */
+	s = hio_read(buf, 1, s, f);
 	buf[s] = 0;
 	libxmp_copy_adjust(t, buf, s);
 }

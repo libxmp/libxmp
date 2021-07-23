@@ -620,6 +620,7 @@ test_fuzzer_stim_truncated
 test_fuzzer_stm_patterns_bound
 test_fuzzer_stx_instruments_bound
 test_fuzzer_stx_truncated
+test_fuzzer_sym_truncated
 test_fuzzer_sym_truncated_lzw
 test_fuzzer_ult_channels_bound
 test_fuzzer_ult_invalid_tracks
