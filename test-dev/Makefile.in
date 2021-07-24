@@ -523,6 +523,7 @@ FUZZER		= misc \
 		  depack_s404_invalid_length \
 		  depack_s404_invalid_shift \
 		  depack_sqsh_invalid_verbatim \
+		  depack_sqsh_misaligned \
 		  depack_sqsh_truncated \
 		  depack_sqsh_truncated2 \
 		  depack_zip_truncated \
