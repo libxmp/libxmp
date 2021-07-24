@@ -508,6 +508,7 @@ FUZZER		= misc \
 		  depack_arcfs_no_files \
 		  depack_arcfs_zero_length \
 		  depack_bz2_invalid_selector \
+		  depack_compress_invalid_maxbits \
 		  depack_gzip_invalid_name \
 		  depack_gzip_truncated \
 		  depack_lha_invalid_clen \

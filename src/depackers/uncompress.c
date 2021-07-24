@@ -90,7 +90,7 @@ static int decrunch_compress(FILE * in, FILE * out, long inlen)
 	block_mode = inbuf[2] & BLOCK_MODE;
 	maxmaxcode = MAXCODE(maxbits);
 
-	if (maxbits > BITS) {
+	if (maxbits < INIT_BITS || maxbits > BITS) {
 		/*fprintf(stderr,
 		   "%s: compressed with %d bits, can only handle %d bits\n",
 		   (*ifname != '\0' ? ifname : "stdin"), maxbits, BITS);
