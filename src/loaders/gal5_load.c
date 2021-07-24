@@ -72,7 +72,8 @@ static int get_init(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	char buf[64];
 	int flags;
 
-	hio_read(buf, 1, 64, f);
+	if (hio_read(buf, 1, 64, f) < 64)
+		return -1;
 	strncpy(mod->name, buf, 63);	/* ensure string terminator */
 	mod->name[63] = '\0';
 	libxmp_set_type(m, "Galaxy Music System 5.0");

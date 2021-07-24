@@ -95,6 +95,7 @@ static int get_emic(struct module_data *m, int size, HIO_HANDLE * f, void *parm)
 		struct xmp_instrument *xxi = &mod->xxi[i];
 		struct xmp_sample *xxs = &mod->xxs[i];
 		struct xmp_subinstrument *sub;
+		uint8 name[20];
 
 		if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 			return -1;
@@ -104,7 +105,9 @@ static int get_emic(struct module_data *m, int size, HIO_HANDLE * f, void *parm)
 		hio_read8(f);	/* num */
 		sub->vol = hio_read8(f);
 		xxs->len = 2 * hio_read16b(f);
-		hio_read(xxi->name, 1, 20, f);
+		if (hio_read(name, 1, 20, f) < 20)
+			return -1;
+		libxmp_instrument_name(mod, i, name, 20);
 		xxs->flg = hio_read8(f) & 1 ? XMP_SAMPLE_LOOP : 0;
 		sub->fin = hio_read8s(f) << 4;
 		xxs->lps = 2 * hio_read16b(f);

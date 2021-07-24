@@ -45,12 +45,13 @@ static uint8 ctable[] = {
 	8, 7, 6, 2, 3, 4, 5, 0
 };
 
-static uint16 xchecksum(uint32 * ptr, uint32 count)
+static uint16 xchecksum(uint8 *ptr, uint32 count)
 {
-	register uint32 sum = 0;
+	uint32 sum = 0;
 
 	while (count-- > 0) {
-		sum ^= *ptr++;
+		sum ^= readmem32b(ptr);
+		ptr += 4;
 	}
 
 	return (uint16) (sum ^ (sum >> 16));
@@ -215,7 +216,7 @@ static int unsqsh_block(struct io *io, uint8 *dest_start, uint8 *dest_end)
 					d1 = copy_data(io, d1, &data, dest_start, dest_end);
 					if (d1 < 0)
 						return -1;
-	      				d2 -= d2 >> 3;
+					d2 -= d2 >> 3;
 					continue;
 				}
 
@@ -304,7 +305,7 @@ static int unsqsh(uint8 *src, int srclen, uint8 *dest, int destlen)
 		type = *c++;
 		c++;			/* hchk */
 
-		sum = *(uint16 *)c;
+		sum = readmem16b(c);
 		c += 2;			/* checksum */
 
 		packed_size = readmem16b(c);	/* packed */
@@ -326,7 +327,7 @@ static int unsqsh(uint8 *src, int srclen, uint8 *dest, int destlen)
 		io.srclen = packed_size << 3;
 		memcpy(bc, c + packed_size, 3);
 		memset(c + packed_size, 0, 3);
-		lchk = xchecksum((uint32 *) (c), (packed_size + 3) >> 2);
+		lchk = xchecksum(c, (packed_size + 3) >> 2);
 		memcpy(c + packed_size, bc, 3);
 
 		if (lchk != sum) {
