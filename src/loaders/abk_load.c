@@ -412,7 +412,9 @@ static struct abk_instrument* read_abk_insts(HIO_HANDLE *f, uint32 inst_section_
 
 static int abk_test(HIO_HANDLE *f, char *t, const int start)
 {
+    struct abk_song song;
     char music[8];
+    uint32 song_section_offset;
 
     if (hio_read32b(f) != AMOS_BANK)
     {
@@ -433,6 +435,15 @@ static int abk_test(HIO_HANDLE *f, char *t, const int start)
     if (memcmp(music, "Music   ", 8))
     {
         return -1;
+    }
+
+    /* Attempt to read title. */
+    hio_read32b(f); /* instruments_offset */
+    song_section_offset = hio_read32b(f);
+
+    if (t != NULL && read_abk_song(f, &song, AMOS_MAIN_HEADER + song_section_offset) == 0)
+    {
+        libxmp_copy_adjust(t, (uint8 *)song.song_name, AMOS_STRING_LEN);
     }
 
     return 0;

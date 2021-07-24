@@ -509,7 +509,8 @@ static int dbm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	data.min_version = version & 0xFF;
 
 	hio_seek(f, 10, SEEK_CUR);
-	hio_read(name, 1, 44, f);
+	if (hio_read(name, 1, 44, f) < 44)
+		return -1;
 	name[44] = '\0';
 
 	handle = libxmp_iff_new();

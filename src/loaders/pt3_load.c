@@ -162,7 +162,8 @@ static int pt3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	hio_read32b(f);		/* VERS */
 	hio_read32b(f);		/* VERS size */
 
-	hio_read(buf, 1, 10, f);
+	if (hio_read(buf, 1, 10, f) < 10)
+		return -1;
 	libxmp_set_type(m, "%-6.6s IFFMODL", buf + 4);
 
 	handle = libxmp_iff_new();
