@@ -416,9 +416,10 @@ void libxmp_disable_continue_fx(struct xmp_event *event)
 
 #if defined(_WIN32) || defined(__DJGPP__)  || \
     defined(__OS2__) || defined(__EMX__)   || \
-   (defined(__WATCOMC__) && defined(_DOS)) || \
-    defined(LIBXMP_AMIGA)
-/* case-insensitive file system: directly probe the file. */
+    defined(_DOS) || defined(LIBXMP_AMIGA) || \
+    /* case-insensitive file system: directly probe the file */\
+    \
+   !defined(HAVE_DIRENT) /* or, target does not have dirent. */
 int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
 {
 	char path[XMP_MAXPATH];
@@ -428,7 +429,7 @@ int libxmp_check_filename_case(const char *dir, const char *name, char *new_name
 	strncpy(new_name, name, size);
 	return 1;
 }
-#elif defined(HAVE_DIRENT)
+#else /* target has dirent */
 int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
 {
 	int found = 0;
@@ -450,11 +451,6 @@ int libxmp_check_filename_case(const char *dir, const char *name, char *new_name
 	closedir(dirp);
 
 	return found;
-}
-#else
-int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
-{
-	return 0;
 }
 #endif
 
