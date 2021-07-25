@@ -21,12 +21,7 @@
  */
 
 #include "loader.h"
-#ifndef LIBXMP_NO_DEPACKERS
-#include "../depackers/readlzw.h"
-#else
-#include "../depackers/readrle.c"
-#include "../depackers/readlzw.c"
-#endif
+#include "lzw.h"
 
 
 static int sym_test(HIO_HANDLE *, char *, const int);
@@ -42,10 +37,6 @@ static int sym_test(HIO_HANDLE *f, char *t, const int start)
 {
 	uint32 a, b;
 	int i, ver;
-
-	/* Load from memory not supported until we handle sample depacking */
-	if (HIO_HANDLE_TYPE(f) != HIO_HANDLE_TYPE_FILE)
-		return -1;
 
 	a = hio_read32b(f);
 	b = hio_read32b(f);
@@ -257,6 +248,7 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	uint32 a, b;
 	uint8 *buf;
 	int size, ret;
+	int max_sample_size = 1;
 	uint8 allowed_effects[8];
 
 	LOAD_INIT();
@@ -294,6 +286,9 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			/* Sanity check */
 			if (mod->xxs[i].len > 0x80000)
 				return -1;
+
+			if (max_sample_size < mod->xxs[i].len)
+				max_sample_size = mod->xxs[i].len;
 		}
 	}
 
@@ -326,9 +321,7 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		return -1;
 
 	if (a) {
-		unsigned char *x = libxmp_read_lzw_dynamic(f->handle.file, buf,
-					13, 0, size, size, XMP_LZW_QUIRK_DSYM);
-		if (x == NULL) {
+		if (libxmp_read_lzw(buf, size, size, LZW_FLAGS_SYM, f) < 0) {
 			free(buf);
 			return -1;
 		}
@@ -380,9 +373,7 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		return -1;
 
 	if (a) {
-		unsigned char *x = libxmp_read_lzw_dynamic(f->handle.file, buf,
-					13, 0, size, size, XMP_LZW_QUIRK_DSYM);
-		if (x == NULL) {
+		if (libxmp_read_lzw(buf, size, size, LZW_FLAGS_SYM, f) < 0) {
 			free(buf);
 			return -1;
 		}
@@ -429,6 +420,9 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	/* Load and convert instruments */
 	D_(D_INFO "Instruments: %d", mod->ins);
 
+	if ((buf = (uint8 *)malloc(max_sample_size)) == NULL)
+		return -1;
+
 	for (i = 0; i < mod->ins; i++) {
 		uint8 namebuf[128];
 
@@ -469,14 +463,16 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		}
 
 		if (a == 1) {
-			void *dec = malloc(mod->xxs[i].len);
-			libxmp_read_lzw_dynamic(f->handle.file, (uint8 *)dec,
-					13, 0, mod->xxs[i].len, mod->xxs[i].len,
-					XMP_LZW_QUIRK_DSYM);
+			size = mod->xxs[i].len;
+
+			if (libxmp_read_lzw(buf, size, size, LZW_FLAGS_SYM, f) < 0) {
+				free(buf);
+				return -1;
+			}
 			ret = libxmp_load_sample(m, NULL,
 					SAMPLE_FLAG_NOLOAD | SAMPLE_FLAG_DIFF,
-					&mod->xxs[i], dec);
-			free(dec);
+					&mod->xxs[i], buf);
+
 		/*} else if (a == 4) {
 			ret = libxmp_load_sample(m, f, SAMPLE_FLAG_VIDC,
 					&mod->xxs[i], NULL);*/
@@ -485,9 +481,12 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 					&mod->xxs[i], NULL);
 		}
 
-		if (ret < 0)
+		if (ret < 0) {
+			free(buf);
 			return -1;
+		}
 	}
+	free(buf);
 
 	for (i = 0; i < mod->chn; i++) {
 		mod->xxc[i].pan = DEFPAN((((i + 3) / 2) % 2) * 0xff);

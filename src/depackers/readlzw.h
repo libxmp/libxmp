@@ -31,7 +31,4 @@ uint8	*libxmp_convert_lzw_dynamic(unsigned char *data_in,
 				    unsigned long orig_len,
 				    int q);
 
-uint8	*libxmp_read_lzw_dynamic(FILE *f, uint8 *buf, int max_bits,int use_rle,
-				 unsigned long in_len, unsigned long orig_len, int q);
-
 #endif

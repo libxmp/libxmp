@@ -299,6 +299,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  stim \
 		  stm stm_v1 \
 		  stx \
+		  sym sym_lzwquirk \
 		  ult \
 		  ac1d \
 		  crb crb2 \

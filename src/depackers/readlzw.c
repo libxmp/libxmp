@@ -257,52 +257,6 @@ err2:	free(data);
 err:	return NULL;
 }
 
-unsigned char *libxmp_read_lzw_dynamic(FILE *f, uint8 *buf, int max_bits,int use_rle,
-			unsigned long in_len, unsigned long orig_len, int q)
-{
-	uint8 *buf2, *b;
-	int pos;
-	int size;
-	struct local_data *data;
-	size_t read_len;
-
-	data = (struct local_data *) malloc(sizeof(struct local_data));
-	if (data == NULL) {
-		goto err;
-	}
-
-	buf2 = (uint8 *) malloc(in_len);
-	if (buf2 == NULL) {
-		//perror("read_lzw_dynamic");
-		goto err2;
-	}
-
-	pos = ftell(f);
-	if ((read_len = fread(buf2, 1, in_len, f)) != in_len) {
-		if (~q & XMP_LZW_QUIRK_DSYM) {
-			goto err3;
-		}
-		in_len = read_len;
-	}
-	b = convert_lzw_dynamic(buf2, max_bits, use_rle, in_len, orig_len, q, data);
-	memcpy(buf, b, orig_len);
-	size = q & NOMARCH_QUIRK_ALIGN4 ? ALIGN4(data->nomarch_input_size) :
-						data->nomarch_input_size;
-	if (fseek(f, pos + size, SEEK_SET) < 0) {
-		goto err4;
-	}
-	free(b);
-	free(buf2);
-	free(data);
-
-	return buf;
-
-err4:	free(b);
-err3:	free(buf2);
-err2:	free(data);
-err:	return NULL;
-}
-
 /* uggghhhh, this is agonisingly painful. It turns out that
  * the original program bunched up codes into groups of 8, so we have
  * to waste on average about 5 or 6 bytes when we increase code size.
