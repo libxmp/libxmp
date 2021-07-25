@@ -457,12 +457,15 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		a = hio_read8(f);
 
-		if (a != 0 && a != 1) {
-			D_(D_WARN "libxmp: unsupported sample type %d\n", a);
-			//return -1;
-		}
+		switch (a) {
+		case 0: /* Signed 8-bit, logarithmic. */
+			D_(D_INFO "%27s VIDC", "");
+			ret = libxmp_load_sample(m, f, SAMPLE_FLAG_VIDC,
+					&mod->xxs[i], NULL);
+			break;
 
-		if (a == 1) {
+		case 1: /* LZW compressed signed 8-bit delta, linear. */
+			D_(D_INFO "%27s LZW", "");
 			size = mod->xxs[i].len;
 
 			if (libxmp_read_lzw(buf, size, size, LZW_FLAGS_SYM, f) < 0) {
@@ -472,13 +475,29 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			ret = libxmp_load_sample(m, NULL,
 					SAMPLE_FLAG_NOLOAD | SAMPLE_FLAG_DIFF,
 					&mod->xxs[i], buf);
+			break;
 
-		/*} else if (a == 4) {
-			ret = libxmp_load_sample(m, f, SAMPLE_FLAG_VIDC,
-					&mod->xxs[i], NULL);*/
-		} else {
-			ret = libxmp_load_sample(m, f, SAMPLE_FLAG_VIDC,
-					&mod->xxs[i], NULL);
+		case 2: /* Signed 8-bit, linear. */
+			D_(D_INFO "%27s 8-bit", "");
+			ret = libxmp_load_sample(m, f, 0, &mod->xxs[i], NULL);
+			break;
+
+		case 3: /* Signed 16-bit, linear. */
+			D_(D_INFO "%27s 16-bit", "");
+			mod->xxs[i].flg |= XMP_SAMPLE_16BIT;
+			ret = libxmp_load_sample(m, f, 0, &mod->xxs[i], NULL);
+			break;
+
+		case 4: /* Sigma-delta compressed signed 8-bit, linear. */
+		case 5: /* Sigma-delta compressed signed 8-bit, logarithmic. */
+			D_(D_CRIT "sigma-delta compression currently not supported @ %ld", hio_tell(f));
+			ret = -1;
+			break;
+
+		default:
+			D_(D_CRIT "unknown sample type %d @ %ld\n", a, hio_tell(f));
+			ret = -1;
+			break;
 		}
 
 		if (ret < 0) {
