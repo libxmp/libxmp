@@ -109,9 +109,15 @@ XMP_TRY_COMPILE(whether compiler understands -Wall,
   int main(void){return 0;}],
   CFLAGS="${CFLAGS} -Wall")
 
+XMP_TRY_COMPILE(whether compiler understands -Wwrite-strings,
+  ac_cv_c_flag_w_write_strings,
+  -Wwrite-strings,[
+  int main(void){return 0;}],
+  CFLAGS="${CFLAGS} -Wwrite-strings")
+
 old_CFLAGS="${CFLAGS}"
 XMP_TRY_COMPILE(whether compiler understands -Werror,
-  ac_cv_c_flag_w_all,
+  ac_cv_c_flag_w_error,
   -Werror,[
   int main(void){return 0;}],
   CFLAGS="${CFLAGS} -Werror")
@@ -129,14 +135,16 @@ __attribute__((visibility("hidden")))  int bar(void);
 int foo(void) { return 0; }
 int bar(void) { return 1; }])]
 )
+
 case $host_os in
     mingw*|cygwin*|emx*|*djgpp|amigaos*|aros*|morphos*)
 	if test $ac_cv_c_flag_f_visibility_hidden = yes; then
-	  AC_MSG_NOTICE([ignoring -fvisibility flags for $host_os])
+	   AC_MSG_NOTICE([ignoring -fvisibility flags for $host_os])
 	fi
 	ac_cv_c_flag_f_visibility_hidden=no
 	;;
 esac
+
 if test $ac_cv_c_flag_f_visibility_hidden = no; then
    CFLAGS="${old_CFLAGS}"
 else
@@ -145,7 +153,7 @@ else
 
 dnl https://github.com/libxmp/libxmp/issues/385
    old_CFLAGS="${CFLAGS}"
-   if test $ac_cv_c_flag_w_all = yes; then
+   if test $ac_cv_c_flag_w_error = yes; then
       CFLAGS="${CFLAGS} -Werror"
    fi
    XMP_TRY_COMPILE(whether compiler understands attribute externally_visible,
