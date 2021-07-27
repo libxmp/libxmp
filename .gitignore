@@ -74,8 +74,7 @@ libxmp.pc
 Makefile
 test/.test
 test/libxmp-covertest
-test/libxmp-tests
-test/test8.raw
+test/libxmp-test
 test-dev/.fuzzer
 test-dev/.read_test
 test-dev/ARTIFACTS
