@@ -12,11 +12,23 @@ AC_DEFUN([XMP_TRY_COMPILE],[
     CFLAGS="${oldcflags}"])
   AS_IF([test "x$$2" = xyes], [$5], [$6])])
 
+XMP_TRY_COMPILE(whether compiler understands -Wall,
+  ac_cv_c_flag_w_all,
+  -Wall,[
+  int main(void){return 0;}],
+  CFLAGS="${CFLAGS} -Wall")
+
+XMP_TRY_COMPILE(whether compiler understands -Wwrite-strings,
+  ac_cv_c_flag_w_write_strings,
+  -Wwrite-strings,[
+  int main(void){return 0;}],
+  CFLAGS="${CFLAGS} -Wwrite-strings")
+
 XMP_TRY_COMPILE(whether compiler understands -Wunused-result,
   ac_cv_c_flag_w_unused_result,
   -Wunused-result,[
-  int main(){}],
-  CFLAGS="${CFLAGS} -Wno-unused-result")  
+  int main(void){return 0;}],
+  CFLAGS="${CFLAGS} -Wno-unused-result")
 
 AC_CHECK_LIB(m,pow)
 AC_CHECK_FUNCS(pipe popen mkstemp fnmatch strlcpy strlcat round)

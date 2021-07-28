@@ -29,7 +29,7 @@ static void convert_endian(unsigned char *p, int l)
 	}
 }
 
-static int compare_md5(unsigned char *d, const char *digest)
+static int compare_md5(const unsigned char *d, const char *digest)
 {
 	int i;
 
@@ -50,7 +50,7 @@ static int compare_md5(unsigned char *d, const char *digest)
 	return 0;
 }
 
-int main()
+int main(void)
 {
 	int ret;
 	xmp_context c;

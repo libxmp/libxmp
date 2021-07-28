@@ -54,13 +54,13 @@ int play_frame(struct context_data *);
 
 int compare_module(struct xmp_module *, FILE *);
 void dump_module(struct xmp_module *, FILE *);
-int compare_md5(unsigned char *, char *);
-int check_md5(char *, char *);
+int compare_md5(const unsigned char *, const char *);
+int check_md5(const char *, const char *);
 int check_randomness(int *, int, double);
 void read_file_to_memory(const char *, void **, long *);
-void compare_mixer_data(char *, char *);
-void compare_mixer_data_loops(char *, char *, int);
-void compare_mixer_data_no_rv(char *, char *);
+void compare_mixer_data(const char *, const char *);
+void compare_mixer_data_loops(const char *, const char *, int);
+void compare_mixer_data_no_rv(const char *, const char *);
 void convert_endian(unsigned char *, int);
 void create_simple_module(struct context_data *, int, int);
 void set_order(struct context_data *, int, int);

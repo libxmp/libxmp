@@ -59,7 +59,7 @@ int check_randomness(int *array, int size, double sdev)
 	return dev > sdev;
 }
 
-int compare_md5(unsigned char *d, char *digest)
+int compare_md5(const unsigned char *d, const char *digest)
 {
 	int i;
 
@@ -80,7 +80,7 @@ int compare_md5(unsigned char *d, char *digest)
 	return 0;
 }
 
-int check_md5(char *path, char *digest)
+int check_md5(const char *path, const char *digest)
 {
 	unsigned char buf[BUFLEN];
 	unsigned char d[16];
@@ -407,7 +407,6 @@ static void dump_envelope(struct xmp_envelope *env, FILE *f)
 
 void dump_module(struct xmp_module *mod, FILE *f)
 {
-	char line[1024];
 	int i, j;
 
 	/* Write title and format */
