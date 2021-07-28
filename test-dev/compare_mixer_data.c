@@ -4,7 +4,7 @@
 #include "../src/mixer.h"
 #include "../src/virtual.h"
 
-static void _compare_mixer_data(char *mod, char *data, int loops, int ignore_rv)
+static void _compare_mixer_data(const char *mod, const char *data, int loops, int ignore_rv)
 {
 	xmp_context opaque;
 	struct context_data *ctx;
@@ -90,17 +90,17 @@ static void _compare_mixer_data(char *mod, char *data, int loops, int ignore_rv)
 	xmp_free_context(opaque);
 }
 
-void compare_mixer_data(char *mod, char *data)
+void compare_mixer_data(const char *mod, const char *data)
 {
 	_compare_mixer_data(mod, data, 1, 0);
 }
 
-void compare_mixer_data_loops(char *mod, char *data, int loops)
+void compare_mixer_data_loops(const char *mod, const char *data, int loops)
 {
 	_compare_mixer_data(mod, data, loops, 0);
 }
 
-void compare_mixer_data_no_rv(char *mod, char *data)
+void compare_mixer_data_no_rv(const char *mod, const char *data)
 {
 	_compare_mixer_data(mod, data, 1, 1);
 }

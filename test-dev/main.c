@@ -33,22 +33,22 @@
 
 struct test {
 	struct list_head list;
-	char *name;
+	const char *name;
 	int (*func)(void);
 };
 
 static LIST_HEAD(test_list);
 
-static char *color_fail = "";
-static char *color_pass = "";
-static char *color_test = "";
-static char *color_none = "";
+static const char *color_fail = "";
+static const char *color_pass = "";
+static const char *color_test = "";
+static const char *color_none = "";
 
 static int num_tests = 0;
 
 #define add_test(x) _add_test(#x, _test_func_##x)
 
-void _add_test(char *name, int (*func)(void))
+void _add_test(const char *name, int (*func)(void))
 {
 	struct test *t;
 
