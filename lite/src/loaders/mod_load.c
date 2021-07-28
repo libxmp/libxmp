@@ -76,7 +76,7 @@ found:
 static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 {
 	struct xmp_module *mod = &m->mod;
-	int i, j;
+	int i, j, k;
 	struct xmp_event *event;
 	struct mod_header mh;
 	uint8 mod_event[4];
@@ -197,12 +197,14 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (libxmp_alloc_pattern_tracks(mod, i, 64) < 0)
 			return -1;
 
-		for (j = 0; j < (64 * mod->chn); j++) {
-			event = &EVENT(i, j % mod->chn, j / mod->chn);
-			if (hio_read(mod_event, 1, 4, f) < 4) {
-				return -1;
+		for (j = 0; j < 64; j++) {
+			for (k = 0; k < mod->chn; k++) {
+				event = &EVENT(i, k, j);
+				if (hio_read(mod_event, 1, 4, f) < 4) {
+					return -1;
+				}
+				libxmp_decode_protracker_event(event, mod_event);
 			}
-			libxmp_decode_protracker_event(event, mod_event);
 		}
 	}
 
