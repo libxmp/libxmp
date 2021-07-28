@@ -354,7 +354,7 @@ int libxmp_copy_name_for_fopen(char *dest, const char *name, int n)
  * module players erroneously interpret as "newer-version-trackers commands".
  * Which they aren't.
  */
-void libxmp_decode_noisetracker_event(struct xmp_event *event, uint8 *mod_event)
+void libxmp_decode_noisetracker_event(struct xmp_event *event, const uint8 *mod_event)
 {
 	int fxt;
 
@@ -372,7 +372,7 @@ void libxmp_decode_noisetracker_event(struct xmp_event *event, uint8 *mod_event)
 }
 #endif
 
-void libxmp_decode_protracker_event(struct xmp_event *event, uint8 *mod_event)
+void libxmp_decode_protracker_event(struct xmp_event *event, const uint8 *mod_event)
 {
 	int fxt = LSN(mod_event[2]);
 
