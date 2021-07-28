@@ -47,7 +47,7 @@ static void input_sample(struct paula_state *paula, int16 sample)
 	if (sample != paula->global_output_level) {
 		/* Start a new blep: level is the difference, age (or phase) is 0 clocks. */
 		if (paula->active_bleps > MAX_BLEPS - 1) {
-			fprintf(stderr, "warning: active blep list truncated!\n");
+			D_(D_WARN "active blep list truncated!");
 			paula->active_bleps = MAX_BLEPS - 1;
 		}
 
