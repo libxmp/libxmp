@@ -615,8 +615,9 @@ skip_test:
     /* Load and convert patterns */
     D_(D_INFO "Stored patterns: %d", mod->pat);
 
-    if ((patbuf = malloc(64 * 4 * mod->chn)) == NULL)
+    if ((patbuf = (uint8 *) malloc(64 * 4 * mod->chn)) == NULL) {
 	return -1;
+    }
 
     for (i = 0; i < mod->pat; i++) {
 	uint8 *mod_event;
