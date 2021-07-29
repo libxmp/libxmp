@@ -50,7 +50,9 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 {
     struct player_data *p = &ctx->p;
     struct module_data *m = &ctx->m;
-    struct xmp_module *mod = &m->mod;
+    const struct xmp_module *mod = &m->mod;
+    const struct xmp_track *tracks[XMP_MAX_CHANNELS];
+    const struct xmp_event *event;
     int parm, gvol_memory, f1, f2, p1, p2, ord, ord2;
     int row, last_row, break_row, row_count, row_count_total;
     int orders_since_last_valid, any_valid;
@@ -61,7 +63,6 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
     int pdelay = 0;
     int loop_count[XMP_MAX_CHANNELS];
     int loop_row[XMP_MAX_CHANNELS];
-    struct xmp_event* event;
     int i, pat;
     int has_marker;
     struct ord_data *info;
@@ -196,6 +197,11 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 	    info->start_row = break_row;
 	}
 
+	/* Get tracks in advance to speed up the event parsing loop. */
+	for (chn = 0; chn < mod->chn; chn++) {
+		tracks[chn] = mod->xxt[TRACK_NUM(pat, chn)];
+	}
+
 	last_row = mod->xxp[pat]->rows;
 	for (row = break_row, break_row = 0; row < last_row; row++, row_count++, row_count_total++) {
 	    /* Prevent crashes caused by large softmixer frames */
@@ -239,10 +245,11 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 	    pdelay = 0;
 
 	    for (chn = 0; chn < mod->chn; chn++) {
-		if (row >= mod->xxt[mod->xxp[pat]->index[chn]]->rows)
+		if (row >= tracks[chn]->rows)
 		    continue;
 
-		event = &EVENT(mod->xxo[ord], chn, row);
+		//event = &EVENT(mod->xxo[ord], chn, row);
+		event = &tracks[chn]->event[row];
 
 		f1 = event->fxt;
 		p1 = event->fxp;
