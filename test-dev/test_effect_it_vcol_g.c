@@ -86,7 +86,6 @@ TEST(test_effect_it_vcol_g)
 	xmp_context opaque;
 	struct context_data *ctx;
 	struct player_data *p;
-	struct mixer_voice *vi;
 	struct xmp_frame_info info;
 	int i, voc, ret;
 
@@ -105,8 +104,7 @@ TEST(test_effect_it_vcol_g)
 
 		voc = map_channel(p, 0);
        	 	fail_unless(voc >= 0, "virtual map");
-       	 	vi = &p->virt.voice_array[voc];
-	
+
 		fail_unless(PERIOD == vals[i], "portamento error");
 	}
 

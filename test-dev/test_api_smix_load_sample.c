@@ -5,12 +5,10 @@ TEST(test_api_smix_load_sample)
 {
 	xmp_context opaque;
 	struct context_data *ctx;
-	struct player_data *p;
 	int ret;
 
 	opaque = xmp_create_context();
 	ctx = (struct context_data *)opaque;
-	p = &ctx->p;
 
 	ret = xmp_load_module(opaque, "data/mod.loving_is_easy.pp");
 	fail_unless(ret == 0, "load module");
