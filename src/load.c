@@ -263,11 +263,6 @@ static int load_module(xmp_context opaque, HIO_HANDLE *h)
 		}
 	}
 
-#ifndef LIBXMP_CORE_PLAYER
-	if (test_result == 0 && load_result == 0)
-		set_md5sum(h, m->md5);
-#endif
-
 	if (test_result < 0) {
 		xmp_release_module(opaque);
 		return -XMP_ERROR_FORMAT;
@@ -315,6 +310,11 @@ static int load_module(xmp_context opaque, HIO_HANDLE *h)
 	for (i = 0; i < mod->smp; i++) {
 		libxmp_adjust_string(mod->xxs[i].name);
 	}
+
+#ifndef LIBXMP_CORE_PLAYER
+	if (test_result == 0 && load_result == 0)
+		set_md5sum(h, m->md5);
+#endif
 
 	libxmp_load_epilogue(ctx);
 

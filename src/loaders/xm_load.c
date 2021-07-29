@@ -60,15 +60,16 @@ static int xm_test(HIO_HANDLE *f, char *t, const int start)
 	return 0;
 }
 
-static int load_xm_pattern(struct module_data *m, int num, int version, HIO_HANDLE *f)
+static int load_xm_pattern(struct module_data *m, int num, int version,
+			   uint8 *patbuf, HIO_HANDLE *f)
 {
 	const int headsize = version > 0x0102 ? 9 : 8;
 	struct xmp_module *mod = &m->mod;
 	struct xm_pattern_header xph;
 	struct xmp_event *event;
-	uint8 *patbuf, *pat, b;
-	int j, r;
-	int size;
+	uint8 *pat, b;
+	int j, k, r;
+	int size, size_read;
 
 	xph.length = hio_read32l(f);
 	xph.packing = hio_read8(f);
@@ -99,200 +100,199 @@ static int load_xm_pattern(struct module_data *m, int num, int version, HIO_HAND
 	}
 
 	size = xph.datasize;
+	pat = patbuf;
 
-	pat = patbuf = (uint8 *) calloc(1, size);
-	if (patbuf == NULL) {
-		goto err;
+	size_read = hio_read(patbuf, 1, size, f);
+	if (size_read < size) {
+		memset(patbuf + size_read, 0, size - size_read);
 	}
 
-	hio_read(patbuf, 1, size, f);
-	for (j = 0; j < (mod->chn * r); j++) {
-		/*
-		if ((pat - patbuf) >= xph.datasize)
-			break;
-		*/
+	for (j = 0; j < r; j++) {
+		for (k = 0; k < mod->chn; k++) {
+			/*
+			if ((pat - patbuf) >= xph.datasize)
+				break;
+			*/
 
-		event = &EVENT(num, j % mod->chn, j / mod->chn);
+			event = &EVENT(num, k, j);
 
-		if (--size < 0) {
-			goto err2;
-		}
-
-		if ((b = *pat++) & XM_EVENT_PACKING) {
-			if (b & XM_EVENT_NOTE_FOLLOWS) {
-				if (--size < 0)
-					goto err2;
-				event->note = *pat++;
+			if (--size < 0) {
+				goto err;
 			}
-			if (b & XM_EVENT_INSTRUMENT_FOLLOWS) {
-				if (--size < 0)
-					goto err2;
+
+			if ((b = *pat++) & XM_EVENT_PACKING) {
+				if (b & XM_EVENT_NOTE_FOLLOWS) {
+					if (--size < 0)
+						goto err;
+					event->note = *pat++;
+				}
+				if (b & XM_EVENT_INSTRUMENT_FOLLOWS) {
+					if (--size < 0)
+						goto err;
+					event->ins = *pat++;
+				}
+				if (b & XM_EVENT_VOLUME_FOLLOWS) {
+					if (--size < 0)
+						goto err;
+					event->vol = *pat++;
+				}
+				if (b & XM_EVENT_FXTYPE_FOLLOWS) {
+					if (--size < 0)
+						goto err;
+					event->fxt = *pat++;
+				}
+				if (b & XM_EVENT_FXPARM_FOLLOWS) {
+					if (--size < 0)
+						goto err;
+					event->fxp = *pat++;
+				}
+			} else {
+				size -= 4;
+				if (size < 0)
+					goto err;
+				event->note = b;
 				event->ins = *pat++;
-			}
-			if (b & XM_EVENT_VOLUME_FOLLOWS) {
-				if (--size < 0)
-					goto err2;
 				event->vol = *pat++;
-			}
-			if (b & XM_EVENT_FXTYPE_FOLLOWS) {
-				if (--size < 0)
-					goto err2;
 				event->fxt = *pat++;
-			}
-			if (b & XM_EVENT_FXPARM_FOLLOWS) {
-				if (--size < 0)
-					goto err2;
 				event->fxp = *pat++;
 			}
-		} else {
-			size -= 4;
-			if (size < 0)
-				goto err2;
-			event->note = b;
-			event->ins = *pat++;
-			event->vol = *pat++;
-			event->fxt = *pat++;
-			event->fxp = *pat++;
-		}
 
-		/* Sanity check */
-		switch (event->fxt) {
-		case 18:
-		case 19:
-		case 22:
-		case 23:
-		case 24:
-		case 26:
-		case 28:
-		case 30:
-		case 31:
-		case 32:
-			event->fxt = 0;
-		}
-		if (event->fxt > 34) {
-			event->fxt = 0;
-		}
-
-		if (event->note == 0x61) {
-			/* See OpenMPT keyoff+instr.xm test case */
-			if (event->fxt == 0x0e && MSN(event->fxp) == 0x0d) {
-				event->note = XMP_KEY_OFF;
-			} else {
-				event->note =
-				    event->ins ? XMP_KEY_FADE : XMP_KEY_OFF;
+			/* Sanity check */
+			switch (event->fxt) {
+			case 18:
+			case 19:
+			case 22:
+			case 23:
+			case 24:
+			case 26:
+			case 28:
+			case 30:
+			case 31:
+			case 32:
+				event->fxt = 0;
 			}
-		} else if (event->note > 0) {
-			event->note += 12;
-		}
-
-		if (event->fxt == 0x0e) {
-			if (MSN(event->fxp) == EX_FINETUNE) {
-				unsigned char val = (LSN(event->fxp) - 8) & 0xf;
-				event->fxp = (EX_FINETUNE << 4) | val;
+			if (event->fxt > 34) {
+				event->fxt = 0;
 			}
-			switch (event->fxp) {
-			case 0x43:
-			case 0x73:
-				event->fxp--;
+
+			if (event->note == 0x61) {
+				/* See OpenMPT keyoff+instr.xm test case */
+				if (event->fxt == 0x0e && MSN(event->fxp) == 0x0d) {
+					event->note = XMP_KEY_OFF;
+				} else {
+					event->note =
+					event->ins ? XMP_KEY_FADE : XMP_KEY_OFF;
+				}
+			} else if (event->note > 0) {
+				event->note += 12;
+			}
+
+			if (event->fxt == 0x0e) {
+				if (MSN(event->fxp) == EX_FINETUNE) {
+					unsigned char val = (LSN(event->fxp) - 8) & 0xf;
+					event->fxp = (EX_FINETUNE << 4) | val;
+				}
+				switch (event->fxp) {
+				case 0x43:
+				case 0x73:
+					event->fxp--;
+					break;
+				}
+			}
+
+			if (!event->vol) {
+				continue;
+			}
+
+			/* Volume set */
+			if ((event->vol >= 0x10) && (event->vol <= 0x50)) {
+				event->vol -= 0x0f;
+				continue;
+			}
+
+			/* Volume column effects */
+			switch (event->vol >> 4) {
+			case 0x06:	/* Volume slide down */
+				event->f2t = FX_VOLSLIDE_2;
+				event->f2p = event->vol - 0x60;
+				break;
+			case 0x07:	/* Volume slide up */
+				event->f2t = FX_VOLSLIDE_2;
+				event->f2p = (event->vol - 0x70) << 4;
+				break;
+			case 0x08:	/* Fine volume slide down */
+				event->f2t = FX_EXTENDED;
+				event->f2p =
+				(EX_F_VSLIDE_DN << 4) | (event->vol - 0x80);
+				break;
+			case 0x09:	/* Fine volume slide up */
+				event->f2t = FX_EXTENDED;
+				event->f2p =
+				(EX_F_VSLIDE_UP << 4) | (event->vol - 0x90);
+				break;
+			case 0x0a:	/* Set vibrato speed */
+				event->f2t = FX_VIBRATO;
+				event->f2p = (event->vol - 0xa0) << 4;
+				break;
+			case 0x0b:	/* Vibrato */
+				event->f2t = FX_VIBRATO;
+				event->f2p = event->vol - 0xb0;
+				break;
+			case 0x0c:	/* Set panning */
+				event->f2t = FX_SETPAN;
+				event->f2p = (event->vol - 0xc0) << 4;
+				break;
+			case 0x0d:	/* Pan slide left */
+				event->f2t = FX_PANSL_NOMEM;
+				event->f2p = (event->vol - 0xd0) << 4;
+				break;
+			case 0x0e:	/* Pan slide right */
+				event->f2t = FX_PANSL_NOMEM;
+				event->f2p = event->vol - 0xe0;
+				break;
+			case 0x0f:	/* Tone portamento */
+				event->f2t = FX_TONEPORTA;
+				event->f2p = (event->vol - 0xf0) << 4;
+
+				/* From OpenMPT TonePortamentoMemory.xm:
+				* "Another nice bug (...) is the combination of both
+				*  portamento commands (Mx and 3xx) in the same cell:
+				*  The 3xx parameter is ignored completely, and the Mx
+				*  parameter is doubled. (M2 3FF is the same as M4 000)
+				*/
+				if (event->fxt == FX_TONEPORTA
+				|| event->fxt == FX_TONE_VSLIDE) {
+					if (event->fxt == FX_TONEPORTA) {
+						event->fxt = 0;
+					} else {
+						event->fxt = FX_VOLSLIDE;
+					}
+					event->fxp = 0;
+
+					if (event->f2p < 0x80) {
+						event->f2p <<= 1;
+					} else {
+						event->f2p = 0xff;
+					}
+				}
+
+				/* From OpenMPT porta-offset.xm:
+				* "If there is a portamento command next to an offset
+				*  command, the offset command is ignored completely. In
+				*  particular, the offset parameter is not memorized."
+				*/
+				if (event->fxt == FX_OFFSET
+				&& event->f2t == FX_TONEPORTA) {
+					event->fxt = event->fxp = 0;
+				}
 				break;
 			}
+			event->vol = 0;
 		}
-
-		if (!event->vol) {
-			continue;
-		}
-
-		/* Volume set */
-		if ((event->vol >= 0x10) && (event->vol <= 0x50)) {
-			event->vol -= 0x0f;
-			continue;
-		}
-
-		/* Volume column effects */
-		switch (event->vol >> 4) {
-		case 0x06:	/* Volume slide down */
-			event->f2t = FX_VOLSLIDE_2;
-			event->f2p = event->vol - 0x60;
-			break;
-		case 0x07:	/* Volume slide up */
-			event->f2t = FX_VOLSLIDE_2;
-			event->f2p = (event->vol - 0x70) << 4;
-			break;
-		case 0x08:	/* Fine volume slide down */
-			event->f2t = FX_EXTENDED;
-			event->f2p =
-			    (EX_F_VSLIDE_DN << 4) | (event->vol - 0x80);
-			break;
-		case 0x09:	/* Fine volume slide up */
-			event->f2t = FX_EXTENDED;
-			event->f2p =
-			    (EX_F_VSLIDE_UP << 4) | (event->vol - 0x90);
-			break;
-		case 0x0a:	/* Set vibrato speed */
-			event->f2t = FX_VIBRATO;
-			event->f2p = (event->vol - 0xa0) << 4;
-			break;
-		case 0x0b:	/* Vibrato */
-			event->f2t = FX_VIBRATO;
-			event->f2p = event->vol - 0xb0;
-			break;
-		case 0x0c:	/* Set panning */
-			event->f2t = FX_SETPAN;
-			event->f2p = (event->vol - 0xc0) << 4;
-			break;
-		case 0x0d:	/* Pan slide left */
-			event->f2t = FX_PANSL_NOMEM;
-			event->f2p = (event->vol - 0xd0) << 4;
-			break;
-		case 0x0e:	/* Pan slide right */
-			event->f2t = FX_PANSL_NOMEM;
-			event->f2p = event->vol - 0xe0;
-			break;
-		case 0x0f:	/* Tone portamento */
-			event->f2t = FX_TONEPORTA;
-			event->f2p = (event->vol - 0xf0) << 4;
-
-			/* From OpenMPT TonePortamentoMemory.xm:
-			 * "Another nice bug (...) is the combination of both
-			 *  portamento commands (Mx and 3xx) in the same cell:
-			 *  The 3xx parameter is ignored completely, and the Mx
-			 *  parameter is doubled. (M2 3FF is the same as M4 000)
-			 */
-			if (event->fxt == FX_TONEPORTA
-			    || event->fxt == FX_TONE_VSLIDE) {
-				if (event->fxt == FX_TONEPORTA) {
-					event->fxt = 0;
-				} else {
-					event->fxt = FX_VOLSLIDE;
-				}
-				event->fxp = 0;
-
-				if (event->f2p < 0x80) {
-					event->f2p <<= 1;
-				} else {
-					event->f2p = 0xff;
-				}
-			}
-
-			/* From OpenMPT porta-offset.xm:
-			 * "If there is a portamento command next to an offset
-			 *  command, the offset command is ignored completely. In
-			 *  particular, the offset parameter is not memorized."
-			 */
-			if (event->fxt == FX_OFFSET
-			    && event->f2t == FX_TONEPORTA) {
-				event->fxt = event->fxp = 0;
-			}
-			break;
-		}
-		event->vol = 0;
 	}
-	free(patbuf);
 
 	return 0;
 
-err2:
-	free(patbuf);
 err:
 	return -1;
 }
@@ -300,6 +300,7 @@ err:
 static int load_patterns(struct module_data *m, int version, HIO_HANDLE *f)
 {
 	struct xmp_module *mod = &m->mod;
+	uint8 *patbuf;
 	int i, j;
 
 	mod->pat++;
@@ -309,8 +310,12 @@ static int load_patterns(struct module_data *m, int version, HIO_HANDLE *f)
 
 	D_(D_INFO "Stored patterns: %d", mod->pat - 1);
 
+	if ((patbuf = calloc(1, 65536)) == NULL) {
+		return -1;
+	}
+
 	for (i = 0; i < mod->pat - 1; i++) {
-		if (load_xm_pattern(m, i, version, f) < 0) {
+		if (load_xm_pattern(m, i, version, patbuf, f) < 0) {
 			goto err;
 		}
 	}
@@ -334,9 +339,11 @@ static int load_patterns(struct module_data *m, int version, HIO_HANDLE *f)
 		}
 	}
 
+	free(patbuf);
 	return 0;
 
 err:
+	free(patbuf);
 	return -1;
 }
 
