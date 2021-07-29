@@ -440,6 +440,13 @@ int mmd_load_hybrid_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 	length = hio_read32b(f);
 	type = hio_read16b(f);
 
+	/* Hybrids using IFFOCT/ext samples as their sample don't seem to
+	 * exist. If one is found, this should be fixed. */
+	if (type != 0) {
+		D_(D_CRIT "unsupported sample type %d for hybrid", type);
+		return -1;
+	}
+
 	if (libxmp_med_new_instrument_extras(xxi) != 0)
 		return -1;
 

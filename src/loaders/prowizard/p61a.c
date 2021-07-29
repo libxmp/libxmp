@@ -27,9 +27,9 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
     uint8 tdata[512][256];
     uint8 ptable[128];
     int isize[31];
-    uint8 PACK[31];
+    /* uint8 PACK[31]; */
     uint8 use_delta = 0;
-    uint8 use_packed = 0;
+    /* uint8 use_packed = 0; */
     int taddr[128][4];
     int tdata_addr = 0;
     int sdata_addr = 0;
@@ -37,7 +37,7 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
     int i = 0, j, k, l, a, b, z;
     int smp_size[31];
     int saddr[31];
-    int Unpacked_Sample_Data_Size;
+    /* int Unpacked_Sample_Data_Size; */
     int val;
 
     memset(taddr, 0, sizeof(taddr));
@@ -47,7 +47,7 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
     memset(isize, 0, sizeof(isize));
     memset(saddr, 0, sizeof(saddr));
     for (i = 0; i < 31; i++) {
-	PACK[i] = 0;
+	/* PACK[i] = 0; */
 	/* DELTA[i] = 0;*/
     }
 
@@ -67,14 +67,16 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
     }
     if (nins & 0x40) {
 	/* Some samples are packed -- depacking not implemented */
-	use_packed = 1;
+	/* use_packed = 1; */
 	return -1;
     }
     nins &= 0x3f;
 
     /* read unpacked sample data size */
+    /*
     if (use_packed == 1)
 	Unpacked_Sample_Data_Size = hio_read32b(in);
+    */
 
     pw_write_zero(out, 20);		/* write title */
 
@@ -99,8 +101,10 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
 	write16b(out, isize[i]);
 
 	c1 = hio_read8(in);			/* finetune */
+	/*
 	if (c1 & 0x40)
 	    PACK[i] = 1;
+	*/
 	c1 &= 0x3f;
 	write8(out, c1);
 

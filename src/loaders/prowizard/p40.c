@@ -58,7 +58,7 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 {
 	uint8 c1, c2, c3, c4, c5;
 	uint8 tmp[1024];
-	uint8 len, npat, nsmp;
+	uint8 len, nsmp;
 	uint8 *tdata;
 	uint16 track_addr[128][4];
 	long in_size;
@@ -88,7 +88,7 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 	}
 #endif
 
-	npat = hio_read8(in);		/* read Real number of pattern */
+	hio_read8(in);			/* read Real number of pattern */
 	len = hio_read8(in);		/* read number of patterns in list */
 
 	/* Sanity check */

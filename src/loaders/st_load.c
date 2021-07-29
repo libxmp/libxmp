@@ -218,11 +218,8 @@ static int st_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	int fxused;
 	int pos;
 	int used_ins;		/* Number of samples actually used */
-	long size;
 
 	LOAD_INIT();
-
-	size = hio_size(f);
 
 	mod->chn = 4;
 	mod->ins = 15;
