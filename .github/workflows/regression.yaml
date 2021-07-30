@@ -8,22 +8,33 @@ jobs:
   linux:
     strategy:
        matrix:
-         distro: [ubuntu-latest, ubuntu-18.04, ubuntu-16.04]
+         distro: [ubuntu-latest, ubuntu-18.04]
     runs-on: ${{ matrix.distro }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Create and run configure script
+      - name: CMake configure
+        run: |
+          mkdir build
+          cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
+      - name: CMake build
+        run: |
+          cmake --build build --target all
+      - name: CMake checks
+        run: |
+          cd build
+          ctest --output-on-failure
+      - name: Create and run Autotools configure script
         run: |
           autoconf
           ./configure
-      - name: Build
+      - name: Autotools build
         run: |
           make
-      - name: Run check
+      - name: Autotools check
         run: |
           make check
-      - name: Run devcheck
+      - name: Autotools devcheck
         run: |
           (cd test-dev && autoconf && ./configure)
           make devcheck
@@ -33,17 +44,28 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: CMake configure
+        run: |
+          mkdir build
+          CC=clang cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
+      - name: CMake build
+        run: |
+          cmake --build build --target all
+      - name: CMake checks
+        run: |
+          cd build
+          ctest --output-on-failure
       - name: Create and run configure script
         run: |
           autoconf
           CC=clang ./configure
-      - name: Build
+      - name: Autotools build
         run: |
           make
-      - name: Run check
+      - name: Autotools check
         run: |
           make check
-      - name: Run devcheck
+      - name: Autotools devcheck
         run: |
           (cd test-dev && autoconf && CC=clang CFLAGS="-fPIE" ./configure)
           make devcheck
@@ -56,6 +78,19 @@ jobs:
         uses: actions/checkout@v2
       - name: Install dependencies
         run: sudo apt update && sudo apt install gcc-10
+      - name: CMake configure
+        run: |
+          export CC=gcc-10
+          export CFLAGS="-flto"
+          export LDFLAGS="-flto"
+          cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
+      - name: CMake build
+        run: |
+          cmake --build build --target all
+      - name: CMake checks
+        run: |
+          cd build
+          ctest --output-on-failure
       - name: Create and run configure script
         run: |
           export CC=gcc-10
@@ -64,74 +99,15 @@ jobs:
           autoconf
           ./configure
           (cd test-dev && autoconf && ./configure)
-      - name: Build
+      - name: Autotools build
         run: |
           make
-      - name: Run check
+      - name: Autotools check
         run: |
           make check
-      - name: Run devcheck
+      - name: Autotools devcheck
         run: |
           make devcheck
-
-  linux-cmake:
-    strategy:
-       matrix:
-         distro: [ubuntu-latest, ubuntu-18.04, ubuntu-16.04]
-    runs-on: ${{ matrix.distro }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Run CMake script
-        run: |
-          mkdir build
-          cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
-      - name: Build
-        run: |
-          cmake --build build --target all
-      - name: Run checks
-        run: |
-          cd build
-          ctest --output-on-failure
-
-  linux-clang-cmake:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Run CMake script
-        run: |
-          mkdir build
-          CC=clang cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
-      - name: Build
-        run: |
-          cmake --build build --target all
-      - name: Run checks
-        run: |
-          cd build
-          ctest --output-on-failure
-
-  # Simulate Fedora RPM builds, usage of __symver__.
-  linux-gcc-10-lto-cmake:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Install dependencies
-        run: sudo apt update && sudo apt install gcc-10
-      - name: Run CMake script
-        run: |
-          export CC=gcc-10
-          export CFLAGS="-flto"
-          export LDFLAGS="-flto"
-          cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
-      - name: Build
-        run: |
-          cmake --build build --target all
-      - name: Run checks
-        run: |
-          cd build
-          ctest --output-on-failure
 
   emscripten:
     runs-on: ubuntu-latest
@@ -147,49 +123,35 @@ jobs:
           cd emsdk
           ./emsdk install latest
           ./emsdk activate latest
-      - name: Create and run configure script
-        run: |
-          source ../emsdk/emsdk_env.sh
-          autoreconf -iv
-          emconfigure ./configure --enable-static --disable-shared
-      - name: Build
-        run: |
-          source ../emsdk/emsdk_env.sh
-          emmake make
-      - name: Run check
-        run: |
-          source ../emsdk/emsdk_env.sh
-          cd test
-          emcc test.c ../src/md5.c -o test.js -O3 -Wall -I../include -I../src -L../lib/ --embed-file test.itz -lxmp
-          node test.js
-
-  emscripten-cmake:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Install dependencies
-        run: sudo apt update && sudo apt install autoconf
-      - name: Install emscripten
-        run: |
-          cd ..
-          git clone https://github.com/emscripten-core/emsdk.git
-          cd emsdk
-          ./emsdk install latest
-          ./emsdk activate latest
-      - name: Run CMake script
+      - name: CMake configure
         run: |
           source ../emsdk/emsdk_env.sh
           emcmake cmake . -DCMAKE_BUILD_TYPE=Debug -B build
-      - name: Build
+      - name: CMake build
         run: |
           source ../emsdk/emsdk_env.sh
           cmake --build build --target all
-      - name: Run check
+      - name: CMake check
         run: |
           source ../emsdk/emsdk_env.sh
           cd test
           emcc test.c ../src/md5.c -o test.js -O3 -Wall -I../include -I../src -L../build/ --embed-file test.itz -lxmp
+          node test.js
+          rm test.js
+      - name: Create and run Autotools configure script
+        run: |
+          source ../emsdk/emsdk_env.sh
+          autoreconf -iv
+          emconfigure ./configure --enable-static --disable-shared
+      - name: Autotools build
+        run: |
+          source ../emsdk/emsdk_env.sh
+          emmake make
+      - name: Autotools check
+        run: |
+          source ../emsdk/emsdk_env.sh
+          cd test
+          emcc test.c ../src/md5.c -o test.js -O3 -Wall -I../include -I../src -L../lib/ --embed-file test.itz -lxmp
           node test.js
 
   macos:
@@ -197,48 +159,36 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Create and run configure script
-        run: |
-          autoconf
-          ./configure
-      - name: Build
-        run: |
-          make
-      - name: Run check
-        run: |
-          make check
-      - name: Run devcheck
-        run: |
-          (cd test-dev && autoconf && ./configure)
-          make devcheck
-
-  macos-cmake:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Run CMake script
+      - name: CMake configure for Intel
         run: |
           cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
-      - name: Build
+      - name: CMake build for Intel
         run: |
           cmake --build build --target all
-      - name: Run checks
+      - name: CMake checks
         run: |
           cd build
           ctest --output-on-failure
-
-  macos-cmake-m1:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Run CMake script
+      - name: CMake configure for M1
         run: |
-          cmake . -DCMAKE_OSX_ARCHITECTURES="arm64" -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=OFF -B build
-      - name: Build
+          cmake . -DCMAKE_OSX_ARCHITECTURES="arm64" -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=OFF -B build-m1
+      - name: CMake build for M1
         run: |
-          cmake --build build --target all
+          cmake --build build-m1 --target all
+      - name: Create and run Autotools configure script
+        run: |
+          autoconf
+          ./configure
+      - name: Autotools build
+        run: |
+          make
+      - name: Autotools check
+        run: |
+          make check
+      - name: Autotools devcheck
+        run: |
+          (cd test-dev && autoconf && ./configure)
+          make devcheck
 
   windows-vc:
     strategy:
@@ -248,71 +198,27 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Build
-        run: |
-          cmd.exe /C "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" ${{ matrix.targetplatform }} "&&" nmake -f Makefile.vc
-      - name: Run check
-        run: |
-          cmd.exe /C "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" ${{ matrix.targetplatform }} "&&" nmake -f Makefile.vc check
-      - name: Run devcheck
-        run: |
-          cmd.exe /C "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" ${{ matrix.targetplatform }} "&&" cd test-dev "&&" nmake -f Makefile.vc
-
-  windows-vc-cmake:
-    strategy:
-       matrix:
-         targetplatform: [x86, amd64]
-    runs-on: windows-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Run CMake script
+      - name: CMake configure
         run: |
           cmd.exe /C "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" ${{ matrix.targetplatform }} "&&" cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
-      - name: Build
+      - name: CMake build
         run: |
           cmake --build build --config Debug --target ALL_BUILD
-      - name: Run checks
+      - name: CMake checks
         run: |
           cd build
           ctest -C Debug --output-on-failure
+      - name: NMake Build
+        run: |
+          cmd.exe /C "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" ${{ matrix.targetplatform }} "&&" nmake -f Makefile.vc
+      - name: NMake check
+        run: |
+          cmd.exe /C "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" ${{ matrix.targetplatform }} "&&" nmake -f Makefile.vc check
+      - name: NMake devcheck
+        run: |
+          cmd.exe /C "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" ${{ matrix.targetplatform }} "&&" cd test-dev "&&" nmake -f Makefile.vc
 
   windows-msys2:
-    runs-on: windows-latest
-    strategy:
-      matrix:
-        include: [
-          {installs: "MINGW32", pkg: "mingw-w64-i686-gcc"},
-          {installs: "MINGW64", pkg: "mingw-w64-x86_64-gcc"},
-        ]
-    defaults:
-      run:
-        shell: msys2 {0}
-    steps:
-      - name: Setup msys2
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: ${{ matrix.installs }}
-          update: true
-          install: base-devel git autoconf ${{ matrix.pkg }}
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Create and run configure script
-        run: |
-          autoconf
-          ./configure
-      - name: Build
-        run: |
-          make
-      - name: Run check
-        run: |
-          make check
-      - name: Run devcheck
-        run: |
-          (cd test-dev && autoconf && ./configure)
-          make devcheck
-
-  windows-msys2-cmake:
     runs-on: windows-latest
     strategy:
       matrix:
@@ -332,16 +238,30 @@ jobs:
           install: base-devel git autoconf ${{ matrix.pkg }}
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Create and run configure script
+      - name: CMake configure
         run: |
           cmake . -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
-      - name: Build
+      - name: CMake build
         run: |
           cmake --build build --target all
-      - name: Run checks
+      - name: CMake checks
         run: |
           cd build
           ctest --output-on-failure
+      - name: Create and run Autotools configure script
+        run: |
+          autoconf
+          ./configure
+      - name: Autotools build
+        run: |
+          make
+      - name: Autotools check
+        run: |
+          make check
+      - name: Autotools devcheck
+        run: |
+          (cd test-dev && autoconf && ./configure)
+          make devcheck
 
   AddressSanitizer:
     runs-on: ubuntu-latest
