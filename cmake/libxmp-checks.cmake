@@ -17,6 +17,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC)
     set(HAVE_GCC TRUE)
 endif()
 
+message("-- Check for working linker: ${CMAKE_LINKER}")
 execute_process(COMMAND ${CMAKE_LINKER} -v
         OUTPUT_VARIABLE LINKER_OUTPUT
         ERROR_VARIABLE  LINKER_OUTPUT)
