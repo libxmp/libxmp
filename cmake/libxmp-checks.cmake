@@ -17,7 +17,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC)
     set(HAVE_GCC TRUE)
 endif()
 
-if(HAVE_CLANG AND NOT CMAKE_LINKER) # Workaround
+if(HAVE_CLANG AND NOT WIN32 AND NOT CMAKE_LINKER) # Workaround
     find_program(CMAKE_LINKER ld)
 endif()
 
