@@ -263,8 +263,6 @@ static int coco_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (i < mod->len)
 			mod->xxo[i] = x;
 	}
-	for (i++; i % 4; i++)	/* for alignment */
-		hio_read8(f);
 
 	/* Patterns */
 
@@ -272,6 +270,9 @@ static int coco_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		return -1;
 
 	D_(D_INFO "Stored patterns: %d", mod->pat);
+
+	if (hio_seek(f, start + pat_ptr, SEEK_SET) < 0)
+		return -1;
 
 	for (i = 0; i < mod->pat; i++) {
 		if (libxmp_alloc_pattern_tracks(mod, i, 64) < 0)

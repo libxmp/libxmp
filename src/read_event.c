@@ -123,10 +123,11 @@ static void set_effect_defaults(struct context_data *ctx, int note,
 				struct channel_data *xc, int is_toneporta)
 {
 	struct module_data *m = &ctx->m;
-	struct xmp_module *mod = &m->mod;
-	struct smix_data *smix = &ctx->smix;
 
 	if (sub != NULL && note >= 0) {
+#ifndef LIBXMP_CORE_DISABLE_IT
+		struct xmp_module *mod = &m->mod;
+		struct smix_data *smix = &ctx->smix;
 		struct xmp_instrument *xxi;
 
 		if (xc->ins >= mod->ins) {
@@ -134,6 +135,7 @@ static void set_effect_defaults(struct context_data *ctx, int note,
 		} else {
 			xxi = &mod->xxi[xc->ins];
 		}
+#endif
 
 		if (!HAS_QUIRK(QUIRK_PROTRACK)) {
 			xc->finetune = sub->fin;

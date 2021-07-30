@@ -488,6 +488,26 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	}
 	free(buf);
 
+	/* Information text */
+	if (infolen > 0) {
+		a = hio_read8(f); /* Packing */
+
+		m->comment = (char *)malloc(infolen + 1);
+		if (m->comment) {
+			m->comment[infolen] = '\0';
+			if (a) {
+				ret = libxmp_read_lzw(m->comment, infolen, infolen, LZW_FLAGS_SYM, f);
+			} else {
+				size = hio_read(m->comment, 1, infolen, f);
+				ret = (size < infolen) ? -1 : 0;
+			}
+			if (ret < 0) {
+				free(m->comment);
+				m->comment = NULL;
+			}
+		}
+	}
+
 	for (i = 0; i < mod->chn; i++) {
 		mod->xxc[i].pan = DEFPAN((((i + 3) / 2) % 2) * 0xff);
 	}

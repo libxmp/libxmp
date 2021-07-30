@@ -39,10 +39,12 @@ struct test {
 
 static LIST_HEAD(test_list);
 
+#ifdef FORK_TEST
 static const char *color_fail = "";
 static const char *color_pass = "";
 static const char *color_test = "";
 static const char *color_none = "";
+#endif
 
 static int num_tests = 0;
 

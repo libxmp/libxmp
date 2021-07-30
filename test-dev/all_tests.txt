@@ -91,6 +91,7 @@ test_loader_abk
 test_loader_asylum
 test_loader_chiptracker
 test_loader_coco
+test_loader_coco_patalign
 test_loader_dbm
 test_loader_dbm_rows
 test_loader_dbm_penv
@@ -126,6 +127,7 @@ test_loader_mdl
 test_loader_med2
 test_loader_med3
 test_loader_med4
+test_loader_med4_decvol
 test_loader_mmd0
 test_loader_mmd0_compattempo
 test_loader_mmd1_longpat
