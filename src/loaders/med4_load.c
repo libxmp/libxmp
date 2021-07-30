@@ -54,7 +54,7 @@ static int med4_test(HIO_HANDLE *f, char *t, const int start)
 
 const unsigned MAX_CHANNELS = 16;
 
-static void fix_effect(struct xmp_event *event)
+static void fix_effect(struct xmp_event *event, int hexvol)
 {
 	switch (event->fxt) {
 	case 0x00:	/* arpeggio */
@@ -64,8 +64,9 @@ static void fix_effect(struct xmp_event *event)
 	case 0x04:	/* vibrato? */
 		break;
 	case 0x0c:	/* set volume (BCD) */
-		event->fxp = MSN(event->fxp) * 10 +
-					LSN(event->fxp);
+		if (!hexvol) {
+			event->fxp = MSN(event->fxp) * 10 + LSN(event->fxp);
+		}
 		break;
 	case 0x0d:	/* volume slides */
 		event->fxt = FX_VOLSLIDE;
@@ -307,15 +308,14 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		mod->bpm = 125 * tempo / 33;
 	}
 	transp = hio_read8s(f);
-	hio_read8s(f);
 	flags = hio_read8s(f);
-	mod->spd = hio_read8(f);
+	mod->spd = hio_read16b(f);
 
 	if (~flags & 0x20)	/* sliding */
 		m->quirk |= QUIRK_VSALL | QUIRK_PBALL;
 
 	if (flags & 0x10)	/* dec/hex volumes */
-		hexvol = 1;	/* not implemented */
+		hexvol = 1;
 
 	/* This is just a guess... */
 	if (vermaj == 2)	/* Happy.med has tempo 5 but loads as 6 */
@@ -472,7 +472,7 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 						x = stream_read12(&stream);
 						event->fxt = x >> 8;
 						event->fxp = x & 0xff;
-						fix_effect(event);
+						fix_effect(event, hexvol);
 					}
 				}
 			}
@@ -799,7 +799,9 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		smp_idx++;
 	}
 
-	hio_read16b(f);	/* unknown */
+	/* Not sure what this was supposed to be, but it isn't present in
+	 * Synth-a-sysmic.med or any other MED4 module on ModLand. */
+	/*hio_read16b(f);*/	/* unknown */
 
 	/* IFF-like section */
 parse_iff:
@@ -812,24 +814,24 @@ parse_iff:
 		if ((size = hio_read32b(f)) <= 0)
 			break;
 
-		if ((pos = hio_tell(f)) < 0) {
-			return -1;
-		}
-
 		switch (id) {
 		case MAGIC4('M','E','D','V'):
 			ver = hio_read32b(f);
 			size -= 4;
-			D_(D_INFO "MED Version: %d.%0d\n",
-					(ver & 0xff00) >> 8, ver & 0xff);
+			vermaj = (ver & 0xff00) >> 8;
+			vermin = (ver & 0xff);
+			D_(D_INFO "MED Version: %d.%0d", vermaj, vermin);
 			break;
 		case MAGIC4('A','N','N','O'):
 			/* annotation */
 			s2 = size < 1023 ? size : 1023;
-			hio_read(buf, 1, s2, f);
-			buf[s2] = 0;
-			D_(D_INFO "Annotation: %s\n", buf);
-			size -= s2;
+			if ((m->comment = malloc(s2 + 1)) != NULL) {
+				int read_len = hio_read(m->comment, 1, s2, f);
+				m->comment[read_len] = '\0';
+
+				D_(D_INFO "Annotation: %s", m->comment);
+				size -= s2;
+			}
 			break;
 		case MAGIC4('H','L','D','C'):
 			/* hold & decay */
