@@ -4,7 +4,7 @@
 TEST(test_read_mem_hio_nosize)
 {
 	HIO_HANDLE *h;
-	char mem;
+	char mem = 0; /* suppress warning */
 
 	h = hio_open_mem(&mem, -1);
 	fail_unless(h == NULL, "hio_open");

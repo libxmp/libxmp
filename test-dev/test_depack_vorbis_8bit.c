@@ -26,7 +26,6 @@ TEST(test_depack_vorbis_8bit)
 
 	for (i = 0; i < 5492; i++) {
 		if (pcm8[i] != ((int8 *)buf)[i])
-			printf("%d %d\n", pcm8[i], ((int8 *)buf)[i]);
 			fail_unless(abs(pcm8[i] - ((int8 *)buf)[i]) <= 1, "data error");
 	}
 
