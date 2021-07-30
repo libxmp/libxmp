@@ -61,7 +61,7 @@ static int mgt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	struct xmp_event *event;
 	int i, j;
 	int ver;
-	int sng_ptr, seq_ptr, ins_ptr, pat_ptr, trk_ptr, smp_ptr;
+	int sng_ptr, seq_ptr, ins_ptr, pat_ptr, trk_ptr;
 	int sdata[64];
 
 	LOAD_INIT();
@@ -91,7 +91,7 @@ static int mgt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	ins_ptr = hio_read32b(f);
 	pat_ptr = hio_read32b(f);
 	trk_ptr = hio_read32b(f);
-	smp_ptr = hio_read32b(f);
+	hio_read32b(f);			/* sample offset */
 	hio_read32b(f);			/* total smp len */
 	hio_read32b(f);			/* unpacked trk size */
 
@@ -215,7 +215,11 @@ static int mgt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		//printf("\n=== Track %d ===\n\n", i);
 		for (j = 0; j < rows; j++) {
-			uint8 note, f2p;
+			uint8 note;
+			/* TODO libxmp can't really support the wide effect
+			 * params Megatracker uses right now, but less bad
+			 * conversions of certain effects could be attempted. */
+			/* uint8 f2p ;*/
 
 			b = hio_read8(f);
 			j += b & 0x03;
@@ -237,7 +241,7 @@ static int mgt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			if (b & 0x40)
 				event->fxp = hio_read8(f);
 			if (b & 0x80)
-				f2p = hio_read8(f);
+				/*f2p =*/ hio_read8(f);
 
 			if (note == 1)
 				event->note = XMP_KEY_OFF;
@@ -248,13 +252,13 @@ static int mgt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			if (event->fxt < 0x10)
 				/* like amiga */ ;
 			else switch (event->fxt) {
-			case 0x13: 
-			case 0x14: 
-			case 0x15: 
-			case 0x17: 
-			case 0x1c: 
-			case 0x1d: 
-			case 0x1e: 
+			case 0x13:
+			case 0x14:
+			case 0x15:
+			case 0x17:
+			case 0x1c:
+			case 0x1d:
+			case 0x1e:
 				event->fxt = FX_EXTENDED;
 				event->fxp = ((event->fxt & 0x0f) << 4) |
 							(event->fxp & 0x0f);

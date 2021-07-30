@@ -219,7 +219,7 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	struct local_data *data = (struct local_data *)parm;
 	int i, j;
 	int srate, finetune, flags;
-	int val, vwf, vra, vde, vsw, fade;
+	int val, vwf, vra, vde, vsw /*, fade*/;
 	uint8 buf[30];
 
 	hio_read8(f);		/* 00 */
@@ -300,7 +300,7 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 		mod->xxi[i].pei.data[j * 2 + 1] = buf[j * 3 + 2];
 	}
 
-	fade = hio_read8(f);		/* fadeout - 0x80->0x02 0x310->0x0c */
+	/*fade =*/ hio_read8(f);	/* fadeout - 0x80->0x02 0x310->0x0c */
 	hio_read8(f);			/* unknown */
 
 	D_(D_INFO "[%2X] %-28.28s  %2d ", i, mod->xxi[i].name, mod->xxi[i].nsm);
