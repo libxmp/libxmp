@@ -100,9 +100,13 @@ if(BUILD_SHARED)
         endif()
     endif()
 
-    if(HAVE_VISIBILITY AND UNIX AND (NOT APPLE))
+    if(HAVE_VISIBILITY AND HAVE_GNU_LD AND UNIX)
+        target_compile_definitions(xmp_lite_shared PRIVATE -DUSE_VERSIONED_SYMBOLS=1)
         set_property(TARGET xmp_lite_shared APPEND_STRING PROPERTY
                      LINK_FLAGS " -Wl,--version-script,${CMAKE_CURRENT_SOURCE_DIR}/libxmp.map")
+        message(STATUS "Versioned symbols: ENABLED.")
+    else()
+        message(STATUS "Versioned symbols: DISABLED")
     endif()
 
     target_compile_definitions(xmp_lite_shared PRIVATE ${LIBXMP_DEFINES})

@@ -17,9 +17,12 @@ elseif(CMAKE_COMPILER_IS_GNUCC)
     set(HAVE_GCC TRUE)
 endif()
 
-execute_process(COMMAND ${CMAKE_LINKER} -v OUTPUT_VARIABLE LINKER_OUTPUT)
+execute_process(COMMAND ${CMAKE_LINKER} -v
+        OUTPUT_VARIABLE LINKER_OUTPUT
+        ERROR_VARIABLE  LINKER_OUTPUT)
+message(STATUS "${LINKER_OUTPUT}")
 if("${LINKER_OUTPUT}" MATCHES ".*GNU.*" OR "${LINKER_OUTPUT}" MATCHES ".*with BFD.*")
-    set(HAVE_GNU_LD 1)
+    set(HAVE_GNU_LD TRUE)
 endif()
 
 
@@ -92,8 +95,7 @@ if(MSVC)
 else()
     xmp_add_warning_flag("-Wall" GCC_WALL)
     xmp_add_warning_flag("-Wwrite-strings" WRITE_STRINGS)
-
-    xmp_disable_warning_flag("unknown-warning-option" NO_UNKNOWN_WARNING_OPTION)
+    xmp_disable_warning_flag("unknown-warning-option" NO_UNKNOWN_WARNING)
 endif()
 
 
