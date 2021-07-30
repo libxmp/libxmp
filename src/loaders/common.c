@@ -417,6 +417,7 @@ void libxmp_disable_continue_fx(struct xmp_event *event)
 #if defined(_WIN32) || defined(__DJGPP__)  || \
     defined(__OS2__) || defined(__EMX__)   || \
     defined(_DOS) || defined(LIBXMP_AMIGA) || \
+    defined(__riscos__) || \
     /* case-insensitive file system: directly probe the file */\
     \
    !defined(HAVE_DIRENT) /* or, target does not have dirent. */
