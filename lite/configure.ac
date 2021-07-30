@@ -145,13 +145,25 @@ case $host_os in
 	;;
 esac
 
+have_versioned_symbols=no
 if test $ac_cv_c_flag_f_visibility_hidden = no; then
    CFLAGS="${old_CFLAGS}"
 else
    CFLAGS="${old_CFLAGS} -fvisibility=hidden -DXMP_SYM_VISIBILITY"
-   LD_VERSCRIPT="-Wl,--version-script,libxmp.map"
 
-dnl https://github.com/libxmp/libxmp/issues/385
+   if test $ac_cv_prog_gnu_ld = yes; then
+      case "${host_os}" in
+        emscripten*|beos*|atheos*|*mint)
+          ;;
+        *) if test "${enable_shared}" != no; then
+              have_versioned_symbols=yes
+              CFLAGS_SHARED="${CFLAGS_SHARED} -DUSE_VERSIONED_SYMBOLS=1"
+         fi
+         LD_VERSCRIPT="-Wl,--version-script,libxmp.map"
+         ;;
+      esac
+   fi
+
    old_CFLAGS="${CFLAGS}"
    if test $ac_cv_c_flag_w_error = yes; then
       CFLAGS="${CFLAGS} -Werror"
@@ -169,6 +181,9 @@ void foo(void) __attribute__((__symver__("foo@bar")));],
     [CFLAGS="${CFLAGS} -DHAVE_ATTRIBUTE_SYMVER"],
     [CFLAGS="${CFLAGS}"])
 fi
+
+AC_MSG_CHECKING(whether to enable versioned symbols support)
+AC_MSG_RESULT($have_versioned_symbols)
 
 dnl for clang
 XMP_TRY_COMPILE(whether compiler understands -Wunknown-warning-option,
