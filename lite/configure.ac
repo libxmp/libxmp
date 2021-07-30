@@ -177,12 +177,6 @@ XMP_TRY_COMPILE(whether compiler understands -Wunknown-warning-option,
   int main(void){return 0;}],
   CFLAGS="${CFLAGS} -Wno-unknown-warning-option")
 
-XMP_TRY_COMPILE(whether compiler understands -Wunused-but-set-variable,
-  ac_cv_c_flag_w_unused_but_set_variable,
-  -Wunused-but-set-variable,[
-  int main(void){return 0;}],
-  CFLAGS="${CFLAGS} -Wno-unused-but-set-variable")
-
 XMP_TRY_COMPILE(whether compiler understands -Wunused-result,
   ac_cv_c_flag_w_unused_result,
   -Wunused-result,[
