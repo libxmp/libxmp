@@ -26,10 +26,10 @@ LD_VERSCRIPT	= @LD_VERSCRIPT@
 SHELL		= /bin/sh
 
 DIST		= libxmp-lite-$(VERSION)
-DFILES		= README INSTALL Changelog install-sh configure configure.ac \
-		  config.sub config.guess Makefile.in libxmp-lite.pc.in \
-		  Makefile.vc Makefile.os2 Makefile.w32 watcom.mif libxmp.map
-DDIRS		= include src loaders test
+DFILES		= README INSTALL install-sh configure configure.ac config.sub config.guess    \
+		  Makefile.in Makefile.vc Makefile.os2 Makefile.w32 watcom.mif CMakeLists.txt \
+		  libxmp.map libxmp-lite.pc.in Changelog
+DDIRS		= include src loaders test cmake
 V		= 0
 LIB		= libxmp-lite.a
 SOLIB		= libxmp-lite.so
@@ -53,6 +53,7 @@ endif
 all: @STATIC@ @SHARED@
 
 include include/libxmp-lite/Makefile
+include cmake/Makefile
 include src/Makefile
 include src/loaders/Makefile
 include test/Makefile
