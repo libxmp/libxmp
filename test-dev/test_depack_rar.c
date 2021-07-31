@@ -14,7 +14,7 @@ TEST(test_depack_rar)
 	/* This uses an external depacker currently, so if
 	 * depacking fails, it's most likely because unrar isn't
 	 * available. If this happens, just let the test pass. */
-	if (ret != -XMP_ERROR_DEPACK) {
+	if (ret != -XMP_ERROR_DEPACK && ret != -XMP_ERROR_FORMAT) {
 		FILE *f;
 
 		fail_unless(ret == 0, "can't load module");
