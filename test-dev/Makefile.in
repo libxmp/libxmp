@@ -350,6 +350,7 @@ FUZZER		= misc \
 		  xm_negative_instsize \
 		  xm_orders_mismatch \
 		  xm_vorbis_crash \
+		  xm_vorbis_leak \
 		  xm_zero_samples \
 		  it_dca_3 \
 		  it_invalid_compressed \
