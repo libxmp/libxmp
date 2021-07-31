@@ -19,9 +19,12 @@ endif()
 
 message("-- Check for working linker: ${CMAKE_LINKER}")
 execute_process(COMMAND ${CMAKE_LINKER} -v
-        OUTPUT_VARIABLE LINKER_OUTPUT
-        ERROR_VARIABLE  LINKER_OUTPUT)
-message(STATUS "${LINKER_OUTPUT}")
+                OUTPUT_VARIABLE LINKER_OUTPUT
+                ERROR_VARIABLE  LINKER_OUTPUT)
+
+string(REGEX REPLACE "[\r\n].*" "" LINKER_OUTPUT_LINE "${LINKER_OUTPUT}")
+message(STATUS "Linker identification: ${LINKER_OUTPUT_LINE}")
+
 if("${LINKER_OUTPUT}" MATCHES ".*GNU.*" OR "${LINKER_OUTPUT}" MATCHES ".*with BFD.*")
     set(HAVE_GNU_LD TRUE)
 endif()
