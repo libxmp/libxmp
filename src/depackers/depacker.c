@@ -272,7 +272,7 @@ int libxmp_decrunch(HIO_HANDLE **h, const char *filename, char **temp)
 
 #if defined __ANDROID__ || defined __native_client__
 	/* Don't use external helpers in android */
-	if (cmd) {
+	if (cmd[0]) {
 		return 0;
 	}
 #endif
