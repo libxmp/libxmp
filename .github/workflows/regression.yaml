@@ -47,7 +47,7 @@ jobs:
       - name: CMake configure
         run: |
           mkdir build
-          CC=clang cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
+          CC=clang cmake . -DCMAKE_LINKER=ld -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
       - name: CMake build
         run: |
           cmake --build build --target all

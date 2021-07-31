@@ -17,10 +17,6 @@ elseif(CMAKE_COMPILER_IS_GNUCC)
     set(HAVE_GCC TRUE)
 endif()
 
-if(HAVE_CLANG AND NOT WIN32 AND NOT CMAKE_LINKER) # Workaround
-    find_program(CMAKE_LINKER ld)
-endif()
-
 message("-- Check for working linker: ${CMAKE_LINKER}")
 execute_process(COMMAND ${CMAKE_LINKER} -v
         OUTPUT_VARIABLE LINKER_OUTPUT
