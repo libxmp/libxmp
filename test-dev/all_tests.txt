@@ -534,6 +534,7 @@ test_fuzzer_s3m_invalid_sample_size2
 test_fuzzer_xm_negative_instsize
 test_fuzzer_xm_orders_mismatch
 test_fuzzer_xm_vorbis_crash
+test_fuzzer_xm_vorbis_leak
 test_fuzzer_xm_zero_samples
 test_fuzzer_it_dca_3
 test_fuzzer_it_invalid_compressed
