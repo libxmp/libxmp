@@ -144,7 +144,7 @@ jobs:
         run: |
           source ../emsdk/emsdk_env.sh
           autoreconf -iv
-          emconfigure ./configure --enable-static --disable-shared
+          emconfigure ./configure --host=wasm32-unknown-emscripten --enable-static --disable-shared
       - name: Autotools build
         run: |
           source ../emsdk/emsdk_env.sh
