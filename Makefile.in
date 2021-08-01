@@ -29,10 +29,10 @@ LD_VERSCRIPT	= @LD_VERSCRIPT@
 SHELL		= /bin/sh
 
 DIST		= libxmp-$(VERSION)
-DFILES		= README INSTALL install-sh configure configure.ac config.sub \
-		  config.guess Makefile.in libxmp.pc.in libxmp.map Makefile.vc \
-		  Makefile.os2 Makefile.w32 watcom.mif
-DDIRS		= docs include src loaders prowiz depackers test
+DFILES		= README INSTALL install-sh configure configure.ac config.sub config.guess    \
+		  Makefile.in Makefile.vc Makefile.os2 Makefile.w32 watcom.mif CMakeLists.txt \
+		  libxmp.map libxmp.pc.in
+DDIRS		= docs include src loaders prowiz depackers test cmake
 V		= 0
 LIB		= libxmp.a
 SOLIB		= libxmp.so
@@ -55,6 +55,7 @@ endif
 
 all: @STATIC@ @SHARED@
 
+include cmake/Makefile
 include docs/Makefile
 include include/Makefile
 include src/Makefile
