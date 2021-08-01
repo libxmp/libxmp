@@ -19,7 +19,7 @@ jobs:
           cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
       - name: CMake build
         run: |
-          cmake --build build --target all
+          cmake --build build --target all -- -j 3
       - name: CMake checks
         run: |
           cd build
@@ -30,7 +30,7 @@ jobs:
           ./configure
       - name: Autotools build
         run: |
-          make
+          make -j 3
       - name: Autotools check
         run: |
           make check
@@ -52,7 +52,7 @@ jobs:
           CC=clang cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
       - name: CMake build
         run: |
-          cmake --build build --target all
+          cmake --build build --target all -- -j 3
       - name: CMake checks
         run: |
           cd build
@@ -63,7 +63,7 @@ jobs:
           CC=clang ./configure
       - name: Autotools build
         run: |
-          make
+          make -j 3
       - name: Autotools check
         run: |
           make check
@@ -88,7 +88,7 @@ jobs:
           cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
       - name: CMake build
         run: |
-          cmake --build build --target all
+          cmake --build build --target all -- -j 3
       - name: CMake checks
         run: |
           cd build
@@ -103,7 +103,7 @@ jobs:
           (cd test-dev && autoconf && ./configure)
       - name: Autotools build
         run: |
-          make
+          make -j 3
       - name: Autotools check
         run: |
           make check
@@ -128,7 +128,7 @@ jobs:
       - name: CMake configure
         run: |
           source ../emsdk/emsdk_env.sh
-          emcmake cmake . -DCMAKE_BUILD_TYPE=Debug -B build
+          emcmake cmake . -DCMAKE_BUILD_TYPE=Debug -B build -- -j 3
       - name: CMake build
         run: |
           source ../emsdk/emsdk_env.sh
@@ -148,7 +148,7 @@ jobs:
       - name: Autotools build
         run: |
           source ../emsdk/emsdk_env.sh
-          emmake make
+          emmake make -j 3
       - name: Autotools check
         run: |
           source ../emsdk/emsdk_env.sh
@@ -166,7 +166,7 @@ jobs:
           cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
       - name: CMake build for Intel
         run: |
-          cmake --build build --target all
+          cmake --build build --target all -- -j 3
       - name: CMake checks
         run: |
           cd build
@@ -183,7 +183,7 @@ jobs:
           ./configure
       - name: Autotools build
         run: |
-          make
+          make -j 3
       - name: Autotools check
         run: |
           make check
@@ -225,6 +225,41 @@ jobs:
     strategy:
       matrix:
         include: [
+          {installs: "MINGW32", pkg: "mingw-w64-i686-gcc"},
+          {installs: "MINGW64", pkg: "mingw-w64-x86_64-gcc"},
+        ]
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - name: Setup msys2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.installs }}
+          update: true
+          install: base-devel git autoconf ${{ matrix.pkg }}
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Create and run Autotools configure script
+        run: |
+          autoconf
+          ./configure
+      - name: Autotools build
+        run: |
+          make -j 3
+      - name: Autotools check
+        run: |
+          make check
+      - name: Autotools devcheck
+        run: |
+          (cd test-dev && autoconf && ./configure)
+          make devcheck
+
+  windows-msys2-cmake:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        include: [
           {installs: "MINGW32", pkg: "mingw-w64-i686-gcc mingw-w64-i686-cmake mingw-w64-i686-ninja"},
           {installs: "MINGW64", pkg: "mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja"},
         ]
@@ -250,20 +285,6 @@ jobs:
         run: |
           cd build
           ctest --output-on-failure
-      - name: Create and run Autotools configure script
-        run: |
-          autoconf
-          ./configure
-      - name: Autotools build
-        run: |
-          make
-      - name: Autotools check
-        run: |
-          make check
-      - name: Autotools devcheck
-        run: |
-          (cd test-dev && autoconf && ./configure)
-          make devcheck
 
   AddressSanitizer:
     runs-on: ubuntu-latest
@@ -280,7 +301,7 @@ jobs:
           autoconf; ./configure
           (cd test-dev; autoconf; ./configure)
       - name: Build library
-        run: make
+        run: make -j 3
       - name: Build and run test
         run: make check
       - name: Build and run regression tests
@@ -301,7 +322,7 @@ jobs:
           autoconf; ./configure
           (cd test-dev; autoconf; ./configure)
       - name: Build library
-        run: make
+        run: make -j 3
       - name: Build and run test
         run: make check
       - name: Build and run regression tests
@@ -322,7 +343,7 @@ jobs:
           autoconf; ./configure
           (cd test-dev; autoconf; ./configure)
       - name: Build library
-        run: make
+        run: make -j 3
       - name: Build and run test
         run: make check
       - name: Build and run regression tests
