@@ -166,7 +166,7 @@ jobs:
           cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
       - name: CMake build for Intel
         run: |
-          cmake --build build --target all -- -j 3
+          cmake --build build --target all -- -j 4
       - name: CMake checks
         run: |
           cd build
@@ -183,7 +183,7 @@ jobs:
           ./configure
       - name: Autotools build
         run: |
-          make -j 3
+          make -j 4
       - name: Autotools check
         run: |
           make check
@@ -280,7 +280,7 @@ jobs:
           cmake . -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
       - name: CMake build
         run: |
-          cmake --build build --target all
+          cmake --build build --target all -- -j 3
       - name: CMake checks
         run: |
           cd build
