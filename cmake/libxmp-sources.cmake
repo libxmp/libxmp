@@ -142,7 +142,7 @@ set(LIBXMP_SRC_LIST_DEPACKERS
     src/depackers/unarc.c
     src/depackers/arcfs.c
     src/depackers/xfd.c
-    src/depackers/inflate.c
+    src/depackers/miniz.c
     src/depackers/muse.c
     src/depackers/unlzx.c
     src/depackers/s404_dec.c
