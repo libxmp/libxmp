@@ -106,6 +106,12 @@ XMP_TRY_COMPILE(whether compiler understands -Wall,
   int main(void){return 0;}],
   CFLAGS="${CFLAGS} -Wall")
 
+XMP_TRY_COMPILE(whether compiler understands -Wextra,
+  ac_cv_c_flag_w_extra,
+  -Wextra -Wno-unused-parameter -Wno-sign-compare,[
+  int main(void){return 0;}],
+  CFLAGS="${CFLAGS} -Wextra -Wno-unused-parameter -Wno-sign-compare")
+
 XMP_TRY_COMPILE(whether compiler understands -Wwrite-strings,
   ac_cv_c_flag_w_write_strings,
   -Wwrite-strings,[

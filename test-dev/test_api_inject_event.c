@@ -8,7 +8,7 @@ TEST(test_api_inject_event)
 	struct context_data *ctx;
 	struct player_data *p;
 	struct mixer_voice *vi;
-	struct xmp_event event = { 60, 2, 40, 0xf, 3, 0, 0 };
+	struct xmp_event event = { 60, 2, 40, 0xf, 3, 0, 0, 0 };
 	int voc;
 
 	opaque = xmp_create_context();

@@ -80,7 +80,6 @@ const struct mod_magic mod_magic[] = {
 	{"FA06", 1, TRACKER_DIGITALTRACKER, 6},	/* Atari Falcon */
 	{"FA08", 1, TRACKER_DIGITALTRACKER, 8},	/* Atari Falcon */
 	{"NSMS", 1, TRACKER_UNKNOWN, 4},	/* in Kingdom.mod */
-	{"", 0}
 };
 
 static int mod_test(HIO_HANDLE *, char *, const int);
@@ -137,11 +136,11 @@ static int mod_test(HIO_HANDLE * f, char *t, const int start)
 		}
 	}
 
-	for (i = 0; mod_magic[i].ch; i++) {
+	for (i = 0; i < ARRAY_SIZE(mod_magic); i++) {
 		if (!memcmp(buf, mod_magic[i].magic, 4))
 			break;
 	}
-	if (mod_magic[i].ch == 0) {
+	if (i >= ARRAY_SIZE(mod_magic)) {
 		return -1;
 	}
 
@@ -444,7 +443,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
     if (mh.restart != 0)
 	maybe_wow = 0;
 
-    for (i = 0; mod_magic[i].ch; i++) {
+    for (i = 0; i < ARRAY_SIZE(mod_magic); i++) {
 	if (!(strncmp (magic, mod_magic[i].magic, 4))) {
 	    mod->chn = mod_magic[i].ch;
 	    tracker_id = mod_magic[i].id;
