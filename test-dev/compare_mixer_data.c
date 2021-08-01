@@ -51,7 +51,7 @@ static void _compare_mixer_data(const char *mod, const char *data, int loops, in
 			vi = &p->virt.voice_array[voc];
 
 #if 1
-			fgets(line, 200, f);
+			fail_unless(fgets(line, 200, f) != NULL, "early EOF");
 			num = sscanf(line, "%d %d %d %d %d %d %d %d %d %d %d",
 				&time, &row, &frame, &chan, &period,
 				&note, &ins, &vol, &pan, &pos0, &cutoff);
@@ -82,7 +82,8 @@ static void _compare_mixer_data(const char *mod, const char *data, int loops, in
 		
 	}
 
-	fgets(line, 200, f);
+	if (fgets(line, 200, f) != NULL)
+		fail_unless(line[0] == '\0', "not end of data file");
 	//fail_unless(feof(f), "not end of data file");
 
 	xmp_end_player(opaque);

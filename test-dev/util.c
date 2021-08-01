@@ -136,7 +136,10 @@ static int read_line(char *line, int size, FILE *f)
 {
 	int pos;
 
-	fgets(line, size, f);
+	if (!fgets(line, size, f)) {
+		line[0] = '\0';
+		return 0;
+	}
 	pos = strlen(line);
 
 	if (pos > 0 && line[pos - 1] == '\n')

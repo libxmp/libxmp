@@ -40,7 +40,8 @@ TEST(test_effect_ef_invert_loop)
 		xmp_play_frame(opaque);
 		xmp_get_frame_info(opaque, &info);
 		for (j = 0; j < info.buffer_size / 2; j++) {
-			fscanf(f, "%d", &val);
+			int ret = fscanf(f, "%d", &val);
+			fail_unless(ret == 1, "read error");
 			fail_unless(s->buf32[j] == val, "invloop error");
 		}
 	}
