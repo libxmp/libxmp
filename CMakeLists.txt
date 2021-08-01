@@ -35,13 +35,13 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/libxmp-sources.cmake)
 if(LIBXMP_DISABLE_DEPACKERS)
     list(APPEND LIBXMP_DEFINES_PUBLIC -DLIBXMP_NO_DEPACKERS)
 else()
-    list(APPEND LIBXMP_SRC_LIST_FULL ${LIBXMP_SRC_LIST_DEPACKERS})
+    list(APPEND LIBXMP_SRC_LIST ${LIBXMP_SRC_LIST_DEPACKERS})
 endif()
 
 if(LIBXMP_DISABLE_PROWIZARD)
     list(APPEND LIBXMP_DEFINES_PUBLIC -DLIBXMP_NO_PROWIZARD)
 else()
-    list(APPEND LIBXMP_SRC_LIST_FULL ${LIBXMP_SRC_LIST_PROWIZARD})
+    list(APPEND LIBXMP_SRC_LIST ${LIBXMP_SRC_LIST_PROWIZARD})
 endif()
 
 if(MSVC)
@@ -50,13 +50,11 @@ if(MSVC)
 endif()
 
 
-list(APPEND LIBXMP_SRC_FULL ${LIBXMP_SRC_LIST_LITE} ${LIBXMP_SRC_LIST_FULL} ${LIBXMP_SRC_COMMON})
-
 set(XMP_INSTALLS)
 
 # ============= FULL =============
 if(BUILD_STATIC)
-    add_library(xmp_static STATIC ${LIBXMP_SRC_FULL})
+    add_library(xmp_static STATIC ${LIBXMP_SRC_LIST})
     list(APPEND XMP_INSTALLS xmp_static)
     set_target_properties(xmp_static PROPERTIES C_STANDARD 90)
 
@@ -82,7 +80,7 @@ if(BUILD_STATIC)
 endif()
 
 if(BUILD_SHARED)
-    add_library(xmp_shared SHARED ${LIBXMP_SRC_FULL})
+    add_library(xmp_shared SHARED ${LIBXMP_SRC_LIST})
     list(APPEND XMP_INSTALLS xmp_shared)
     set_target_properties(xmp_shared PROPERTIES OUTPUT_NAME xmp C_STANDARD 90)
 

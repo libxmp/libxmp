@@ -188,11 +188,18 @@ dist-jni:
 	mkdir $(DIST)/jni
 	cp jni/Android.mk jni/Application.mk $(DIST)/jni
 
-dist-prepare: vc-prepare watcom-prepare
+dist-prepare: cmake-prepare vc-prepare watcom-prepare
 	./config.status
 	rm -Rf $(DIST) $(DIST).tar.gz
 	mkdir -p $(DIST)
 	cp -RPp $(DFILES) $(DIST)/
+
+cmake-prepare:
+	@echo Generate cmake/libxmp-sources.cmake
+	@sed -e 's!@SRCS@!$(OBJS:.o=.c)!' \
+	     -e 's!@PSRCS@!$(PROWIZARD_OBJS:.o=.c)!' \
+	     -e 's!@DSRCS@!$(DEPACKER_OBJS:.o=.c)!' \
+	     cmake/libxmp-sources.cmake.in > cmake/libxmp-sources.cmake
 
 vc-prepare:
 	@echo Generate Makefile.vc
