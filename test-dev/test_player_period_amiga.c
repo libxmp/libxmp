@@ -33,8 +33,8 @@ TEST(test_player_period_amiga)
 		fail_unless(info.channel_info[1].period == p1, "Bad period");
 	}
 
-	fscanf(f, "%d %d", &p0, &p1);
-	//fail_unless(feof(f), "not end of data file");
+	ret = fscanf(f, "%d %d", &p0, &p1);
+	fail_unless(ret == 0, "not end of data file");
 
 	xmp_release_module(opaque);
 	xmp_free_context(opaque);
