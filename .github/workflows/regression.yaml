@@ -128,11 +128,11 @@ jobs:
       - name: CMake configure
         run: |
           source ../emsdk/emsdk_env.sh
-          emcmake cmake . -DCMAKE_BUILD_TYPE=Debug -B build -- -j 3
+          emcmake cmake . -DCMAKE_BUILD_TYPE=Debug -B build
       - name: CMake build
         run: |
           source ../emsdk/emsdk_env.sh
-          cmake --build build --target all
+          cmake --build build --target all -- -j 3
       - name: CMake check
         run: |
           source ../emsdk/emsdk_env.sh
