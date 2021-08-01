@@ -100,6 +100,8 @@ else()
     xmp_add_warning_flag("-Wall" GCC_WALL)
     xmp_add_warning_flag("-Wwrite-strings" WRITE_STRINGS)
     xmp_disable_warning_flag("unknown-warning-option" NO_UNKNOWN_WARNING)
+    xmp_disable_warning_flag("unused-parameters" NO_UNUSED_PARAMETER)
+    xmp_disable_warning_flag("sign-compare" NO_SIGN_COMPARE)
 endif()
 
 
