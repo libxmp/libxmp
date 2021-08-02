@@ -825,7 +825,7 @@ parse_iff:
 		case MAGIC4('A','N','N','O'):
 			/* annotation */
 			s2 = size < 1023 ? size : 1023;
-			if ((m->comment = malloc(s2 + 1)) != NULL) {
+			if ((m->comment = (char *) malloc(s2 + 1)) != NULL) {
 				int read_len = hio_read(m->comment, 1, s2, f);
 				m->comment[read_len] = '\0';
 

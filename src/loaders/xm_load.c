@@ -310,7 +310,7 @@ static int load_patterns(struct module_data *m, int version, HIO_HANDLE *f)
 
 	D_(D_INFO "Stored patterns: %d", mod->pat - 1);
 
-	if ((patbuf = calloc(1, 65536)) == NULL) {
+	if ((patbuf = (uint8 *) calloc(1, 65536)) == NULL) {
 		return -1;
 	}
 
