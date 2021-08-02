@@ -132,13 +132,15 @@ static int get_next_block(bunzip_data *bd)
 	unsigned char uc, symToByte[256], mtfSymbol[256], *selectors;
 	unsigned int *dbuf,origPtr;
 
+	/* Reset longjmp I/O error handling */
+	i=setjmp(bd->jmpbuf);
+	if(i) return i;
+
 	hufGroup=NULL;
 	dbuf=bd->dbuf;
 	dbufSize=bd->dbufSize;
 	selectors=bd->selectors;
-	/* Reset longjmp I/O error handling */
-	i=setjmp(bd->jmpbuf);
-	if(i) return i;
+
 	/* Read in header signature and CRC, then validate signature.
 	   (last block signature means CRC is for whole file, return now) */
 	i = get_bits(bd,24);

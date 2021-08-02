@@ -125,6 +125,10 @@ static void do_clock(struct paula_state *paula, int cycles)
     unsigned int pos = vi->pos; \
     int frac = (1 << SMIX_SHIFT) * (vi->pos - (int)vi->pos)
 
+#define VAR_PAULA_MONO(x) \
+    VAR_NORM(x); \
+    vl <<= 8
+
 #define VAR_PAULA(x) \
     VAR_NORM(x); \
     vl <<= 8; \
@@ -132,14 +136,14 @@ static void do_clock(struct paula_state *paula, int cycles)
 
 MIXER(mono_a500)
 {
-	VAR_PAULA(int8);
+	VAR_PAULA_MONO(int8);
 
 	LOOP { PAULA_SIMULATION(0); MIX_MONO(); }
 }
 
 MIXER(mono_a500_filter)
 {
-	VAR_PAULA(int8);
+	VAR_PAULA_MONO(int8);
 
 	LOOP { PAULA_SIMULATION(1); MIX_MONO(); }
 }

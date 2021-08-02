@@ -196,7 +196,7 @@ static int theplayer_depack(HIO_HANDLE *in, FILE *out, int version)
     /*uint8 pack = 0;*/
     int taddr[128][4];
     int sdata_addr = 0;
-    int ssize = 0;
+    /* int ssize = 0; */
     int i, j, k;
     int smp_size[31];
     int saddr[31];
@@ -272,7 +272,7 @@ static int theplayer_depack(HIO_HANDLE *in, FILE *out, int version)
 	        saddr[i] = saddr[i - 1] + smp_size[i - 1];
             }
 	    smp_size[i] = j * 2;
-	    ssize += smp_size[i];
+	    /*ssize += smp_size[i];*/
 	}
 	j = smp_size[i] / 2;
 

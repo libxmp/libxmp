@@ -33,7 +33,7 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
     int taddr[128][4];
     int tdata_addr = 0;
     int sdata_addr = 0;
-    int ssize = 0;
+    /* int ssize = 0; */
     int i = 0, j, k, l, a, b, z;
     int smp_size[31];
     int saddr[31];
@@ -95,7 +95,7 @@ static int depack_p61a(HIO_HANDLE *in, FILE *out)
 	        saddr[i] = saddr[i - 1] + smp_size[i - 1];
             }
 	    smp_size[i] = j * 2;
-	    ssize += smp_size[i];
+	    /* ssize += smp_size[i]; */
 	}
 	j = smp_size[i] / 2;
 	write16b(out, isize[i]);
@@ -563,7 +563,7 @@ static int test_p61a(const uint8 *data, char *t, int s)
     int nins;
     int pattern_data_offset;
     int sample_data_offset;
-    int ssize;
+    /* int ssize; */
 
 #if 0
     if (i < 7) {
@@ -598,14 +598,16 @@ static int test_p61a(const uint8 *data, char *t, int s)
     }
 
     /* test sample sizes and loop start */
-    ssize = 0;
+    /* ssize = 0; */
     for (i = 0; i < nins; i++) {
 	len = readmem16b(data + i * 6 + 4);
 	if ((len <= 0xffdf && len > 0x8000) || len == 0)
 	    return -1;
 
+	/*
 	if (len < 0xff00)
 	    ssize += len * 2;
+	*/
 
 	lstart = readmem16b(data + i * 6 + 8);
 	if (lstart != 0xffff && lstart >= len)

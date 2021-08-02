@@ -63,7 +63,7 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 	uint16 track_addr[128][4];
 	long in_size;
 	int trkdat_ofs, trktab_ofs, smp_ofs;
-	int ssize = 0;
+	/* int ssize = 0; */
 	int SampleAddress[31];
 	int SampleSize[31];
 	int i, j, k, l, a, b, c;
@@ -125,7 +125,7 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 		SampleAddress[i] = ins.addr;
 		ins.size = hio_read16b(in);		/* sample size */
 		SampleSize[i] = ins.size * 2;
-		ssize += SampleSize[i];
+		/* ssize += SampleSize[i]; */
 		ins.loop_addr = hio_read32b(in);	/* loop start */
 		ins.loop_size = hio_read16b(in);	/* loop size */
 		ins.fine = 0;

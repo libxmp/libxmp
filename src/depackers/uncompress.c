@@ -71,7 +71,7 @@ static int decrunch_compress(FILE * in, FILE * out, long inlen)
 	int block_mode;
 	int i;
 
-	long bytes_in;			/* Total number of byte from input */
+	/*long bytes_in;*/		/* Total number of byte from input */
 	/*long bytes_out;*/		/* Total number of byte to output */
 	char_type inbuf[IBUFSIZ + 64];	/* Input buffer */
 	char_type outbuf[OBUFSIZ + 2048];/* Output buffer */
@@ -98,7 +98,7 @@ static int decrunch_compress(FILE * in, FILE * out, long inlen)
 		return -1;
 	}
 
-	bytes_in = insize;
+	/*bytes_in = insize;*/
 	maxcode = MAXCODE(n_bits = INIT_BITS) - 1;
 	bitmask = (1 << n_bits) - 1;
 	oldcode = -1;
@@ -255,7 +255,7 @@ static int decrunch_compress(FILE * in, FILE * out, long inlen)
 			oldcode = incode;	/* Remember previous code.      */
 		}
 
-		bytes_in += rsize;
+		/* bytes_in += rsize; */
 	}
 	while (rsize > 0);
 
