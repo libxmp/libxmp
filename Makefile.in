@@ -203,9 +203,9 @@ vc-prepare:
 
 watcom-prepare:
 	@echo Generate watcom.mif
-	@sed -e 's!@OBJS@!$(OBJS:.o=.obj)!' \
-	     -e 's!@POBJS@!$(PROWIZARD_OBJS:.o=.obj)!' \
-	     -e 's!@DOBJS@!$(DEPACKER_OBJS:.o=.obj)!' \
+	@sed -e 's!@OBJS@! \&\n $(OBJS:.o=.obj \&\n)!' \
+	     -e 's!@POBJS@! \&\n $(PROWIZARD_OBJS:.o=.obj \&\n)!' \
+	     -e 's!@DOBJS@! \&\n $(DEPACKER_OBJS:.o=.obj \&\n)!' \
 	     watcom.mif.in > watcom.mif
 
 dist-subdirs: $(addprefix dist-,$(DDIRS))

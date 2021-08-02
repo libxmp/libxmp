@@ -11,19 +11,19 @@ TEST_SOURCES	= \
  compare_mixer_data.c \
 
 XMP_SOURCES	= \
- ..\src\md5.c\
- ..\src\win32.c\
- ..\src\hio.c\
- ..\src\load_helpers.c\
- ..\src\loaders\itsex.c\
- ..\src\dataio.c\
- ..\src\scan.c\
- ..\src\loaders\sample.c\
- ..\src\loaders\common.c\
- ..\src\filetype.c\
- ..\src\period.c\
- ..\src\memio.c\
- ..\src\depackers\xfnmatch.c\
+ ..\src\md5.c \
+ ..\src\win32.c \
+ ..\src\hio.c \
+ ..\src\load_helpers.c \
+ ..\src\loaders\itsex.c \
+ ..\src\dataio.c \
+ ..\src\scan.c \
+ ..\src\loaders\sample.c \
+ ..\src\loaders\common.c \
+ ..\src\filetype.c \
+ ..\src\period.c \
+ ..\src\memio.c \
+ ..\src\depackers\xfnmatch.c \
 
 ALL_SOURCES	= $(SOURCES) $(TEST_SOURCES) $(XMP_SOURCES)
 

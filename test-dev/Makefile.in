@@ -654,7 +654,7 @@ distclean: clean
 vc-prepare: $(TEST_PATH)/all_tests.txt
 	@echo Generate Makefile.vc
 	@sed -e 's!@MAINSRCS@!\\\r\n $(subst /,\\,$(MAIN_OBJS:.o=.c \\\r\n))!' \
-	     -e 's!@XMPSRCS@!\\\r\n $(subst /,\\,$(addprefix $(SRC_PATH)/,$(TEST_INTERNAL:.o=.c\\\r\n)))!' \
+	     -e 's!@XMPSRCS@!\\\r\n $(subst .o,.c \\\r\n,$(subst /,\\,$(addprefix $(SRC_PATH)/,$(TEST_INTERNAL))))!' \
 	     Makefile.vc.in > Makefile.vc
 
 #

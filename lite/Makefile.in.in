@@ -193,7 +193,7 @@ vc-prepare:
 
 watcom-prepare:
 	@echo Generate watcom.mif
-	@sed -e 's!@OBJS@!$(OBJS:.o=.obj)!' watcom.mif.in > watcom.mif
+	@sed -e 's!@OBJS@! \&\n $(OBJS:.o=.obj \&\n)!' watcom.mif.in > watcom.mif
 
 dist-subdirs: $(addprefix dist-,$(DDIRS))
 	chmod -R u+w $(DIST)/*
