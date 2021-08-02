@@ -189,7 +189,7 @@ dist-prepare: vc-prepare watcom-prepare
 
 vc-prepare:
 	@echo Generate Makefile.vc
-	@sed -e 's!@OBJS@!$(subst /,\\,$(OBJS:.o=.obj))!' Makefile.vc.in > Makefile.vc
+	@sed -e 's!@OBJS@!\\\r\n $(subst /,\\,$(OBJS:.o=.obj \\\r\n))!' Makefile.vc.in > Makefile.vc
 
 watcom-prepare:
 	@echo Generate watcom.mif

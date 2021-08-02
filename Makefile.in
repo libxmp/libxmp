@@ -196,9 +196,9 @@ dist-prepare: vc-prepare watcom-prepare
 
 vc-prepare:
 	@echo Generate Makefile.vc
-	@sed -e 's!@OBJS@!$(subst /,\\,$(OBJS:.o=.obj))!' \
-	     -e 's!@POBJS@!$(subst /,\\,$(PROWIZARD_OBJS:.o=.obj))!' \
-	     -e 's!@DOBJS@!$(subst /,\\,$(DEPACKER_OBJS:.o=.obj))!' \
+	@sed -e 's!@OBJS@!\\\r\n $(subst /,\\,$(OBJS:.o=.obj \\\r\n))!' \
+	     -e 's!@POBJS@!\\\r\n $(subst /,\\,$(PROWIZARD_OBJS:.o=.obj \\\r\n))!' \
+	     -e 's!@DOBJS@!\\\r\n $(subst /,\\,$(DEPACKER_OBJS:.o=.obj \\\r\n))!' \
 	     Makefile.vc.in > Makefile.vc
 
 watcom-prepare:
