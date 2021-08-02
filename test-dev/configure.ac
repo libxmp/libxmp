@@ -20,9 +20,21 @@ XMP_TRY_COMPILE(whether compiler understands -Wall,
 
 XMP_TRY_COMPILE(whether compiler understands -Wextra,
   ac_cv_c_flag_w_extra,
-  -Wextra -Wno-unused-parameter -Wno-sign-compare,[
+  -Wextra,[
   int main(void){return 0;}],
-  CFLAGS="${CFLAGS} -Wextra -Wno-unused-parameter -Wno-sign-compare")
+  CFLAGS="${CFLAGS} -Wextra")
+
+XMP_TRY_COMPILE(whether compiler understands -Wunused-parameter,
+  ac_cv_c_flag_w_unused_parameter,
+  -Wunused-parameter,[
+  int main(void){return 0;}],
+  CFLAGS="${CFLAGS} -Wno-unused-parameter")
+
+XMP_TRY_COMPILE(whether compiler understands -Wsign-compare,
+  ac_cv_c_flag_w_sign_compare,
+  -Wsign-compare,[
+  int main(void){return 0;}],
+  CFLAGS="${CFLAGS} -Wno-sign-compare")
 
 XMP_TRY_COMPILE(whether compiler understands -Wwrite-strings,
   ac_cv_c_flag_w_write_strings,
@@ -31,6 +43,6 @@ XMP_TRY_COMPILE(whether compiler understands -Wwrite-strings,
   CFLAGS="${CFLAGS} -Wwrite-strings")
 
 AC_CHECK_LIB(m,pow)
-AC_CHECK_FUNCS(pipe popen mkstemp fnmatch strlcpy strlcat round)
+AC_CHECK_FUNCS(pipe popen mkstemp fnmatch)
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
