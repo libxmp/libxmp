@@ -132,7 +132,7 @@ static int get_next_block(bunzip_data *bd)
 	unsigned char uc, symToByte[256], mtfSymbol[256], *selectors;
 	unsigned int *dbuf,origPtr;
 
-	hufGroup=NULL;
+	hufGroup=bd->groups; /* silence -Wclobbered */
 	dbuf=bd->dbuf;
 	dbufSize=bd->dbufSize;
 	selectors=bd->selectors;
