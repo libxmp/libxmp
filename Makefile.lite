@@ -24,7 +24,7 @@ dist-prepare:
 
 cmake-prepare:
 	@echo Generate cmake/libxmp-sources.cmake
-	@sed -e 's!@SRCS@!$(OBJS:.o=.c)!' $(DIST)/cmake/libxmp-sources.cmake.in > $(DIST)/cmake/libxmp-sources.cmake
+	@sed -e 's!@SRCS@!\n $(OBJS:.o=.c\n)!' $(DIST)/cmake/libxmp-sources.cmake.in > $(DIST)/cmake/libxmp-sources.cmake
 
 vc-prepare:
 	@echo Generate Makefile.vc
