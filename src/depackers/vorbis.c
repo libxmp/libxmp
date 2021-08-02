@@ -1115,10 +1115,7 @@ static int compute_codewords(Codebook *c, uint8 *len, int n, uint32 *values)
    memset(available, 0, sizeof(available));
    // find the first entry
    for (k=0; k < n; ++k) if (len[k] < NO_CODE) break;
-
-   // sanity check
-   if (k == n) return (c->sorted_entries == 0);
-
+   if (k == n) { assert(c->sorted_entries == 0); return TRUE; }
    assert(len[k] < 32); // no error return required, code reading lens checks this
    // add to the list
    add_entry(c, 0, k, m++, len[k], values);
@@ -1195,7 +1192,7 @@ static int STBV_CDECL uint32_compare(const void *p, const void *q)
 
 static int include_in_sort(Codebook *c, uint8 len)
 {
-   if (c->sparse) { return (len != NO_CODE); }
+   if (c->sparse) { assert(len != NO_CODE); return TRUE; }
    if (len == NO_CODE) return FALSE;
    if (len > STB_VORBIS_FAST_HUFFMAN_LENGTH) return TRUE;
    return FALSE;
@@ -2139,7 +2136,7 @@ static int residue_decode(vorb *f, Codebook *book, float *target, int offset, in
 
 // n is 1/2 of the blocksize --
 // specification: "Correct per-vector decode length is [n]/2"
-static int decode_residue(vorb *f, float *residue_buffers[], int ch, int n, int rn, uint8 *do_not_decode)
+static void decode_residue(vorb *f, float *residue_buffers[], int ch, int n, int rn, uint8 *do_not_decode)
 {
    int i,j,pass;
    Residue *r = f->residue_config + rn;
@@ -2299,14 +2296,7 @@ static int decode_residue(vorb *f, float *residue_buffers[], int ch, int n, int 
                      float *target = residue_buffers[j];
                      int offset = r->begin + pcount * r->part_size;
                      int n = r->part_size;
-                     Codebook *book;
-
-                     /* Sanity check */
-                     if (offset + n >= f->blocksize_1) {
-                        return FALSE;
-                     }
-
-                     book = f->codebooks + b;
+                     Codebook *book = f->codebooks + b;
                      if (!residue_decode(f, book, target, offset, n, rtype))
                         goto done;
                   }
@@ -2315,10 +2305,6 @@ static int decode_residue(vorb *f, float *residue_buffers[], int ch, int n, int 
          }
          #ifndef STB_VORBIS_DIVIDES_IN_RESIDUE
          ++class_set;
-         /* Sanity check */
-         if (class_set >= part_read) {
-             return FALSE;
-         }
          #endif
       }
    }
@@ -2330,8 +2316,6 @@ static int decode_residue(vorb *f, float *residue_buffers[], int ch, int n, int 
    temp_free(f,classifications);
    #endif
    temp_alloc_restore(f,temp_alloc_point);
-
-   return TRUE;
 }
 
 
@@ -3320,10 +3304,6 @@ static int vorbis_decode_packet_rest(vorb *f, int *len, Mode *m, int left_start,
             }
 
 #ifdef STB_VORBIS_NO_DEFER_FLOOR
-	    /* Sanity check */
-	    if (n >= f->blocksize_1)
-		return FALSE;
-
             do_floor(f, map, i, n, f->floor_buffers[i], finalY, step2_flag);
 #else
             // defer final floor computation until _after_ residue
@@ -3377,9 +3357,7 @@ static int vorbis_decode_packet_rest(vorb *f, int *len, Mode *m, int left_start,
          }
       }
       r = map->submap_residue[i];
-      if (!decode_residue(f, residue_buffers, ch, n2, r, do_not_decode)) {
-         return FALSE;
-      }
+      decode_residue(f, residue_buffers, ch, n2, r, do_not_decode);
    }
 
    if (f->alloc.alloc_buffer)
