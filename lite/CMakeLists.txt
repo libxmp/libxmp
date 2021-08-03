@@ -47,14 +47,11 @@ if(MSVC)
 endif()
 
 
-list(APPEND LIBXMP_SRC_LITE ${LIBXMP_SRC_LIST_LITE} ${LIBXMP_SRC_COMMON})
-
-
 set(XMP_INSTALLS)
 
 # ============= LITE =============
 if(BUILD_STATIC)
-    add_library(xmp_lite_static STATIC ${LIBXMP_SRC_LITE})
+    add_library(xmp_lite_static STATIC ${LIBXMP_SRC_LIST})
     list(APPEND XMP_INSTALLS xmp_lite_static)
     set_target_properties(xmp_lite_static PROPERTIES C_STANDARD 90)
 
@@ -80,7 +77,7 @@ if(BUILD_STATIC)
 endif()
 
 if(BUILD_SHARED)
-    add_library(xmp_lite_shared SHARED ${LIBXMP_SRC_LITE})
+    add_library(xmp_lite_shared SHARED ${LIBXMP_SRC_LIST})
     list(APPEND XMP_INSTALLS xmp_lite_shared)
     set_target_properties(xmp_lite_shared PROPERTIES OUTPUT_NAME xmp-lite C_STANDARD 90)
 

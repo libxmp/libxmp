@@ -13,7 +13,7 @@ include lite/src/loaders/Makefile
 include cmake/Makefile
 include test/Makefile
 
-dist: dist-prepare vc-prepare watcom-prepare dist-subdirs dist-dist check-no-it
+dist: dist-prepare dist-subdirs cmake-prepare vc-prepare watcom-prepare dist-dist check-no-it
 	mv $(DIST)/libxmp-lite-*.tar.gz .
 	ls -l libxmp-lite-*.tar.gz
 
@@ -21,6 +21,11 @@ dist-prepare:
 	rm -Rf $(DIST)
 	mkdir -p $(DIST)
 	cp -RPp $(DFILES) $(DIST)/
+
+space = $(eval) $(eval)
+cmake-prepare:
+	@echo Generate cmake/libxmp-sources.cmake
+	@sed -e 's!@SRCS@!\n$(subst $(space),    , $(OBJS:.o=.c\n))!' $(DIST)/cmake/libxmp-sources.cmake.in > $(DIST)/cmake/libxmp-sources.cmake
 
 vc-prepare:
 	@echo Generate Makefile.vc
