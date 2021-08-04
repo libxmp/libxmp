@@ -49,14 +49,12 @@ endif()
 
 set(XMP_INSTALLS)
 
-# ============= LITE =============
 if(BUILD_STATIC)
     add_library(xmp_lite_static STATIC ${LIBXMP_SRC_LIST})
     list(APPEND XMP_INSTALLS xmp_lite_static)
     set_target_properties(xmp_lite_static PROPERTIES C_STANDARD 90)
-
-    if(MSVC AND BUILD_SHARED)
-        set_target_properties(xmp_lite_static PROPERTIES OUTPUT_NAME xmp-lite-static)
+    if(MSVC)
+        set_target_properties(xmp_lite_static PROPERTIES OUTPUT_NAME libxmp-lite-static)
     else()
         set_target_properties(xmp_lite_static PROPERTIES OUTPUT_NAME xmp-lite)
     endif()
@@ -79,7 +77,12 @@ endif()
 if(BUILD_SHARED)
     add_library(xmp_lite_shared SHARED ${LIBXMP_SRC_LIST})
     list(APPEND XMP_INSTALLS xmp_lite_shared)
-    set_target_properties(xmp_lite_shared PROPERTIES OUTPUT_NAME xmp-lite C_STANDARD 90)
+    set_target_properties(xmp_lite_shared PROPERTIES C_STANDARD 90)
+    if(MSVC)
+        set_target_properties(xmp_lite_shared PROPERTIES OUTPUT_NAME libxmp-lite)
+    else()
+        set_target_properties(xmp_lite_shared PROPERTIES OUTPUT_NAME xmp-lite)
+    endif()
 
     if(HAVE_GCC OR HAVE_CLANG)
         if(APPLE)
@@ -145,12 +148,26 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/build_examples.cmake")
 endif()
 
 
-install(TARGETS ${XMP_INSTALLS}
-        RUNTIME DESTINATION "bin"
-        LIBRARY DESTINATION "lib"
-        ARCHIVE DESTINATION "lib"
-        INCLUDES DESTINATION "include")
+# === Install ====
+include(GNUInstallDirs)
 
+set(prefix ${CMAKE_INSTALL_PREFIX})
+set(exec_prefix "\${prefix}")
+set(includedir "${CMAKE_INSTALL_FULL_INCLUDEDIR}")
+set(libdir     "${CMAKE_INSTALL_FULL_LIBDIR}")
+set(bindir     "${CMAKE_INSTALL_FULL_BINDIR}")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/libxmp-lite.pc.in"
+               "${CMAKE_CURRENT_BINARY_DIR}/libxmp-lite.pc" @ONLY
+)
+install(TARGETS ${XMP_INSTALLS}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
 install(FILES
         include/libxmp-lite/xmp.h
-        DESTINATION include/libxmp-lite/)
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/libxmp-lite
+)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libxmp-lite.pc"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+)
