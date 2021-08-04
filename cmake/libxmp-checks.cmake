@@ -116,6 +116,7 @@ if(UNIX AND NOT (WIN32 OR APPLE OR HAIKU OR EMSCRIPTEN OR BEOS))
     if(LIBM_LIBRARY) # No need to link it by an absolute path
         set(LIBM_REQUIRED 1)
         set(LIBM_LIBRARY m)
+        set(LIBM "-lm") # for pkgconfig file.
         list(APPEND CMAKE_REQUIRED_LIBRARIES m)
     endif()
     mark_as_advanced(LIBM_LIBRARY)
