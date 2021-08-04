@@ -26,11 +26,7 @@
 #include "lzw.h"
 #include <assert.h>
 
-#if 0
-#define LZWD_(...) printf(__VA_ARGS__)
-#else
-#define LZWD_(...)
-#endif
+/*#define LZW_DEBUG*/
 
 #define LZW_NO_CODE		((uint16)-1)
 #define LZW_CODE_CLEAR		256
@@ -150,7 +146,9 @@ static void LZW_add(struct LZW_tree *lzw)
 		lzw->maxlength <<= 1;
 		lzw->bits++;
 		lzw->new_inc = 1;
-		LZWD_("I: bitwidth increased to %d\n", lzw->bits);
+		#ifdef LZW_DEBUG
+		printf("I: bitwidth increased to %d\n", lzw->bits);
+		#endif
 	}
 
 	current->prev = lzw->previous_code;
@@ -292,16 +290,22 @@ int libxmp_read_lzw(void *dest, size_t dest_len, size_t max_read_len,
 	if (LZW_init_tree(&lzw, flags) != 0)
 		return -1;
 
-	LZWD_("S: %zu\n", dest_len);
+	#ifdef LZW_DEBUG
+	printf("S: %zu\n", dest_len);
+	#endif
 
 	while (left > 0) {
 		code = bs_read(&bs, f, lzw.bits);
-		LZWD_(" : %x\n", code);
+		#ifdef LZW_DEBUG
+		printf(" : %x\n", code);
+		#endif
 		if (code < 0)
 			break;
 
 		if (code == LZW_CODE_CLEAR) {
-			LZWD_(" : >>> CLEAR <<<\n");
+			#ifdef LZW_DEBUG
+			printf(" : >>> CLEAR <<<\n");
+			#endif
 			LZW_clear(&lzw);
 			continue;
 		} else if ((flags & LZW_FLAG_SYMQUIRKS) && code == LZW_CODE_SYM_EOF) {
@@ -333,7 +337,9 @@ int libxmp_read_lzw(void *dest, size_t dest_len, size_t max_read_len,
 		}
 
 		code = bs_read(&bs, f, lzw.bits);
-		LZWD_("E: %x\n", code);
+		#ifdef LZW_DEBUG
+		printf("E: %x\n", code);
+		#endif
 		if (code < 0) {
 			D_(D_WARN "missing LZW EOF code!");
 		} else if (code != LZW_CODE_SYM_EOF) {
@@ -346,12 +352,16 @@ int libxmp_read_lzw(void *dest, size_t dest_len, size_t max_read_len,
 		/* Digital Symphony LZW compressed stream size is 4 aligned. */
 		size_t pos = bs.num_read;
 		while (pos & 3) {
-			LZWD_("A: align byte\n");
+			#ifdef LZW_DEBUG
+			printf("A: align byte\n");
+			#endif
 			hio_read8(f);
 			pos++;
 		}
 	}
-	LZWD_("I: stream end position: %ld\n", hio_tell(f));
+	#ifdef LZW_DEBUG
+	printf("I: stream end position: %ld\n", hio_tell(f));
+	#endif
 
 	LZW_free(&lzw);
 	return 0;
