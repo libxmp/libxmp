@@ -31,8 +31,8 @@ SHELL		= /bin/sh
 DIST		= libxmp-$(VERSION)
 DFILES		= README INSTALL install-sh configure configure.ac config.sub config.guess    \
 		  Makefile.in Makefile.vc Makefile.os2 Makefile.w32 watcom.mif CMakeLists.txt \
-		  libxmp.map libxmp.pc.in
-DDIRS		= docs include src loaders prowiz depackers test cmake
+		  aclocal.m4 libxmp.map libxmp.pc.in
+DDIRS		= docs include src loaders prowiz depackers test cmake m4
 V		= 0
 LIB		= libxmp.a
 SOLIB		= libxmp.so
@@ -56,6 +56,7 @@ endif
 all: @STATIC@ @SHARED@
 
 include cmake/Makefile
+include m4/Makefile
 include docs/Makefile
 include include/Makefile
 include src/Makefile
@@ -123,7 +124,7 @@ lib/$(DLL): $(LOBJS)
 # The version number checks that dyld performs are limited to ensuring that
 # the compatibility version of the library being loaded is higher than the
 # compatibility version of the library that was used at build time.
-
+#
 lib/$(DYLIB): $(LOBJS)
 	@mkdir -p lib
 	@CMD='$(LD) $(LDFLAGS) -dynamiclib -Wl,-headerpad_max_install_names,$(DYLIB_COMPAT)-current_version,$(VERSION),-install_name,$(prefix)/lib/$(DYLIB) -o $@ $(LOBJS) $(LIBS)'; \
