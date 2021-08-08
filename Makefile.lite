@@ -3,14 +3,15 @@ DIST		= libxmp-lite-stagedir
 DFILES		= lite/README INSTALL install-sh configure configure.ac \
 		  config.sub config.guess Makefile.in lite/libxmp-lite.pc.in \
 		  libxmp.map lite/Makefile.vc.in lite/Makefile.os2 lite/Makefile.w32 \
-		  lite/watcom.mif.in
-DDIRS		= src loaders test cmake
+		  lite/watcom.mif.in aclocal.m4
+DDIRS		= src loaders test cmake m4
 
 all: dist
 
 include lite/src/Makefile
 include lite/src/loaders/Makefile
 include cmake/Makefile
+include m4/Makefile
 include test/Makefile
 
 dist: dist-prepare dist-subdirs cmake-prepare vc-prepare watcom-prepare dist-dist check-no-it

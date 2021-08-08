@@ -1,4 +1,4 @@
-dnl AC_CONFIG_AUX_DIR(scripts)
+AC_PREREQ(2.60)
 AC_INIT
 AC_ARG_ENABLE(it,        [  --disable-it            Don't build IT format support])
 AC_ARG_ENABLE(static,    [  --enable-static         Build static library])
@@ -8,13 +8,7 @@ AC_SUBST(LIBM)
 AC_SUBST(DARWIN_VERSION)
 AC_CANONICAL_HOST
 AC_PROG_CC
-AC_CHECK_TOOL(LD, [ld], [:])
-AC_CACHE_CHECK([whether $LD is GNU ld], ac_cv_prog_gnu_ld,
-[case `$LD -v 2>&1 </dev/null` in
-  *GNU* | *'with BFD'*)
-     ac_cv_prog_gnu_ld=yes ;;
-  *) ac_cv_prog_gnu_ld=no ;;
-esac])
+LT_PATH_LD
 AC_CHECK_TOOL(AR, [ar], [:])
 AC_PROG_RANLIB
 AC_PROG_INSTALL
@@ -175,7 +169,7 @@ if test $ac_cv_c_flag_f_visibility_hidden = no; then
 else
    CFLAGS="${old_CFLAGS} -fvisibility=hidden -DXMP_SYM_VISIBILITY"
 
-   if test $ac_cv_prog_gnu_ld = yes; then
+   if test $lt_cv_prog_gnu_ld = yes; then
       case "${host_os}" in
         emscripten*|beos*|atheos*|*mint)
           ;;

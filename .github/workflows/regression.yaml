@@ -143,7 +143,7 @@ jobs:
       - name: Create and run Autotools configure script
         run: |
           source ../emsdk/emsdk_env.sh
-          autoreconf -iv
+          autoconf
           emconfigure ./configure --host=wasm32-unknown-emscripten --enable-static --disable-shared
       - name: Autotools build
         run: |
