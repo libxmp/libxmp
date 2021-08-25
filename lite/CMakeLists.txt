@@ -31,6 +31,8 @@ option(LIBXMP_DISABLE_IT            "Disable IT format support in libXMP-lite" O
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/libxmp-sources.cmake)
 
+list(APPEND LIBXMP_SRC_LIST ${LIBXMP_SRC_LIST_LITE})
+
 list(APPEND LIBXMP_DEFINES_PUBLIC
     -DLIBXMP_CORE_PLAYER
     -DLIBXMP_NO_PROWIZARD
