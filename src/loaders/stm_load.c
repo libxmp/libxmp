@@ -150,7 +150,9 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	struct stm_file_header sfh;
 	uint8 b;
 	uint16 version;
-	int i, j;
+	int blank_pattern = 0;
+	int stored_patterns;
+	int i, j, k;
 
 	LOAD_INIT();
 
@@ -233,7 +235,6 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		return -1;
 	}
 
-	mod->trk = mod->pat * mod->chn;
 	mod->smp = mod->ins;
 	m->c4rate = C4_NTSC_RATE;
 
@@ -284,10 +285,24 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	if (hio_read(mod->xxo, 1, mod->len, f) < mod->len)
 		return -1;
 
-	for (i = 0; i < mod->len; i++)
-		if (mod->xxo[i] >= mod->pat)
+	for (i = 0; i < mod->len; i++) {
+		if (mod->xxo[i] >= 99) {
 			break;
+		}
+		/* Patterns >= the pattern count are valid blank patterns.
+		 * Examples: jimmy.stm, Rauno/dogs.stm, Skaven/hevijanis istu maas.stm.
+		 * Patterns >= 64 have undefined behavior in Screamtracker 2.
+		 */
+		if (mod->xxo[i] >= mod->pat) {
+			mod->xxo[i] = mod->pat;
+			blank_pattern = 1;
+		}
+	}
+	stored_patterns = mod->pat;
+	if(blank_pattern)
+		mod->pat++;
 
+	mod->trk = mod->pat * mod->chn;
 	mod->len = i;
 
 	D_(D_INFO "Module length: %d", mod->len);
@@ -296,27 +311,32 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		return -1;
 
 	/* Read and convert patterns */
-	D_(D_INFO "Stored patterns: %d", mod->pat);
+	D_(D_INFO "Stored patterns: %d", stored_patterns);
 
-	for (i = 0; i < mod->pat; i++) {
+	if(blank_pattern) {
+		if (libxmp_alloc_pattern_tracks(mod, stored_patterns, 64) < 0)
+			return -1;
+	}
+
+	for (i = 0; i < stored_patterns; i++) {
 		if (libxmp_alloc_pattern_tracks(mod, i, 64) < 0)
 			return -1;
 
 		if (hio_error(f))
 			return -1;
 
-		for (j = 0; j < 64 * mod->chn; j++) {
-			event = &EVENT(i, j % mod->chn, j / mod->chn);
-			b = hio_read8(f);
-			memset(event, 0, sizeof(struct xmp_event));
-			switch (b) {
-			case 251:
-			case 252:
-				break; /* Empty note */
-			case 253:
-				event->note = XMP_KEY_OFF;
-				break; /* Key off */
-			default:
+		for (j = 0; j < 64; j++) {
+			for (k = 0; k < mod->chn; k++) {
+				event = &EVENT(i, k, j);
+				b = hio_read8(f);
+				if (b == 251 || b == 252)
+					continue; /* Empty note */
+
+				if (b == 253) {
+					event->note = XMP_KEY_OFF;
+					continue;  /* Key off */
+				}
+
 				if (b == 254)
 					event->note = XMP_KEY_OFF;
 				else if (b == 255)
