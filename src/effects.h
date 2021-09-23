@@ -75,6 +75,9 @@
 #define FX_669_TPORTA	0x62
 #define FX_669_FINETUNE	0x63
 #define FX_669_VIBRATO	0x64
+
+/* Other frequency based effects (ULT, FAR, etc) */
+#define FX_ULT_TPORTA   0x68
 #endif
 
 #ifndef LIBXMP_CORE_DISABLE_IT

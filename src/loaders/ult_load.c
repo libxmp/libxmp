@@ -61,8 +61,6 @@ static int ult_test(HIO_HANDLE *f, char *t, const int start)
 }
 
 
-#define KEEP_TONEPORTA 32	/* Rows to keep portamento effect */
-
 struct ult_header {
     uint8 magic[15];		/* 'MAS_UTrack_V00x' */
     uint8 name[32];		/* Song name */
@@ -108,7 +106,6 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
     struct ult_event ue;
     const char *verstr[4] = { "< 1.4", "1.4", "1.5", "1.6" };
 
-    int keep_porta1 = 0, keep_porta2 = 0;
     uint8 x8;
 
     LOAD_INIT();
@@ -305,16 +302,8 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		event->f2p = ue.f2p;
 
 		switch (event->fxt) {
-		case 0x00:		/* <mumble> */
-		    if (event->fxp)
-			keep_porta1 = 0;
-		    if (keep_porta1) {
-			event->fxt = 0x03;
-			keep_porta1--;
-		    }
-		    break;
-		case 0x03:		/* Portamento kludge */
-		    keep_porta1 = KEEP_TONEPORTA;
+		case 0x03:		/* Tone portamento */
+		    event->fxt = FX_ULT_TPORTA;
 		    break;
 		case 0x05:		/* 'Special' effect */
 		case 0x06:		/* Reserved */
@@ -331,16 +320,8 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		}
 
 		switch (event->f2t) {
-		case 0x00:		/* <mumble> */
-		    if (event->f2p)
-			keep_porta2 = 0;
-		    if (keep_porta2) {
-			event->f2t = 0x03;
-			keep_porta2--;
-		    }
-		    break;
-		case 0x03:		/* Portamento kludge */
-		    keep_porta2 = KEEP_TONEPORTA;
+		case 0x03:		/* Tone portamento */
+		    event->f2t = FX_ULT_TPORTA;
 		    break;
 		case 0x05:		/* 'Special' effect */
 		case 0x06:		/* Reserved */

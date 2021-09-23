@@ -357,7 +357,7 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 			h = MSN(fxp);
 			l = LSN(fxp);
 			xc->vol.slide2 = h ? h : -l;
-		}		
+		}
 		break;
 	case FX_JUMP:		/* Order jump */
 		p->flow.pbreak = 1;
@@ -506,7 +506,7 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 		if (fxp) {
 			SET(FINE_BEND);
 			xc->freq.fslide = fxp;
-		} 
+		}
 		break;
 	case FX_PATT_DELAY:
 	    fx_patt_delay:
@@ -563,7 +563,7 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 	/* From the OpenMPT VolColMemory.it test case:
 	 * "Volume column commands a, b, c and d (volume slide) share one
 	 *  effect memory, but it should not be shared with Dxy in the effect
-	 *  column. 
+	 *  column.
 	 */
 	case FX_VSLIDE_UP_2:	/* Fine volume slide up */
 		EFFECT_MEMORY(fxp, xc->vol.memory2);
@@ -928,7 +928,7 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 			h = MSN(fxp);
 			l = LSN(fxp);
 			xc->vol.fslide = h ? h : -l;
-		}		
+		}
 		break;
 	case FX_NSLIDE_DN:
 	case FX_NSLIDE_UP:
@@ -1060,6 +1060,27 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 			RESET_PER(VIBRATO);
 		}
 		SET_LFO_NOTZERO(&xc->vibrato.lfo, 669, 1);
+		break;
+
+	/* ULT effects */
+
+	case FX_ULT_TPORTA:	/* ULT tone portamento */
+		/* Like normal persistent tone portamento, except:
+		 *
+		 * 1) Despite the documentation claiming 300 cancels tone
+		 * portamento, it actually reuses the last parameter.
+		 *
+		 * 2) A 3xx without a note will reuse the last target note.
+		 */
+		if (!IS_VALID_INSTRUMENT(xc->ins))
+			break;
+		SET_PER(TONEPORTA);
+		EFFECT_MEMORY(fxp, xc->porta.memory);
+		EFFECT_MEMORY(note, xc->porta.note_memory);
+		do_toneporta(ctx, xc, note);
+		xc->porta.slide = fxp;
+		if (fxp == 0)
+			RESET_PER(TONEPORTA);
 		break;
 #endif
 

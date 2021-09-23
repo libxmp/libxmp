@@ -231,7 +231,7 @@ static void set_period_ft2(struct context_data *ctx, int note,
 #ifndef LIBXMP_CORE_PLAYER
 #define IS_SFX_PITCH(x) ((x) == FX_PITCH_ADD || (x) == FX_PITCH_SUB)
 #define IS_TONEPORTA(x) ((x) == FX_TONEPORTA || (x) == FX_TONE_VSLIDE \
-		|| (x) == FX_PER_TPORTA)
+		|| (x) == FX_PER_TPORTA || (x) == FX_ULT_TPORTA)
 #else
 #define IS_TONEPORTA(x) ((x) == FX_TONEPORTA || (x) == FX_TONE_VSLIDE)
 #endif
