@@ -148,18 +148,13 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	uih.sizeend = hio_read32l(f);
 	uih.volume = hio_read8(f);
 	uih.bidiloop = hio_read8(f);
+	uih.c2spd = (ver >= 4) ? hio_read16l(f) : 0; /* Incorrect in ult_form.txt */
 	uih.finetune = hio_read16l(f);
-	uih.c2spd = ver < 4 ? 0 : hio_read16l(f);
 	if (hio_error(f)) {
 	    D_(D_CRIT "read error at instrument %d", i);
 	    return -1;
 	}
 
-	if (ver > 3) {			/* Incorrect in ult_form.txt */
-	    uih.c2spd ^= uih.finetune;
-	    uih.finetune ^= uih.c2spd;
-	    uih.c2spd ^= uih.finetune;
-	}
 	mod->xxs[i].len = uih.sizeend - uih.sizestart;
 	mod->xxs[i].lps = uih.loop_start;
 	mod->xxs[i].lpe = uih.loopend;
