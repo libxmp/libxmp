@@ -49,7 +49,7 @@ static int ult_test(HIO_HANDLE *f, char *t, const int start)
     if (hio_read(buf, 1, 15, f) < 15)
 	return -1;
 
-    if (memcmp(buf, "MAS_UTrack_V000", 14))
+    if (memcmp(buf, "MAS_UTrack_V00", 14))
 	return -1;
 
     if (buf[14] < '1' || buf[14] > '4')
@@ -82,7 +82,7 @@ struct ult_instrument {
     uint32 sizeend;
     uint8 volume;		/* Volume (log; ver >= 1.4 linear) */
     uint8 bidiloop;		/* Sample loop flags */
-    uint16 finetune;		/* Finetune */
+    int16 finetune;		/* Finetune */
     uint16 c2spd;		/* C2 frequency */
 };
 
@@ -118,7 +118,7 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     strncpy(mod->name, (char *)ufh.name, 32);
     mod->name[32] = '\0';
-    libxmp_set_type(m, "Ultra Tracker %s ULT V%04d", verstr[ver - 1], ver);
+    libxmp_set_type(m, "Ultra Tracker %s ULT V%03d", verstr[ver - 1], ver);
 
     m->c4rate = C4_NTSC_RATE;
 
