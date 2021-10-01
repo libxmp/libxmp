@@ -9,7 +9,7 @@ MOD		Sound/Noise/Protracker	M.K., M!K!, M&K!, N.T., CD81
 MOD, M15	Soundtracker		2.2, UST
 MOD/NT		Startrekker/ADSC	FLT4/8/M, EXO4/8
 MOD		Digital Tracker		FA04, FA06, FA08
-MOD		Fast/Taketracker	xCHN, xxCH
+MOD		Fast/Taketracker	xCHN, xxCH, TDZx
 MOD		His Master's Noise	-
 FLX		Flextrax		M.K., xCHN (no dsp effects)
 WOW		Mod's Grave		M.K.
