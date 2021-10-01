@@ -79,7 +79,7 @@ PTM		Poly Tracker		2.03
 RTM		Real Tracker		1.00
 S3M		Scream Tracker 3	3.00, 3.01+
 STM		Scream Tracker 2	!Scream!, BMOD2STM
-ULT		Ultra Tracker		V0001, V0002, V0003, V0004
+ULT		Ultra Tracker		V001, V002, V003, V004
 XM		Fast Tracker II		1.02, 1.03, 1.04
 
 PC packed formats:

@@ -194,6 +194,7 @@ struct channel_data {
 		int dir;	/* Tone portamento up/down directionh */
 		int slide;	/* Delta for tone portamento */
 		int memory;	/* Tone portamento effect memory */
+		int note_memory;/* Tone portamento note memory (ULT) */
 	} porta;
 
 	struct {
@@ -207,7 +208,7 @@ struct channel_data {
 		int fslide;	/* Pan fine slide value */
 		int memory;	/* Pan slide effect memory */
 		int surround;	/* Surround channel flag */
-	} pan;	
+	} pan;
 
 	struct {
 		int speed;

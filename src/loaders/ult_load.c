@@ -49,7 +49,7 @@ static int ult_test(HIO_HANDLE *f, char *t, const int start)
     if (hio_read(buf, 1, 15, f) < 15)
 	return -1;
 
-    if (memcmp(buf, "MAS_UTrack_V000", 14))
+    if (memcmp(buf, "MAS_UTrack_V00", 14))
 	return -1;
 
     if (buf[14] < '1' || buf[14] > '4')
@@ -60,8 +60,6 @@ static int ult_test(HIO_HANDLE *f, char *t, const int start)
     return 0;
 }
 
-
-#define KEEP_TONEPORTA 32	/* Rows to keep portamento effect */
 
 struct ult_header {
     uint8 magic[15];		/* 'MAS_UTrack_V00x' */
@@ -84,7 +82,7 @@ struct ult_instrument {
     uint32 sizeend;
     uint8 volume;		/* Volume (log; ver >= 1.4 linear) */
     uint8 bidiloop;		/* Sample loop flags */
-    uint16 finetune;		/* Finetune */
+    int16 finetune;		/* Finetune */
     uint16 c2spd;		/* C2 frequency */
 };
 
@@ -108,7 +106,6 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
     struct ult_event ue;
     const char *verstr[4] = { "< 1.4", "1.4", "1.5", "1.6" };
 
-    int keep_porta1 = 0, keep_porta2 = 0;
     uint8 x8;
 
     LOAD_INIT();
@@ -121,7 +118,7 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     strncpy(mod->name, (char *)ufh.name, 32);
     mod->name[32] = '\0';
-    libxmp_set_type(m, "Ultra Tracker %s ULT V%04d", verstr[ver - 1], ver);
+    libxmp_set_type(m, "Ultra Tracker %s ULT V%03d", verstr[ver - 1], ver);
 
     m->c4rate = C4_NTSC_RATE;
 
@@ -151,18 +148,13 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	uih.sizeend = hio_read32l(f);
 	uih.volume = hio_read8(f);
 	uih.bidiloop = hio_read8(f);
+	uih.c2spd = (ver >= 4) ? hio_read16l(f) : 0; /* Incorrect in ult_form.txt */
 	uih.finetune = hio_read16l(f);
-	uih.c2spd = ver < 4 ? 0 : hio_read16l(f);
 	if (hio_error(f)) {
 	    D_(D_CRIT "read error at instrument %d", i);
 	    return -1;
 	}
 
-	if (ver > 3) {			/* Incorrect in ult_form.txt */
-	    uih.c2spd ^= uih.finetune;
-	    uih.finetune ^= uih.c2spd;
-	    uih.c2spd ^= uih.finetune;
-	}
 	mod->xxs[i].len = uih.sizeend - uih.sizestart;
 	mod->xxs[i].lps = uih.loop_start;
 	mod->xxs[i].lpe = uih.loopend;
@@ -305,16 +297,8 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		event->f2p = ue.f2p;
 
 		switch (event->fxt) {
-		case 0x00:		/* <mumble> */
-		    if (event->fxp)
-			keep_porta1 = 0;
-		    if (keep_porta1) {
-			event->fxt = 0x03;
-			keep_porta1--;
-		    }
-		    break;
-		case 0x03:		/* Portamento kludge */
-		    keep_porta1 = KEEP_TONEPORTA;
+		case 0x03:		/* Tone portamento */
+		    event->fxt = FX_ULT_TPORTA;
 		    break;
 		case 0x05:		/* 'Special' effect */
 		case 0x06:		/* Reserved */
@@ -331,16 +315,8 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		}
 
 		switch (event->f2t) {
-		case 0x00:		/* <mumble> */
-		    if (event->f2p)
-			keep_porta2 = 0;
-		    if (keep_porta2) {
-			event->f2t = 0x03;
-			keep_porta2--;
-		    }
-		    break;
-		case 0x03:		/* Portamento kludge */
-		    keep_porta2 = KEEP_TONEPORTA;
+		case 0x03:		/* Tone portamento */
+		    event->f2t = FX_ULT_TPORTA;
 		    break;
 		case 0x05:		/* 'Special' effect */
 		case 0x06:		/* Reserved */
