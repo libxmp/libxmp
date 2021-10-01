@@ -254,7 +254,7 @@ PLAYER		= read_event scan period_amiga period_mod_range pan \
 		  it_noteoff_nosuck mdl_period
 
 LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
-		  mod_invalid \
+		  mod_invalid mod_tdz3 \
 		  nst \
 		  ust \
 		  wow wow_extra \
@@ -277,6 +277,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  flt flt8 \
 		  fnk \
 		  gdm gdm_fx gdm_fx2 \
+		  hmn \
 		  ice \
 		  imf \
 		  ims \

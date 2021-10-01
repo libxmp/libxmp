@@ -31,8 +31,8 @@
  * - Mod's Grave M.K. w/ 8 channels (WOW)
  * - Atari Octalyser CD61 and CD81
  * - Digital Tracker FA04, FA06 and FA08
- * - TakeTracker TDZ4
- * - (unknown) NSMS
+ * - TakeTracker TDZ1, TDZ2, TDZ3, and TDZ4
+ * - (unknown) NSMS, LARD
  */
 
 #include <ctype.h>
@@ -75,10 +75,14 @@ const struct mod_magic mod_magic[] = {
 	{"8CHN", 0, TRACKER_FASTTRACKER, 8},
 	{"CD61", 1, TRACKER_OCTALYSER, 6},	/* Atari STe/Falcon */
 	{"CD81", 1, TRACKER_OCTALYSER, 8},	/* Atari STe/Falcon */
+	{"TDZ1", 1, TRACKER_TAKETRACKER, 1},	/* TakeTracker 1ch */
+	{"TDZ2", 1, TRACKER_TAKETRACKER, 2},	/* TakeTracker 2ch */
+	{"TDZ3", 1, TRACKER_TAKETRACKER, 3},	/* TakeTracker 3ch */
 	{"TDZ4", 1, TRACKER_TAKETRACKER, 4},	/* see XModule SaveTracker.c */
 	{"FA04", 1, TRACKER_DIGITALTRACKER, 4},	/* Atari Falcon */
 	{"FA06", 1, TRACKER_DIGITALTRACKER, 6},	/* Atari Falcon */
 	{"FA08", 1, TRACKER_DIGITALTRACKER, 8},	/* Atari Falcon */
+	{"LARD", 1, TRACKER_UNKNOWN, 4},	/* in judgement_day_gvine.mod */
 	{"NSMS", 1, TRACKER_UNKNOWN, 4},	/* in Kingdom.mod */
 };
 
@@ -116,6 +120,7 @@ static int mod_test(HIO_HANDLE * f, char *t, const int start)
 	int smp_size, num_pat;
 	long size;
 	int count;
+	int detected;
 
 	hio_seek(f, start + 1080, SEEK_SET);
 	if (hio_read(buf, 1, 4, f) < 4) {
@@ -144,9 +149,11 @@ static int mod_test(HIO_HANDLE * f, char *t, const int start)
 		return -1;
 	}
 
+	detected = mod_magic[i].flag;
+
 	/*
 	 * Sanity check to prevent loading NoiseRunner and other module
-	 * formats with valid magic at offset 1080
+	 * formats with valid magic at offset 1080 (e.g. His Master's Noise)
 	 */
 
 	hio_seek(f, start + 20, SEEK_SET);
@@ -167,6 +174,11 @@ static int mod_test(HIO_HANDLE * f, char *t, const int start)
 		hio_read16b(f);	/* loop start */
 		hio_read16b(f);	/* loop size */
 	}
+
+	/* The following checks are only relevant for filtering out atypical
+	 * M.K. variants. If the magic is from a recognizable source, skip them. */
+	if (detected)
+		goto found;
 
 	/* Test for UNIC tracker modules
 	 *
