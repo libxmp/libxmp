@@ -65,7 +65,7 @@ static int asylum_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	mod->ins = hio_read8(f);			/* number of instruments */
 	mod->pat = hio_read8(f);			/* number of patterns */
 	mod->len = hio_read8(f);			/* module length */
-	hio_read8(f);
+	mod->rst = hio_read8(f);			/* restart byte */
 
 	hio_read(mod->xxo, 1, mod->len, f);	/* read orders */
 	hio_seek(f, start + 294, SEEK_SET);
