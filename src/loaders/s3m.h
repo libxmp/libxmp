@@ -82,7 +82,8 @@ struct s3m_file_header {
 };
 
 struct s3m_instrument_header {
-	uint8 dosname[13];	/* DOS file name */
+	uint8 dosname[12];	/* DOS file name */
+	uint8 memseg_hi;	/* High byte of sample pointer */
 	uint16 memseg;		/* Pointer to sample data */
 	uint32 length;		/* Length */
 	uint32 loopbeg;		/* Loop begin */
