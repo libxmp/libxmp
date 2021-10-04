@@ -67,6 +67,7 @@ test_loader_mod_scrm
 test_loader_mod_notawow
 test_loader_mod_invalid
 test_loader_mod_tdz3
+test_loader_mod_dt
 test_loader_nst
 test_loader_ust
 test_loader_wow

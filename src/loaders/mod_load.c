@@ -609,6 +609,12 @@ skip_test:
 
     mod->trk = mod->chn * mod->pat;
 
+    /* Digital Tracker MODs have an extra four bytes after the magic.
+     * These are always 00h 40h 00h 00h and can probably be ignored. */
+    if (tracker_id == TRACKER_DIGITALTRACKER) {
+	hio_read32b(f);
+    }
+
     for (i = 0; i < mod->ins; i++) {
 	D_(D_INFO "[%2X] %-22.22s %04x %04x %04x %c V%02x %+d %c",
 		i, mod->xxi[i].name,
