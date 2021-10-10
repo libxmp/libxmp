@@ -61,6 +61,7 @@
 #define IT_CVT_DIFF	0x04	/* Compressed sample flag */
 #define IT_CVT_BYTEDIFF	0x08	/* 'safe to ignore' according to ittech.txt */
 #define IT_CVT_12BIT	0x10	/* 'safe to ignore' according to ittech.txt */
+#define IT_CVT_ADPCM	0xff	/* Special: always indicates Modplug ADPCM4 */
 
 /* IT envelope flags */
 #define IT_ENV_ON	0x01
