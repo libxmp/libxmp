@@ -820,6 +820,9 @@ static int load_it_sample(struct module_data *m, int i, int start,
 		if (xxs->lpe > xxs->len || xxs->lps >= xxs->lpe)
 			xxs->flg &= ~XMP_SAMPLE_LOOP;
 
+		if (ish.convert == IT_CVT_ADPCM)
+			cvt |= SAMPLE_FLAG_ADPCM;
+
 		if (~ish.convert & IT_CVT_SIGNED)
 			cvt |= SAMPLE_FLAG_UNS;
 

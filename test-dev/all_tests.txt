@@ -85,6 +85,7 @@ test_loader_xm_xmlite
 test_loader_xm_short
 test_loader_xm_instsamples
 test_loader_it
+test_loader_it_adpcm
 test_loader_it_oldins
 test_loader_it_schism
 test_loader_it_invalid_fx
