@@ -11,4 +11,7 @@
 int libxmp_read_lzw(void *dest, size_t dest_len, size_t max_read_len,
 		    int flags, HIO_HANDLE *f);
 
+int libxmp_read_sigma_delta(void *dest, size_t dest_len, size_t max_read_len,
+			    HIO_HANDLE *f);
+
 #endif /* LIBXMP_LOADER_LZW_H */

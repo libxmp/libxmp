@@ -366,3 +366,74 @@ int libxmp_read_lzw(void *dest, size_t dest_len, size_t max_read_len,
 	LZW_free(&lzw);
 	return 0;
 }
+
+/* Decode Digital Symphony sigma-delta compressed samples.
+ * This isn't really LZW but it uses the same bitstream and alignment hacks.
+ *
+ * Based on the sigma-delta unpacker from OpenMPT by Saga Musix.
+ */
+int libxmp_read_sigma_delta(void *dest, size_t dest_len, size_t max_read_len,
+                            HIO_HANDLE *f)
+{
+	struct bitstream bs;
+	uint8 *pos = (uint8 *)dest;
+	uint8 *end = pos + dest_len;
+	int max_runlength;
+	int runlength = 0;
+	int bits = 8;
+	uint8 accumulator;
+
+	if (!dest_len)
+		return 0;
+
+	bs_init(&bs, max_read_len);
+
+	/* DOESN'T count towards alignment. */
+	max_runlength = hio_read8(f);
+	/* DOES count. */
+	accumulator = bs_read(&bs, f, bits);
+	*(pos++) = accumulator;
+
+	while (pos < end) {
+		int value = bs_read(&bs, f, bits);
+		if (value < 0)
+			return -1;
+
+		/* Expand bitwidth. */
+		if (!value) {
+			if (bits >= 9)
+				break;
+
+			bits++;
+			runlength = 0;
+			continue;
+		}
+
+		if (value & 1)	accumulator -= (value >> 1);
+		else		accumulator += (value >> 1);
+
+		*(pos++) = accumulator;
+
+		/* High bit set resets the run length. */
+		if (value >> (bits - 1)) {
+			runlength = 0;
+			continue;
+		}
+		/* Reduce bitwidth. */
+		if (++runlength >= max_runlength) {
+			if (bits > 1)
+				bits--;
+			runlength = 0;
+		}
+	}
+
+	/* Digital Symphony aligns bitstreams to lengths of 4. */
+	if (bs.num_read & 3) {
+		size_t total = bs.num_read;
+		while (total & 3) {
+			hio_read8(f);
+			total++;
+		}
+	}
+	return 0;
+}

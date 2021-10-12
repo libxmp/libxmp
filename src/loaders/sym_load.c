@@ -262,11 +262,15 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	mod->len = mod->pat = hio_read16l(f);
 
 	/* Sanity check */
-	if (mod->chn > 8 || mod->pat > 256)
+	if (mod->chn < 1 || mod->chn > 8 || mod->pat > XMP_MAX_MOD_LENGTH)
 		return -1;
 
 	mod->trk = hio_read16l(f);	/* Symphony patterns are actually tracks */
 	infolen = hio_read24l(f);
+
+	/* Sanity check - track 0x1000 is used to indicate the empty track. */
+	if (mod->trk > 0x1000)
+		return -1;
 
 	mod->ins = mod->smp = 63;
 
@@ -488,10 +492,35 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			ret = libxmp_load_sample(m, f, 0, &mod->xxs[i], NULL);
 			break;
 
-		case 4: /* Sigma-delta compressed signed 8-bit, linear. */
+		case 4: /* Sigma-delta compressed unsigned 8-bit, linear. */
+			D_(D_INFO "%27s Sigma-delta", "");
+			size = mod->xxs[i].len;
+			if (libxmp_read_sigma_delta(buf, size, size, f) < 0) {
+				free(buf);
+				return -1;
+			}
+			ret = libxmp_load_sample(m, NULL,
+					SAMPLE_FLAG_NOLOAD | SAMPLE_FLAG_UNS,
+					&mod->xxs[i], buf);
+			break;
+
 		case 5: /* Sigma-delta compressed signed 8-bit, logarithmic. */
-			D_(D_CRIT "sigma-delta compression currently not supported @ %ld", hio_tell(f));
-			ret = -1;
+			D_(D_INFO "%27s Sigma-delta VIDC", "");
+			size = mod->xxs[i].len;
+			if (libxmp_read_sigma_delta(buf, size, size, f) < 0) {
+				free(buf);
+				return -1;
+			} else {
+				/* This uses a bit packing that isn't either mu-law or
+				 * normal Archimedes VIDC. Convert to the latter... */
+				for (j = 0; j < size; j++) {
+					uint8 t = (buf[j] < 128) ? ~buf[j] : buf[j];
+					buf[j] = (buf[j] >> 7) | (t << 1);
+				}
+			}
+			ret = libxmp_load_sample(m, NULL,
+					SAMPLE_FLAG_NOLOAD | SAMPLE_FLAG_VIDC,
+					&mod->xxs[i], buf);
 			break;
 
 		default:

@@ -152,6 +152,7 @@ test_loader_stm_v1
 test_loader_stx
 test_loader_sym
 test_loader_sym_lzwquirk
+test_loader_sym_sigmadelta
 test_loader_ult
 test_loader_ac1d
 test_loader_crb
