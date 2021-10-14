@@ -3639,18 +3639,18 @@ static mz_bool mz_zip_reader_read_central_dir(mz_zip_archive *pZip, mz_uint flag
             return mz_zip_set_error(pZip, MZ_ZIP_UNSUPPORTED_MULTIDISK);
 
         /* Check for miniz's practical limits */
-        if (zip64_cdir_total_entries > MZ_UINT32_MAX)
+        if (zip64_cdir_total_entries > (mz_uint64)MZ_UINT32_MAX)
             return mz_zip_set_error(pZip, MZ_ZIP_TOO_MANY_FILES);
 
         pZip->m_total_files = (mz_uint32)zip64_cdir_total_entries;
 
-        if (zip64_cdir_total_entries_on_this_disk > MZ_UINT32_MAX)
+        if (zip64_cdir_total_entries_on_this_disk > (mz_uint64)MZ_UINT32_MAX)
             return mz_zip_set_error(pZip, MZ_ZIP_TOO_MANY_FILES);
 
         cdir_entries_on_this_disk = (mz_uint32)zip64_cdir_total_entries_on_this_disk;
 
         /* Check for miniz's current practical limits (sorry, this should be enough for millions of files) */
-        if (zip64_size_of_central_directory > MZ_UINT32_MAX)
+        if (zip64_size_of_central_directory > (mz_uint64)MZ_UINT32_MAX)
             return mz_zip_set_error(pZip, MZ_ZIP_UNSUPPORTED_CDIR_SIZE);
 
         cdir_size = (mz_uint32)zip64_size_of_central_directory;
@@ -4681,7 +4681,7 @@ mz_bool mz_zip_reader_extract_to_callback(mz_zip_archive *pZip, mz_uint file_ind
         /* The file is stored or the caller has requested the compressed data. */
         if (pZip->m_pState->m_pMem)
         {
-            if (((sizeof(size_t) == sizeof(mz_uint32))) && (file_stat.m_comp_size > MZ_UINT32_MAX))
+            if (((sizeof(size_t) == sizeof(mz_uint32))) && (file_stat.m_comp_size > (mz_uint64)MZ_UINT32_MAX))
                 return mz_zip_set_error(pZip, MZ_ZIP_INTERNAL_ERROR);
 
             if (pCallback(pOpaque, out_buf_ofs, pRead_buf, (size_t)file_stat.m_comp_size) != file_stat.m_comp_size)
