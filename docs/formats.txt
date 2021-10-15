@@ -63,7 +63,8 @@ MGT		Megatracker		-
 Acorn tracker formats:
 
 -		Archimedes Tracker	V1.0+++
--		Digital Symphony	0
+-		Coconizer		-
+-		Digital Symphony	0, 1
 
 PC tracker formats:
 
