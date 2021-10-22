@@ -262,11 +262,15 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	mod->len = mod->pat = hio_read16l(f);
 
 	/* Sanity check */
-	if (mod->chn > 8 || mod->pat > 256)
+	if (mod->chn < 1 || mod->chn > 8 || mod->pat > XMP_MAX_MOD_LENGTH)
 		return -1;
 
 	mod->trk = hio_read16l(f);	/* Symphony patterns are actually tracks */
 	infolen = hio_read24l(f);
+
+	/* Sanity check - track 0x1000 is used to indicate the empty track. */
+	if (mod->trk > 0x1000)
+		return -1;
 
 	mod->ins = mod->smp = 63;
 
@@ -457,12 +461,15 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		a = hio_read8(f);
 
-		if (a != 0 && a != 1) {
-			D_(D_WARN "libxmp: unsupported sample type %d\n", a);
-			//return -1;
-		}
+		switch (a) {
+		case 0: /* Signed 8-bit, logarithmic. */
+			D_(D_INFO "%27s VIDC", "");
+			ret = libxmp_load_sample(m, f, SAMPLE_FLAG_VIDC,
+					&mod->xxs[i], NULL);
+			break;
 
-		if (a == 1) {
+		case 1: /* LZW compressed signed 8-bit delta, linear. */
+			D_(D_INFO "%27s LZW", "");
 			size = mod->xxs[i].len;
 
 			if (libxmp_read_lzw(buf, size, size, LZW_FLAGS_SYM, f) < 0) {
@@ -472,13 +479,54 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			ret = libxmp_load_sample(m, NULL,
 					SAMPLE_FLAG_NOLOAD | SAMPLE_FLAG_DIFF,
 					&mod->xxs[i], buf);
+			break;
 
-		/*} else if (a == 4) {
-			ret = libxmp_load_sample(m, f, SAMPLE_FLAG_VIDC,
-					&mod->xxs[i], NULL);*/
-		} else {
-			ret = libxmp_load_sample(m, f, SAMPLE_FLAG_VIDC,
-					&mod->xxs[i], NULL);
+		case 2: /* Signed 8-bit, linear. */
+			D_(D_INFO "%27s 8-bit", "");
+			ret = libxmp_load_sample(m, f, 0, &mod->xxs[i], NULL);
+			break;
+
+		case 3: /* Signed 16-bit, linear. */
+			D_(D_INFO "%27s 16-bit", "");
+			mod->xxs[i].flg |= XMP_SAMPLE_16BIT;
+			ret = libxmp_load_sample(m, f, 0, &mod->xxs[i], NULL);
+			break;
+
+		case 4: /* Sigma-delta compressed unsigned 8-bit, linear. */
+			D_(D_INFO "%27s Sigma-delta", "");
+			size = mod->xxs[i].len;
+			if (libxmp_read_sigma_delta(buf, size, size, f) < 0) {
+				free(buf);
+				return -1;
+			}
+			ret = libxmp_load_sample(m, NULL,
+					SAMPLE_FLAG_NOLOAD | SAMPLE_FLAG_UNS,
+					&mod->xxs[i], buf);
+			break;
+
+		case 5: /* Sigma-delta compressed signed 8-bit, logarithmic. */
+			D_(D_INFO "%27s Sigma-delta VIDC", "");
+			size = mod->xxs[i].len;
+			if (libxmp_read_sigma_delta(buf, size, size, f) < 0) {
+				free(buf);
+				return -1;
+			} else {
+				/* This uses a bit packing that isn't either mu-law or
+				 * normal Archimedes VIDC. Convert to the latter... */
+				for (j = 0; j < size; j++) {
+					uint8 t = (buf[j] < 128) ? ~buf[j] : buf[j];
+					buf[j] = (buf[j] >> 7) | (t << 1);
+				}
+			}
+			ret = libxmp_load_sample(m, NULL,
+					SAMPLE_FLAG_NOLOAD | SAMPLE_FLAG_VIDC,
+					&mod->xxs[i], buf);
+			break;
+
+		default:
+			D_(D_CRIT "unknown sample type %d @ %ld\n", a, hio_tell(f));
+			ret = -1;
+			break;
 		}
 
 		if (ret < 0) {
