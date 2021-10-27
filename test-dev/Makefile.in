@@ -747,7 +747,7 @@ fuzzerclean:
 
 $(FUZZLIB_PATH):
 	mkdir -p $(FUZZLIB_PATH)
-	cp -r ../configure.ac ../Makefile.in ../libxmp.pc.in ../docs ../include ../src ../test $(FUZZLIB_PATH)
+	cp -r ../configure.ac ../Makefile.in ../libxmp.pc.in ../cmake ../docs ../include ../m4 ../src ../test $(FUZZLIB_PATH)
 
 $(FUZZLIB_PATH)/libxmp-asan.a: $(FUZZLIB_PATH)
 	(cd $(FUZZLIB_PATH) && \

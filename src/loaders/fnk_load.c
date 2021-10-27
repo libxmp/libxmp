@@ -308,7 +308,7 @@ static int fnk_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	if (libxmp_alloc_pattern_tracks(mod, i, 64) < 0)
 	    return -1;
 
-	EVENT(i, 1, ffh.pbrk[i]).f2t = FX_BREAK;
+	EVENT(i, 0, ffh.pbrk[i]).f2t = FX_BREAK;
 
 	for (j = 0; j < 64; j++) {
 	    for(k = 0; k < mod->chn; k++) {
