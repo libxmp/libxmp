@@ -410,6 +410,8 @@ static int decrunch_sqsh(FILE * f, FILE * fo, long inlen)
 	if (fread(src, srclen - 8, 1, f) != 1)
 		goto err3;
 
+	memset(src + srclen - 8, '\0', 8 + 3);
+
 	if (unsqsh(src, srclen, dest, destlen) != destlen)
 		goto err3;
 
