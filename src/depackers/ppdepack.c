@@ -58,6 +58,7 @@ static int ppDecrunch(uint8 *src, uint8 *dest, uint8 *offset_lens,
   uint32 bit_buffer = 0, x, todo, offbits, offset, written=0;
 
   if (src == NULL || dest == NULL || offset_lens == NULL) return 0;
+  if (skip_bits > 32) return 0;
 
   /* set up input and output pointers */
   buf_src = src + src_len;
@@ -98,7 +99,7 @@ static int ppDecrunch(uint8 *src, uint8 *dest, uint8 *offset_lens,
   /* all output bytes written without error */
   return 1;
   /* return (src == buf_src) ? 1 : 0; */
-}                     
+}
 
 static int ppdepack(uint8 *data, size_t len, FILE *fo)
 {
@@ -156,7 +157,7 @@ static int ppdepack(uint8 *data, size_t len, FILE *fo)
       savefile(fo, (void *) output, outlen);
     } else {
       success=-1;
-    } 
+    }
   /*} else {
     success=-1;
   }*/
