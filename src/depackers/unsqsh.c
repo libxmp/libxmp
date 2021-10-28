@@ -380,24 +380,24 @@ static int test_sqsh(unsigned char *b)
 	return memcmp(b, "XPKF", 4) == 0 && memcmp(b + 8, "SQSH", 4) == 0;
 }
 
-static int decrunch_sqsh(FILE * f, FILE * fo, long inlen)
+static int decrunch_sqsh(HIO_HANDLE * f, FILE * fo, long inlen)
 {
 	unsigned char *src, *dest;
 	int srclen, destlen;
 
-	if (read32b(f, NULL) != 0x58504b46)	/* XPKF */
+	if (hio_read32b(f) != 0x58504b46)	/* XPKF */
 		goto err;
 
-	srclen = read32b(f, NULL);
+	srclen = hio_read32b(f);
 
 	/* Sanity check */
 	if (srclen <= 8 || srclen > 0x100000)
 		goto err;
 
-	if (read32b(f, NULL) != 0x53515348)	/* SQSH */
+	if (hio_read32b(f) != 0x53515348)	/* SQSH */
 		goto err;
 
-	destlen = read32b(f, NULL);
+	destlen = hio_read32b(f);
 	if (destlen < 0 || destlen > 0x100000)
 		goto err;
 
@@ -407,7 +407,7 @@ static int decrunch_sqsh(FILE * f, FILE * fo, long inlen)
 	if ((dest = (unsigned char *)malloc(destlen + 100)) == NULL)
 		goto err2;
 
-	if (fread(src, srclen - 8, 1, f) != 1)
+	if (hio_read(src, srclen - 8, 1, f) != 1)
 		goto err3;
 
 	if (unsqsh(src, srclen, dest, destlen) != destlen)

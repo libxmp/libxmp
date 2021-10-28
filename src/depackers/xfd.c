@@ -43,7 +43,7 @@ static int test_xfd(unsigned char *b)
 	return _test_xfd(b, 1024);
 }
 
-static int decrunch_xfd(FILE *f1, FILE *f2, long inlen)
+static int decrunch_xfd(HIO_HANDLE *f1, FILE *f2, long inlen)
 {
     struct xfdBufferInfo *xfdobj;
     uint8 *packed;
@@ -58,7 +58,7 @@ static int decrunch_xfd(FILE *f1, FILE *f2, long inlen)
     packed = (uint8 *) AllocVec(inlen,MEMF_CLEAR);
     if (!packed) return -1;
 
-    fread(packed,inlen,1,f1);
+    hio_read(packed,inlen,1,f1);
 
 	xfdobj = (struct xfdBufferInfo *) xfdAllocObject(XFDOBJ_BUFFERINFO);
 	if(xfdobj)

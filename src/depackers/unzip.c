@@ -35,20 +35,20 @@ struct zip_file_header
 
 #define QUIET
 
-#define read_int(x) read32l(x, NULL)
-#define read_word(x) read16l(x, NULL)
+#define read_int(x) hio_read32l(x)
+#define read_word(x) hio_read16l(x)
 
 /*-------------------------- fileio.c ---------------------------*/
 
 
-static int read_chars(FILE *in, char *s, int count)
+static int read_chars(HIO_HANDLE *in, char *s, int count)
 {
 int t;
 
   for (t=0; t<count; t++)
   {
-    int x = getc(in);
-    if (x < 0) {
+    int x = hio_read8(in);
+    if (hio_eof(in)) {
       return -1;
     }
     s[t]=x;
@@ -59,15 +59,15 @@ int t;
   return 0;
 }
 
-static int read_buffer(FILE *in, unsigned char *buffer, int len)
+static int read_buffer(HIO_HANDLE *in, unsigned char *buffer, int len)
 {
 int t;
 
   t=0;
   while (t<len)
   {
-    t=t+fread(buffer+t,1,len-t,in);
-    if (t < len && (feof(in) || ferror(in)))
+    t=t+hio_read(buffer+t,1,len-t,in);
+    if (t < len && (hio_eof(in) || hio_error(in)))
       return -1;
   }
 
@@ -94,7 +94,7 @@ int t;
 #define BUFFER_SIZE 16738
 
 
-static int copy_file(FILE *in, FILE *out, int len, uint32 *_checksum, struct inflate_data *data)
+static int copy_file(HIO_HANDLE *in, FILE *out, int len, uint32 *_checksum, struct inflate_data *data)
 {
 unsigned char buffer[BUFFER_SIZE];
 unsigned int checksum;
@@ -123,7 +123,7 @@ int t,r;
   return 0;
 }
 
-static int read_zip_header(FILE *in, struct zip_file_header *header)
+static int read_zip_header(HIO_HANDLE *in, struct zip_file_header *header)
 {
   header->signature=read_int(in);
   if (header->signature!=0x04034b50) return -1;
@@ -147,7 +147,7 @@ static int read_zip_header(FILE *in, struct zip_file_header *header)
  * pass an array of patterns containing files we want to exclude from
  * our search (such as README, *.nfo, etc)
  */
-static int kunzip_file_with_name(FILE *in, FILE *out)
+static int kunzip_file_with_name(HIO_HANDLE *in, FILE *out)
 {
 struct zip_file_header header;
 int ret_code;
@@ -173,7 +173,7 @@ struct inflate_data data;
   if (read_chars(in,(char *)header.extra_field,header.extra_field_length) < 0)
     goto err3;
 
-  marker=ftell(in);
+  marker=hio_tell(in);
 
   libxmp_crc32_init_A();
 
@@ -202,7 +202,7 @@ struct inflate_data data;
   free(header.file_name);
   free(header.extra_field);
 
-  if (fseek(in,marker+header.compressed_size,SEEK_SET) < 0) {
+  if (hio_seek(in,marker+header.compressed_size,SEEK_SET) < 0) {
     goto err;
   }
 
@@ -223,7 +223,7 @@ struct inflate_data data;
   return -1;
 }
 
-static int kunzip_get_offset_excluding(FILE *in)
+static int kunzip_get_offset_excluding(HIO_HANDLE *in)
 {
 struct zip_file_header header;
 int i=0,curr;
@@ -233,7 +233,7 @@ char name[1024];
 
   while(1)
   {
-    curr=ftell(in);
+    curr=hio_tell(in);
     if (curr < 0) {
       return -1;
     }
@@ -242,7 +242,7 @@ char name[1024];
 
     /*if (skip_offset<0 || curr>skip_offset)*/
     {
-      marker=ftell(in);  /* nasty code.. please make it nice later */
+      marker=hio_tell(in);  /* nasty code.. please make it nice later */
       if (marker < 0) {
         return -1;
       }
@@ -258,7 +258,7 @@ char name[1024];
 
       name[name_size]=0;
 
-      if (fseek(in,marker,SEEK_SET) < 0) { /* and part 2 of nasty code */
+      if (hio_seek(in,marker,SEEK_SET) < 0) { /* and part 2 of nasty code */
         return -1;
       }
 
@@ -267,7 +267,7 @@ char name[1024];
       }
     }
 
-    if (fseek(in,header.compressed_size+
+    if (hio_seek(in,header.compressed_size+
              header.file_name_length+
              header.extra_field_length,SEEK_CUR) < 0) {
       return -1;
@@ -287,7 +287,7 @@ static int test_zip(unsigned char *b)
 		b[4] == 'P' && b[5] == 'K' && b[6] == 3 && b[7] == 4));
 }
 
-static int decrunch_zip(FILE *in, FILE *out, long inlen)
+static int decrunch_zip(HIO_HANDLE *in, FILE *out, long inlen)
 {
   int offset;
 
@@ -295,7 +295,7 @@ static int decrunch_zip(FILE *in, FILE *out, long inlen)
   if (offset < 0)
     return -1;
 
-  if (fseek(in, offset, SEEK_SET) < 0)
+  if (hio_seek(in, offset, SEEK_SET) < 0)
     return -1;
 
   if (kunzip_file_with_name(in,out) < 0)

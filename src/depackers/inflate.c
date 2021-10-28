@@ -2,8 +2,8 @@
 #include "inflate.h"
 #include "crc32.h"
 
-#define read_int_b(x) read32b(x, NULL)
-#define read_word(x) read16l(x, NULL)
+#define read_int_b(x) hio_read32b(x)
+#define read_word(x) hio_read16l(x)
 
 #define ZIP
 #undef DEBUG
@@ -284,7 +284,7 @@ printf("load_fixed_huffman()\n");
   return 0;
 }
 
-static int load_codes(FILE *in, struct bitstream_t *bitstream, int *lengths, int len_size, int count, int *hclen_code_length, int *hclen_code, struct huffman_tree_t *huffman_tree)
+static int load_codes(HIO_HANDLE *in, struct bitstream_t *bitstream, int *lengths, int len_size, int count, int *hclen_code_length, int *hclen_code, struct huffman_tree_t *huffman_tree)
 {
   int r,t,c,x,b;
   int code,curr_code;
@@ -305,8 +305,8 @@ static int load_codes(FILE *in, struct bitstream_t *bitstream, int *lengths, int
       if (hclen_code_length[t]==0) continue;
       while (bitstream->bitptr<hclen_code_length[t])
       {
-        b = getc(in);
-        if (b < 0)
+        b = hio_read8(in);
+        if (hio_eof(in))
           return -1;
 
         bitstream->holding=reverse[b]+(bitstream->holding<<8);
@@ -350,8 +350,8 @@ static int load_codes(FILE *in, struct bitstream_t *bitstream, int *lengths, int
 
       if (bitstream->bitptr<2)
       {
-        b = getc(in);
-        if (b < 0)
+        b = hio_read8(in);
+        if (hio_eof(in))
           return -1;
 
         bitstream->holding=reverse[b]+(bitstream->holding<<8);
@@ -374,8 +374,8 @@ static int load_codes(FILE *in, struct bitstream_t *bitstream, int *lengths, int
     {
       if (bitstream->bitptr<3)
       {
-        b = getc(in);
-        if (b < 0)
+        b = hio_read8(in);
+        if (hio_eof(in))
           return -1;
 
         bitstream->holding=reverse[b]+(bitstream->holding<<8);
@@ -400,8 +400,8 @@ static int load_codes(FILE *in, struct bitstream_t *bitstream, int *lengths, int
     {
       if (bitstream->bitptr<7)
       {
-        b = getc(in);
-        if (b < 0)
+        b = hio_read8(in);
+        if (hio_eof(in))
           return -1;
 
         bitstream->holding=reverse[b]+(bitstream->holding<<8);
@@ -521,7 +521,7 @@ static int load_codes(FILE *in, struct bitstream_t *bitstream, int *lengths, int
   return 0;
 }
 
-static int load_dynamic_huffman(FILE *in, struct huffman_t *huffman, struct bitstream_t *bitstream, struct huffman_tree_t *huffman_tree_len, struct huffman_tree_t *huffman_tree_dist)
+static int load_dynamic_huffman(HIO_HANDLE *in, struct huffman_t *huffman, struct bitstream_t *bitstream, struct huffman_tree_t *huffman_tree_len, struct huffman_tree_t *huffman_tree_dist)
 {
   int hlit,hdist,hclen;
   int hclen_code_lengths[19];
@@ -535,8 +535,8 @@ static int load_dynamic_huffman(FILE *in, struct huffman_t *huffman, struct bits
 
   while (bitstream->bitptr<14)
   {
-    b = getc(in);
-    if (b < 0)
+    b = hio_read8(in);
+    if (hio_eof(in))
       return -1;
 
     bitstream->holding=reverse[b]+(bitstream->holding<<8);
@@ -584,8 +584,8 @@ static int load_dynamic_huffman(FILE *in, struct huffman_t *huffman, struct bits
 
     if (bitstream->bitptr<3)
     {
-      b = getc(in);
-      if (b < 0)
+      b = hio_read8(in);
+      if (hio_eof(in))
         return -1;
 
       bitstream->holding=reverse[b]+(bitstream->holding<<8);
@@ -709,7 +709,7 @@ static int load_dynamic_huffman(FILE *in, struct huffman_t *huffman, struct bits
   return 0;
 }
 
-int decompress(FILE *in, struct huffman_t *huffman, struct bitstream_t *bitstream, struct huffman_tree_t *huffman_tree_len, struct huffman_tree_t *huffman_tree_dist, FILE *out, struct inflate_data *data)
+int decompress(HIO_HANDLE *in, struct huffman_t *huffman, struct bitstream_t *bitstream, struct huffman_tree_t *huffman_tree_len, struct huffman_tree_t *huffman_tree_dist, FILE *out, struct inflate_data *data)
 {
   int code=0,len,dist;
   int t,r;
@@ -733,16 +733,17 @@ int decompress(FILE *in, struct huffman_t *huffman, struct bitstream_t *bitstrea
   while(1)
   {
     curr_huffman_leaf=huffman_tree_len;
+    (void)curr_huffman_leaf;
     curr_leaf=0;
 
     while(1)
     {
       if (bitstream->bitptr<=0)
       {
-        /* bitstream->holding+=(getc(in)<<bitstream->bitptr); */
+        /* bitstream->holding+=(hio_read8(in)<<bitstream->bitptr); */
         /* bitstream->bitptr+=8; */
-        int x = getc(in);
-        if (x == EOF) {
+        int x = hio_read8(in);
+        if (hio_eof(in)) {
           return -1;
         }
         bitstream->holding=x;
@@ -833,8 +834,8 @@ int decompress(FILE *in, struct huffman_t *huffman, struct bitstream_t *bitstrea
       {
         while (bitstream->bitptr<length_extra_bits[code])
         {
-          int x = getc(in);
-          if (x < 0)
+          int x = hio_read8(in);
+          if (hio_eof(in))
             return -1;
 
           bitstream->holding+=(x<<bitstream->bitptr);
@@ -855,8 +856,8 @@ int decompress(FILE *in, struct huffman_t *huffman, struct bitstream_t *bitstrea
       {
         if (bitstream->bitptr<5)
         {
-          int x = getc(in);
-          if (x < 0)
+          int x = hio_read8(in);
+          if (hio_eof(in))
             return -1;
 
           bitstream->holding+=(x<<bitstream->bitptr);
@@ -881,10 +882,10 @@ int decompress(FILE *in, struct huffman_t *huffman, struct bitstream_t *bitstrea
         {
           if (bitstream->bitptr<=0)
           {
-            /* bitstream->holding+=(getc(in)<<bitstream->bitptr); */
+            /* bitstream->holding+=(hio_read8(in)<<bitstream->bitptr); */
             /* bitstream->bitptr+=8; */
-            int x = getc(in);
-            if (x < 0)
+            int x = hio_read8(in);
+            if (hio_eof(in))
               return -1;
 
             bitstream->holding=x;
@@ -941,8 +942,8 @@ int decompress(FILE *in, struct huffman_t *huffman, struct bitstream_t *bitstrea
       {
         while (bitstream->bitptr<dist_extra_bits[code])
         {
-          int x = getc(in);
-          if (x < 0)
+          int x = hio_read8(in);
+          if (hio_eof(in))
             return -1;
 
           bitstream->holding+=(x<<bitstream->bitptr);
@@ -1018,7 +1019,7 @@ exit(0);
   return 0;
 }
 
-int libxmp_inflate(FILE *in, FILE *out, uint32 *checksum, int is_zip)
+int libxmp_inflate(HIO_HANDLE *in, FILE *out, uint32 *checksum, int is_zip)
 {
 /* #ifndef ZIP */
   unsigned char CMF, FLG;
@@ -1056,14 +1057,14 @@ int libxmp_inflate(FILE *in, FILE *out, uint32 *checksum, int is_zip)
 #endif
 
 if (!is_zip) {
-  int x = getc(in);
-  if (x < 0) {
+  int x = hio_read8(in);
+  if (hio_eof(in)) {
     goto err;
   }
   CMF=x;
 
-  x = getc(in);
-  if (x < 0) {
+  x = hio_read8(in);
+  if (hio_eof(in)) {
     goto err;
   }
   FLG=x;
@@ -1087,6 +1088,7 @@ if (!is_zip) {
   if ((FLG&32)!=0)
   {
     DICT=read_int_b(in);
+    (void)DICT;
   }
 
   if (((CMF*256+FLG)%31)!=0)
@@ -1105,8 +1107,8 @@ if (!is_zip) {
   {
     if (bitstream.bitptr<3)
     {
-      res = getc(in);
-      if (res < 0) {
+      res = hio_read8(in);
+      if (hio_eof(in)) {
         goto err;
       }
 
@@ -1146,8 +1148,8 @@ if (!is_zip) {
 
       for (t=0; t<block_len; t++)
       {
-        res = getc(in);
-        if (res < 0) {
+        res = hio_read8(in);
+        if (hio_eof(in)) {
           goto err;
         }
         huffman.window[huffman.window_ptr++]=res;
@@ -1220,7 +1222,7 @@ if (!is_zip) {
   /* for gzip */
   if (bitstream.bitptr == 8) {
     reverse_bitstream(&bitstream);
-    ungetc(bitstream.holding, in);
+    hio_seek(in, -1, SEEK_CUR);
   }
 
   return 0;

@@ -46,37 +46,37 @@ static int test_gzip(unsigned char *b)
 	return b[0] == 31 && b[1] == 139;
 }
 
-static int decrunch_gzip(FILE *in, FILE *out, long inlen)
+static int decrunch_gzip(HIO_HANDLE *in, FILE *out, long inlen)
 {
 	struct member member;
-	int val, c, err;
+	int val, c;
 	uint32 crc;
 
 	libxmp_crc32_init_A();
 
-	member.id1 = read8(in, NULL);
-	member.id2 = read8(in, NULL);
-	member.cm  = read8(in, NULL);
-	member.flg = read8(in, NULL);
-	member.mtime = read32l(in, NULL);
-	member.xfl = read8(in, NULL);
-	member.os  = read8(in, NULL);
+	member.id1 = hio_read8(in);
+	member.id2 = hio_read8(in);
+	member.cm  = hio_read8(in);
+	member.flg = hio_read8(in);
+	member.mtime = hio_read32l(in);
+	member.xfl = hio_read8(in);
+	member.os  = hio_read8(in);
 
 	if (member.cm != 0x08) {
 		return -1;
 	}
 
 	if (member.flg & FLAG_FEXTRA) {
-		int xlen = read16l(in, NULL);
-		if (fseek(in, xlen, SEEK_CUR) < 0) {
+		int xlen = hio_read16l(in);
+		if (hio_seek(in, xlen, SEEK_CUR) < 0) {
 			return -1;
 		}
 	}
 
 	if (member.flg & FLAG_FNAME) {
 		do {
-			c = read8(in, &err);
-			if (err) {
+			c = hio_read8(in);
+			if (hio_error(in)) {
 				return -1;
 			}
 		} while (c != 0);
@@ -84,15 +84,15 @@ static int decrunch_gzip(FILE *in, FILE *out, long inlen)
 
 	if (member.flg & FLAG_FCOMMENT) {
 		do {
-			c = read8(in, &err);
-			if (err) {
+			c = hio_read8(in);
+			if (hio_error(in)) {
 				return -1;
 			}
 		} while (c != 0);
 	}
 
 	if (member.flg & FLAG_FHCRC) {
-		read16l(in, NULL);
+		hio_read16l(in);
 	}
 
 	val = libxmp_inflate(in, out, &crc, 1);
@@ -101,13 +101,13 @@ static int decrunch_gzip(FILE *in, FILE *out, long inlen)
 	}
 
 	/* Check CRC32 */
-	val = read32l(in, NULL);
+	val = hio_read32l(in);
 	if (val != crc) {
 		return -1;
 	}
 
 	/* Check file size */
-	val = read32l(in, NULL);
+	val = hio_read32l(in);
 	if (val != ftell(out)) {
 		return -1;
 	}

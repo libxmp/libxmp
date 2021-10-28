@@ -170,7 +170,7 @@ static int test_pp(unsigned char *b)
 	return memcmp(b, "PP20", 4) == 0;
 }
 
-static int decrunch_pp(FILE *f, FILE *fo, long inlen)
+static int decrunch_pp(HIO_HANDLE *f, FILE *fo, long inlen)
 {
     uint8 *packed;
     int unplen;
@@ -196,7 +196,7 @@ static int decrunch_pp(FILE *f, FILE *fo, long inlen)
 	 goto err;
     }
 
-    if (fread(packed, 1, inlen, f) != inlen) {
+    if (hio_read(packed, 1, inlen, f) != inlen) {
          goto err1;
     }
 

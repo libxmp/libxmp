@@ -50,7 +50,7 @@ static int test_compress(unsigned char *b)
  * with those of the compress() routine.  See the definitions above.
  */
 
-static int decrunch_compress(FILE * in, FILE * out, long inlen)
+static int decrunch_compress(HIO_HANDLE * in, FILE * out, long inlen)
 {
 	char_type *stackp;
 	code_int code;
@@ -79,7 +79,7 @@ static int decrunch_compress(FILE * in, FILE * out, long inlen)
 	unsigned short codetab[HSIZE];
 
 	insize = 0;
-	rsize = fread(inbuf, 1, IBUFSIZ, in);
+	rsize = hio_read(inbuf, 1, IBUFSIZ, in);
 	insize += rsize;
 
 	if (insize < 3 || inbuf[0] != MAGIC_1 || inbuf[1] != MAGIC_2) {
@@ -132,7 +132,7 @@ static int decrunch_compress(FILE * in, FILE * out, long inlen)
 		}
 
 		if (insize < sizeof(inbuf) - IBUFSIZ) {
-			if ((rsize = fread(inbuf + insize, 1, IBUFSIZ, in)) < 0)
+			if ((rsize = hio_read(inbuf + insize, 1, IBUFSIZ, in)) < 0)
 				return -1;
 
 			insize += rsize;

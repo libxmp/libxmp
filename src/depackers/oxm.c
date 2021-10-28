@@ -32,7 +32,7 @@ struct xm_instrument {
 	uint8 buf[36];
 };
 
-int test_oxm(FILE *f)
+int test_oxm(HIO_HANDLE *f)
 {
 	int i, j;
 	int hlen, npat, len, plen;
@@ -40,13 +40,12 @@ int test_oxm(FILE *f)
 	uint32 ilen;
 	int slen[256];
 	uint8 buf[1024];
-	int error;
 
-	if (fseek(f, 0, SEEK_SET) < 0) {
+	if (hio_seek(f, 0, SEEK_SET) < 0) {
 		return -1;
 	}
 
-	if (fread(buf, 1, 80, f) != 80) {
+	if (hio_read(buf, 1, 80, f) != 80) {
 		return -1;
 	}
 
@@ -62,32 +61,32 @@ int test_oxm(FILE *f)
 		return -1;
 	}
 
-	if (fseek(f, 60 + hlen, SEEK_SET) < 0) {
+	if (hio_seek(f, 60 + hlen, SEEK_SET) < 0) {
 		return -1;
 	}
 
 	for (i = 0; i < npat; i++) {
-		if (fread(buf, 1, 9, f) != 9) {
+		if (hio_read(buf, 1, 9, f) != 9) {
 			return -1;
 		}
 		len = readmem32l(buf);
 		plen = readmem16l(buf + 7);
 
-		if (len < 9 || len > 256 || fseek(f, len - 9 + plen, SEEK_CUR) < 0) {
+		if (len < 9 || len > 256 || hio_seek(f, len - 9 + plen, SEEK_CUR) < 0) {
 			return -1;
 		}
 	}
 
 	for (i = 0; i < nins; i++) {
-		ilen = read32l(f, &error);
-		if (error != 0) return -1;
+		ilen = hio_read32l(f);
+		if (hio_error(f) != 0) return -1;
 		if (ilen > 263) {
 			return -1;
 		}
-		if (fseek(f, -4, SEEK_CUR) < 0) {
+		if (hio_seek(f, -4, SEEK_CUR) < 0) {
 			return -1;
 		}
-		if (fread(buf, 1, ilen, f) != ilen) { /* instrument header */
+		if (hio_read(buf, 1, ilen, f) != ilen) { /* instrument header */
 			return -1;
 		}
 		nsmp = readmem16l(buf + 27);
@@ -99,21 +98,21 @@ int test_oxm(FILE *f)
 
 		/* Read instrument data */
 		for (j = 0; j < nsmp; j++) {
-			slen[j] = read32l(f, &error);
-			if (error != 0) {
+			slen[j] = hio_read32l(f);
+			if (hio_error(f) != 0) {
 				return -1;
 			}
-			if (fseek(f, 36, SEEK_CUR) < 0) {
+			if (hio_seek(f, 36, SEEK_CUR) < 0) {
 				return -1;
 			}
 		}
 
 		/* Read samples */
 		for (j = 0; j < nsmp; j++) {
-			read32b(f, NULL);
-			if (read32b(f, NULL) == MAGIC_OGGS)
+			hio_read32b(f);
+			if (hio_read32b(f) == MAGIC_OGGS)
 				return 0;
-			if (fseek(f, slen[j] - 8, SEEK_CUR) < 0)
+			if (hio_seek(f, slen[j] - 8, SEEK_CUR) < 0)
 				return -1;
 		}
 	}
@@ -121,32 +120,31 @@ int test_oxm(FILE *f)
 	return -1;
 }
 
-static char *oggdec(FILE *f, int len, int res, int *newlen)
+static char *oggdec(HIO_HANDLE *f, int len, int res, int *newlen)
 {
 	int i, n, ch, rate;
 	/*int size;*/
 	uint8 *data, *pcm;
 	int16 *pcm16 = NULL;
 	uint32 id;
-	int error;
 
 	/* Sanity check */
 	if (len < 4) {
 		return NULL;
 	}
 
-	/*size =*/ read32l(f, &error);
-	if (error != 0)
+	/*size =*/ hio_read32l(f);
+	if (hio_error(f) != 0)
 		return NULL;
-	id = read32b(f, &error);
-	if (error != 0 || fseek(f, -8, SEEK_CUR) < 0)
+	id = hio_read32b(f);
+	if (hio_error(f) != 0 || hio_seek(f, -8, SEEK_CUR) < 0)
 		return NULL;
 
 	if ((data = (uint8 *)calloc(1, len)) == NULL)
 		return NULL;
 
-	read32b(f, &error);
-	if (error != 0 || fread(data, 1, len - 4, f) != len - 4) {
+	hio_read32b(f);
+	if (hio_error(f) != 0 || hio_read(data, 1, len - 4, f) != len - 4) {
 		free(data);
 		return NULL;
 	}
@@ -192,7 +190,7 @@ static char *oggdec(FILE *f, int len, int res, int *newlen)
 	return (char *)pcm;
 }
 
-static int decrunch_oxm(FILE *f, FILE *fo, long inlen)
+static int decrunch_oxm(HIO_HANDLE *f, FILE *fo, long inlen)
 {
 	int i, j, pos;
 	int hlen, npat, len, plen;
@@ -203,7 +201,7 @@ static int decrunch_oxm(FILE *f, FILE *fo, long inlen)
 	char *pcm[256];
 	int newlen = 0;
 
-	if (fread(buf, 1, 80, f) != 80) {
+	if (hio_read(buf, 1, 80, f) != 80) {
 		return -1;
 	}
 
@@ -215,41 +213,41 @@ static int decrunch_oxm(FILE *f, FILE *fo, long inlen)
 		return -1;
 	}
 
-	if (fseek(f, 60 + hlen, SEEK_SET) < 0) {
+	if (hio_seek(f, 60 + hlen, SEEK_SET) < 0) {
 		return -1;
 	}
 
 	for (i = 0; i < npat; i++) {
-		if (fread(buf, 1, 9, f) != 9) {
+		if (hio_read(buf, 1, 9, f) != 9) {
 			return -1;
 		}
 		len = readmem32l(buf);
 		plen = readmem16l(buf + 7);
 
-		if (fseek(f, len - 9 + plen, SEEK_CUR) < 0) {
+		if (hio_seek(f, len - 9 + plen, SEEK_CUR) < 0) {
 			return -1;
 		}
 	}
 
-	pos = ftell(f);
+	pos = hio_tell(f);
 	if (pos < 0) {
 		return -1;
 	}
-	if (fseek(f, 0, SEEK_SET) < 0) {
+	if (hio_seek(f, 0, SEEK_SET) < 0) {
 		return -1;
 	}
-	move_data(fo, f, pos);			/* module header + patterns */
+	depacker_move_data(fo, f, pos);			/* module header + patterns */
 
 	for (i = 0; i < nins; i++) {
-		ilen = read32l(f, NULL);
+		ilen = hio_read32l(f);
 		if (ilen > 1024) {
 			D_(D_CRIT "ilen=%d\n", ilen);
 			return -1;
 		}
-		if (fseek(f, -4, SEEK_CUR) < 0) {
+		if (hio_seek(f, -4, SEEK_CUR) < 0) {
 			return -1;
 		}
-		if (fread(buf, ilen, 1, f) != 1) {	/* instrument header */
+		if (hio_read(buf, ilen, 1, f) != 1) {	/* instrument header */
 			return -1;
 		}
 		buf[26] = 0;
@@ -269,12 +267,12 @@ static int decrunch_oxm(FILE *f, FILE *fo, long inlen)
 
 		/* Read sample headers */
 		for (j = 0; j < nsmp; j++) {
-			xi[j].len = read32l(f, NULL);
+			xi[j].len = hio_read32l(f);
 			if (xi[j].len > MAX_SAMPLE_SIZE) {
 				D_(D_CRIT "sample %d len = %d", j, xi[j].len);
 				return -1;
 			}
-			if (fread(xi[j].buf, 1, 36, f) != 36) {
+			if (hio_read(xi[j].buf, 1, 36, f) != 36) {
 				return -1;
 			}
 		}
