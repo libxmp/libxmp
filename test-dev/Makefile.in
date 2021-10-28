@@ -509,6 +509,7 @@ FUZZER		= misc \
 		  depack_arc_large_output \
 		  depack_arc_lzw_invalid \
 		  depack_arc_slow_rle \
+		  depack_arcfs_invalid_bits \
 		  depack_arcfs_lzw_leak \
 		  depack_arcfs_negative_header_size \
 		  depack_arcfs_negative_size \
@@ -527,10 +528,12 @@ FUZZER		= misc \
 		  depack_oxm_invalid \
 		  depack_oxm_pcm_leak \
 		  depack_oxm_truncated \
+		  depack_pp20_invalid \
 		  depack_s404_invalid_length \
 		  depack_s404_invalid_shift \
 		  depack_sqsh_invalid_verbatim \
 		  depack_sqsh_misaligned \
+		  depack_sqsh_no_checksum \
 		  depack_sqsh_truncated \
 		  depack_sqsh_truncated2 \
 		  depack_zip_truncated \
@@ -747,7 +750,7 @@ fuzzerclean:
 
 $(FUZZLIB_PATH):
 	mkdir -p $(FUZZLIB_PATH)
-	cp -r ../configure.ac ../Makefile.in ../libxmp.pc.in ../docs ../include ../src ../test $(FUZZLIB_PATH)
+	cp -r ../configure.ac ../Makefile.in ../libxmp.pc.in ../cmake ../docs ../include ../m4 ../src ../test $(FUZZLIB_PATH)
 
 $(FUZZLIB_PATH)/libxmp-asan.a: $(FUZZLIB_PATH)
 	(cd $(FUZZLIB_PATH) && \

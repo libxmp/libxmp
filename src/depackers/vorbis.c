@@ -662,6 +662,17 @@ typedef unsigned int   uint32;
 typedef   signed int    int32;
 #endif
 
+#ifdef __has_feature
+#if __has_feature(undefined_behavior_sanitizer)
+#define HAS_UBSAN
+#endif
+#endif
+#ifdef HAS_UBSAN
+#define STB_NO_SANITIZE(s) __attribute__((no_sanitize(s)))
+#else
+#define STB_NO_SANITIZE(s)
+#endif
+
 #ifndef TRUE
 #define TRUE 1
 #define FALSE 0
@@ -1262,6 +1273,10 @@ static int vorbis_validate(uint8 *data)
 
 // called from setup only, once per code book
 // (formula implied by specification)
+//
+// libxmp hack: suppress UBSan error caused by invalid input data.
+// Reported upstream: https://github.com/nothings/stb/issues/1168.
+STB_NO_SANITIZE("float-cast-overflow")
 static int lookup1_values(int entries, int dim)
 {
    int r = (int) floor(exp((float) log((float) entries) / dim));
@@ -2315,7 +2330,7 @@ static void decode_residue(vorb *f, float *residue_buffers[], int ch, int n, int
 
 #if 0
 // slow way for debugging
-static void inverse_mdct_slow(float *buffer, int n)
+void inverse_mdct_slow(float *buffer, int n)
 {
    int i,j;
    int n2 = n >> 1;
@@ -2338,7 +2353,7 @@ static void inverse_mdct_slow(float *buffer, int n)
 }
 #elif 0
 // same as above, but just barely able to run in real time on modern machines
-static void inverse_mdct_slow(float *buffer, int n, vorb *f, int blocktype)
+void inverse_mdct_slow(float *buffer, int n, vorb *f, int blocktype)
 {
    float mcos[16384];
    int i,j;
@@ -2359,7 +2374,7 @@ static void inverse_mdct_slow(float *buffer, int n, vorb *f, int blocktype)
 #elif 0
 // transform to use a slow dct-iv; this is STILL basically trivial,
 // but only requires half as many ops
-static void dct_iv_slow(float *buffer, int n)
+void dct_iv_slow(float *buffer, int n)
 {
    float mcos[16384];
    float x[2048];
@@ -2376,7 +2391,7 @@ static void dct_iv_slow(float *buffer, int n)
    }
 }
 
-static void inverse_mdct_slow(float *buffer, int n, vorb *f, int blocktype)
+void inverse_mdct_slow(float *buffer, int n, vorb *f, int blocktype)
 {
    int i, n4 = n >> 2, n2 = n >> 1, n3_4 = n - n4;
    float temp[4096];
@@ -2414,7 +2429,7 @@ extern void mdct_backward(mdct_lookup *init, float *in, float *out);
 
 mdct_lookup M1,M2;
 
-static void inverse_mdct(float *buffer, int n, vorb *f, int blocktype)
+void inverse_mdct(float *buffer, int n, vorb *f, int blocktype)
 {
    mdct_lookup *M;
    if (M1.n == n) M = &M1;
@@ -2959,7 +2974,7 @@ static void inverse_mdct(float *buffer, int n, vorb *f, int blocktype)
 
 #if 0
 // this is the original version of the above code, if you want to optimize it from scratch
-static void inverse_mdct_naive(float *buffer, int n)
+void inverse_mdct_naive(float *buffer, int n)
 {
    float s;
    float A[1 << 12], B[1 << 12], C[1 << 11];
@@ -5203,14 +5218,16 @@ static int8 channel_position[7][6] =
 #ifndef STB_VORBIS_NO_FAST_SCALED_FLOAT
    typedef union {
       float f;
-      int i;
+      // libxmp hack: changed this to unsigned to suppress a UBSan error.
+      // Reported upstream: https://github.com/nothings/stb/issues/1168.
+      unsigned int i;
    } float_conv;
    typedef char stb_vorbis_float_size_test[sizeof(float)==4 && sizeof(int) == 4];
    #define FASTDEF(x) float_conv x
    // add (1<<23) to convert to int, then divide by 2^SHIFT, then add 0.5/2^SHIFT to round
    #define MAGIC(SHIFT) (1.5f * (1 << (23-SHIFT)) + 0.5f/(1 << SHIFT))
    #define ADDEND(SHIFT) (((150-SHIFT) << 23) + (1 << 22))
-   #define FAST_SCALED_FLOAT_TO_INT(temp,x,s) (temp.f = (x) + MAGIC(s), temp.i - ADDEND(s))
+   #define FAST_SCALED_FLOAT_TO_INT(temp,x,s) (int)(temp.f = (x) + MAGIC(s), temp.i - ADDEND(s))
    #define check_endianness()
 #else
    #define FAST_SCALED_FLOAT_TO_INT(temp,x,s) ((int) ((x) * (1 << (s))))

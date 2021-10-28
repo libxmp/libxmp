@@ -401,7 +401,7 @@ static int decrunch_sqsh(FILE * f, FILE * fo, long inlen)
 	if (destlen < 0 || destlen > 0x100000)
 		goto err;
 
-	if ((src = (unsigned char *)malloc(srclen + 3)) == NULL)
+	if ((src = (unsigned char *)calloc(1, srclen + 3)) == NULL)
 		goto err;
 
 	if ((dest = (unsigned char *)malloc(destlen + 100)) == NULL)

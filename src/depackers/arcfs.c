@@ -85,6 +85,10 @@ static int read_file_header(FILE *in, struct archived_file_header_tag *hdrp)
 		hdrp->offset &= 0x7fffffff;
 		hdrp->offset += start;
 
+		/* Max allowed compression bits value is 16 for method FFh. */
+		if (hdrp->method > 2 && hdrp->bits > 16)
+			return -1;
+
 		return 0;
 	}
 
