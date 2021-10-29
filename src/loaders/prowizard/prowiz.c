@@ -101,7 +101,6 @@ int pw_wizardry(HIO_HANDLE *file_in, FILE *file_out, const char **name)
 		return -1;
 	}
 
-	hio_error(file_in); /* reset error flag */
 	hio_seek(file_in, 0, SEEK_SET);
 	if (format->depack(file_in, file_out) < 0) {
 		return -1;

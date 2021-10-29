@@ -287,17 +287,26 @@ int hio_seek(HIO_HANDLE *h, long offset, int whence)
 		if (ret < 0) {
 			h->error = errno;
 		}
+		else if (h->error == EOF) {
+			h->error = 0;
+		}
 		break;
 	case HIO_HANDLE_TYPE_MEMORY:
 		ret = mseek(h->handle.mem, offset, whence);
 		if (ret < 0) {
 			h->error = EINVAL;
 		}
+		else if (h->error == EOF) {
+			h->error = 0;
+		}
 		break;
 	case HIO_HANDLE_TYPE_CBFILE:
 		ret = cbseek(h->handle.cbfile, offset, whence);
 		if (ret < 0) {
 			h->error = EINVAL;
+		}
+		else if (h->error == EOF) {
+			h->error = 0;
 		}
 		break;
 	}
