@@ -564,8 +564,7 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 			size -= samples + usmp;
 			if (size <= 0) {
 				if (xxs->flg & XMP_SAMPLE_LOOP) {
-					if (vi->pos + step > vi->end) {
-						vi->pos += step;
+					if (vi->pos >= vi->end) {
 						loop_reposition(ctx, vi, xxs);
 					}
 				}
