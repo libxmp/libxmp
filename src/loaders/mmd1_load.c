@@ -515,14 +515,15 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			exp_smp[i].suppress_midi_off = hio_read8(f);
 			exp_smp[i].finetune = hio_read8(f);
 
+			if (hio_error(f)) {
+				D_(D_CRIT "read error at expsmp");
+				goto err_cleanup;
+			}
+
 			if (skip && hio_seek(f, skip, SEEK_CUR) != 0) {
 				D_(D_CRIT "seek error at expsmp");
 				goto err_cleanup;
 			}
-		}
-		if (hio_error(f)) {
-			D_(D_CRIT "read error at expsmp");
-			goto err_cleanup;
 		}
 	}
 

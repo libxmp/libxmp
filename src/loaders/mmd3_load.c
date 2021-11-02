@@ -492,14 +492,15 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 				skip -= 2;
 			}
 
+			if (hio_error(f)) {
+				D_(D_CRIT "read error at expsmp");
+				goto err_cleanup;
+			}
+
 			if (skip && hio_seek(f, skip, SEEK_CUR) != 0) {
 				D_(D_CRIT "seek error at expsmp");
 				goto err_cleanup;
 			}
-		}
-		if (hio_error(f)) {
-			D_(D_CRIT "read error at expsmp");
-			goto err_cleanup;
 		}
 	}
 
