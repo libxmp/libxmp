@@ -401,28 +401,6 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 		xxs->data[-1] = xxs->data[0];
 	}
 
-	/* Fix sample at loop */
-	if (xxs->flg & XMP_SAMPLE_LOOP) {
-		int lpe = xxs->lpe;
-		int lps = xxs->lps;
-
-		if (xxs->flg & XMP_SAMPLE_LOOP_BIDIR) {
-			lpe += lpe - lps;
-		}
-
-		if (xxs->flg & XMP_SAMPLE_16BIT) {
-			lpe <<= 1;
-			lps <<= 1;
-			for (i = 0; i < 8; i++) {
-				xxs->data[lpe + i] = xxs->data[lps + i];
-			}
-		} else {
-			for (i = 0; i < 4; i++) {
-				xxs->data[lpe + i] = xxs->data[lps + i];
-			}
-		}
-	}
-
 	return 0;
 
 #ifndef LIBXMP_CORE_PLAYER

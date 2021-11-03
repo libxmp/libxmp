@@ -30,6 +30,7 @@ struct mixer_voice {
 	int fidx;		/* mixer function index */
 	int ins;		/* instrument number */
 	int smp;		/* sample number */
+	int start;		/* loop start */
 	int end;		/* loop end */
 	int act;		/* nna info & status of voice */
 	int old_vl;		/* previous volume, left channel */
@@ -37,7 +38,7 @@ struct mixer_voice {
 	int sleft;		/* last left sample output, in 32bit */
 	int sright;		/* last right sample output, in 32bit */
 #define VOICE_RELEASE	(1 << 0)
-#define ANTICLICK	(1 << 1)	
+#define ANTICLICK	(1 << 1)
 #define SAMPLE_LOOP	(1 << 2)
 	int flags;		/* flags */
 	void *sptr;		/* sample pointer */

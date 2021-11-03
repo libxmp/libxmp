@@ -531,7 +531,7 @@ void dump_module(struct xmp_module *mod, FILE *f)
 			}
 		}
 
-		fprintf(f, "%u %u %u %u",
+		fprintf(f, "%d %d %d %d",
 			xxs->len, /* sample length */
 			xxs->lps, /* sample loop start */
 			xxs->lpe, /* sample loop end */
