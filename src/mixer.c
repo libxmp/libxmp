@@ -313,12 +313,10 @@ static void init_sample_wraparound(struct mixer_data *s, struct loop_data *ld,
 		uint16 *end = (uint16 *)vi->sptr + vi->end;
 
 		if (!ld->first_loop) {
-			/*
 			for (i = 0; i < 1; i++) {
 				ld->prologue[i] = start[i - 1];
 				start[i - 1] = end[i - 1];
 			}
-			*/
 		}
 		for (i = 0; i < 2; i++) {
 			ld->epilogue[i] = end[i];
@@ -329,12 +327,10 @@ static void init_sample_wraparound(struct mixer_data *s, struct loop_data *ld,
 		uint8 *end = (uint8 *)vi->sptr + vi->end;
 
 		if (!ld->first_loop) {
-			/*
 			for (i = 0; i < 1; i++) {
 				ld->prologue[i] = start[i - 1];
 				start[i - 1] = end[i - 1];
 			}
-			*/
 		}
 		for (i = 0; i < 2; i++) {
 			ld->epilogue[i] = end[i];
@@ -352,26 +348,22 @@ static void reset_sample_wraparound(struct loop_data *ld)
 		return;
 
 	if (ld->_16bit) {
-		//uint16 *start = (uint16 *)ld->sptr + ld->start;
+		uint16 *start = (uint16 *)ld->sptr + ld->start;
 		uint16 *end = (uint16 *)ld->sptr + ld->end;
 
 		if (!ld->first_loop) {
-			/*
 			for (i = 0; i < 1; i++)
 				start[i - 1] = ld->prologue[i];
-			*/
 		}
 		for (i = 0; i < 2; i++)
 			end[i] = ld->epilogue[i];
 	} else {
-		//uint8 *start = (uint8 *)ld->sptr + ld->start;
+		uint8 *start = (uint8 *)ld->sptr + ld->start;
 		uint8 *end = (uint8 *)ld->sptr + ld->end;
 
 		if (!ld->first_loop) {
-			/*
 			for (i = 0; i < 1; i++)
 				start[i - 1] = ld->prologue[i];
-			*/
 		}
 		for (i = 0; i < 2; i++)
 			end[i] = ld->epilogue[i];

@@ -518,6 +518,7 @@ test_player_it_noteoff_nosuck
 test_player_mdl_period
 test_player_sample_sync
 test_mixer_interpolation_default
+test_mixer_interpolation_loop
 test_mixer_mono_8bit_nearest
 test_mixer_mono_16bit_nearest
 test_mixer_stereo_8bit_nearest
