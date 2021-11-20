@@ -313,7 +313,7 @@ static int far_load(struct module_data *m, HIO_HANDLE *f, const int start)
     D_(D_INFO "Comment bytes  : %d", ffh.textlen);
     D_(D_INFO "Stored patterns: %d", mod->pat);
 
-    if ((patbuf = malloc(256 * 16 * 4)) == NULL)
+    if ((patbuf = (uint8 *)malloc(256 * 16 * 4)) == NULL)
 	return -1;
 
     for (i = 0; i < mod->pat; i++) {
