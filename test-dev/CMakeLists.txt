@@ -16,8 +16,10 @@ set(DEVTEST_SRC
     simple_module.c
     compare_mixer_data.c
     ../src/md5.c
+    ../src/far_extras.c
     ../src/filetype.c
     ../src/hio.c
+    ../src/lfo.c
     ../src/load_helpers.c
     ../src/period.c
     ../src/memio.c

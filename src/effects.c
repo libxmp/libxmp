@@ -442,6 +442,7 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 			xc->retrig.val = fxp;
 			xc->retrig.count = LSN(xc->retrig.val) + 1;
 			xc->retrig.type = 0;
+			xc->retrig.limit = 0;
 			break;
 		case EX_F_VSLIDE_UP:	/* Fine volume slide up */
 			EFFECT_MEMORY(fxp, xc->fine_vol.up_memory);
@@ -692,6 +693,7 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 		if (note) {
 			xc->retrig.count = LSN(xc->retrig.val) + 1;
 		}
+		xc->retrig.limit = 0;
 		SET(RETRIG);
 		break;
 	case FX_TREMOR:			/* Tremor */
@@ -939,6 +941,7 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 				xc->retrig.val = MSN(fxp);
 				xc->retrig.count = MSN(fxp) + 1;
 				xc->retrig.type = 0;
+				xc->retrig.limit = 0;
 			}
 
 			if (fxt == FX_NSLIDE_UP || fxt == FX_NSLIDE_R_UP)

@@ -112,6 +112,7 @@ test_loader_dsmi_vol
 test_loader_dtm
 test_loader_emod
 test_loader_far
+test_loader_far_fx
 test_loader_flt
 test_loader_flt8
 test_loader_fnk
@@ -318,6 +319,14 @@ test_effect_persistent_vibrato
 test_effect_it_g00_nosuck
 test_effect_it_l00_nosuck
 test_effect_it_fine_vol_row_delay
+test_effect_far_slide
+test_effect_far_toneporta
+test_effect_far_retrig
+test_effect_far_noteoffset
+test_effect_far_vibrato
+test_effect_far_vibrato_per
+test_effect_far_volslide
+test_effect_far_tempo
 test_effect_ult_toneporta
 test_prev_order_start
 test_prev_order_skip
