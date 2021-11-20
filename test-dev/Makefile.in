@@ -47,6 +47,8 @@ EFFECTS		= 0_arpeggio 1_slide_up 2_slide_down \
 		  note_slide note_slide_retrig \
 		  persistent_slide persistent_vslide persistent_vibrato \
 		  it_g00_nosuck it_l00_nosuck it_fine_vol_row_delay \
+		  far_slide far_toneporta far_retrig far_noteoffset \
+		  far_vibrato far_vibrato_per far_volslide far_tempo \
 		  ult_toneporta
 
 API		= get_format_list create_context free_context \
@@ -274,7 +276,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  dsmi_track0 dsmi_note7f dsmi_pan dsmi_vol \
 		  dtm \
 		  emod \
-		  far \
+		  far far_fx \
 		  flt flt8 \
 		  fnk \
 		  gdm gdm_fx gdm_fx2 \
@@ -637,7 +639,7 @@ SRC_PATH	= ../src
 
 TEST_INTERNAL	= md5.o win32.o hio.o load_helpers.o loaders/itsex.o dataio.o scan.o \
 		  loaders/sample.o loaders/common.o filetype.o period.o memio.o \
-		  depackers/xfnmatch.o
+		  depackers/xfnmatch.o far_extras.o lfo.o
 
 T_OBJS 		= $(addprefix $(TEST_PATH)/,$(TEST_OBJS)) \
 		  $(addprefix $(SRC_PATH)/,$(TEST_INTERNAL))

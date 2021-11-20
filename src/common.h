@@ -251,6 +251,7 @@ int libxmp_snprintf (char *, size_t, const char *, ...);
 /* Time factor */
 #define DEFAULT_TIME_FACTOR	10.0
 #define MED_TIME_FACTOR		2.64
+#define FAR_TIME_FACTOR		4.01373	/* See far_extras.c */
 
 #define MAX_SEQUENCES		255
 #define MAX_SAMPLE_SIZE		0x10000000

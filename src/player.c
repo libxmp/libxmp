@@ -1082,13 +1082,19 @@ static void update_volume(struct context_data *ctx, int chn)
 
 #ifndef LIBXMP_CORE_PLAYER
 		if (TEST_PER(VOL_SLIDE)) {
-			if (xc->vol.slide > 0 && xc->volume > m->volbase) {
-				xc->volume = m->volbase;
-				RESET_PER(VOL_SLIDE);
+			if (xc->vol.slide > 0) {
+				int target = MAX(xc->vol.target - 1, m->volbase);
+				if (xc->volume > target) {
+					xc->volume = target;
+					RESET_PER(VOL_SLIDE);
+				}
 			}
-			if (xc->vol.slide < 0 && xc->volume < 0) {
-				xc->volume = 0;
-				RESET_PER(VOL_SLIDE);
+			if (xc->vol.slide < 0) {
+				int target = xc->vol.target > 0 ? MIN(0, xc->vol.target - 1) : 0;
+				if (xc->volume < target) {
+					xc->volume = target;
+					RESET_PER(VOL_SLIDE);
+				}
 			}
 		}
 #endif
@@ -1300,9 +1306,16 @@ static void play_channel(struct context_data *ctx, int chn)
 			xc->volume += rval[xc->retrig.type].s;
 			xc->volume *= rval[xc->retrig.type].m;
 			xc->volume /= rval[xc->retrig.type].d;
-                	xc->retrig.count = LSN(xc->retrig.val);
+			xc->retrig.count = LSN(xc->retrig.val);
+
+			if (xc->retrig.limit > 0) {
+				/* Limit the number of retriggers. */
+				--xc->retrig.limit;
+				if (xc->retrig.limit == 0)
+					RESET(RETRIG);
+			}
 		}
-        }
+	}
 
 	/* Do keyoff */
 	if (xc->keyoff) {

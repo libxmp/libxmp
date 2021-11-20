@@ -11,6 +11,7 @@ set(LIBXMP_SRC_LIST
     src/lfo.c
     src/scan.c
     src/control.c
+    src/far_extras.c
     src/med_extras.c
     src/filter.c
     src/effects.c

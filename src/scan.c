@@ -42,6 +42,10 @@
 #include "effects.h"
 #include "mixer.h"
 
+#ifndef LIBXMP_CORE_PLAYER
+#include "far_extras.h"
+#endif
+
 #define S3M_END		0xff
 #define S3M_SKIP	0xfe
 
@@ -68,6 +72,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
     struct ord_data *info;
 #ifndef LIBXMP_CORE_PLAYER
     int st26_speed;
+    int far_tempo_coarse, far_tempo_fine, far_tempo_mode;
 #endif
 
     if (mod->len == 0)
@@ -93,6 +98,15 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
     base_time = m->rrate;
 #ifndef LIBXMP_CORE_PLAYER
     st26_speed = 0;
+    far_tempo_coarse = 4;
+    far_tempo_fine = 0;
+    far_tempo_mode = 1;
+
+    if (HAS_FAR_MODULE_EXTRAS(ctx->m)) {
+	far_tempo_coarse = FAR_MODULE_EXTRAS(ctx->m)->coarse_tempo;
+	libxmp_far_translate_tempo(far_tempo_mode, 0, far_tempo_coarse,
+				   &far_tempo_fine, &speed, &bpm);
+    }
 #endif
 
     has_marker = HAS_QUIRK(QUIRK_MARKER);
@@ -333,6 +347,39 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 		    } else {
 			st26_speed = MSN(p1);
 		    }
+		}
+
+		/* FAR tempo processing */
+
+		if (f1 == FX_FAR_TEMPO || f1 == FX_FAR_F_TEMPO) {
+			int far_speed, far_bpm, fine_change = 0;
+			if (f1 == FX_FAR_TEMPO) {
+				if (MSN(p1)) {
+					far_tempo_mode = MSN(p1) - 1;
+				} else {
+					far_tempo_coarse = LSN(p1);
+				}
+			}
+			if (f1 == FX_FAR_F_TEMPO) {
+				if (MSN(p1)) {
+					far_tempo_fine += MSN(p1);
+					fine_change = MSN(p1);
+				} else if (LSN(p1)) {
+					far_tempo_fine -= LSN(p1);
+					fine_change = -LSN(p1);
+				} else {
+					far_tempo_fine = 0;
+				}
+			}
+			if (libxmp_far_translate_tempo(far_tempo_mode, fine_change,
+			    far_tempo_coarse, &far_tempo_fine, &far_speed, &far_bpm) == 0) {
+				frame_count += row_count * speed;
+				row_count = 0;
+				time += m->time_factor * frame_count * base_time / bpm;
+				frame_count = 0;
+				speed = far_speed;
+				bpm = far_bpm;
+			}
 		}
 #endif
 

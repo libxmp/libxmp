@@ -24,6 +24,8 @@ XMP_SOURCES	= \
  ..\src\period.c \
  ..\src\memio.c \
  ..\src\depackers\xfnmatch.c \
+ ..\src\far_extras.c \
+ ..\src\lfo.c \
 
 ALL_SOURCES	= $(SOURCES) $(TEST_SOURCES) $(XMP_SOURCES)
 
