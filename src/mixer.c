@@ -329,7 +329,7 @@ void libxmp_mixer_prepare(struct context_data *ctx)
 
 	s->ticksize = s->freq * m->time_factor * m->rrate / p->bpm / 1000;
 
-	bytelen = s->ticksize * sizeof(int);
+	bytelen = s->ticksize * sizeof(int32);
 	if (~s->format & XMP_FORMAT_MONO) {
 		bytelen *= 2;
 	}

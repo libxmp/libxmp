@@ -592,7 +592,7 @@ void compare_playback(const char *filename, const struct playback_sequence *sequ
 			for (count = sequence->value; count > 0; count--)
 				ret = xmp_play_frame(opaque);
 
-			fail_unless(ret != sequence->result, "play frames");
+			fail_unless(ret == sequence->result, "play frames");
 			break;
 		}
 		sequence++;

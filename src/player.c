@@ -1554,8 +1554,11 @@ int xmp_start_player(xmp_context opaque, int rate, int format)
 		mod->len = 0;
 	}
 
-	if (mod->len == 0 || mod->chn == 0) {
+	if (mod->len == 0) {
 		/* set variables to sane state */
+		/* Note: previously did this for mod->chn == 0, which caused
+		 * crashes on invalid order 0s. 0 channel modules are technically
+		 * valid (if useless) so just let them play normally. */
 		p->ord = p->scan[0].ord = 0;
 		p->row = p->scan[0].row = 0;
 		f->end_point = 0;
