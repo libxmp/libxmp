@@ -272,7 +272,7 @@ void libxmp_far_extras_process_fx(struct context_data *ctx, struct channel_data 
 		tempo = far_tempos[me->coarse_tempo] + me->fine_tempo;
 
 		SET_PER(TONEPORTA);
-		if (note >= 1 && note <= 0x80) {
+		if (IS_VALID_NOTE(note - 1)) {
 			xc->porta.target = libxmp_note_to_period(ctx, note - 1, xc->finetune, xc->per_adj);
 		}
 		xc->porta.dir = xc->period < xc->porta.target ? 1 : -1;

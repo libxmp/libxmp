@@ -72,8 +72,13 @@ static void do_toneporta(struct context_data *ctx,
 {
 	struct module_data *m = &ctx->m;
 	struct xmp_instrument *instrument = &m->mod.xxi[xc->ins];
-	int mapped = instrument->map[xc->key].ins;
 	struct xmp_subinstrument *sub;
+	int mapped_xpo = 0;
+	int mapped = 0;
+
+	if (IS_VALID_NOTE(xc->key)) {
+		mapped = instrument->map[xc->key].ins;
+	}
 
 	if (mapped >= instrument->nsm) {
 		mapped = 0;
@@ -81,11 +86,13 @@ static void do_toneporta(struct context_data *ctx,
 
 	sub = &instrument->sub[mapped];
 
-	if (note >= 1 && note <= 0x80 && (uint32)xc->ins < m->mod.ins) {
+	if (IS_VALID_NOTE(note - 1) && (uint32)xc->ins < m->mod.ins) {
 		note--;
+		if (IS_VALID_NOTE(xc->key_porta)) {
+			mapped_xpo = instrument->map[xc->key_porta].xpo;
+		}
 		xc->porta.target = libxmp_note_to_period(ctx, note + sub->xpo +
-			instrument->map[xc->key_porta].xpo, xc->finetune,
-			xc->per_adj);
+			mapped_xpo, xc->finetune, xc->per_adj);
 	}
 	xc->porta.dir = xc->period < xc->porta.target ? 1 : -1;
 }
