@@ -542,6 +542,7 @@ FUZZER		= misc \
 		  depack_zip_truncated2 \
 		  depack_zip_truncated3 \
 		  depack_zip_truncated4 \
+		  play_mdl_zero_samples \
 
 SYNTH		= #adlib #spectrum
 
