@@ -542,6 +542,7 @@ FUZZER		= misc \
 		  depack_zip_truncated2 \
 		  depack_zip_truncated3 \
 		  depack_zip_truncated4 \
+		  play_hmn_bad_megaarp \
 		  play_mdl_zero_samples \
 		  play_med4_0_chn_invalid_ord \
 

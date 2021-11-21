@@ -131,6 +131,9 @@ void libxmp_hmn_extras_process_fx(struct context_data *ctx, struct channel_data 
 {
 	switch (fxt) {
 	case FX_MEGAARP:
+		/* Not sure if this is correct... */
+		fxp = LSN(fxp);
+
 		memcpy(xc->arpeggio.val, megaarp[fxp], 16);
 		xc->arpeggio.size = 16;
 		break;
