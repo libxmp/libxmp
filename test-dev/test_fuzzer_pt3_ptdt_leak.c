@@ -11,7 +11,7 @@ TEST(test_fuzzer_pt3_ptdt_leak)
 
 	opaque = xmp_create_context();
 	ret = xmp_load_module(opaque, "data/f/load_pt3_ptdt_leak.pt36");
-	fail_unless(ret == -XMP_ERROR_LOAD, "module load");
+	fail_unless(ret == 0, "module load");
 
 	xmp_free_context(opaque);
 }
