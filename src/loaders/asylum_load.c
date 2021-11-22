@@ -55,6 +55,7 @@ static int asylum_load(struct module_data *m, HIO_HANDLE *f, const int start)
 {
 	struct xmp_module *mod = &m->mod;
 	struct xmp_event *event;
+	uint8 buf[2048];
 	int i, j;
 
 	LOAD_INIT();
@@ -66,6 +67,12 @@ static int asylum_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	mod->pat = hio_read8(f);			/* number of patterns */
 	mod->len = hio_read8(f);			/* module length */
 	mod->rst = hio_read8(f);			/* restart byte */
+
+	/* Sanity check - this format only stores 64 sample structures. */
+	if (mod->ins > 64) {
+		D_(D_CRIT "invalid sample count %d", mod->ins);
+		return -1;
+	}
 
 	hio_read(mod->xxo, 1, mod->len, f);	/* read orders */
 	hio_seek(f, start + 294, SEEK_SET);
@@ -103,7 +110,13 @@ static int asylum_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		mod->xxs[i].len = readmem32l(insbuf + 25);
 		mod->xxs[i].lps = readmem32l(insbuf + 29);
 		mod->xxs[i].lpe = mod->xxs[i].lps + readmem32l(insbuf + 33);
-		
+
+		/* Sanity check - ASYLUM modules are converted from MODs. */
+		if ((uint32)mod->xxs[i].len >= 0x20000) {
+			D_(D_CRIT "invalid sample %d length %d", i, mod->xxs[i].len);
+			return -1;
+		}
+
 		mod->xxs[i].flg = mod->xxs[i].lpe > 2 ? XMP_SAMPLE_LOOP : 0;
 
 		D_(D_INFO "[%2X] %-22.22s %04x %04x %04x %c V%02x %d", i,
@@ -124,26 +137,30 @@ static int asylum_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	D_(D_INFO "Stored patterns: %d", mod->pat);
 
 	for (i = 0; i < mod->pat; i++) {
+		uint8 *pos;
 		if (libxmp_alloc_pattern_tracks(mod, i, 64) < 0)
 			return -1;
 
-		for (j = 0; j < 64 * mod->chn; j++) {
+		if (hio_read(buf, 1, 2048, f) < 2048) {
+			D_(D_CRIT "read error at pattern %d", i);
+			return -1;
+		}
+
+		pos = buf;
+		for (j = 0; j < 64 * 8; j++) {
 			uint8 note;
 
-			event = &EVENT(i, j % mod->chn, j / mod->chn);
+			event = &EVENT(i, j % 8, j / 8);
 			memset(event, 0, sizeof(struct xmp_event));
-			note = hio_read8(f);
+			note = *pos++;
 
 			if (note != 0) {
 				event->note = note + 13;
 			}
 
-			event->ins = hio_read8(f);
-			event->fxt = hio_read8(f);
-			event->fxp = hio_read8(f);
-			if (hio_error(f)) {
-				return -1;
-			}
+			event->ins = *pos++;
+			event->fxt = *pos++;
+			event->fxp = *pos++;
 		}
 	}
 
