@@ -649,6 +649,7 @@ test_fuzzer_stx_truncated
 test_fuzzer_sym_truncated
 test_fuzzer_sym_truncated_lzw
 test_fuzzer_ult_channels_bound
+test_fuzzer_ult_invalid_sample
 test_fuzzer_ult_invalid_tracks
 test_fuzzer_ult_truncated
 test_fuzzer_ult_v000

@@ -453,6 +453,7 @@ FUZZER		= misc \
 		  sym_truncated \
 		  sym_truncated_lzw \
 		  ult_channels_bound \
+		  ult_invalid_sample \
 		  ult_invalid_tracks \
 		  ult_truncated \
 		  ult_v000 \
