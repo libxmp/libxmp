@@ -545,6 +545,7 @@ FUZZER		= misc \
 		  depack_zip_truncated3 \
 		  depack_zip_truncated4 \
 		  play_669_low_freq \
+		  play_gdm_bad_loop \
 		  play_hmn_bad_megaarp \
 		  play_stm_bad_note_toneporta \
 		  play_mdl_zero_samples \
