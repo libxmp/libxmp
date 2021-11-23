@@ -1578,6 +1578,7 @@ int xmp_start_player(xmp_context opaque, int rate, int format)
 	f->delay = 0;
 	f->jumpline = 0;
 	f->jump = -1;
+	f->loop_chn = 0;
 	f->pbreak = 0;
 	f->rowdelay_set = 0;
 
