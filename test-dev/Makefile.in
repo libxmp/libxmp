@@ -368,6 +368,7 @@ FUZZER		= misc \
 		  amf_truncated \
 		  amf_truncated2 \
 		  arch_invalid_patterns \
+		  asy_invalid_samples \
 		  chip_truncated \
 		  coco_invalid_sequence \
 		  dbm_chunk_order \
@@ -453,6 +454,7 @@ FUZZER		= misc \
 		  sym_truncated \
 		  sym_truncated_lzw \
 		  ult_channels_bound \
+		  ult_invalid_sample \
 		  ult_invalid_tracks \
 		  ult_truncated \
 		  ult_v000 \
@@ -542,6 +544,14 @@ FUZZER		= misc \
 		  depack_zip_truncated2 \
 		  depack_zip_truncated3 \
 		  depack_zip_truncated4 \
+		  play_mod_bad_invloop \
+		  play_xm_bad_instrument \
+		  play_669_low_freq \
+		  play_gdm_bad_loop \
+		  play_hmn_bad_megaarp \
+		  play_stm_bad_note_toneporta \
+		  play_mdl_zero_samples \
+		  play_med4_0_chn_invalid_ord \
 
 SYNTH		= #adlib #spectrum
 

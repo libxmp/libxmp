@@ -564,3 +564,39 @@ void dump_module(struct xmp_module *mod, FILE *f)
 		);
 	}
 }
+
+void compare_playback(const char *filename, const struct playback_sequence *sequence,
+		      int rate, int flags, int interp)
+{
+	xmp_context opaque;
+	int count, ret;
+
+	opaque = xmp_create_context();
+	fail_unless(opaque, "create context");
+
+	ret = xmp_load_module(opaque, filename);
+	fail_unless(ret == 0, "module load");
+
+	ret = xmp_start_player(opaque, rate, flags);
+	fail_unless(ret == 0, "start player");
+
+	ret = xmp_set_player(opaque, XMP_PLAYER_INTERP, interp);
+	fail_unless(ret == 0, "set interp");
+
+	while (sequence->action != PLAY_END) {
+		switch (sequence->action) {
+		case PLAY_END: /* silence warning */
+			break;
+
+		case PLAY_FRAMES:
+			for (count = sequence->value; count > 0; count--)
+				ret = xmp_play_frame(opaque);
+
+			fail_unless(ret == sequence->result, "play frames");
+			break;
+		}
+		sequence++;
+	}
+
+	xmp_free_context(opaque);
+}

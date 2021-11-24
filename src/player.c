@@ -267,19 +267,23 @@ static const int invloop_table[] = {
 	0, 5, 6, 7, 8, 10, 11, 13, 16, 19, 22, 26, 32, 43, 64, 128
 };
 
-static void update_invloop(struct module_data *m, struct channel_data *xc)
+static void update_invloop(struct context_data *ctx, struct channel_data *xc)
 {
-	struct xmp_sample *xxs = &m->mod.xxs[xc->smp];
+	struct xmp_sample *xxs = libxmp_get_sample(ctx, xc->smp);
 	int len;
 
 	xc->invloop.count += invloop_table[xc->invloop.speed];
 
-	if ((xxs->flg & XMP_SAMPLE_LOOP) && xc->invloop.count >= 128) {
+	if (xxs != NULL && (xxs->flg & XMP_SAMPLE_LOOP) && xc->invloop.count >= 128) {
 		xc->invloop.count = 0;
 		len = xxs->lpe - xxs->lps;
 
 		if (++xc->invloop.pos > len) {
 			xc->invloop.pos = 0;
+		}
+
+		if (xxs->data == NULL) {
+			return;
 		}
 
 		if (~xxs->flg & XMP_SAMPLE_16BIT) {
@@ -948,7 +952,7 @@ static void process_frequency(struct context_data *ctx, int chn, int act)
 
 	/* For xmp_get_frame_info() */
 	xc->info_pitchbend = linear_bend >> 7;
-	xc->info_period = final_period * 4096;
+	xc->info_period = MIN(final_period * 4096, INT_MAX);
 
 	if (IS_PERIOD_MODRNG()) {
 		CLAMP(xc->info_period,
@@ -1335,7 +1339,7 @@ static void play_channel(struct context_data *ctx, int chn)
 
 #ifndef LIBXMP_CORE_PLAYER
 	if (HAS_QUIRK(QUIRK_PROTRACK) && xc->ins < mod->ins) {
-		update_invloop(m, xc);
+		update_invloop(ctx, xc);
 	}
 #endif
 
@@ -1554,8 +1558,11 @@ int xmp_start_player(xmp_context opaque, int rate, int format)
 		mod->len = 0;
 	}
 
-	if (mod->len == 0 || mod->chn == 0) {
+	if (mod->len == 0) {
 		/* set variables to sane state */
+		/* Note: previously did this for mod->chn == 0, which caused
+		 * crashes on invalid order 0s. 0 channel modules are technically
+		 * valid (if useless) so just let them play normally. */
 		p->ord = p->scan[0].ord = 0;
 		p->row = p->scan[0].row = 0;
 		f->end_point = 0;
@@ -1575,6 +1582,7 @@ int xmp_start_player(xmp_context opaque, int rate, int format)
 	f->delay = 0;
 	f->jumpline = 0;
 	f->jump = -1;
+	f->loop_chn = 0;
 	f->pbreak = 0;
 	f->rowdelay_set = 0;
 

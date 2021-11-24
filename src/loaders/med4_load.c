@@ -539,12 +539,17 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			if (_type == 0 || _type == -2) {
 				num_smp++;
 			} else if (_type == -1) {
+				if (_len < 22) {
+					D_(D_CRIT "invalid synth %d length", i);
+					return -1;
+				}
 				hio_seek(f, 20, SEEK_CUR);
 				num_smp += hio_read16b(f);
 				_len -= 22;
 			}
 
 			if (_len < 0) {
+				D_(D_CRIT "invalid sample %d length", i);
 				return -1;
 			}
 			hio_seek(f, _len, SEEK_CUR);

@@ -155,6 +155,18 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	    return -1;
 	}
 
+	/* Sanity check:
+	 * "[SizeStart] seems to tell UT how to load the sample into the GUS's
+	 * onboard memory." The maximum supported GUS RAM is 16 MB (PnP).
+	 * Samples also can't cross 256k boundaries. In practice it seems like
+	 * nothing ever goes over 1 MB, the maximum on most GUS cards.
+	 */
+	if (uih.sizestart > uih.sizeend || uih.sizeend > (16 << 20) ||
+	    uih.sizeend - uih.sizestart > (256 << 10)) {
+	    D_(D_CRIT "invalid sample %d sizestart/sizeend", i);
+	    return -1;
+	}
+
 	mod->xxs[i].len = uih.sizeend - uih.sizestart;
 	mod->xxs[i].lps = uih.loop_start;
 	mod->xxs[i].lpe = uih.loopend;

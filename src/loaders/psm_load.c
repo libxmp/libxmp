@@ -147,6 +147,15 @@ static int psm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 						&mod->xxi[i].sub[0].fin);
 		mod->xxi[i].sub[0].fin += finetune;
 
+		/* The documentation claims samples shouldn't exceed 64k. The
+		 * PS16 modules from Silverball and Epic Pinball confirm this.
+		 * Later Protracker Studio Modules (MASI) allow up to 1MB.
+		 */
+		if ((uint32)mod->xxs[i].len > 64 * 1024) {
+			D_(D_CRIT "invalid sample %d length %d", i, mod->xxs[i].len);
+			return -1;
+		}
+
 		if (mod->xxs[i].len > 0)
 			mod->xxi[i].nsm = 1;
 

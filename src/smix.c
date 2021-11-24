@@ -34,7 +34,9 @@ struct xmp_instrument *libxmp_get_instrument(struct context_data *ctx, int ins)
 	struct xmp_module *mod = &m->mod;
 	struct xmp_instrument *xxi;
 
-	if (ins < mod->ins) {
+	if (ins < 0) {
+		xxi = NULL;
+	} else if (ins < mod->ins) {
 		xxi = &mod->xxi[ins];
 	} else if (ins < mod->ins + smix->ins) {
 		xxi = &smix->xxi[ins - mod->ins];
@@ -52,7 +54,9 @@ struct xmp_sample *libxmp_get_sample(struct context_data *ctx, int smp)
 	struct xmp_module *mod = &m->mod;
 	struct xmp_sample *xxs;
 
-	if (smp < mod->smp) {
+	if (smp < 0) {
+		xxs = NULL;
+	} else if (smp < mod->smp) {
 		xxs = &mod->xxs[smp];
 	} else if (smp < mod->smp + smix->smp) {
 		xxs = &smix->xxs[smp - mod->smp];
@@ -286,7 +290,7 @@ int xmp_smix_load_sample(xmp_context opaque, int num, const char *path)
 	hio_close(h);
 
 	return 0;
-	
+
     err2:
 	free(xxi->sub);
 	xxi->sub = NULL;

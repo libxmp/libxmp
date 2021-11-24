@@ -115,7 +115,9 @@ static int iff_chunk(iff_handle opaque, struct module_data *m, HIO_HANDLE *f, vo
 		size = (size + 3) & ~3;
 	}
 
-	if (data->flags & IFF_FULL_CHUNK_SIZE) {
+	/* PT 3.6 hack: this does not seem to ever apply to "PTDT".
+	 * This broke several modules (city lights.pt36, acid phase.pt36) */
+	if ((data->flags & IFF_FULL_CHUNK_SIZE) && memcmp(id, "PTDT", 4)) {
 		if (size < data->id_size + 4)
 			return -1;
 		size -= data->id_size + 4;

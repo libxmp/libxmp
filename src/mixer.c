@@ -329,7 +329,7 @@ void libxmp_mixer_prepare(struct context_data *ctx)
 
 	s->ticksize = s->freq * m->time_factor * m->rrate / p->bpm / 1000;
 
-	bytelen = s->ticksize * sizeof(int);
+	bytelen = s->ticksize * sizeof(int32);
 	if (~s->format & XMP_FORMAT_MONO) {
 		bytelen *= 2;
 	}
@@ -476,7 +476,7 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 				samples = 0;
 				usmp = 1;
 			} else {
-				int c = ceil(((double)vi->end - vi->pos) / step);
+				double c = ceil(((double)vi->end - vi->pos) / step);
 				/* ...inside the tick boundaries */
 				if (c > size) {
 					c = size;

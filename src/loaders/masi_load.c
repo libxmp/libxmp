@@ -128,10 +128,10 @@ static int get_sdft(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 static int get_titl(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
-	char buf[40];
+	char buf[XMP_NAME_SIZE];
 
-	hio_read(buf, 1, 40, f);
-	size = size > 32 ? 32 : size;
+	size = size > XMP_NAME_SIZE - 1 ? XMP_NAME_SIZE - 1 : size;
+	size = hio_read(buf, 1, size, f);
 	strncpy(mod->name, buf, size);
 	mod->name[size] = '\0';
 

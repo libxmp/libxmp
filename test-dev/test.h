@@ -48,12 +48,26 @@ static inline int note_to_period(int n)
 
 #define PERIOD ((int)libxmp_round(1.0 * info.channel_info[0].period / 4096))
 
+enum playback_action
+{
+	PLAY_END,
+	PLAY_FRAMES,
+};
+
+struct playback_sequence
+{
+	enum playback_action action;
+	int value;
+	int result;
+};
+
 int map_channel(struct player_data *, int);
 int play_frame(struct context_data *);
 
 
 int compare_module(struct xmp_module *, FILE *);
 void dump_module(struct xmp_module *, FILE *);
+void compare_playback(const char *, const struct playback_sequence *, int, int, int);
 int compare_md5(const unsigned char *, const char *);
 int check_md5(const char *, const char *);
 int check_randomness(int *, int, double);
