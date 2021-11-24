@@ -547,6 +547,7 @@ FUZZER		= misc \
 		  play_mod_bad_invloop \
 		  play_xm_bad_instrument \
 		  play_669_low_freq \
+		  play_far_highbpm \
 		  play_gdm_bad_loop \
 		  play_hmn_bad_megaarp \
 		  play_stm_bad_note_toneporta \
