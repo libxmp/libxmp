@@ -54,7 +54,9 @@ struct xmp_sample *libxmp_get_sample(struct context_data *ctx, int smp)
 	struct xmp_module *mod = &m->mod;
 	struct xmp_sample *xxs;
 
-	if (smp < mod->smp) {
+	if (smp < 0) {
+		xxs = NULL;
+	} else if (smp < mod->smp) {
 		xxs = &mod->xxs[smp];
 	} else if (smp < mod->smp + smix->smp) {
 		xxs = &smix->xxs[smp - mod->smp];

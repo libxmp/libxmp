@@ -267,19 +267,23 @@ static const int invloop_table[] = {
 	0, 5, 6, 7, 8, 10, 11, 13, 16, 19, 22, 26, 32, 43, 64, 128
 };
 
-static void update_invloop(struct module_data *m, struct channel_data *xc)
+static void update_invloop(struct context_data *ctx, struct channel_data *xc)
 {
-	struct xmp_sample *xxs = &m->mod.xxs[xc->smp];
+	struct xmp_sample *xxs = libxmp_get_sample(ctx, xc->smp);
 	int len;
 
 	xc->invloop.count += invloop_table[xc->invloop.speed];
 
-	if ((xxs->flg & XMP_SAMPLE_LOOP) && xc->invloop.count >= 128) {
+	if (xxs != NULL && (xxs->flg & XMP_SAMPLE_LOOP) && xc->invloop.count >= 128) {
 		xc->invloop.count = 0;
 		len = xxs->lpe - xxs->lps;
 
 		if (++xc->invloop.pos > len) {
 			xc->invloop.pos = 0;
+		}
+
+		if (xxs->data == NULL) {
+			return;
 		}
 
 		if (~xxs->flg & XMP_SAMPLE_16BIT) {
@@ -1335,7 +1339,7 @@ static void play_channel(struct context_data *ctx, int chn)
 
 #ifndef LIBXMP_CORE_PLAYER
 	if (HAS_QUIRK(QUIRK_PROTRACK) && xc->ins < mod->ins) {
-		update_invloop(m, xc);
+		update_invloop(ctx, xc);
 	}
 #endif
 
