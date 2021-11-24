@@ -550,6 +550,7 @@ FUZZER		= misc \
 		  play_stm_bad_note_toneporta \
 		  play_mdl_zero_samples \
 		  play_med4_0_chn_invalid_ord \
+		  play_xm_bad_instrument \
 
 SYNTH		= #adlib #spectrum
 
