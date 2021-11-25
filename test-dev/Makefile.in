@@ -548,6 +548,7 @@ FUZZER		= misc \
 		  play_xm_bad_instrument \
 		  play_it_row_0_loop_row_delay \
 		  play_669_low_freq \
+		  play_asylum_bad_effects \
 		  play_far_highbpm \
 		  play_gdm_bad_loop \
 		  play_hmn_bad_megaarp \

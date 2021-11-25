@@ -161,6 +161,12 @@ static int asylum_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			event->ins = *pos++;
 			event->fxt = *pos++;
 			event->fxp = *pos++;
+
+			/* TODO: m07.amf and m12.amf from Crusader: No Remorse
+			 * use 0x1b for what looks *plausibly* like retrigger.
+			 * No other ASYLUM modules use effects over 16. */
+			if (event->fxt >= 0x10 && event->fxt != FX_MULTI_RETRIG)
+				event->fxt = event->fxp = 0;
 		}
 	}
 
