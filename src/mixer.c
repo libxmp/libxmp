@@ -441,6 +441,11 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 			}
 		}
 
+		/* Bandaid fix for samples with bidi sustain loops and
+		 * non-bidi regular loops. This doesn't make them work
+		 * properly, just makes them not crash. */
+		vi->sptr = xxs->data;
+
 		adjust_voice_end(vi, xxs);
 #endif
 

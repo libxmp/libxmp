@@ -547,6 +547,7 @@ FUZZER		= misc \
 		  play_mod_bad_invloop \
 		  play_xm_bad_instrument \
 		  play_it_row_0_loop_row_delay \
+		  play_it_sustain_bidi \
 		  play_669_low_freq \
 		  play_asylum_bad_effects \
 		  play_far_highbpm \
