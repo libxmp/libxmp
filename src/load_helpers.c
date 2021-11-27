@@ -150,9 +150,9 @@ static void check_envelope(struct xmp_envelope *env)
 		env->flg &= ~XMP_ENVELOPE_LOOP;
 	}
 
-	/* Disable envelope loop if invalid sustain */
-	if (env->sus >= env->npt) {
-		env->flg &= ~XMP_ENVELOPE_ON;
+	/* Disable envelope sustain if invalid sustain */
+	if (env->sus >= env->npt || env->sue >= env->npt) {
+		env->flg &= ~XMP_ENVELOPE_SUS;
 	}
 }
 
