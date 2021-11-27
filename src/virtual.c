@@ -189,7 +189,7 @@ void libxmp_virt_reset(struct context_data *ctx)
 	}
 
 	/* CID 129203 (#1 of 1): Useless call (USELESS_CALL)
-	 * Call is only useful for its return value, which is ignored. 
+	 * Call is only useful for its return value, which is ignored.
 	 *
 	 * libxmp_mixer_numvoices(ctx, p->virt.maxvoc);
 	 */
@@ -418,7 +418,12 @@ void libxmp_virt_setsmp(struct context_data *ctx, int chn, int smp)
 void libxmp_virt_setnna(struct context_data *ctx, int chn, int nna)
 {
 	struct player_data *p = &ctx->p;
+	struct module_data *m = &ctx->m;
 	int voc;
+
+	if (!HAS_QUIRK(QUIRK_VIRTUAL)) {
+		return;
+	}
 
 	if ((voc = map_virt_channel(p, chn)) < 0) {
 		return;
@@ -511,7 +516,7 @@ int libxmp_virt_setpatch(struct context_data *ctx, int chn, int ins, int smp,
 				return -1;
 			}
 
-			for (chn = p->virt.num_tracks;
+			for (chn = p->virt.num_tracks; chn < p->virt.virt_channels &&
 			     p->virt.virt_channel[chn++].map > FREE;) ;
 
 			p->virt.voice_array[voc].chn = --chn;
