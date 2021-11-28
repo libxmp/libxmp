@@ -318,7 +318,7 @@ static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn
 				note = xc->key + sub->xpo + transp;
 				smp = sub->sid;
 
-				if (mod->xxs[smp].len == 0) {
+				if (!IS_VALID_SAMPLE(smp)) {
 					smp = -1;
 				}
 
@@ -666,7 +666,7 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 			note = key + sub->xpo + transp;
 			smp = sub->sid;
 
-			if (smp >= mod->smp || mod->xxs[smp].len == 0) {
+			if (!IS_VALID_SAMPLE(smp)) {
 				smp = -1;
 			}
 
@@ -835,7 +835,7 @@ static int read_event_st3(struct context_data *ctx, struct xmp_event *e, int chn
 				note = xc->key + sub->xpo + transp;
 				smp = sub->sid;
 
-				if (mod->xxs[smp].len == 0) {
+				if (!IS_VALID_SAMPLE(smp)) {
 					smp = -1;
 				}
 
@@ -1211,7 +1211,7 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 
 			note = key + sub->xpo + transp;
 			smp = sub->sid;
-			if (smp >= mod->smp || mod->xxs[smp].len == 0) {
+			if (!IS_VALID_SAMPLE(smp)) {
 				smp = -1;
 			}
 
@@ -1454,7 +1454,7 @@ static int read_event_med(struct context_data *ctx, struct xmp_event *e, int chn
 				note = xc->key + sub->xpo + transp;
 				smp = sub->sid;
 
-				if (mod->xxs[smp].len == 0) {
+				if (!IS_VALID_SAMPLE(smp)) {
 					smp = -1;
 				}
 
@@ -1576,7 +1576,7 @@ static int read_event_smix(struct context_data *ctx, struct xmp_event *e, int ch
 		transp = mod->xxi[xc->ins].map[xc->key].xpo;
 		note = xc->key + sub->xpo + transp;
 		smp = sub->sid;
-		if (mod->xxs[smp].len == 0)
+		if (!IS_VALID_SAMPLE(smp))
 			smp = -1;
 		if (smp >= 0 && smp < mod->smp) {
 			set_patch(ctx, chn, xc->ins, smp, note);
