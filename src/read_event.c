@@ -388,6 +388,7 @@ static int sustain_check(struct xmp_envelope *env, int idx)
 {
 	return (env &&
 		(env->flg & XMP_ENVELOPE_ON) &&
+		(env->flg & XMP_ENVELOPE_SUS) &&
 		(~env->flg & XMP_ENVELOPE_LOOP) &&
 		idx == env->data[env->sus << 1]);
 }
