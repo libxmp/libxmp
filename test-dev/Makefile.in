@@ -451,6 +451,7 @@ FUZZER		= misc \
 		  stm_patterns_bound \
 		  stx_instruments_bound \
 		  stx_truncated \
+		  sym_bad_sigmadelta \
 		  sym_truncated \
 		  sym_truncated_lzw \
 		  ult_channels_bound \

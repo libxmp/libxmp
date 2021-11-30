@@ -402,7 +402,7 @@ int libxmp_read_sigma_delta(void *dest, size_t dest_len, size_t max_read_len,
 		/* Expand bitwidth. */
 		if (!value) {
 			if (bits >= 9)
-				break;
+				return -1;
 
 			bits++;
 			runlength = 0;
