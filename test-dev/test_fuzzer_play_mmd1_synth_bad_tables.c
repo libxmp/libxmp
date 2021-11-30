@@ -14,5 +14,7 @@ TEST(test_fuzzer_play_mmd1_synth_bad_tables)
 	};
 	compare_playback("data/f/play_mmd1_synth_bad_wavtable.med", sequence, 4000, 0, 0);
 	compare_playback("data/f/play_mmd1_synth_bad_voltable.med", sequence, 4000, 0, 0);
+	/* libxmp could also hang on improperly terminated arpeggios. */
+	compare_playback("data/f/play_mmd1_synth_bad_arpeggio.med", sequence, 4000, 0, 0);
 }
 END_TEST

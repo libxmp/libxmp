@@ -286,7 +286,7 @@ void libxmp_med_play_extras(struct context_data *ctx, struct channel_data *xc, i
 			break;
 		case 0xfc:	/* ARP */
 			ce->arp = ce->aidx = ce->wp++;
-			while (WT != 0xfd) ;
+			while (b != 0xfd && b != 0xff) b = WT;
 			break;
 		case 0xfa:	/* JVS */
 			jvs = WT;
