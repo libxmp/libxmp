@@ -52,8 +52,8 @@
  *	0xf0	    SPD		Set speed
  */
 
-#define VT me->vol_table[xc->ins][ce->vp++]
-#define WT me->wav_table[xc->ins][ce->wp++]
+#define VT ((ce->vp >= 0 && ce->vp < ie->vtlen) ? me->vol_table[xc->ins][ce->vp++] : 0xff)
+#define WT ((ce->wp >= 0 && ce->wp < ie->wtlen) ? me->wav_table[xc->ins][ce->wp++] : 0xff)
 #define VT_SKIP ce->vp++
 #define WT_SKIP ce->wp++
 
@@ -120,6 +120,7 @@ void libxmp_med_play_extras(struct context_data *ctx, struct channel_data *xc, i
 	struct module_data *m = &ctx->m;
 	struct player_data *p = &ctx->p;
 	struct xmp_module *mod = &m->mod;
+	struct xmp_instrument *xxi = &m->mod.xxi[xc->ins];
 	struct med_module_extras *me;
 	struct med_channel_extras *ce;
 	struct med_instrument_extras *ie;
@@ -131,7 +132,7 @@ void libxmp_med_play_extras(struct context_data *ctx, struct channel_data *xc, i
 
 	me = (struct med_module_extras *)m->extra;
 	ce = (struct med_channel_extras *)xc->extra;
-	ie = MED_INSTRUMENT_EXTRAS(m->mod.xxi[xc->ins]);
+	ie = MED_INSTRUMENT_EXTRAS(*xxi);
 
 	/* Handle hold/decay */
 
@@ -236,8 +237,8 @@ void libxmp_med_play_extras(struct context_data *ctx, struct channel_data *xc, i
 
 	    skip_vol:
 		/* volume envelope */
-		if (ce->env_wav >= 0) {
-			int sid = mod->xxi[xc->ins].sub[ce->env_wav].sid;
+		if (ce->env_wav >= 0 && ce->env_wav < xxi->nsm) {
+			int sid = xxi->sub[ce->env_wav].sid;
 			struct xmp_sample *xxs = &mod->xxs[sid];
 			if (xxs->len == 0x80) {		/* sanity check */
 				ce->volume = ((int8)xxs->data[ce->env_idx] + 0x80) >> 2;
@@ -266,8 +267,6 @@ void libxmp_med_play_extras(struct context_data *ctx, struct channel_data *xc, i
 
 	    next_wt:
 		switch (b = WT) {
-			struct xmp_instrument *xxi;
-
 		case 0xff:	/* END */
 		case 0xfb:	/* HLT */
 			ce->wp--;
@@ -287,7 +286,7 @@ void libxmp_med_play_extras(struct context_data *ctx, struct channel_data *xc, i
 			break;
 		case 0xfc:	/* ARP */
 			ce->arp = ce->aidx = ce->wp++;
-			while (WT != 0xfd) ;
+			while (b != 0xfd && b != 0xff) b = WT;
 			break;
 		case 0xfa:	/* JVS */
 			jvs = WT;
@@ -317,7 +316,6 @@ void libxmp_med_play_extras(struct context_data *ctx, struct channel_data *xc, i
 			ce->ws = WT;
 			break;
 		default:
-			xxi = &m->mod.xxi[xc->ins];
 			if (b < xxi->nsm && xxi->sub[b].sid != xc->smp) {
 				xc->smp = xxi->sub[b].sid;
 				libxmp_virt_setsmp(ctx, chn, xc->smp);

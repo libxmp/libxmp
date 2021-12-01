@@ -411,6 +411,7 @@ int mmd_load_hybrid_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 	struct xmp_instrument *xxi = &mod->xxi[i];
 	struct xmp_subinstrument *sub;
 	struct xmp_sample *xxs;
+	struct med_instrument_extras *ie;
 	int length, type;
 	int pos = hio_tell(f);
 
@@ -454,8 +455,11 @@ int mmd_load_hybrid_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 	if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 		return -1;
 
-	MED_INSTRUMENT_EXTRAS((*xxi))->vts = synth->volspeed;
-	MED_INSTRUMENT_EXTRAS((*xxi))->wts = synth->wfspeed;
+	ie = MED_INSTRUMENT_EXTRAS(*xxi);
+	ie->vts = synth->volspeed;
+	ie->wts = synth->wfspeed;
+	ie->vtlen = synth->voltbllen;
+	ie->wtlen = synth->wftbllen;
 
 	sub = &xxi->sub[0];
 
@@ -484,6 +488,7 @@ int mmd_load_synth_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 {
 	struct xmp_module *mod = &m->mod;
 	struct xmp_instrument *xxi = &mod->xxi[i];
+	struct med_instrument_extras *ie;
 	int pos = hio_tell(f);
 	int j;
 
@@ -528,8 +533,11 @@ int mmd_load_synth_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 	if (libxmp_alloc_subinstrument(mod, i, synth->wforms) < 0)
 		return -1;
 
-	MED_INSTRUMENT_EXTRAS((*xxi))->vts = synth->volspeed;
-	MED_INSTRUMENT_EXTRAS((*xxi))->wts = synth->wfspeed;
+	ie = MED_INSTRUMENT_EXTRAS(*xxi);
+	ie->vts = synth->volspeed;
+	ie->wts = synth->wfspeed;
+	ie->vtlen = synth->voltbllen;
+	ie->wtlen = synth->wftbllen;
 
 	for (j = 0; j < synth->wforms; j++) {
 		struct xmp_subinstrument *sub = &xxi->sub[j];

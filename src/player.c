@@ -1445,16 +1445,16 @@ static void next_row(struct context_data *ctx)
 
 		next_order(ctx);
 	} else {
-		if (f->loop_chn) {
-			p->row = f->loop[f->loop_chn - 1].start - 1;
-			f->loop_chn = 0;
-		}
-
 		if (f->rowdelay == 0) {
 			p->row++;
 			f->rowdelay_set = 0;
 		} else {
 			f->rowdelay--;
+		}
+
+		if (f->loop_chn) {
+			p->row = f->loop[f->loop_chn - 1].start;
+			f->loop_chn = 0;
 		}
 
 		/* check end of pattern */

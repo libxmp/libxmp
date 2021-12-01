@@ -329,6 +329,9 @@ void libxmp_mixer_prepare(struct context_data *ctx)
 
 	s->ticksize = s->freq * m->time_factor * m->rrate / p->bpm / 1000;
 
+	if (s->ticksize < (1 << ANTICLICK_SHIFT))
+		s->ticksize = 1 << ANTICLICK_SHIFT;
+
 	bytelen = s->ticksize * sizeof(int32);
 	if (~s->format & XMP_FORMAT_MONO) {
 		bytelen *= 2;
@@ -437,6 +440,11 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 				}
 			}
 		}
+
+		/* Bandaid fix for samples with bidi sustain loops and
+		 * non-bidi regular loops. This doesn't make them work
+		 * properly, just makes them not crash. */
+		vi->sptr = xxs->data;
 
 		adjust_voice_end(vi, xxs);
 #endif

@@ -451,6 +451,7 @@ FUZZER		= misc \
 		  stm_patterns_bound \
 		  stx_instruments_bound \
 		  stx_truncated \
+		  sym_bad_sigmadelta \
 		  sym_truncated \
 		  sym_truncated_lzw \
 		  ult_channels_bound \
@@ -545,13 +546,22 @@ FUZZER		= misc \
 		  depack_zip_truncated3 \
 		  depack_zip_truncated4 \
 		  play_mod_bad_invloop \
+		  play_xm_bad_env_sustain \
 		  play_xm_bad_instrument \
+		  play_it_bad_env_sustain \
+		  play_it_bad_set_nna \
+		  play_it_row_0_loop_row_delay \
+		  play_it_sustain_bidi \
 		  play_669_low_freq \
+		  play_asylum_bad_effects \
+		  play_dbm_inst_no_samples \
+		  play_far_highbpm \
 		  play_gdm_bad_loop \
 		  play_hmn_bad_megaarp \
-		  play_stm_bad_note_toneporta \
 		  play_mdl_zero_samples \
 		  play_med4_0_chn_invalid_ord \
+		  play_mmd1_synth_bad_tables \
+		  play_stm_bad_note_toneporta \
 
 SYNTH		= #adlib #spectrum
 
