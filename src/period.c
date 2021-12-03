@@ -225,7 +225,7 @@ int libxmp_period_to_bend(struct context_data *ctx, double p, int n, double adj)
 	struct module_data *m = &ctx->m;
 	double d;
 
-	if (n == 0) {
+	if (n == 0 || p < 0.1) {
 		return 0;
 	}
 

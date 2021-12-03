@@ -514,6 +514,7 @@ FUZZER		= misc \
 		  depack_sqsh_truncated \
 		  depack_zip_truncated \
 		  play_mod_bad_invloop \
+		  play_s3m_low_period_vibrato \
 		  play_xm_bad_env_sustain \
 		  play_xm_bad_instrument \
 		  play_xm_vol_env_clamp \
