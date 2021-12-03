@@ -516,6 +516,7 @@ FUZZER		= misc \
 		  play_mod_bad_invloop \
 		  play_xm_bad_env_sustain \
 		  play_xm_bad_instrument \
+		  play_xm_vol_env_clamp \
 		  play_it_bad_env_sustain \
 		  play_it_bad_set_nna \
 		  play_it_row_0_loop_row_delay \

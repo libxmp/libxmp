@@ -156,6 +156,18 @@ static void check_envelope(struct xmp_envelope *env)
 	}
 }
 
+static void clamp_volume_envelope(struct module_data *m, struct xmp_envelope *env)
+{
+	/* Clamp broken values in the volume envelope to the expected range. */
+	if (env->flg & XMP_ENVELOPE_ON) {
+		int i;
+		for (i = 0; i < env->npt; i++) {
+			int16 *data = &env->data[i * 2 + 1];
+			CLAMP(*data, 0, m->volbase);
+		}
+	}
+}
+
 void libxmp_load_prologue(struct context_data *ctx)
 {
 	struct module_data *m = &ctx->m;
@@ -251,6 +263,7 @@ void libxmp_load_epilogue(struct context_data *ctx)
 		check_envelope(&mod->xxi[i].aei);
 		check_envelope(&mod->xxi[i].fei);
 		check_envelope(&mod->xxi[i].pei);
+		clamp_volume_envelope(m, &mod->xxi[i].aei);
 	}
 
 	p->filter = 0;
