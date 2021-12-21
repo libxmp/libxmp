@@ -25,54 +25,53 @@ struct archived_file_header_tag {
 };
 
 
-static int read_file_header(FILE *in, struct archived_file_header_tag *hdrp)
+static int read_file_header(HIO_HANDLE *in, struct archived_file_header_tag *hdrp)
 {
 	int hlen, start /*, ver*/;
 	int i;
-	int error;
 
-	if (fseek(in, 8, SEEK_CUR) < 0)		/* skip magic */
+	if (hio_seek(in, 8, SEEK_CUR) < 0)		/* skip magic */
 		return -1;
-	hlen = read32l(in, &error) / 36;
-	if (error != 0) return -1;
+	hlen = hio_read32l(in) / 36;
+	if (hio_error(in) != 0) return -1;
 	if (hlen < 1) return -1;
-	start = read32l(in, &error);
-	if (error != 0) return -1;
-	/*ver =*/ read32l(in, &error);
-	if (error != 0) return -1;
+	start = hio_read32l(in);
+	if (hio_error(in) != 0) return -1;
+	/*ver =*/ hio_read32l(in);
+	if (hio_error(in) != 0) return -1;
 
-	read32l(in, &error);
-	if (error != 0) return -1;
-	/*ver =*/ read32l(in, &error);
-	if (error != 0) return -1;
+	hio_read32l(in);
+	if (hio_error(in) != 0) return -1;
+	/*ver =*/ hio_read32l(in);
+	if (hio_error(in) != 0) return -1;
 
-	if (fseek(in, 68, SEEK_CUR) < 0)	/* reserved */
+	if (hio_seek(in, 68, SEEK_CUR) < 0)	/* reserved */
 		return -1;
 
 	for (i = 0; i < hlen; i++) {
-		int x = read8(in, &error);
-		if (error != 0) return -1;
+		int x = hio_read8(in);
+		if (hio_error(in) != 0) return -1;
 
 		if (x == 0)			/* end? */
 			break;
 
 		hdrp->method = x & 0x7f;
-		if (fread(hdrp->name, 1, 11, in) != 11) {
+		if (hio_read(hdrp->name, 1, 11, in) != 11) {
 			return -1;
 		}
 		hdrp->name[12] = 0;
-		hdrp->orig_size = read32l(in, &error);
-		if (error != 0) return -1;
-		read32l(in, &error);
-		if (error != 0) return -1;
-		read32l(in, &error);
-		if (error != 0) return -1;
-		x = read32l(in, &error);
-		if (error != 0) return -1;
-		hdrp->compressed_size = read32l(in, &error);
-		if (error != 0) return -1;
-		hdrp->offset = read32l(in, &error);
-		if (error != 0) return -1;
+		hdrp->orig_size = hio_read32l(in);
+		if (hio_error(in) != 0) return -1;
+		hio_read32l(in);
+		if (hio_error(in) != 0) return -1;
+		hio_read32l(in);
+		if (hio_error(in) != 0) return -1;
+		x = hio_read32l(in);
+		if (hio_error(in) != 0) return -1;
+		hdrp->compressed_size = hio_read32l(in);
+		if (hio_error(in) != 0) return -1;
+		hdrp->offset = hio_read32l(in);
+		if (hio_error(in) != 0) return -1;
 
 		if (x == 1)			/* deleted */
 			continue;
@@ -101,7 +100,7 @@ static int read_file_header(FILE *in, struct archived_file_header_tag *hdrp)
  * the memory allocated.
  * Returns NULL for file I/O error only; OOM is fatal (doesn't return).
  */
-static unsigned char *read_file_data(FILE *in, long inlen,
+static unsigned char *read_file_data(HIO_HANDLE *in, long inlen,
 				     struct archived_file_header_tag *hdrp)
 {
 	unsigned char *data;
@@ -115,10 +114,10 @@ static unsigned char *read_file_data(FILE *in, long inlen,
 	if (data == NULL) {
 		goto err;
 	}
-	if (fseek(in, hdrp->offset, SEEK_SET) < 0) {
+	if (hio_seek(in, hdrp->offset, SEEK_SET) < 0) {
 		goto err2;
 	}
-	if (fread(data, 1, siz, in) != siz) {
+	if (hio_read(data, 1, siz, in) != siz) {
 		goto err2;
 	}
 
@@ -130,7 +129,7 @@ static unsigned char *read_file_data(FILE *in, long inlen,
 	return NULL;
 }
 
-static int arcfs_extract(FILE *in, FILE *out, long inlen)
+static int arcfs_extract(HIO_HANDLE *in, FILE *out, long inlen)
 {
 	struct archived_file_header_tag hdr;
 	unsigned char *data, *orig_data;
@@ -204,7 +203,7 @@ static int test_arcfs(unsigned char *b)
 	return !memcmp(b, "Archive\0", 8);
 }
 
-static int decrunch_arcfs(FILE * f, FILE * fo, long inlen)
+static int decrunch_arcfs(HIO_HANDLE * f, FILE * fo, long inlen)
 {
 	int ret;
 

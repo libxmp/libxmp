@@ -23,11 +23,11 @@ static int test_muse(unsigned char *b)
 	return 0;
 }
 
-static int decrunch_muse(FILE *f, FILE *fo, long inlen)
+static int decrunch_muse(HIO_HANDLE *f, FILE *fo, long inlen)
 {                                                          
 	uint32 checksum;
   
-	if (fseek(f, 24, SEEK_SET) < 0) {
+	if (hio_seek(f, 24, SEEK_SET) < 0) {
 		return -1;
 	}
 

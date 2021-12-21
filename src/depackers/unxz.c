@@ -17,7 +17,7 @@ static int test_xz(unsigned char *b)
 	return b[0] == 0xfd && b[3] == 'X' && b[4] == 'Z' && b[5] == 0x00;
 }
 
-static int decrunch_xz(FILE *in, FILE *out, long inlen)
+static int decrunch_xz(HIO_HANDLE *in, FILE *out, long inlen)
 {
 	struct xz_buf b;
 	struct xz_dec *state;
@@ -41,7 +41,7 @@ static int decrunch_xz(FILE *in, FILE *out, long inlen)
 		enum xz_ret r;
 
 		if (b.in_pos == b.in_size) {
-			int rd = fread(membuf, 1, BUFFER_SIZE, in);
+			int rd = hio_read(membuf, 1, BUFFER_SIZE, in);
 			if (rd < 0) {
 				ret = -1;
 				break;

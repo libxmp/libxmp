@@ -74,7 +74,7 @@ static struct depacker *depacker_list[] = {
 	NULL
 };
 
-int test_oxm		(FILE *);
+int test_oxm		(HIO_HANDLE *);
 
 #if defined(HAVE_FORK) && defined(HAVE_PIPE) && defined(HAVE_EXECVP) && \
     defined(HAVE_DUP2) && defined(HAVE_WAIT)
@@ -205,16 +205,15 @@ int libxmp_decrunch(HIO_HANDLE **h, const char *filename, char **temp)
 {
 	unsigned char b[1024];
 	const char *cmd[32];
-	FILE *f, *t;
+	FILE *t;
 	int headersize;
 	int i;
 	struct depacker *depacker = NULL;
 
 	cmd[0] = NULL;
 	*temp = NULL;
-	f = (*h)->handle.file;
 
-	headersize = fread(b, 1, 1024, f);
+	headersize = hio_read(b, 1, 1024, *h);
 	if (headersize < 100) {	/* minimum valid file size */
 		return 0;
 	}
@@ -254,14 +253,14 @@ int libxmp_decrunch(HIO_HANDLE **h, const char *filename, char **temp)
 			cmd[i++] = "-x*.com";
 			cmd[i++] = filename;
 			cmd[i++] = NULL;
-		} else if (test_oxm(f) == 0) {
+		} else if (test_oxm(*h) == 0) {
 			/* oggmod */
 			D_(D_INFO "oggmod");
 			depacker = &libxmp_depacker_oxm;
 		}
 	}
 
-	if (fseek(f, 0, SEEK_SET) < 0) {
+	if (hio_seek(*h, 0, SEEK_SET) < 0) {
 		goto err;
 	}
 
@@ -299,7 +298,7 @@ int libxmp_decrunch(HIO_HANDLE **h, const char *filename, char **temp)
 		}
 	} else if (depacker) {
 		D_(D_INFO "Internal depacker");
-		if (depacker->depack(f, t, hio_size(*h)) < 0) {
+		if (depacker->depack(*h, t, hio_size(*h)) < 0) {
 			D_(D_CRIT "failed");
 			goto err2;
 		}
@@ -349,6 +348,20 @@ int libxmp_exclude_match(const char *name)
 			return 1;
 		}
 	}
+
+	return 0;
+}
+
+int depacker_move_data(FILE *out, HIO_HANDLE *in, int len)
+{
+	uint8 buf[1024];
+	int l;
+
+	do {
+		l = hio_read(buf, 1, len > 1024 ? 1024 : len, in);
+		fwrite(buf, 1, l, out);
+		len -= l;
+	} while (l > 0 && len > 0);
 
 	return 0;
 }
