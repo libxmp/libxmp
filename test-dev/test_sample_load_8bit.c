@@ -56,8 +56,9 @@ TEST(test_sample_load_8bit)
 	fail_unless(s.data != NULL, "didn't allocate sample data");
 	fail_unless(s.lpe == 101, "didn't fix invalid loop end");
 	fail_unless(memcmp(s.data, buffer, 101) == 0, "sample data error");
-	fail_unless(s.data[101] == s.data[100], "sample adjust error");
-	fail_unless(s.data[102] == s.data[101], "sample adjust error");
+	fail_unless(s.data[-1]  == s.data[0],   "sample prologue error");
+	fail_unless(s.data[101] == s.data[100], "sample epilogue error");
+	fail_unless(s.data[102] == s.data[101], "sample epilogue error");
 	CLEAR();
 
 	/* load sample from file w/ loop */
@@ -65,8 +66,10 @@ TEST(test_sample_load_8bit)
 	hio_seek(f, 0, SEEK_SET);
 	libxmp_load_sample(&m, f, 0, &s, NULL);
 	fail_unless(s.data != NULL, "didn't allocate sample data");
-	fail_unless(s.data[80] == s.data[20], "sample adjust error");
-	fail_unless(s.data[81] == s.data[21], "sample adjust error");
+	fail_unless(memcmp(s.data, buffer, 101) == 0, "sample data error");
+	fail_unless(s.data[-1]  == s.data[0],   "sample prologue error");
+	fail_unless(s.data[101] == s.data[100], "sample epilogue error");
+	fail_unless(s.data[102] == s.data[101], "sample epilogue error");
 	CLEAR();
 
 	/* load sample from w/ bidirectional loop */
@@ -76,8 +79,9 @@ TEST(test_sample_load_8bit)
 	fail_unless(s.data != NULL, "didn't allocate sample data");
 	fail_unless(s.lpe == 101, "didn't fix invalid loop end");
 	fail_unless(memcmp(s.data, buffer, 202) == 0, "sample unroll error");
-	fail_unless(s.data[202] == s.data[201], "sample adjust error");
-	fail_unless(s.data[203] == s.data[0], "sample adjust error");
+	fail_unless(s.data[-1]  == s.data[0],   "sample prologue error");
+	fail_unless(s.data[202] == s.data[201], "sample epilogue error");
+	fail_unless(s.data[203] == s.data[202], "sample epilogue error");
 	CLEAR();
 
 	hio_close(f);

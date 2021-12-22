@@ -214,7 +214,7 @@ OPENMPT_MOD	= amigalimitsfinetune \
 		  ptoffset \
 		  vibratoreset
 
-MIXER		= interpolation_default \
+MIXER		= interpolation_default interpolation_loop \
 		  mono_8bit_nearest mono_16bit_nearest \
 		  stereo_8bit_nearest stereo_16bit_nearest \
 		  mono_8bit_linear mono_16bit_linear \
