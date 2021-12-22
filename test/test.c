@@ -104,7 +104,12 @@ int main(void)
 
 	MD5Final(digest, &ctx);
 
-	if (compare_md5(digest, "0133c6e3fa08cab9ee352d4d55b2332e") < 0) {
+	/*
+	  x87 floating point results in a very slightly different output from
+	  SSE and other floating point implementations, so check two hashes.
+	 */
+	if (compare_md5(digest, "37bc865d6ef0296d4361171ecdd90433") < 0 && /* normal */
+	    compare_md5(digest, "55c3423f0631bc1aa608014755915625") < 0) { /* x87 */
 		printf("rendering error\n");
 		goto err;
 	}
