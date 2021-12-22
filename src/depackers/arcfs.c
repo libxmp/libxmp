@@ -129,11 +129,10 @@ static unsigned char *read_file_data(HIO_HANDLE *in, long inlen,
 	return NULL;
 }
 
-static int arcfs_extract(HIO_HANDLE *in, FILE *out, long inlen)
+static int arcfs_extract(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 {
 	struct archived_file_header_tag hdr;
 	unsigned char *data, *orig_data;
-	int exitval = 0;
 
 	if (read_file_header(in, &hdr) < 0)
 		return -1;
@@ -187,15 +186,13 @@ static int arcfs_extract(HIO_HANDLE *in, FILE *out, long inlen)
 		return -1;
 	}
 
-	if (fwrite(orig_data, 1, hdr.orig_size, out) != hdr.orig_size)
-		exitval = -1;
-
 	if (orig_data != data)	/* don't free uncompressed stuff twice :-) */
-		free(orig_data);
+		free(data);
 
-	free(data);
+	*out = orig_data;
+	*outlen = hdr.orig_size;
 
-	return exitval;
+	return 0;
 }
 
 static int test_arcfs(unsigned char *b)
@@ -203,21 +200,13 @@ static int test_arcfs(unsigned char *b)
 	return !memcmp(b, "Archive\0", 8);
 }
 
-static int decrunch_arcfs(HIO_HANDLE * f, FILE * fo, long inlen)
+static int decrunch_arcfs(HIO_HANDLE *f, void **out, long inlen, long *outlen)
 {
-	int ret;
-
-	if (fo == NULL)
-		return -1;
-
-	ret = arcfs_extract(f, fo, inlen);
-	if (ret < 0)
-		return -1;
-
-	return 0;
+	return arcfs_extract(f, out, inlen, outlen);
 }
 
 struct depacker libxmp_depacker_arcfs = {
 	test_arcfs,
+	NULL,
 	decrunch_arcfs
 };

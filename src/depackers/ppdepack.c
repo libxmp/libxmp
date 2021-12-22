@@ -23,13 +23,6 @@
 /* #define val(p) ((p)[0]<<16 | (p)[1] << 8 | (p)[2]) */
 
 
-static int savefile(FILE *fo, void *mem, size_t length)
-{
-  int ok = fo && (fwrite(mem, 1, length, fo) == length);
-  return ok;
-}
-
-
 #define PP_READ_BITS(nbits, var) do {                          \
   bit_cnt = (nbits);                                           \
   while (bits_left < bit_cnt) {                                \
@@ -101,7 +94,7 @@ static int ppDecrunch(uint8 *src, uint8 *dest, uint8 *offset_lens,
   /* return (src == buf_src) ? 1 : 0; */
 }
 
-static int ppdepack(uint8 *data, size_t len, FILE *fo)
+static int ppdepack(uint8 *data, size_t len, void **output, long *outlen)
 {
   /* PP FORMAT:
    *      1 longword identifier           'PP20' or 'PX20'
@@ -110,9 +103,7 @@ static int ppdepack(uint8 *data, size_t len, FILE *fo)
    *      X longwords crunched file       $cccccccc,$cccccccc,...
    *      1 longword decrunch info        'decrlen' << 8 | '8 bits other info'
    */
-  int success=0;
-  uint8 *output /*, crypted*/;
-  uint32 outlen;
+  /* uint8 *crypted; */
 
   if (len < 16) {
     /*fprintf(stderr, "File is too short to be a PP file (%u bytes)\n", len);*/
@@ -140,29 +131,28 @@ static int ppdepack(uint8 *data, size_t len, FILE *fo)
     return -1;
   }
 
-  outlen = readmem24b(data + len - 4);
+  *outlen = readmem24b(data + len - 4);
 
-  /* fprintf(stderr, "decrunched length = %u bytes\n", outlen); */
+  /* fprintf(stderr, "decrunched length = %u bytes\n", *outlen); */
 
-  output = (uint8 *) malloc(outlen);
-  if (output == NULL) {
+  *output = (uint8 *) malloc(*outlen);
+  if (*output == NULL) {
     /*fprintf(stderr, "out of memory!\n");*/
     return -1;
   }
 
   /* if (crypted == 0) { */
     /*fprintf(stderr, "not encrypted, decrunching anyway\n"); */
-    if (ppDecrunch(&data[8], output, &data[4], len-12, outlen, data[len-1])) {
+    if (ppDecrunch(&data[8], *output, &data[4], len-12, *outlen, data[len-1])) {
       /* fprintf(stderr, "Decrunch successful! "); */
-      savefile(fo, (void *) output, outlen);
-    } else {
-      success=-1;
+      return 0;
     }
-  /*} else {
-    success=-1;
-  }*/
-  free(output);
-  return success;
+  /**/
+
+  free(*output);
+  *output = NULL;
+  *outlen = 0;
+  return -1;
 }
 
 static int test_pp(unsigned char *b)
@@ -170,13 +160,10 @@ static int test_pp(unsigned char *b)
 	return memcmp(b, "PP20", 4) == 0;
 }
 
-static int decrunch_pp(HIO_HANDLE *f, FILE *fo, long inlen)
+static int decrunch_pp(HIO_HANDLE *f, void **out, long inlen, long *outlen)
 {
     uint8 *packed;
     int unplen;
-
-    if (fo == NULL)
-        goto err;
 
     /* Amiga longwords are only on even addresses.
      * The pp20 data format has the length stored in a longword
@@ -227,7 +214,7 @@ static int decrunch_pp(HIO_HANDLE *f, FILE *fo, long inlen)
          goto err1;
     }
 
-    if (ppdepack (packed, inlen, fo) == -1) {
+    if (ppdepack (packed, inlen, out, outlen) == -1) {
 	 /*fprintf(stderr, "error while decrunching data...");*/
          goto err1;
     }
@@ -244,5 +231,6 @@ err:
 
 struct depacker libxmp_depacker_pp = {
 	test_pp,
+	NULL,
 	decrunch_pp
 };

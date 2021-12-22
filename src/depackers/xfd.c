@@ -88,7 +88,8 @@ static int decrunch_xfd(HIO_HANDLE *f1, FILE *f2, long inlen)
 
 struct depacker libxmp_depacker_xfd = {
 	test_xfd,
-	decrunch_xfd
+	decrunch_xfd,
+	NULL
 };
 
 #endif /* AMIGA */

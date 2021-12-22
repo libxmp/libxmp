@@ -1861,5 +1861,6 @@ static int decrunch_lha(HIO_HANDLE *in, FILE *out, long inlen)
 
 struct depacker libxmp_depacker_lha = {
 	test_lha,
-	decrunch_lha
+	decrunch_lha,
+	NULL
 };

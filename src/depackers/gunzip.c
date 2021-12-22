@@ -48,17 +48,13 @@ static int test_gzip(unsigned char *b)
 	return b[0] == 31 && b[1] == 139;
 }
 
-static int tinfl_put_buf_func(const void* pBuf, int len, void *pUser)
-{
-	return len == (int)fwrite(pBuf, 1, len, (FILE*)pUser);
-}
-
-static int decrunch_gzip(HIO_HANDLE *in, FILE *out, long inlen)
+static int decrunch_gzip(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 {
 	struct member member;
 	int val, c;
 	size_t in_buf_size;
-	uint8 *pCmp_data;
+	void *pCmp_data, *pOut_buf;
+	size_t pOut_len;
 	long start, end;
 
 	member.id1 = hio_read8(in);
@@ -124,8 +120,9 @@ static int decrunch_gzip(HIO_HANDLE *in, FILE *out, long inlen)
 		return -1;
 	}
 
-	if (tinfl_decompress_mem_to_callback(pCmp_data, &in_buf_size, tinfl_put_buf_func, out, 0) == 0) {
-		D_(D_CRIT "tinfl_decompress_mem_to_callback() failed");
+	pOut_buf = tinfl_decompress_mem_to_heap(pCmp_data, in_buf_size, &pOut_len, 0);
+	if (!pOut_buf) {
+		D_(D_CRIT "tinfl_decompress_mem_to_heap() failed");
 		free(pCmp_data);
 		return -1;
 	}
@@ -137,15 +134,20 @@ static int decrunch_gzip(HIO_HANDLE *in, FILE *out, long inlen)
 
 	/* Check file size */
 	val = hio_read32l(in);
-	if (val != ftell(out)) {
+	if (val != pOut_len) {
 		D_(D_CRIT "Invalid file size");
+		free(pOut_buf);
 		return -1;
 	}
+
+	*out = pOut_buf;
+	*outlen = pOut_len;
 
 	return 0;
 }
 
 struct depacker libxmp_depacker_gzip = {
 	test_gzip,
+	NULL,
 	decrunch_gzip
 };
