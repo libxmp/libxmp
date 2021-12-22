@@ -7,9 +7,8 @@
  */
 
 #include "../common.h"
-#include "inflate.h"
 #include "depacker.h"
-#include "crc32.h"
+#include "miniz.h"
 
 /* See RFC1952 for further information */
 
@@ -39,6 +38,9 @@ struct member {
 	uint32 mtime;
 	uint8 xfl;
 	uint8 os;
+
+	uint32 crc32;
+	uint32 size;
 };
 
 static int test_gzip(unsigned char *b)
@@ -46,13 +48,18 @@ static int test_gzip(unsigned char *b)
 	return b[0] == 31 && b[1] == 139;
 }
 
+static int tinfl_put_buf_func(const void* pBuf, int len, void *pUser)
+{
+	return len == (int)fwrite(pBuf, 1, len, (FILE*)pUser);
+}
+
 static int decrunch_gzip(HIO_HANDLE *in, FILE *out, long inlen)
 {
 	struct member member;
 	int val, c;
-	uint32 crc;
-
-	libxmp_crc32_init_A();
+	size_t in_buf_size;
+	uint8 *pCmp_data;
+	long start, end;
 
 	member.id1 = hio_read8(in);
 	member.id2 = hio_read8(in);
@@ -63,12 +70,14 @@ static int decrunch_gzip(HIO_HANDLE *in, FILE *out, long inlen)
 	member.os  = hio_read8(in);
 
 	if (member.cm != 0x08) {
+		D_(D_CRIT "Unsuported compression method: %x", member.cm);
 		return -1;
 	}
 
 	if (member.flg & FLAG_FEXTRA) {
 		int xlen = hio_read16l(in);
 		if (hio_seek(in, xlen, SEEK_CUR) < 0) {
+			D_(D_CRIT "hio_seek() failed");
 			return -1;
 		}
 	}
@@ -77,6 +86,7 @@ static int decrunch_gzip(HIO_HANDLE *in, FILE *out, long inlen)
 		do {
 			c = hio_read8(in);
 			if (hio_error(in)) {
+				D_(D_CRIT "hio_read8() failed");
 				return -1;
 			}
 		} while (c != 0);
@@ -86,6 +96,7 @@ static int decrunch_gzip(HIO_HANDLE *in, FILE *out, long inlen)
 		do {
 			c = hio_read8(in);
 			if (hio_error(in)) {
+				D_(D_CRIT "hio_read8() failed");
 				return -1;
 			}
 		} while (c != 0);
@@ -95,20 +106,39 @@ static int decrunch_gzip(HIO_HANDLE *in, FILE *out, long inlen)
 		hio_read16l(in);
 	}
 
-	val = libxmp_inflate(in, out, &crc, 1);
-	if (val != 0) {
+	start = hio_tell(in);
+	end = inlen - 8;
+	in_buf_size = end - start;
+
+	pCmp_data = (uint8 *)malloc(in_buf_size);
+	if (!pCmp_data)
+	{
+		D_(D_CRIT "Out of memory");
 		return -1;
 	}
 
-	/* Check CRC32 */
-	val = hio_read32l(in);
-	if (val != crc) {
+	if (hio_read(pCmp_data, 1, in_buf_size, in) != in_buf_size)
+	{
+		D_(D_CRIT "Failed reading input file");
+		free(pCmp_data);
 		return -1;
 	}
+
+	if (tinfl_decompress_mem_to_callback(pCmp_data, &in_buf_size, tinfl_put_buf_func, out, 0) == 0) {
+		D_(D_CRIT "tinfl_decompress_mem_to_callback() failed");
+		free(pCmp_data);
+		return -1;
+	}
+
+	free(pCmp_data);
+
+	/* TODO: Check CRC32 */
+	val = hio_read32l(in);
 
 	/* Check file size */
 	val = hio_read32l(in);
 	if (val != ftell(out)) {
+		D_(D_CRIT "Invalid file size");
 		return -1;
 	}
 
