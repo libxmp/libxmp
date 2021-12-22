@@ -403,6 +403,11 @@ HIO_HANDLE *hio_open_mem(const void *ptr, long size)
 	h->handle.mem = mopen(ptr, size);
 	h->size = size;
 
+	if (!h->handle.mem) {
+		free(h);
+		h = NULL;
+	}
+
 	return h;
 }
 

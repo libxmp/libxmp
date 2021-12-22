@@ -28,11 +28,6 @@
 #define strcasecmp _stricmp
 #endif
 
-extern const struct format_loader libxmp_loader_xm;
-extern const struct format_loader libxmp_loader_it;
-extern const struct format_loader libxmp_loader_s3m;
-extern const struct format_loader libxmp_loader_mod;
-
 static int umx_test (HIO_HANDLE *, char *, const int);
 static int umx_load (struct module_data *, HIO_HANDLE *, const int);
 
@@ -344,9 +339,7 @@ static int process_upkg (HIO_HANDLE *f, int32 *ofs, int32 *objsize)
 	struct upkg_hdr header;
 
 	memset(&header, 0, sizeof(header));
-	if (probe_header(f, &header) < 0)
-		return -1;
-
+	if (probe_header(f, &header) < 0) return -1;
 	return probe_umx(f, &header, ofs, objsize);
 }
 
