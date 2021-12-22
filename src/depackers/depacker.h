@@ -19,7 +19,6 @@ extern struct depacker libxmp_depacker_muse;
 extern struct depacker libxmp_depacker_lzx;
 extern struct depacker libxmp_depacker_s404;
 extern struct depacker libxmp_depacker_xfd;
-extern struct depacker libxmp_depacker_oxm;
 
 struct depacker {
 	int (*test)(unsigned char *);

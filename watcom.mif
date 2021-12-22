@@ -65,6 +65,7 @@ OBJS= &
  src/loaders/lzw.obj &
  src/loaders/voltable.obj &
  src/loaders/sample.obj &
+ src/loaders/vorbis.obj &
  src/loaders/xm_load.obj &
  src/loaders/mod_load.obj &
  src/loaders/s3m_load.obj &
@@ -182,8 +183,6 @@ DEPACKER_OBJS= &
  src/depackers/unlha.obj &
  src/depackers/xz_dec_lzma2.obj &
  src/depackers/xz_dec_stream.obj &
- src/depackers/oxm.obj &
- src/depackers/vorbis.obj &
  src/depackers/crc32.obj &
  src/depackers/ptpopen.obj &
  src/depackers/xfd_link.obj &

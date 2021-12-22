@@ -35,6 +35,7 @@ set(LIBXMP_SRC_LIST
     src/loaders/lzw.c
     src/loaders/voltable.c
     src/loaders/sample.c
+    src/loaders/vorbis.c
     src/loaders/xm_load.c
     src/loaders/mod_load.c
     src/loaders/s3m_load.c
@@ -154,8 +155,6 @@ set(LIBXMP_SRC_LIST_DEPACKERS
     src/depackers/unlha.c
     src/depackers/xz_dec_lzma2.c
     src/depackers/xz_dec_stream.c
-    src/depackers/oxm.c
-    src/depackers/vorbis.c
     src/depackers/crc32.c
     src/depackers/ptpopen.c
     src/depackers/xfd_link.c

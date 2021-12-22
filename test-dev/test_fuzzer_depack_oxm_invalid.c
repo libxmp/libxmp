@@ -11,7 +11,7 @@ TEST(test_fuzzer_depack_oxm_invalid)
 	/* This input caused an out-of-bounds write in stb_vorbis due to
 	 * a missing negative return value check. */
 	ret = xmp_load_module(opaque, "data/f/depack_oxm_invalid.oxm");
-	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking");
+	fail_unless(ret == -XMP_ERROR_LOAD, "depacking");
 
 	/* This input caused undefined behavior attempting to seek past
 	 * pattern data in the oxm test function. */

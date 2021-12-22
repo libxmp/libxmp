@@ -74,8 +74,6 @@ static struct depacker *depacker_list[] = {
 	NULL
 };
 
-int test_oxm		(HIO_HANDLE *);
-
 #if defined(HAVE_FORK) && defined(HAVE_PIPE) && defined(HAVE_EXECVP) && \
     defined(HAVE_DUP2) && defined(HAVE_WAIT)
 #define DECRUNCH_USE_FORK
@@ -253,10 +251,6 @@ int libxmp_decrunch(HIO_HANDLE **h, const char *filename, char **temp)
 			cmd[i++] = "-x*.com";
 			cmd[i++] = filename;
 			cmd[i++] = NULL;
-		} else if (test_oxm(*h) == 0) {
-			/* oggmod */
-			D_(D_INFO "oggmod");
-			depacker = &libxmp_depacker_oxm;
 		}
 	}
 

@@ -11,7 +11,7 @@ TEST(test_fuzzer_depack_oxm_pcm_leak)
 
 	opaque = xmp_create_context();
 	ret = xmp_load_module(opaque, "data/f/depack_oxm_pcm_leak.oxm");
-	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking");
+	fail_unless(ret == -XMP_ERROR_LOAD, "depacking");
 
 	xmp_free_context(opaque);
 }
