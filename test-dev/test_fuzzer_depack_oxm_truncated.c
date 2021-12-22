@@ -11,16 +11,16 @@ TEST(test_fuzzer_depack_oxm_truncated)
 
 	opaque = xmp_create_context();
 	ret = xmp_load_module(opaque, "data/f/depack_oxm_truncated.oxm");
-	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking");
+	fail_unless(ret == -XMP_ERROR_LOAD, "depacking");
 
 	ret = xmp_load_module(opaque, "data/f/depack_oxm_truncated2.oxm");
-	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking");
+	fail_unless(ret == -XMP_ERROR_LOAD, "depacking");
 
 	ret = xmp_load_module(opaque, "data/f/depack_oxm_truncated3.oxm");
-	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking");
+	fail_unless(ret == -XMP_ERROR_LOAD, "depacking");
 
 	ret = xmp_load_module(opaque, "data/f/depack_oxm_truncated4.oxm");
-	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking");
+	fail_unless(ret == -XMP_ERROR_LOAD, "depacking");
 
 	xmp_free_context(opaque);
 }

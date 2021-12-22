@@ -35,6 +35,9 @@
 
 #include "loader.h"
 #include "xm.h"
+#ifndef LIBXMP_CORE_PLAYER
+#include "vorbis.h"
+#endif
 
 static int xm_test(HIO_HANDLE *, char *, const int);
 static int xm_load(struct module_data *, HIO_HANDLE *, const int);
@@ -356,6 +359,82 @@ err:
  * for more details. */
 #define XM_MAX_SAMPLES_PER_INST 32
 
+#ifndef LIBXMP_CORE_PLAYER
+#define MAGIC_OGGS	0x4f676753
+
+static int is_ogg_sample(HIO_HANDLE *f)
+{
+	/* uint32 size; */
+	uint32 id;
+
+	/* size = */ hio_read32l(f);
+	id = hio_read32b(f);
+	if (hio_error(f) != 0 || hio_seek(f, -8, SEEK_CUR) < 0)
+		return 0;
+
+	if (id != MAGIC_OGGS) {		/* copy input data if not Ogg file */
+		return 0;
+	}
+
+	return 1;
+}
+
+static int oggdec(struct module_data *m, HIO_HANDLE *f, struct xmp_sample *xxs, int len)
+{
+	int i, n, ch, rate, ret, flags = 0;
+	uint8 *data;
+	int16 *pcm16 = NULL;
+
+	/* Sanity check */
+	if (xxs->len < 4) {
+		return -1;
+	}
+
+	if ((data = (uint8 *)calloc(1, len)) == NULL)
+		return -1;
+
+	hio_read32b(f);
+	if (hio_error(f) != 0 || hio_read(data, 1, len - 4, f) != len - 4) {
+		free(data);
+		return -1;
+	}
+
+	n = stb_vorbis_decode_memory(data, len, &ch, &rate, &pcm16);
+	free(data);
+
+	if (n <= 0) {
+		free(pcm16);
+		return -1;
+	}
+
+	xxs->len = n;
+
+	if ((xxs->flg & XMP_SAMPLE_16BIT) == 0) {
+		uint8 *pcm = (uint8 *)pcm16;
+
+		for (i = 0; i < n; i++) {
+			pcm[i] = pcm16[i] >> 8;
+		}
+		pcm = (uint8 *)realloc(pcm16, n);
+		if (pcm == NULL) {
+			free(pcm16);
+			return -1;
+		}
+		pcm16 = (int16 *)pcm;
+	}
+
+	flags |= SAMPLE_FLAG_NOLOAD;
+#ifdef WORDS_BIGENDIAN
+	flags |= SAMPLE_FLAG_BIGEND;
+#endif
+
+	ret = libxmp_load_sample(m, NULL, flags, xxs, pcm16);
+	free(pcm16);
+
+	return ret;
+}
+#endif
+
 static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 {
 	struct xmp_module *mod = &m->mod;
@@ -619,6 +698,19 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 
 			if (version > 0x0103) {
 			        D_(D_INFO "  read sample: index:%d sample id:%d", j, sub->sid);
+
+#ifndef LIBXMP_CORE_PLAYER
+				if (is_ogg_sample(f)) {
+					if (oggdec(m, f, &mod->xxs[sub->sid], xsh[j].length) < 0) {
+						return -1;
+					}
+
+					D_(D_INFO "  sample is vorbis");
+					total_sample_size += xsh[j].length;
+					continue;
+				}
+#endif
+
 				if (libxmp_load_sample(m, f, flags, &mod->xxs[sub->sid], NULL) < 0) {
 					return -1;
 				}

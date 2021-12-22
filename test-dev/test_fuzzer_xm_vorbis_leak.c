@@ -13,7 +13,7 @@ TEST(test_fuzzer_xm_vorbis_leak)
 	/* This input OXM caused leaks of start_decoder's temporary buffers.
 	 */
 	ret = xmp_load_module(opaque, "data/f/load_xm_vorbis_leak.oxm");
-	fail_unless(ret == -XMP_ERROR_DEPACK, "module load (1)");
+	fail_unless(ret == -XMP_ERROR_LOAD, "module load (1)");
 
 	xmp_free_context(opaque);
 }
