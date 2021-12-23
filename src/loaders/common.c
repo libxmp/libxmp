@@ -203,6 +203,7 @@ int libxmp_alloc_pattern_tracks(struct xmp_module *mod, int num, int rows)
 	return 0;
 }
 
+#ifndef LIBXMP_CORE_PLAYER
 /* Some formats explicitly allow more than 256 rows (e.g. OctaMED). This function
  * allows those formats to work without disrupting the sanity check for other formats.
  */
@@ -222,6 +223,7 @@ int libxmp_alloc_pattern_tracks_long(struct xmp_module *mod, int num, int rows)
 
 	return 0;
 }
+#endif
 
 char *libxmp_instrument_name(struct xmp_module *mod, int i, uint8 *r, int n)
 {
@@ -476,6 +478,7 @@ void libxmp_set_type(struct module_data *m, const char *fmt, ...)
 	va_end(ap);
 }
 
+#ifndef LIBXMP_CORE_PLAYER
 static int schism_tracker_date(int year, int month, int day)
 {
 	int mm = (month + 9) % 12;
@@ -526,3 +529,4 @@ void libxmp_schism_tracker_string(char *buf, size_t size, int s_ver, int l_ver)
 		snprintf(buf, size, "Schism Tracker 0.%x", s_ver);
 	}
 }
+#endif
