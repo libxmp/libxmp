@@ -52,8 +52,6 @@ static int med4_test(HIO_HANDLE *f, char *t, const int start)
 	return 0;
 }
 
-const unsigned MAX_CHANNELS = 16;
-
 static void fix_effect(struct xmp_event *event, int hexvol)
 {
 	switch (event->fxt) {
