@@ -13,6 +13,8 @@ STATICFLAGS=-DBUILDING_STATIC
 
 DLLNAME=libxmp.dll
 EXPNAME=libxmp.exp
+# Note: not libxmp.map...
+MAPNAME=xmp.map
 LIBNAME=libxmp.lib
 LIBSTATIC=xmp_static.lib
 TESTNAME=libxmp-test.exe
@@ -56,7 +58,7 @@ test/test.obj: test/test.c
 
 # rely on symbol name, not ordinal: -irn switch of wlib is default, but -inn is not.
 $(DLLNAME) $(LIBNAME) $(EXPNAME): $(ALL_OBJS)
-	wlink NAM $(DLLNAME) SYSTEM $(SYSTEM_DLL) INITINSTANCE TERMINSTANCE OP QUIET FIL {$(ALL_OBJS)} OPTION IMPF=$(EXPNAME)
+	wlink NAM $(DLLNAME) SYSTEM $(SYSTEM_DLL) INITINSTANCE TERMINSTANCE OP QUIET FIL {$(ALL_OBJS)} OP IMPF=$(EXPNAME) OP MAP=$(MAPNAME)
 	wlib -q -b -n -c -pa -s -t -zld -ii -io -inn $(LIBNAME) +$(DLLNAME)
 
 $(LIBSTATIC): $(ALL_OBJS)
@@ -80,7 +82,7 @@ clean: .symbolic
 	rm -f $(TEST_OBJS)
 
 distclean: clean .symbolic
-	rm -f $(DLLNAME) $(EXPNAME) $(LIBNAME) $(LIBSTATIC) test/$(DLLNAME) test/$(TESTNAME)
+	rm -f $(DLLNAME) $(EXPNAME) $(MAPNAME) $(LIBNAME) $(LIBSTATIC) test/$(DLLNAME) test/$(TESTNAME)
 
 !ifdef __UNIX__
 CMD_CP=cp
