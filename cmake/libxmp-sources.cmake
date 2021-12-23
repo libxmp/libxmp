@@ -31,7 +31,6 @@ set(LIBXMP_SRC_LIST
     src/loaders/common.c
     src/loaders/iff.c
     src/loaders/itsex.c
-    src/loaders/asif.c
     src/loaders/lzw.c
     src/loaders/voltable.c
     src/loaders/sample.c

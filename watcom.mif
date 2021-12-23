@@ -63,7 +63,6 @@ OBJS= &
  src/loaders/common.obj &
  src/loaders/iff.obj &
  src/loaders/itsex.obj &
- src/loaders/asif.obj &
  src/loaders/lzw.obj &
  src/loaders/voltable.obj &
  src/loaders/sample.obj &
