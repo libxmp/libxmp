@@ -262,6 +262,7 @@ void libxmp_c2spd_to_note(int c2spd, int *n, int *f)
 	*f = c % 128;
 }
 
+#ifndef LIBXMP_CORE_PLAYER
 /* Gravis Ultrasound frequency increments in steps of Hz/1024, where Hz is the
  * current rate of the card and is dependent on the active channel count.
  * For <=14 channels, the rate is 44100. For 15 to 32 channels, the rate is
@@ -281,3 +282,4 @@ double libxmp_gus_frequency_steps(int num_steps, int num_channels_active)
 	CLAMP(num_channels_active, 14, 32);
 	return (num_steps * GUS_rates[num_channels_active - 14]) / 1024.0;
 }
+#endif
