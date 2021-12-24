@@ -345,17 +345,3 @@ int libxmp_exclude_match(const char *name)
 
 	return 0;
 }
-
-int depacker_move_data(FILE *out, HIO_HANDLE *in, int len)
-{
-	uint8 buf[1024];
-	int l;
-
-	do {
-		l = hio_read(buf, 1, len > 1024 ? 1024 : len, in);
-		fwrite(buf, 1, l, out);
-		len -= l;
-	} while (l > 0 && len > 0);
-
-	return 0;
-}
