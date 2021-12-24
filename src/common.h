@@ -479,7 +479,6 @@ void	write16l		(FILE *, uint16);
 void	write16b		(FILE *, uint16);
 void	write32l		(FILE *, uint32);
 void	write32b		(FILE *, uint32);
-int	move_data		(FILE *, FILE *, int);
 
 uint16	readmem16l		(const uint8 *);
 uint16	readmem16b		(const uint8 *);

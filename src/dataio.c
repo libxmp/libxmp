@@ -97,7 +97,7 @@ uint32 read24l(FILE *f, int *err)
 	read_byte(a);
 	read_byte(b);
 	read_byte(c);
-	
+
 	set_error(0);
 	return (c << 16) | (b << 8) | a;
 
@@ -113,7 +113,7 @@ uint32 read24b(FILE *f, int *err)
 	read_byte(a);
 	read_byte(b);
 	read_byte(c);
-	
+
 	set_error(0);
 	return (a << 16) | (b << 8) | c;
 
@@ -250,20 +250,6 @@ void write32b(FILE *f, uint32 w)
 	write8(f, (w & 0x00ff0000) >> 16);
 	write8(f, (w & 0x0000ff00) >> 8);
 	write8(f, w & 0x000000ff);
-}
-
-int move_data(FILE *out, FILE *in, int len)
-{
-	uint8 buf[1024];
-	int l;
-
-	do {
-		l = fread(buf, 1, len > 1024 ? 1024 : len, in);
-		fwrite(buf, 1, l, out);
-		len -= l;
-	} while (l > 0 && len > 0);
-
-	return 0;
 }
 
 #endif

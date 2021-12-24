@@ -17,7 +17,6 @@ test_write_file_32bit_big_endian
 test_write_file_16bit_little_endian
 test_write_file_16bit_big_endian
 test_write_file_8bit
-test_write_file_move_data
 test_sample_load_8bit
 test_sample_load_16bit
 test_sample_load_delta
