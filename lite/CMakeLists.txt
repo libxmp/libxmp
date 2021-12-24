@@ -15,7 +15,7 @@ else()
 endif()
 # -----------------------------------
 
-if(EMSCRIPTEN OR VITA)
+if(EMSCRIPTEN OR VITA OR PSP)
     set(BUILD_SHARED_DEFAULT OFF)
 else()
     set(BUILD_SHARED_DEFAULT ON)
