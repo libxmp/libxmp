@@ -163,7 +163,7 @@ static int block_unpack_16bit(struct block *block, struct sub_block *sub,
 	if (mem_seek(out, sub->unpk_pos) < 0) {
 		return -1;
 	}
-	if (hio_seek(in, block->tt_entries, SEEK_SET) < 0) {
+	if (hio_seek(in, block->tt_entries, SEEK_CUR) < 0) {
 		return -1;
 	}
 
@@ -232,8 +232,13 @@ static int block_unpack_8bit(struct block *block, struct sub_block *sub,
 	uint32 numbits = block->num_bits;
 	uint32 j, oldval = 0;
 	uint8 ptable[0x100];
+	long seekpos = hio_tell(in) + block->tt_entries;
 
-	if (hio_read(ptable, 1, 0x100, in) != 0x100) {
+	/* The way the original libmodplug depacker is written allows values
+	 * to be read from the compressed data. It's impossible to tell if this
+	 * was intentional or yet another bug. Nothing seems to rely on it. */
+	memset(ptable, 0, sizeof(ptable));
+	if (hio_read(ptable, 1, 0x100, in) < block->tt_entries) {
 		return -1;
 	}
 
@@ -243,7 +248,7 @@ static int block_unpack_8bit(struct block *block, struct sub_block *sub,
 	if (mem_seek(out, sub->unpk_pos) < 0) {
 		return -1;
 	}
-	if (hio_seek(in, block->tt_entries, SEEK_SET) < 0) {
+	if (hio_seek(in, seekpos, SEEK_SET) < 0) {
 		return -1;
 	}
 
@@ -415,8 +420,6 @@ static int decrunch_mmcmp(HIO_HANDLE *in, FILE *out, long inlen)
 				goto err2;
 			}
 		}
-
-		block.tt_entries += hio_tell(in);
 
 		if (~block.flags & MMCMP_COMP) {
 			/* Data is not packed */
