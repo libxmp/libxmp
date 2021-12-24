@@ -67,7 +67,7 @@ static int depack_ac1d(HIO_HANDLE *in, FILE *out)
 	write8(out, ntk_byte);		/* write "noisetracker" byte */
 
 	hio_seek(in, 0x300, SEEK_SET);	/* go to pattern table .. */
-	pw_move_data(out, in, 128);	/* pattern table */
+	hio_move_data(out, in, 128);	/* pattern table */
 
 	write32b(out, PW_MOD_MAGIC);	/* M.K. */
 
@@ -129,7 +129,7 @@ static int depack_ac1d(HIO_HANDLE *in, FILE *out)
 
 	/* sample data */
 	hio_seek(in, saddr, 0);
-	pw_move_data(out, in, ssize);
+	hio_move_data(out, in, ssize);
 
 	return 0;
 }

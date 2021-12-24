@@ -106,7 +106,7 @@ static int depack_nru(HIO_HANDLE *in, FILE *out)
 		fwrite (pat_data, 1024, 1, out);
 	}
 
-	pw_move_data(out, in, ssize);		/* sample data */
+	hio_move_data(out, in, ssize);		/* sample data */
 
 	return 0;
 }

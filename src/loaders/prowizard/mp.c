@@ -51,8 +51,8 @@ static int depack_mp(HIO_HANDLE *in, FILE *out)
 	if (hio_read32b(in) != 0)			/* bypass unknown empty bytes */
 		hio_seek(in, -4, SEEK_CUR);
 
-	pw_move_data(out, in, 1024 * max);	/* pattern data */
-	pw_move_data(out, in, ssize);		/* sample data */
+	hio_move_data(out, in, 1024 * max);	/* pattern data */
+	hio_move_data(out, in, ssize);		/* sample data */
 
 	return 0;
 }

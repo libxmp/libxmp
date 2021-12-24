@@ -1,33 +1,35 @@
 #include "test.h"
+#include "../src/hio.h"
 
 TEST(test_write_file_move_data)
 {
-	FILE *f1, *f2;
+	FILE *out;
+	HIO_HANDLE *h1,*h2;
 	uint8 b1[4000], b2[4000];
 	long size;
 	int ret;
 
-	f1 = fopen("data/bzip2data", "rb");
-	fail_unless(f1 != NULL, "can't open source file");
-	f2 = fopen("write_test", "wb");
-	fail_unless(f1 != NULL, "can't open destination file");
+	h1 = hio_open("data/bzip2data", "rb");
+	fail_unless(h1 != NULL, "can't open source file");
+	out = fopen("write_test", "wb");
+	fail_unless(h1 != NULL, "can't open destination file");
 
-	move_data(f2, f1, 4000);
+	hio_move_data(out, h1, 4000);
 
-	fclose(f1);
-	fclose(f2);
+	hio_close(h1);
+	fclose(out);
 
-	f1 = fopen("data/bzip2data", "rb");
-	f2 = fopen("write_test", "rb");
+	h1 = hio_open("data/bzip2data", "rb");
+	h2 = hio_open("write_test", "rb");
 
-	ret = fread(b1, 1, 4000, f1);
-	fail_unless(ret == 4000, "read error (f1)");
-	ret = fread(b2, 1, 4000, f2);
-	fail_unless(ret == 4000, "read error (f2)");
-	fseek(f2, 0, SEEK_END);
-	size = ftell(f2);
-	fclose(f1);
-	fclose(f2);
+	ret = hio_read(b1, 1, 4000, h1);
+	fail_unless(ret == 4000, "read error (h1)");
+	ret = hio_read(b2, 1, 4000, h2);
+	fail_unless(ret == 4000, "read error (h2)");
+	hio_seek(h2, 0, SEEK_END);
+	size = hio_tell(h2);
+	hio_close(h1);
+	hio_close(h2);
 
 	fail_unless(size == 4000, "wrong size");
 	fail_unless(memcmp(b1, b2, 4000) == 0, "read error");

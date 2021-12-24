@@ -138,7 +138,7 @@ static int depack_zen(HIO_HANDLE *in, FILE *out)
 
 	/* sample data */
 	hio_seek(in, sdata_addr, SEEK_SET);
-	pw_move_data(out, in, ssize);
+	hio_move_data(out, in, ssize);
 
 	return 0;
 }
@@ -212,3 +212,4 @@ const struct pw_format pw_zen = {
 	test_zen,
 	depack_zen
 };
+

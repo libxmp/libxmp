@@ -17,7 +17,7 @@ static int depack_ntp(HIO_HANDLE *in, FILE *out)
 
 	hio_read32b(in);				/* skip MODU */
 
-	pw_move_data(out, in, 16);		/* title */
+	hio_move_data(out, in, 16);		/* title */
 	write32b(out, 0);
 
 	body_addr = hio_read16b(in) + 4;		/* get 'BODY' address */
@@ -104,7 +104,7 @@ static int depack_ntp(HIO_HANDLE *in, FILE *out)
 
 	/* samples */
 	hio_seek(in, smp_addr, SEEK_SET);
-	pw_move_data(out, in, ssize);
+	hio_move_data(out, in, ssize);
 
 	return 0;
 }

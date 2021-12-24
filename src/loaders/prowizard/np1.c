@@ -140,7 +140,7 @@ static int depack_np1(HIO_HANDLE *in, FILE *out)
 
 	/* sample data */
 	hio_seek(in, max_addr + 192 + trk_start, SEEK_SET);
-	pw_move_data(out, in, ssize);
+	hio_move_data(out, in, ssize);
 
 	return 0;
 }

@@ -74,7 +74,6 @@ static int depack_pm01(HIO_HANDLE *in, FILE *out)
 	write32b(out, PW_MOD_MAGIC);		/* ID string */
 
 	psize = hio_read32b(in);		/* get pattern data size */
-
 	if (npat * 1024 != psize) {
 		return -1;
 	}
@@ -128,7 +127,7 @@ static int depack_pm01(HIO_HANDLE *in, FILE *out)
 	}
 
 	/* sample data */
-	pw_move_data(out, in, ssize);
+	hio_move_data(out, in, ssize);
 
 	return 0;
 }

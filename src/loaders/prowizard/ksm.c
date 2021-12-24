@@ -29,7 +29,7 @@ static int depack_ksm(HIO_HANDLE *in, FILE *out)
 
 	/* title */
 	hio_seek(in, 2, SEEK_SET);
-	pw_move_data(out, in, 13);
+	hio_move_data(out, in, 13);
 	pw_write_zero(out, 7);
 
 	/* read and write whole header */
@@ -170,7 +170,7 @@ static int depack_ksm(HIO_HANDLE *in, FILE *out)
 
 	/* sample data */
 	hio_seek(in, 1536 + (192 * (max_trknum + 1)), SEEK_SET);
-	pw_move_data(out, in, ssize);
+	hio_move_data(out, in, ssize);
 
 	return 0;
 }

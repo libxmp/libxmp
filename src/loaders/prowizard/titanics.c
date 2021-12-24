@@ -124,7 +124,7 @@ static int depack_titanics(HIO_HANDLE *in, FILE *out)
 	for (i = 0; i < 15; i++) {
 		if (smp_addr[i]) {
 			hio_seek(in, smp_addr[i], SEEK_SET);
-			pw_move_data(out, in, smp_size[i]);
+			hio_move_data(out, in, smp_size[i]);
 		}
 	}
 

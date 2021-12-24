@@ -106,7 +106,7 @@ static int depack_tdd(HIO_HANDLE *in, FILE *out)
 		if (ssizes[i] == 0)
 			continue;
 		hio_seek(in, saddr[i], SEEK_SET);
-		pw_move_data(out, in, ssizes[i]);
+		hio_move_data(out, in, ssizes[i]);
 	}
 
 	return 0;

@@ -169,9 +169,10 @@ restart:
 	write8(out, nop);
 
 	/* get highest pattern number */
-	for (i = 0; i < nop; i++)
+	for (i = 0; i < nop; i++) {
 		if (pnum[i] > npat)
 			npat = pnum[i];
+	}
 	npat++;
 
 	write8(out, 0x7f);			/* ntk restart byte */
@@ -269,7 +270,7 @@ restart:
 
 	/* Sample data */
 	hio_seek(in, smp_addr, SEEK_SET);
-	pw_move_data(out, in, ssize);
+	hio_move_data(out, in, ssize);
 
 	return 0;
 

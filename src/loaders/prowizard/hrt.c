@@ -72,7 +72,7 @@ static int depack_hrt(HIO_HANDLE *in, FILE *out)
 	}
 
 	/* sample data */
-	pw_move_data(out, in, ssize);
+	hio_move_data(out, in, ssize);
 
 	return 0;
 }
@@ -108,3 +108,4 @@ const struct pw_format pw_hrt = {
 	test_hrt,
 	depack_hrt
 };
+

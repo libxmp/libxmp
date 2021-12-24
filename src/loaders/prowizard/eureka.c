@@ -80,7 +80,7 @@ static int depack_eu(HIO_HANDLE *in, FILE *out)
 	}
 
 	hio_seek(in, smp_addr, SEEK_SET);
-	pw_move_data(out, in, ssize);
+	hio_move_data(out, in, ssize);
 
 	return 0;
 }

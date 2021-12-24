@@ -31,7 +31,7 @@ static int depack_starpack(HIO_HANDLE *in, FILE *out)
 	memset(paddr_tmp, 0, sizeof(paddr_tmp));
 	memset(paddr_tmp2, 0, sizeof(paddr_tmp2));
 
-	pw_move_data(out, in, 20);		/* title */
+	hio_move_data(out, in, 20);		/* title */
 
 	for (i = 0; i < 31; i++) {
 		pw_write_zero(out, 22);		/* sample name */
@@ -181,7 +181,7 @@ static int depack_starpack(HIO_HANDLE *in, FILE *out)
 
 	/* sample data */
 	hio_seek(in, smp_addr, 0);
-	pw_move_data(out, in, ssize);
+	hio_move_data(out, in, ssize);
 
 	return 0;
 }

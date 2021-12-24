@@ -26,13 +26,13 @@ static int depack_unic(HIO_HANDLE *in, FILE *out)
 	int ssize;
 	uint32 id;
 
-	pw_move_data(out, in, 20);		/* title */
+	hio_move_data(out, in, 20);		/* title */
 
 	ssize = 0;
 	for (i = 0; i < 31; i++) {
 		int len, start, lsize;
 
-		pw_move_data(out, in, 20);	/* sample name */
+		hio_move_data(out, in, 20);	/* sample name */
 		write8(out, 0);
 		write8(out, 0);
 
@@ -129,7 +129,7 @@ static int depack_unic(HIO_HANDLE *in, FILE *out)
 	}
 
 	/* sample data */
-	pw_move_data(out, in, ssize);
+	hio_move_data(out, in, ssize);
 
 	return 0;
 }

@@ -196,7 +196,7 @@ static int depack_p18a(HIO_HANDLE *in, FILE *out)
 	hio_seek(in, 4460 + smp_ofs, SEEK_SET);
 
 	/* Now, it's sample data ... though, VERY quickly handled :) */
-	pw_move_data(out, in, ssize);
+	hio_move_data(out, in, ssize);
 
 	return 0;
 

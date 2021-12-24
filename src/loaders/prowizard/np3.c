@@ -158,7 +158,7 @@ static int depack_np3(HIO_HANDLE *in, FILE *out)
 	if (smp_addr & 1)
 		smp_addr++;
 	hio_seek(in, smp_addr, SEEK_SET);
-	pw_move_data(out, in, ssize);
+	hio_move_data(out, in, ssize);
 
 	return 0;
 }
@@ -201,10 +201,8 @@ static int test_np3(const uint8 *data, char *t, int s)
 
 		if (len > 0xffff || start > 0xffff || lsize > 0xffff)
 			return -1;
-
 		if (start + lsize > len + 2)
 			return -1;
-
 		if (start == 0 && lsize != 0)
 			return -1;
 

@@ -491,3 +491,19 @@ long hio_size(HIO_HANDLE *h)
 {
 	return h->size;
 }
+
+#ifndef LIBXMP_CORE_PLAYER
+int hio_move_data(FILE *outf, HIO_HANDLE *in, int len)
+{
+	uint8 buf[1024];
+	int l;
+
+	do {
+		l = hio_read(buf, 1, len > 1024 ? 1024 : len, in);
+		fwrite(buf, 1, l, outf);
+		len -= l;
+	} while (l > 0 && len > 0);
+
+	return 0;
+}
+#endif

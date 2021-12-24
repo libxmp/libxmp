@@ -18,7 +18,7 @@ static int depack_wn(HIO_HANDLE *in, FILE * out)
 	int i, j;
 
 	/* read header */
-	pw_move_data(out, in, 950);
+	hio_move_data(out, in, 950);
 
 	/* get whole sample size */
 	for (i = 0; i < 31; i++) {
@@ -64,7 +64,7 @@ static int depack_wn(HIO_HANDLE *in, FILE * out)
 	}
 
 	/* sample data */
-	pw_move_data(out, in, ssize);
+	hio_move_data(out, in, ssize);
 
 	return 0;
 }

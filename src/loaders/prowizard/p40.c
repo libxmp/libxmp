@@ -273,7 +273,7 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 	/* read and write sample data */
 	for (i = 0; i < nsmp; i++) {
 		hio_seek(in, SampleAddress[i] + smp_ofs, SEEK_SET);
-		pw_move_data(out, in, SampleSize[i]);
+		hio_move_data(out, in, SampleSize[i]);
 	}
 
 	free(tdata);
@@ -285,8 +285,8 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 
 static int test_p4x(const uint8 *data, char *t, int s)
 {
-	//int j, k, l, o, n;
-	//int start = 0, ssize;
+	/*int j, k, l, o, n;
+	int start = 0, ssize;*/
 	uint32 id;
 
 	PW_REQUEST_DATA(s, 8);

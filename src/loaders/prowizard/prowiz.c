@@ -62,20 +62,6 @@ const struct pw_format *const pw_formats[NUM_PW_FORMATS + 1] = {
 	NULL
 };
 
-int pw_move_data(FILE *out, HIO_HANDLE *in, int len)
-{
-	uint8 buf[1024];
-	int l;
-
-	do {
-		l = hio_read(buf, 1, len > 1024 ? 1024 : len, in);
-		fwrite(buf, 1, l, out);
-		len -= l;
-	} while (l > 0 && len > 0);
-
-	return 0;
-}
-
 int pw_write_zero(FILE *out, int len)
 {
 	uint8 buf[1024];
@@ -95,7 +81,6 @@ int pw_wizardry(HIO_HANDLE *file_in, FILE *file_out, const char **name)
 {
 	const struct pw_format *format;
 
-	/**********   SEARCH   **********/
 	format = pw_check(file_in, NULL);
 	if (format == NULL) {
 		return -1;

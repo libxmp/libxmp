@@ -112,7 +112,7 @@ static int depack_pp21_pp30(HIO_HANDLE *in, FILE *out, int is_30)
 	free (tab);
 
 	/* Now, it's sample data ... though, VERY quickly handled :) */
-	pw_move_data(out, in, ssize);
+	hio_move_data(out, in, ssize);
 
 	return 0;
 }
@@ -186,7 +186,6 @@ static int test_pp21(const uint8 *data, char *t, int s)
 
 		if (ref > max_ref)
 			max_ref = ref;
-
 	}
 
 	/* test #5  reference table size *4 ? */

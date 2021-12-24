@@ -121,7 +121,7 @@ static int depack_fuchs(HIO_HANDLE *in, FILE *out)
 	hio_read32b(in);			/* bypass "INST" Id */
 	for (i = 0; i < 16; i++) {
 		if (smp_len[i] != 0)
-			pw_move_data(out, in, smp_len[i]);
+			hio_move_data(out, in, smp_len[i]);
 	}
 
 	return 0;
@@ -169,8 +169,10 @@ static int test_fuchs (const uint8 *data, char *t, int s)
 		int pat = data[i * 2 + 113];
 		if (pat > 40)
 			return -1;
-		/*if (pat > max_pat)
-			max_pat = pat;*/
+		/*
+		if (pat > max_pat)
+			max_pat = pat;
+		*/
 	}
 
 #if 0

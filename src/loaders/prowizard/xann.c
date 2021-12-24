@@ -197,7 +197,7 @@ static int depack_xann(HIO_HANDLE *in, FILE *out)
 	}
 
 	/* sample data */
-	pw_move_data(out, in, ssize);
+	hio_move_data(out, in, ssize);
 
 	return 0;
 }
@@ -256,12 +256,12 @@ static int test_xann(const uint8 *data, char *t, int s)
 #if 0
 	/* test #7  first pattern data .. */
 	for (j = 0; j < 256; j++) {
-#if 0
+		#if 0
 		k = data[j * 4 + 1085] / 2;
 		l = k * 2;
 		if (data[j * 4 + 1085] != l)
 			return -1;
-#endif
+		#endif
 		if (data[j * 4 + 1085] & 1)
 			return -1;
 	}

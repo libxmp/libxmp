@@ -134,7 +134,7 @@ static int depack_di(HIO_HANDLE *in, FILE *out)
 	}
 
 	hio_seek(in, smp_offs, SEEK_SET);
-	pw_move_data(out, in, ssize);
+	hio_move_data(out, in, ssize);
 
 	return 0;
 }

@@ -106,7 +106,7 @@ static void block_copy(struct block *block, struct sub_block *sub,
 	int i;
 
 	for (i = 0; i < block->sub_blk; i++, sub++) {
-		depacker_move_data(out, in, sub->unpk_size);
+		hio_move_data(out, in, sub->unpk_size);
 	}
 }
 

@@ -28,7 +28,7 @@ static int depack_tp23(HIO_HANDLE *in, FILE *out, int ver)
 	memset(pnum, 0, sizeof(pnum));
 
 	hio_seek(in, 8, SEEK_CUR);
-	pw_move_data(out, in, 20);		/* title */
+	hio_move_data(out, in, 20);		/* title */
 	nins = hio_read16b(in) / 8;		/* number of sample */
 
 	for (i = 0; i < nins; i++) {
@@ -211,7 +211,7 @@ static int depack_tp23(HIO_HANDLE *in, FILE *out, int ver)
 	}
 
 	hio_seek(in, max_trk_ofs, SEEK_SET);
-	pw_move_data(out, in, ssize);
+	hio_move_data(out, in, ssize);
 
 	return 0;
 }
@@ -310,3 +310,4 @@ const struct pw_format pw_tp2 = {
 	test_tp2,
 	depack_tp2
 };
+

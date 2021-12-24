@@ -27,6 +27,5 @@ struct depacker {
 
 int	libxmp_decrunch		(HIO_HANDLE **h, const char *filename, char **temp);
 int	libxmp_exclude_match	(const char *);
-int	depacker_move_data	(FILE *out, HIO_HANDLE *in, int len);
 
 #endif /* LIBXMP_DEPACKER_H */

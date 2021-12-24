@@ -40,7 +40,7 @@ static int depack_fuzz(HIO_HANDLE *in, FILE *out)
 	pw_write_zero(out, 20);		/* write title */
 
 	for (i = 0; i < 31; i++) {
-		pw_move_data(out, in, 22);	/*sample name */
+		hio_move_data(out, in, 22);	/*sample name */
 		hio_seek(in, 38, SEEK_CUR);
 		write16b(out, size = hio_read16b(in));
 		ssize += size * 2;
@@ -166,7 +166,7 @@ static int depack_fuzz(HIO_HANDLE *in, FILE *out)
 	/* sample data */
 	/* bypass the "SEnd" unidentified ID */
 	hio_seek(in, l + (ntrk << 8) + 4, SEEK_SET);
-	pw_move_data(out, in, ssize);
+	hio_move_data(out, in, ssize);
 
 	return 0;
 }

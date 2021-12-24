@@ -23,7 +23,7 @@ static int depack_fcm(HIO_HANDLE *in, FILE *out)
 	hio_read32b(in);				/* bypass "FC-M" ID */
 	hio_read16b(in);				/* version number? */
 	hio_read32b(in);				/* bypass "NAME" chunk */
-	pw_move_data(out, in, 20);		/* read and write title */
+	hio_move_data(out, in, 20);		/* read and write title */
 	hio_read32b(in);				/* bypass "INST" chunk */
 
 	/* read and write sample descriptions */
@@ -58,10 +58,10 @@ static int depack_fcm(HIO_HANDLE *in, FILE *out)
 	hio_read32b(in);				/* bypass "SONG" chunk */
 
 	for (i = 0; i <= pat_max; i++)		/* pattern data */
-		pw_move_data(out, in, 1024);
+		hio_move_data(out, in, 1024);
 
 	hio_read32b(in);				/* bypass "SAMP" chunk */
-	pw_move_data(out, in, ssize);		/* sample data */
+	hio_move_data(out, in, ssize);		/* sample data */
 
 	return 0;
 }

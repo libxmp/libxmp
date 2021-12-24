@@ -208,7 +208,7 @@ restart:
 						if (tun_table[fine][l] == per) {
 							p[0] &= 0xf0;
 							p[0] |=
-						     	    ptk_table[l + 1][0];
+							    ptk_table[l + 1][0];
 							p[1] =
 							    ptk_table[l + 1][1];
 							break;
@@ -234,7 +234,7 @@ restart:
 	smp_ofs = hio_read32b(in);
 	hio_seek(in, 4456 + smp_ofs, SEEK_SET);
 
-	pw_move_data(out, in, ssize);
+	hio_move_data(out, in, ssize);
 
 	return 0;
 
@@ -245,7 +245,7 @@ restart:
 
 static int test_p10c(const uint8 *data, char *t, int s)
 {
-	uint8 magic[] = {
+	const uint8 magic[] = {
 		0x60, 0x38, 0x60, 0x00, 0x00, 0xa0, 0x60, 0x00,
 		0x01, 0x3e, 0x60, 0x00, 0x01, 0x0c, 0x48, 0xe7
 	};

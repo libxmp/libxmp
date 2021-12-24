@@ -45,4 +45,6 @@ HIO_HANDLE *hio_open_callbacks (void *, struct xmp_callbacks);
 int	hio_close	(HIO_HANDLE *);
 long	hio_size	(HIO_HANDLE *);
 
+int	hio_move_data	(FILE *, HIO_HANDLE *, int);
+
 #endif

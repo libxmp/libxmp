@@ -29,7 +29,7 @@ static int depack_tp1(HIO_HANDLE *in, FILE *out)
 
 	hio_read32b(in);			/* skip magic */
 	hio_read32b(in);			/* skip size */
-	pw_move_data(out, in, 20);		/* title */
+	hio_move_data(out, in, 20);		/* title */
 	smp_ofs = hio_read32b(in);		/* sample data address */
 
 	for (i = 0; i < 31; i++) {
@@ -133,7 +133,7 @@ static int depack_tp1(HIO_HANDLE *in, FILE *out)
 	if (hio_seek(in, smp_ofs, SEEK_SET) < 0) {
 		return -1;
 	}
-	pw_move_data(out, in, ssize);
+	hio_move_data(out, in, ssize);
 
 	return 0;
 }

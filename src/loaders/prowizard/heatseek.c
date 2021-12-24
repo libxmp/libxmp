@@ -105,7 +105,7 @@ static int depack_crb(HIO_HANDLE *in, FILE *out)
 	}
 
 	/* sample data */
-	pw_move_data(out, in, ssize);
+	hio_move_data(out, in, ssize);
 
 	return 0;
 }
@@ -221,3 +221,4 @@ const struct pw_format pw_crb = {
 	test_crb,
 	depack_crb
 };
+

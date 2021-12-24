@@ -26,7 +26,7 @@ static int depack_kris(HIO_HANDLE *in, FILE *out)
 	memset(taddr, 0, sizeof(taddr));
 	memset(tdata, 0, sizeof(tdata));
 
-	pw_move_data(out, in, 20);			/* title */
+	hio_move_data(out, in, 20);			/* title */
 	hio_seek(in, 2, SEEK_CUR);
 
 	/* 31 samples */
@@ -113,7 +113,7 @@ static int depack_kris(HIO_HANDLE *in, FILE *out)
 	}
 
 	/* sample data */
-	pw_move_data(out, in, ssize);
+	hio_move_data(out, in, ssize);
 
 	return 0;
 }

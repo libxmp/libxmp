@@ -68,7 +68,7 @@ typedef unsigned short int uint16;
 typedef unsigned int uint32;
 #endif
 
-#ifdef _MSC_VER				/* MSVC++6.0 has no long long */
+#ifdef _MSC_VER /* MSVC++ 6.0 has no long long */
 typedef signed __int64 int64;
 typedef unsigned __int64 uint64;
 #elif !(defined(B_BEOS_VERSION) || defined(__amigaos4__))
@@ -479,7 +479,6 @@ void	write16l		(FILE *, uint16);
 void	write16b		(FILE *, uint16);
 void	write32l		(FILE *, uint32);
 void	write32b		(FILE *, uint32);
-int	move_data		(FILE *, FILE *, int);
 
 uint16	readmem16l		(const uint8 *);
 uint16	readmem16b		(const uint8 *);
@@ -491,6 +490,6 @@ uint32	readmem32b		(const uint8 *);
 struct xmp_instrument *libxmp_get_instrument(struct context_data *, int);
 struct xmp_sample *libxmp_get_sample(struct context_data *, int);
 
-int libxmp_get_filetype (const char *path);
+int libxmp_get_filetype (const char *);
 
 #endif /* LIBXMP_COMMON_H */
