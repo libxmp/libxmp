@@ -348,7 +348,7 @@ static int decrunch_mmcmp(HIO_HANDLE *in, FILE *out, long inlen)
 	if (table == NULL) {
 		goto err;
 	}
-	outbuf.buf = (uint8 *) calloc(1, h.filesize);
+	outbuf.buf = (uint8 *) malloc(h.filesize);
 	if (outbuf.buf == NULL) {
 		goto err2;
 	}
