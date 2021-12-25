@@ -115,7 +115,7 @@ static int mem_seek(struct mem_buffer *out, int pos_set)
 	return 0;
 }
 
-static int mem_write8(int value, struct mem_buffer *out)
+static int mem_write8(uint8 value, struct mem_buffer *out)
 {
 	if (out->pos >= out->size)
 		return -1;
@@ -124,7 +124,7 @@ static int mem_write8(int value, struct mem_buffer *out)
 	return 0;
 }
 
-static int mem_write16l(int value, struct mem_buffer *out)
+static int mem_write16l(uint16 value, struct mem_buffer *out)
 {
 	/* Some MMCMP blocks seem to rely on writing half words. This
 	 * theoretically could occur at the end of the file, so write each
@@ -322,7 +322,7 @@ static int decrunch_mmcmp(HIO_HANDLE *in, FILE *out, long inlen)
 		goto err;
 	if (hio_read32l(in) != 0x61694e4f)		/* ONia */
 		goto err;
-	if (hio_read16l(in) < 14)			/* header size */
+	if (hio_read16l(in) != 14)			/* header size */
 		goto err;
 
 	/* Read header */
