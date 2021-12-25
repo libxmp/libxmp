@@ -115,7 +115,7 @@ static int mem_seek(struct mem_buffer *out, int pos_set)
 	return 0;
 }
 
-static int mem_write8(int value, struct mem_buffer *out)
+static int mem_write8(uint8 value, struct mem_buffer *out)
 {
 	if (out->pos >= out->size)
 		return -1;
@@ -124,7 +124,7 @@ static int mem_write8(int value, struct mem_buffer *out)
 	return 0;
 }
 
-static int mem_write16l(int value, struct mem_buffer *out)
+static int mem_write16l(uint16 value, struct mem_buffer *out)
 {
 	/* Some MMCMP blocks seem to rely on writing half words. This
 	 * theoretically could occur at the end of the file, so write each
@@ -142,11 +142,12 @@ static int block_copy(struct block *block, struct sub_block *sub,
 	int i;
 
 	for (i = 0; i < block->sub_blk; i++, sub++) {
-		if (out->pos >= out->size || sub->unpk_size > out->size - out->pos)
+		if (sub->unpk_pos >= out->size ||
+		    sub->unpk_size > out->size - sub->unpk_pos)
 			return -1;
 
-		hio_read(out->buf + out->pos, 1, sub->unpk_size, in);
-		out->pos += sub->unpk_size;
+		if (hio_read(out->buf + sub->unpk_pos, 1, sub->unpk_size, in) < sub->unpk_size)
+			return -1;
 	}
 	return 0;
 }
@@ -209,7 +210,7 @@ static int block_unpack_16bit(struct block *block, struct sub_block *sub,
 			}
 
 			pos += 2;
-			mem_write16l(newval, out);
+			mem_write16l((uint16)newval, out);
 		}
 
 		if (pos >= size) {
@@ -287,7 +288,7 @@ static int block_unpack_8bit(struct block *block, struct sub_block *sub,
 			}
 
 			pos++;
-			mem_write8(n, out);
+			mem_write8((uint8)n, out);
 		}
 
 		if (pos >= size) {
@@ -321,7 +322,7 @@ static int decrunch_mmcmp(HIO_HANDLE *in, FILE *out, long inlen)
 		goto err;
 	if (hio_read32l(in) != 0x61694e4f)		/* ONia */
 		goto err;
-	if (hio_read16l(in) < 14)			/* header size */
+	if (hio_read16l(in) != 14)			/* header size */
 		goto err;
 
 	/* Read header */
