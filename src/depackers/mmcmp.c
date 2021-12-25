@@ -126,11 +126,13 @@ static int mem_write8(int value, struct mem_buffer *out)
 
 static int mem_write16l(int value, struct mem_buffer *out)
 {
-	if (out->pos + 1 >= out->size)
+	/* Some MMCMP blocks seem to rely on writing half words. This
+	 * theoretically could occur at the end of the file, so write each
+	 * byte separately. */
+	if (mem_write8(value & 0xff, out) ||
+	    mem_write8(value >> 8, out))
 		return -1;
 
-	out->buf[out->pos++] = (value & 0xff);
-	out->buf[out->pos++] = (value >> 8);
 	return 0;
 }
 
@@ -168,7 +170,7 @@ static int block_unpack_16bit(struct block *block, struct sub_block *sub,
 	}
 
 	for (j = 0; j < block->sub_blk; ) {
-		uint32 size = sub[j].unpk_size >> 1;
+		uint32 size = sub[j].unpk_size;
 		uint32 newval = 0x10000;
 		uint32 d = get_bits(in, numbits + 1, &bb);
 
@@ -206,7 +208,7 @@ static int block_unpack_16bit(struct block *block, struct sub_block *sub,
 				newval ^= 0x8000;
 			}
 
-			pos++;
+			pos += 2;
 			mem_write16l(newval, out);
 		}
 
@@ -348,7 +350,7 @@ static int decrunch_mmcmp(HIO_HANDLE *in, FILE *out, long inlen)
 	if (table == NULL) {
 		goto err;
 	}
-	outbuf.buf = (uint8 *) malloc(h.filesize);
+	outbuf.buf = (uint8 *) calloc(1, h.filesize);
 	if (outbuf.buf == NULL) {
 		goto err2;
 	}
