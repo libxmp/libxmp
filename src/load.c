@@ -557,16 +557,6 @@ void xmp_release_module(xmp_context opaque)
 	free(m->xtra);
 	m->xtra = NULL;
 
-#ifndef LIBXMP_CORE_DISABLE_IT
-	if (m->xsmp != NULL) {
-		for (i = 0; i < mod->smp; i++) {
-			libxmp_free_sample(&m->xsmp[i]);
-		}
-		free(m->xsmp);
-		m->xsmp = NULL;
-	}
-#endif
-
 	libxmp_free_scan(ctx);
 
 	free(m->comment);

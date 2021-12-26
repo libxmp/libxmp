@@ -175,21 +175,18 @@ void libxmp_load_prologue(struct context_data *ctx)
 	m->scan_cnt = NULL;
 
 	/* Set defaults */
-    	m->mod.pat = 0;
-    	m->mod.trk = 0;
-    	m->mod.chn = 4;
-    	m->mod.ins = 0;
-    	m->mod.smp = 0;
-    	m->mod.spd = 6;
-    	m->mod.bpm = 125;
-    	m->mod.len = 0;
-    	m->mod.rst = 0;
+	m->mod.pat = 0;
+	m->mod.trk = 0;
+	m->mod.chn = 4;
+	m->mod.ins = 0;
+	m->mod.smp = 0;
+	m->mod.spd = 6;
+	m->mod.bpm = 125;
+	m->mod.len = 0;
+	m->mod.rst = 0;
 
 #ifndef LIBXMP_CORE_PLAYER
 	m->extra = NULL;
-#endif
-#ifndef LIBXMP_CORE_DISABLE_IT
-	m->xsmp = NULL;
 #endif
 
 	m->time_factor = DEFAULT_TIME_FACTOR;

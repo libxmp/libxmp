@@ -160,41 +160,10 @@ static void convert_stereo_to_mono(uint8 *p, int l, int r)
 }
 #endif
 
-static void unroll_loop(struct xmp_sample *xxs)
-{
-	int8 *s8;
-	int16 *s16;
-	int start, loop_size;
-	int i;
-
-	s16 = (int16 *)xxs->data;
-	s8 = (int8 *)xxs->data;
-
-	if (xxs->len > xxs->lpe) {
-		start = xxs->lpe;
-	} else {
-		start = xxs->len;
-	}
-
-	loop_size = xxs->lpe - xxs->lps;
-
-	if (xxs->flg & XMP_SAMPLE_16BIT) {
-		s16 += start;
-		for (i = 0; i < loop_size; i++) {
-			*(s16 + i) = *(s16 - i - 1);
-		}
-	} else {
-		s8 += start;
-		for (i = 0; i < loop_size; i++) {
-			*(s8 + i) = *(s8 - i - 1);
-		}
-	}
-}
-
 
 int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct xmp_sample *xxs, const void *buffer)
 {
-	int bytelen, extralen, unroll_extralen, i;
+	int bytelen, extralen, i;
 
 #ifndef LIBXMP_CORE_PLAYER
 	/* Adlib FM patches */
@@ -261,7 +230,6 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 	 */
 	bytelen = xxs->len;
 	extralen = 4;
-	unroll_extralen = 0;
 
 	/* Disable birectional loop flag if sample is not looped
 	 */
@@ -269,25 +237,14 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 		if (~xxs->flg & XMP_SAMPLE_LOOP)
 			xxs->flg &= ~XMP_SAMPLE_LOOP_BIDIR;
 	}
-	/* Unroll bidirectional loops
-	 */
-	if (xxs->flg & XMP_SAMPLE_LOOP_BIDIR) {
-		unroll_extralen = (xxs->lpe - xxs->lps) -
-				(xxs->len - xxs->lpe);
-
-		if (unroll_extralen < 0) {
-			unroll_extralen = 0;
-		}
-	}
 
 	if (xxs->flg & XMP_SAMPLE_16BIT) {
 		bytelen *= 2;
 		extralen *= 2;
-		unroll_extralen *= 2;
 	}
 
 	/* add guard bytes before the buffer for higher order interpolation */
-	xxs->data = (unsigned char *) malloc(bytelen + extralen + unroll_extralen + 4);
+	xxs->data = (unsigned char *) malloc(bytelen + extralen + 4);
 	if (xxs->data == NULL) {
 		goto err;
 	}
@@ -376,12 +333,6 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 		xxs->flg |= XMP_SAMPLE_LOOP_FULL;
 	}
 
-	/* Unroll bidirectional loops */
-	if (xxs->flg & XMP_SAMPLE_LOOP_BIDIR) {
-		unroll_loop(xxs);
-		bytelen += unroll_extralen;
-	}
-
 	/* Add extra samples at end */
 	if (xxs->flg & XMP_SAMPLE_16BIT) {
 		for (i = 0; i < 8; i++) {
@@ -413,8 +364,8 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 
 void libxmp_free_sample(struct xmp_sample *s)
 {
-    if (s->data) {
-	free(s->data - 4);
-	s->data = NULL;		/* prevent double free in PCM load error */
-    }
+	if (s->data) {
+		free(s->data - 4);
+		s->data = NULL;		/* prevent double free in PCM load error */
+	}
 }
