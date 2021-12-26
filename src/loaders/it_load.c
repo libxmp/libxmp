@@ -664,7 +664,7 @@ static int load_new_it_instrument(struct xmp_instrument *xxi, HIO_HANDLE *f)
 	return 0;
 }
 
-static void force_sample_length(struct xmp_sample *xxs, int len)
+static void force_sample_length(struct xmp_sample *xxs, struct extra_sample_data *xtra, int len)
 {
 	xxs->len = len;
 
@@ -673,6 +673,14 @@ static void force_sample_length(struct xmp_sample *xxs, int len)
 
 	if (xxs->lps >= xxs->len)
 		xxs->flg &= ~XMP_SAMPLE_LOOP;
+
+	if (xtra) {
+		if (xtra->sue > xxs->len)
+			xtra->sue = xxs->len;
+
+		if(xtra->sus >= xxs->len)
+			xxs->flg &= ~(XMP_SAMPLE_SLOOP | XMP_SAMPLE_SLOOP_BIDIR);
+	}
 }
 
 static int load_it_sample(struct module_data *m, int i, int start,
@@ -680,7 +688,8 @@ static int load_it_sample(struct module_data *m, int i, int start,
 {
 	struct it_sample_header ish;
 	struct xmp_module *mod = &m->mod;
-	struct xmp_sample *xxs, *xsmp;
+	struct extra_sample_data *xtra;
+	struct xmp_sample *xxs;
 	int j, k;
 	uint8 buf[80];
 
@@ -704,7 +713,7 @@ static int load_it_sample(struct module_data *m, int i, int start,
 	}
 
 	xxs = &mod->xxs[i];
-	xsmp = &m->xsmp[i];
+	xtra = &m->xtra[i];
 
 	memcpy(ish.dosname, buf + 4, 12);
 	ish.zero = buf[16];
@@ -742,14 +751,8 @@ static int load_it_sample(struct module_data *m, int i, int start,
 	xxs->flg |= ish.flags & IT_SMP_BSLOOP ? XMP_SAMPLE_SLOOP_BIDIR : 0;
 
 	if (ish.flags & IT_SMP_SLOOP) {
-		memcpy(xsmp, xxs, sizeof (struct xmp_sample));
-		xsmp->lps = ish.sloopbeg;
-		xsmp->lpe = ish.sloopend;
-		xsmp->flg |= XMP_SAMPLE_LOOP;
-		xsmp->flg &= ~XMP_SAMPLE_LOOP_BIDIR;
-		if (ish.flags & IT_SMP_BSLOOP) {
-			xsmp->flg |= XMP_SAMPLE_LOOP_BIDIR;
-		}
+		xtra->sus = ish.sloopbeg;
+		xtra->sue = ish.sloopend;
 	}
 
 	if (sample_mode) {
@@ -849,9 +852,7 @@ static int load_it_sample(struct module_data *m, int i, int start,
 				   "resizing to %ld",
 				   i, xxs->len, min_size, left, left << 3);
 
-				force_sample_length(xxs, left << 3);
-				if (ish.flags & IT_SMP_SLOOP)
-					force_sample_length(xsmp, left << 3);
+				force_sample_length(xxs, xtra, left << 3);
 			}
 
 			decbuf = (uint8 *) calloc(1, xxs->len * 2);
@@ -873,21 +874,6 @@ static int load_it_sample(struct module_data *m, int i, int start,
 						  ish.convert & IT_CVT_DIFF);
 			}
 
-			if (ish.flags & IT_SMP_SLOOP) {
-				long pos = hio_tell(f);
-				if (pos < 0) {
-					free(decbuf);
-					return -1;
-				}
-				ret = libxmp_load_sample(m, NULL, SAMPLE_FLAG_NOLOAD |
-							cvt, &m->xsmp[i], decbuf);
-				if (ret < 0) {
-					free(decbuf);
-					return -1;
-				}
-				hio_seek(f, pos, SEEK_SET);
-			}
-
 			ret = libxmp_load_sample(m, NULL, SAMPLE_FLAG_NOLOAD | cvt,
 					  &mod->xxs[i], decbuf);
 			if (ret < 0) {
@@ -897,16 +883,6 @@ static int load_it_sample(struct module_data *m, int i, int start,
 
 			free(decbuf);
 		} else {
-			if (ish.flags & IT_SMP_SLOOP) {
-				long pos = hio_tell(f);
-				if (pos < 0) {
-					return -1;
-				}
-				if (libxmp_load_sample(m, f, cvt, &m->xsmp[i], NULL) < 0)
-					return -1;
-				hio_seek(f, pos, SEEK_SET);
-			}
-
 			if (libxmp_load_sample(m, f, cvt, &mod->xxs[i], NULL) < 0)
 				return -1;
 		}
@@ -1194,14 +1170,6 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	if (libxmp_init_instrument(m) < 0)
 		goto err4;
-
-	/* Alloc extra samples for sustain loop */
-	if (mod->smp > 0) {
-		m->xsmp = (struct xmp_sample *) calloc(mod->smp, sizeof(struct xmp_sample));
-		if (m->xsmp == NULL) {
-			goto err4;
-		}
-	}
 
 	D_(D_INFO "Instruments: %d", mod->ins);
 

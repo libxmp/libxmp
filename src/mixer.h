@@ -40,6 +40,8 @@ struct mixer_voice {
 #define VOICE_RELEASE	(1 << 0)
 #define ANTICLICK	(1 << 1)
 #define SAMPLE_LOOP	(1 << 2)
+#define VOICE_REVERSE	(1 << 3)
+#define VOICE_BIDIR	(1 << 4)
 	int flags;		/* flags */
 	void *sptr;		/* sample pointer */
 #ifdef LIBXMP_PAULA_SIMULATOR

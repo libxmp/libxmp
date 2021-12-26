@@ -11,7 +11,7 @@ TEST(test_sample_load_16bit)
 {
 	struct xmp_sample s;
 	HIO_HANDLE *f;
-	short buffer[202];
+	short buffer[101];
 	int i;
 	struct module_data m;
 
@@ -23,9 +23,6 @@ TEST(test_sample_load_16bit)
 	/* read little-endian sample to native-endian buffer */
 	for (i = 0; i < 101; i++) {
 		buffer[i] = hio_read16l(f);
-	}
-	for (i = 0; i < 101; i++) {
-		buffer[101 + i] = buffer[101 - i - 1];
 	}
 
 	/* load zero-length sample */
@@ -79,21 +76,6 @@ TEST(test_sample_load_16bit)
 	fail_unless(s.data[203] == s.data[201], "sample epilogue error");
 	fail_unless(s.data[204] == s.data[202], "sample epilogue error");
 	fail_unless(s.data[205] == s.data[203], "sample epilogue error");
-	CLEAR();
-
-	/* load sample from w/ bidirectional loop */
-	SET(101, 0, 102, XMP_SAMPLE_16BIT | XMP_SAMPLE_LOOP | XMP_SAMPLE_LOOP_BIDIR);
-	hio_seek(f, 0, SEEK_SET);
-	libxmp_load_sample(&m, f, 0, &s, NULL);
-	fail_unless(s.data != NULL, "didn't allocate sample data");
-	fail_unless(s.lpe == 101, "didn't fix invalid loop end");
-	fail_unless(memcmp(s.data, buffer, 404) == 0, "sample unroll error");
-	fail_unless(s.data[-2]  == s.data[0],   "sample prologue error");
-	fail_unless(s.data[-1]  == s.data[1],   "sample prologue error");
-	fail_unless(s.data[404] == s.data[402], "sample epilogue error");
-	fail_unless(s.data[405] == s.data[403], "sample epilogue error");
-	fail_unless(s.data[406] == s.data[404], "sample epilogue error");
-	fail_unless(s.data[407] == s.data[405], "sample epilogue error");
 	CLEAR();
 
 	hio_close(f);
