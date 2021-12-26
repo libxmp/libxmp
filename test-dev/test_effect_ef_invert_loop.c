@@ -31,7 +31,11 @@ TEST(test_effect_ef_invert_loop)
 
 	new_event(ctx, 0, 0, 0, 49, 1, 0, 0x0e, 0xfe, 0x0f, 1);
 
+#ifndef MIXER_GENERATE
 	f = fopen("data/invloop.data", "r");
+#else
+	f = fopen("invloop.data", "w");
+#endif
 
 	xmp_start_player(opaque, 16000, XMP_FORMAT_MONO);
 	xmp_set_player(opaque, XMP_PLAYER_INTERP, XMP_INTERP_NEAREST);
@@ -40,12 +44,19 @@ TEST(test_effect_ef_invert_loop)
 		xmp_play_frame(opaque);
 		xmp_get_frame_info(opaque, &info);
 		for (j = 0; j < info.buffer_size / 2; j++) {
+#ifndef MIXER_GENERATE
 			int ret = fscanf(f, "%d", &val);
 			fail_unless(ret == 1, "read error");
 			fail_unless(s->buf32[j] == val, "invloop error");
+#else
+			fprintf(f, "%d\n", s->buf32[j]);
+#endif
 		}
 	}
 
+#ifdef MIXER_GENERATE
+	fail_unless(0, "MIXER_GENERATE is enabled");
+#endif
 	xmp_end_player(opaque);
 	xmp_release_module(opaque);
 	xmp_free_context(opaque);
