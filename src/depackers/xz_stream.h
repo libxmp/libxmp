@@ -12,7 +12,7 @@
 
 /*
  * See the .xz file format specification at
- * http://tukaani.org/xz/xz-file-format.txt
+ * https://tukaani.org/xz/xz-file-format.txt
  * to understand the container format.
  */
 
@@ -28,7 +28,7 @@
  * Variable-length integer can hold a 63-bit unsigned integer or a special
  * value indicating that the value is unknown.
  *
- * Experimental: vli_type can be defined to uint32 to save a few bytes
+ * Experimental: vli_type can be defined to uint32_t to save a few bytes
  * in code size (no effect on speed). Doing so limits the uncompressed and
  * compressed size of the file to less than 256 MiB and may also weaken
  * error detection slightly.
