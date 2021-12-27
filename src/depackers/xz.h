@@ -2,7 +2,7 @@
  * XZ decompressor
  *
  * Authors: Lasse Collin <lasse.collin@tukaani.org>
- *          Igor Pavlov <http://7-zip.org/>
+ *          Igor Pavlov <https://7-zip.org/>
  *
  * This file has been put into the public domain.
  * You can do whatever you want with this file.
@@ -29,7 +29,7 @@ extern "C" {
  * enum xz_mode - Operation mode
  *
  * @XZ_SINGLE:              Single-call mode. This uses less RAM than
- *                          than multi-call modes, because the LZMA2
+ *                          multi-call modes, because the LZMA2
  *                          dictionary doesn't need to be allocated as
  *                          part of the decoder state. All required data
  *                          structures are allocated at initialization,
@@ -244,6 +244,18 @@ XZ_EXTERN void xz_dec_end(struct xz_dec *s);
 #		define XZ_INTERNAL_CRC32 1
 #endif
 
+/*
+ * If CRC64 support has been enabled with XZ_USE_CRC64, a CRC64
+ * implementation is needed too.
+ */
+#ifndef XZ_USE_CRC64
+#	undef XZ_INTERNAL_CRC64
+#	define XZ_INTERNAL_CRC64 0
+#endif
+#ifndef XZ_INTERNAL_CRC64
+#		define XZ_INTERNAL_CRC64 1
+#endif
+
 #if XZ_INTERNAL_CRC32
 /*
  * This must be called before any other xz_* function to initialize
@@ -257,6 +269,21 @@ XZ_EXTERN void xz_crc32_init(void);
  * the previously returned value is passed as the third argument.
  */
 XZ_EXTERN uint32 xz_crc32(const uint8 *buf, size_t size, uint32 crc);
+#endif
+
+#if XZ_INTERNAL_CRC64
+/*
+ * This must be called before any other xz_* function (except xz_crc32_init())
+ * to initialize the CRC64 lookup table.
+ */
+XZ_EXTERN void xz_crc64_init(void);
+
+/*
+ * Update CRC64 value using the polynomial from ECMA-182. To start a new
+ * calculation, the third argument must be zero. To continue the calculation,
+ * the previously returned value is passed as the third argument.
+ */
+XZ_EXTERN uint64_t xz_crc64(const uint8_t *buf, size_t size, uint64_t crc);
 #endif
 
 #ifdef __cplusplus
