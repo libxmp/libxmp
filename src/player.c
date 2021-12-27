@@ -627,7 +627,7 @@ static int tremor_s3m(struct context_data *ctx, int chn, int finalvol)
  * Update channel data
  */
 
-#define DOENV_RELEASE ((TEST_NOTE(NOTE_RELEASE) || act == VIRT_ACTION_OFF))
+#define DOENV_RELEASE ((TEST_NOTE(NOTE_ENV_RELEASE) || act == VIRT_ACTION_OFF))
 
 static void process_volume(struct context_data *ctx, int chn, int act)
 {
@@ -651,7 +651,7 @@ static void process_volume(struct context_data *ctx, int chn, int act)
 		/* If IT, only apply fadeout on note release if we don't
 		 * have envelope, or if we have envelope loop
 		 */
-		if (TEST_NOTE(NOTE_RELEASE) || act == VIRT_ACTION_OFF) {
+		if (TEST_NOTE(NOTE_ENV_RELEASE) || act == VIRT_ACTION_OFF) {
 			if ((~instrument->aei.flg & XMP_ENVELOPE_ON) ||
 			    (instrument->aei.flg & XMP_ENVELOPE_LOOP)) {
 				fade = 1;
@@ -659,12 +659,12 @@ static void process_volume(struct context_data *ctx, int chn, int act)
 		}
 	} else {
 		if (~instrument->aei.flg & XMP_ENVELOPE_ON) {
-			if (TEST_NOTE(NOTE_RELEASE)) {
+			if (TEST_NOTE(NOTE_ENV_RELEASE)) {
 				xc->fadeout = 0;
 			}
 		}
 
-		if (TEST_NOTE(NOTE_RELEASE) || act == VIRT_ACTION_OFF) {
+		if (TEST_NOTE(NOTE_ENV_RELEASE) || act == VIRT_ACTION_OFF) {
 			fade = 1;
 		}
 	}
@@ -1327,7 +1327,7 @@ static void play_channel(struct context_data *ctx, int chn)
 			SET_NOTE(NOTE_RELEASE);
 	}
 
-	libxmp_virt_release(ctx, chn, TEST_NOTE(NOTE_RELEASE));
+	libxmp_virt_release(ctx, chn, TEST_NOTE(NOTE_SAMPLE_RELEASE));
 
 	update_volume(ctx, chn);
 	update_frequency(ctx, chn);
@@ -1344,7 +1344,7 @@ static void play_channel(struct context_data *ctx, int chn)
 #endif
 
 	if (TEST_NOTE(NOTE_SUSEXIT)) {
-		SET_NOTE(NOTE_RELEASE);
+		SET_NOTE(NOTE_ENV_RELEASE);
 	}
 
 	xc->info_position = libxmp_virt_getvoicepos(ctx, chn);
