@@ -320,6 +320,9 @@ static int32 probe_header (HIO_HANDLE *f, struct upkg_hdr *hdr)
 		return -1;
 	}
 
+#if 1 /* no need being overzealous */
+	return 0;
+#else
 	switch (hdr->file_version) {
 	case 35: case 37:	/* Unreal beta - */
 	case 40: case 41:				/* 1998 */
@@ -338,6 +341,7 @@ static int32 probe_header (HIO_HANDLE *f, struct upkg_hdr *hdr)
 
 	D_(D_INFO "UMX: Unknown upkg version %d\n", hdr->file_version);
 	return -1;
+#endif /* #if 0  */
 }
 
 static int process_upkg (HIO_HANDLE *f, int32 *ofs, int32 *objsize)
