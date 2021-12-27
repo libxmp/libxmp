@@ -23,11 +23,6 @@
 #include <stddef.h> /* offsetof() */
 #include "loader.h"
 
-#ifdef _WIN32
-#undef strcasecmp
-#define strcasecmp _stricmp
-#endif
-
 static int umx_test (HIO_HANDLE *, char *, const int);
 static int umx_load (struct module_data *, HIO_HANDLE *, const int);
 
@@ -232,6 +227,16 @@ static int read_typname(HIO_HANDLE *f, const struct upkg_hdr *hdr,
 	return 0;
 }
 
+static void umx_strupr(char *str)
+{
+	while (*str) {
+		if (*str >= 'a' && *str <= 'z') {
+		    *str -= ('a' - 'A');
+		}
+		str++;
+	}
+}
+
 static int probe_umx   (HIO_HANDLE *f, const struct upkg_hdr *hdr,
 			int32 *ofs, int32 *objsize)
 {
@@ -274,8 +279,9 @@ static int probe_umx   (HIO_HANDLE *f, const struct upkg_hdr *hdr,
 	if (s <= 0 || s > fsiz - pos) return -1;
 
 	if (read_typname(f, hdr, t, buf) < 0) return -1;
+	umx_strupr(buf);
 	for (i = 0; mustype[i] != NULL; i++) {
-		if (!strcasecmp(buf, mustype[i])) {
+		if (!strcmp(buf, mustype[i])) {
 			t = i;
 			break;
 		}
