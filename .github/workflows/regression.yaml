@@ -268,6 +268,26 @@ jobs:
           cd build
           ctest --output-on-failure
 
+  amiga:
+    strategy:
+       matrix:
+         include: [
+           {host: "ppc-amigaos"},
+           {host: "ppc-morphos", buildflags: "-noixemul"},
+         ]
+    runs-on: ubuntu-latest
+    container: amigadev/crosstools:${{ matrix.host }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Create and run Autotools configure script
+        run: |
+          autoconf
+          CC="${{ matrix.host }}-gcc ${{ matrix.buildflags }}" ./configure --host=${{ matrix.host }}
+      - name: Autotools build
+        run: |
+          make -j 3
+
   AddressSanitizer:
     runs-on: ubuntu-latest
     steps:
