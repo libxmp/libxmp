@@ -1608,7 +1608,7 @@ const char *mz_zip_get_error_string(mz_zip_error mz_err)
 
     return "unknown error";
 }
-#elif defined(_MSC_VER) && (_MSC_VER < 1310)
+#elif defined(_MSC_VER) && (_MSC_VER < 1400)
 /* see common.h of libxmp : */
 const char *mz_zip_get_error_string(mz_zip_error mz_err) {
     return "";
