@@ -143,7 +143,7 @@ static int ppdepack(uint8 *data, size_t len, void **output, long *outlen)
 
   /* if (crypted == 0) { */
     /*fprintf(stderr, "not encrypted, decrunching anyway\n"); */
-    if (ppDecrunch(&data[8], *output, &data[4], len-12, *outlen, data[len-1])) {
+    if (ppDecrunch(&data[8], (uint8 *) *output, &data[4], len-12, *outlen, data[len-1])) {
       /* fprintf(stderr, "Decrunch successful! "); */
       return 0;
     }
