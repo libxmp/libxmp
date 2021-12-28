@@ -588,5 +588,6 @@ static int decrunch_bzip2(HIO_HANDLE *src, FILE *dst, long inlen)
 
 struct depacker libxmp_depacker_bzip2 = {
 	test_bzip2,
-	decrunch_bzip2
+	decrunch_bzip2,
+	NULL
 };

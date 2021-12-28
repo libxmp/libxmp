@@ -310,7 +310,7 @@ static int test_mmcmp(unsigned char *b)
 	return memcmp(b, "ziRCONia", 8) == 0;
 }
 
-static int decrunch_mmcmp(HIO_HANDLE *in, FILE *out, long inlen)
+static int decrunch_mmcmp(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 {
 	struct header h;
 	struct mem_buffer outbuf;
@@ -447,10 +447,9 @@ static int decrunch_mmcmp(HIO_HANDLE *in, FILE *out, long inlen)
 		free(sub_block);
 	}
 
-	if (fwrite(outbuf.buf, 1, h.filesize, out) < h.filesize)
-		goto err2;
+	*out = outbuf.buf;
+	*outlen = h.filesize;
 
-	free(outbuf.buf);
 	free(table);
 	return 0;
 
@@ -463,5 +462,6 @@ static int decrunch_mmcmp(HIO_HANDLE *in, FILE *out, long inlen)
 
 struct depacker libxmp_depacker_mmcmp = {
 	test_mmcmp,
+	NULL,
 	decrunch_mmcmp
 };

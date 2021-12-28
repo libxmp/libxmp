@@ -390,7 +390,7 @@ HIO_HANDLE *hio_open(const char *path, const char *mode)
 	return NULL;
 }
 
-HIO_HANDLE *hio_open_mem(const void *ptr, long size)
+HIO_HANDLE *hio_open_mem(const void *ptr, long size, int free_after_use)
 {
 	HIO_HANDLE *h;
 
@@ -400,7 +400,7 @@ HIO_HANDLE *hio_open_mem(const void *ptr, long size)
 		return NULL;
 
 	h->type = HIO_HANDLE_TYPE_MEMORY;
-	h->handle.mem = mopen(ptr, size);
+	h->handle.mem = mopen(ptr, size, free_after_use);
 	h->size = size;
 
 	if (!h->handle.mem) {

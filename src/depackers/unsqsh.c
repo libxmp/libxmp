@@ -380,7 +380,7 @@ static int test_sqsh(unsigned char *b)
 	return memcmp(b, "XPKF", 4) == 0 && memcmp(b + 8, "SQSH", 4) == 0;
 }
 
-static int decrunch_sqsh(HIO_HANDLE * f, FILE * fo, long inlen)
+static int decrunch_sqsh(HIO_HANDLE * f, void ** outbuf, long inlen, long * outlen)
 {
 	unsigned char *src, *dest;
 	int srclen, destlen;
@@ -413,11 +413,10 @@ static int decrunch_sqsh(HIO_HANDLE * f, FILE * fo, long inlen)
 	if (unsqsh(src, srclen, dest, destlen) != destlen)
 		goto err3;
 
-	if (fwrite(dest, destlen, 1, fo) != 1)
-		goto err3;
-
-	free(dest);
 	free(src);
+
+	*outbuf = dest;
+	*outlen = destlen;
 
 	return 0;
 
@@ -431,5 +430,6 @@ static int decrunch_sqsh(HIO_HANDLE * f, FILE * fo, long inlen)
 
 struct depacker libxmp_depacker_sqsh = {
 	test_sqsh,
+	NULL,
 	decrunch_sqsh
 };

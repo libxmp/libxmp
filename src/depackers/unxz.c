@@ -35,7 +35,7 @@ static int test_xz(unsigned char *b)
 	return !memcmp(b, XZ_MAGIC, sizeof(XZ_MAGIC));
 }
 
-static int decrunch_xz(HIO_HANDLE *in, FILE *out, long inlen)
+static int decrunch_xz(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 {
 	struct xz_dec *xz;
 	struct xz_buf buf;
@@ -86,14 +86,12 @@ static int decrunch_xz(HIO_HANDLE *in, FILE *out, long inlen)
 
 	xz_dec_end(xz);
 
-	/*
-	if ((tmp = (uint8 *) realloc(buf.out, buf.out_pos)) == NULL)
-		goto err;
-	*/
+	if ((tmp = (uint8 *) realloc(buf.out, buf.out_pos)) != NULL)
+		buf.out = tmp;
 
-	fwrite(buf.out, 1, buf.out_pos, out);
+	*out = buf.out;
+	*outlen = buf.out_pos;
 
-	free(buf.out);
 	free(inbuf);
 	return 0;
 
@@ -106,5 +104,6 @@ static int decrunch_xz(HIO_HANDLE *in, FILE *out, long inlen)
 
 struct depacker libxmp_depacker_xz = {
 	test_xz,
+	NULL,
 	decrunch_xz
 };

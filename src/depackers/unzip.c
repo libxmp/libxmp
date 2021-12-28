@@ -39,22 +39,16 @@ static size_t mz_zip_file_read_func(void *pOpaque, mz_uint64 ofs, void *pBuf, si
 
 	return hio_read(pBuf, 1, n, (HIO_HANDLE *)pOpaque);
 }
-
-static size_t mz_zip_file_write_callback(void *pOpaque, mz_uint64 ofs, const void *pBuf, size_t n)
-{
-	if (fseek((FILE *)pOpaque, (long)ofs, SEEK_SET))
-		return 0;
-
-	return fwrite(pBuf, 1, n, (FILE *)pOpaque);
-}
 #endif
 
-static int decrunch_zip(HIO_HANDLE *in, FILE *out, long inlen)
+static int decrunch_zip(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 {
 #ifndef MINIZ_NO_ARCHIVE_APIS
 	mz_zip_archive archive;
 	char filename[MZ_ZIP_MAX_ARCHIVE_FILENAME_SIZE];
 	mz_uint32 i;
+	void *pBuf;
+	size_t pSize;
 
 	memset(&archive, 0, sizeof(archive));
 	archive.m_pRead = mz_zip_file_read_func;
@@ -83,12 +77,15 @@ static int decrunch_zip(HIO_HANDLE *in, FILE *out, long inlen)
 			continue;
 		}
 
-		if (!mz_zip_reader_extract_to_callback(&archive, i, mz_zip_file_write_callback, out, 0)) {
+		pBuf = mz_zip_reader_extract_to_heap(&archive, i, &pSize, 0);
+		if (!pBuf) {
 			D_(D_CRIT "Failed to extract %s: %s", filename, mz_zip_get_error_string(archive.m_last_error));
 			break;
 		}
 
 		mz_zip_reader_end(&archive);
+		*out = pBuf;
+		*outlen = pSize;
 		return 0;
 	}
 
@@ -100,5 +97,6 @@ static int decrunch_zip(HIO_HANDLE *in, FILE *out, long inlen)
 
 struct depacker libxmp_depacker_zip = {
 	test_zip,
+	NULL,
 	decrunch_zip
 };

@@ -1126,5 +1126,6 @@ static int decrunch_lzx(HIO_HANDLE *f, FILE *fo, long inlen)
 
 struct depacker libxmp_depacker_lzx = {
 	test_lzx,
-	decrunch_lzx
+	decrunch_lzx,
+	NULL
 };

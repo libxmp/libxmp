@@ -193,12 +193,11 @@ static int skip_file_data(FILE *in,struct archived_file_header_tag *hdrp)
 }
 #endif
 
-static int arc_extract(HIO_HANDLE *in, FILE *out, long inlen)
+static int arc_extract(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 {
 	struct archived_file_header_tag hdr;
 	/* int done = 0; */
 	unsigned char *data, *orig_data;
-	int exitval = 0;
 
 	if (!skip_sfx_header(in) || !read_file_header(in, &hdr))
 		return -1;
@@ -301,15 +300,13 @@ static int arc_extract(HIO_HANDLE *in, FILE *out, long inlen)
 		return -1;
 	}
 
-	if (fwrite(orig_data, 1, hdr.orig_size, out) != hdr.orig_size)
-		exitval = -1;
-
 	if (orig_data != data)	/* don't free uncompressed stuff twice :-) */
-		free(orig_data);
+		free(data);
 
-	free(data);
+	*out = orig_data;
+	*outlen = hdr.orig_size;
 
-	return exitval;
+	return 0;
 }
 
 static int test_arc(unsigned char *b)
@@ -350,12 +347,13 @@ static int test_arc(unsigned char *b)
 	return 0;
 }
 
-static int decrunch_arc(HIO_HANDLE *f, FILE *fo, long inlen)
+static int decrunch_arc(HIO_HANDLE *f, void **out, long inlen, long *outlen)
 {
-	return arc_extract(f, fo, inlen);
+	return arc_extract(f, out, inlen, outlen);
 }
 
 struct depacker libxmp_depacker_arc = {
 	test_arc,
+	NULL,
 	decrunch_arc
 };
