@@ -37,7 +37,7 @@ jobs:
       - name: Autotools devcheck
         run: |
           (cd test-dev && autoconf && ./configure)
-          make devcheck
+          (cd test-dev && make -j 3)
 
   linux-clang:
     runs-on: ubuntu-latest
@@ -70,7 +70,7 @@ jobs:
       - name: Autotools devcheck
         run: |
           (cd test-dev && autoconf && CC=clang CFLAGS="-fPIE" ./configure)
-          make devcheck
+          (cd test-dev && make -j 3)
 
   # Simulate Fedora RPM builds, usage of __symver__.
   linux-gcc-10-lto:
@@ -109,7 +109,7 @@ jobs:
           make check
       - name: Autotools devcheck
         run: |
-          make devcheck
+          (cd test-dev && make -j 3)
 
   emscripten:
     runs-on: ubuntu-latest
@@ -190,7 +190,7 @@ jobs:
       - name: Autotools devcheck
         run: |
           (cd test-dev && autoconf && ./configure)
-          make devcheck
+          (cd test-dev && make -j 4)
 
   windows-vc:
     strategy:
@@ -225,8 +225,8 @@ jobs:
     strategy:
       matrix:
         include: [
-          {installs: "MINGW32", pkg: "mingw-w64-i686-gcc"},
-          {installs: "MINGW64", pkg: "mingw-w64-x86_64-gcc"},
+          {installs: "MINGW32", pkg: "mingw-w64-i686-gcc mingw-w64-i686-cmake mingw-w64-i686-ninja" },
+          {installs: "MINGW64", pkg: "mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja" },
         ]
     defaults:
       run:
@@ -253,28 +253,9 @@ jobs:
       - name: Autotools devcheck
         run: |
           (cd test-dev && autoconf && ./configure)
-          make devcheck
-
-  windows-msys2-cmake:
-    runs-on: windows-latest
-    strategy:
-      matrix:
-        include: [
-          {installs: "MINGW32", pkg: "mingw-w64-i686-gcc mingw-w64-i686-cmake mingw-w64-i686-ninja"},
-          {installs: "MINGW64", pkg: "mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja"},
-        ]
-    defaults:
-      run:
-        shell: msys2 {0}
-    steps:
-      - name: Setup msys2
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: ${{ matrix.installs }}
-          update: true
-          install: base-devel git autoconf ${{ matrix.pkg }}
-      - name: Checkout repository
-        uses: actions/checkout@v2
+          (cd test-dev && make -j 3)
+      - name: Distclean
+        run: (cd test-dev && make distclean) && make distclean
       - name: CMake configure
         run: |
           cmake . -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
@@ -305,7 +286,7 @@ jobs:
       - name: Build and run test
         run: make check
       - name: Build and run regression tests
-        run: (cd test-dev && make)
+        run: (cd test-dev && make -j 3)
 
   MemorySanitizer:
     runs-on: ubuntu-latest
@@ -326,7 +307,7 @@ jobs:
       - name: Build and run test
         run: make check
       - name: Build and run regression tests
-        run: (cd test-dev && make)
+        run: (cd test-dev && make -j 3)
 
   UndefinedBehaviorSanitizer:
     runs-on: ubuntu-latest
@@ -347,4 +328,4 @@ jobs:
       - name: Build and run test
         run: make check
       - name: Build and run regression tests
-        run: (cd test-dev && make)
+        run: (cd test-dev && make -j 3)
