@@ -253,7 +253,7 @@ struct mz_zip_internal_state_tag
     mz_zip_array m_sorted_central_dir_offsets;
 
     /* The flags passed in when the archive is initially opened. */
-    uint32_t m_init_flags;
+    mz_uint32 m_init_flags;
 
     /* MZ_TRUE if the archive has a zip64 end of central directory headers, etc. */
     mz_bool m_zip64;
@@ -1030,7 +1030,7 @@ static mz_bool mz_zip_locate_file_binary_search(mz_zip_archive *pZip, const char
     const mz_zip_array *pCentral_dir_offsets = &pState->m_central_dir_offsets;
     const mz_zip_array *pCentral_dir = &pState->m_central_dir;
     mz_uint32 *pIndices = &MZ_ZIP_ARRAY_ELEMENT(&pState->m_sorted_central_dir_offsets, mz_uint32, 0);
-    const uint32_t size = pZip->m_total_files;
+    const mz_uint32 size = pZip->m_total_files;
     const mz_uint filename_len = (mz_uint)strlen(pFilename);
 
     if (pIndex)
@@ -1045,7 +1045,7 @@ static mz_bool mz_zip_locate_file_binary_search(mz_zip_archive *pZip, const char
         while (l <= h)
         {
             mz_int64 m = l + ((h - l) >> 1);
-            uint32_t file_index = pIndices[(uint32_t)m];
+            mz_uint32 file_index = pIndices[(mz_uint32)m];
 
             int comp = mz_zip_filename_compare(pCentral_dir, pCentral_dir_offsets, file_index, pFilename, filename_len);
             if (!comp)
@@ -1607,6 +1607,11 @@ const char *mz_zip_get_error_string(mz_zip_error mz_err)
     }
 
     return "unknown error";
+}
+#elif defined(_MSC_VER) && (_MSC_VER < 1310)
+/* see common.h of libxmp : */
+const char *mz_zip_get_error_string(mz_zip_error mz_err) {
+    return "";
 }
 #endif
 

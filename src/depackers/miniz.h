@@ -273,7 +273,6 @@ typedef void *(*mz_realloc_func)(void *opaque, void *address, size_t items, size
 #endif
 
 #include <assert.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -283,8 +282,14 @@ typedef signed short mz_int16;
 typedef unsigned short mz_uint16;
 typedef unsigned int mz_uint32;
 typedef unsigned int mz_uint;
+#if defined(_MSC_VER) && (_MSC_VER < 1600)
+typedef signed __int64 mz_int64;
+typedef unsigned __int64 mz_uint64;
+#else
+#include <stdint.h>
 typedef int64_t mz_int64;
 typedef uint64_t mz_uint64;
+#endif
 typedef int mz_bool;
 
 #define MZ_FALSE (0)
