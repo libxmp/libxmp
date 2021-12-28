@@ -1,3 +1,6 @@
+#ifndef LIBXMP_MINIZ_H
+#define LIBXMP_MINIZ_H 1
+
 #ifndef MINIZ_EXPORT
 #define MINIZ_EXPORT
 #endif
@@ -114,8 +117,6 @@
      uses the 64-bit variants: fopen64(), stat64(), etc. Otherwise you won't be able to process large files
      (i.e. 32-bit stat() fails for me on files > 0x7FFFFFFF bytes).
 */
-#pragma once
-
 
 #if 1 /* LIBXMP-SPECIFIC CONFIG: */
 
@@ -481,3 +482,5 @@ struct tinfl_decompressor_tag
 #endif
 
 #endif /*#ifndef MINIZ_NO_INFLATE_APIS*/
+
+#endif /* LIBXMP_MINIZ_H */

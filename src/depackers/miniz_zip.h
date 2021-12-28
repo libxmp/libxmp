@@ -1,5 +1,6 @@
+#ifndef MINIZ_ZIP_H
+#define MINIZ_ZIP_H
 
-#pragma once
 #include "miniz.h"
 
 #if 1 /* LIBXMP-SPECIFIC : */
@@ -244,3 +245,5 @@ MINIZ_EXPORT mz_bool mz_zip_reader_extract_to_callback(mz_zip_archive *pZip, mz_
 #endif
 
 #endif /* MINIZ_NO_ARCHIVE_APIS */
+
+#endif /* MINIZ_ZIP_H */
