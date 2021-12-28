@@ -1329,6 +1329,7 @@ void *mz_zip_reader_extract_to_heap(mz_zip_archive *pZip, mz_uint file_index, si
     return pBuf;
 }
 
+#if 0 /* not used in libxmp */
 mz_bool mz_zip_reader_extract_to_callback(mz_zip_archive *pZip, mz_uint file_index, mz_file_write_func pCallback, void *pOpaque, mz_uint flags)
 {
     int status = TINFL_STATUS_DONE;
@@ -1528,6 +1529,7 @@ mz_bool mz_zip_reader_extract_to_callback(mz_zip_archive *pZip, mz_uint file_ind
 
     return status == TINFL_STATUS_DONE;
 }
+#endif /* #if 0 */
 
 /* ------------------- Misc utils */
 
