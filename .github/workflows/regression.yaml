@@ -187,10 +187,11 @@ jobs:
       - name: Autotools check
         run: |
           make check
+      # FIXME: parallel builds crash newer Clang versions?!
       - name: Autotools devcheck
         run: |
           (cd test-dev && autoconf && ./configure)
-          (cd test-dev && make -j 4)
+          (cd test-dev && make)
 
   windows-vc:
     strategy:
