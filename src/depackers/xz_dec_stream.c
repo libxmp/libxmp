@@ -293,8 +293,10 @@ static enum xz_ret dec_block(struct xz_dec *s, struct xz_buf *b)
 #else
 		if (s->check_type == XZ_CHECK_CRC32)
 			s->block.hash.unpadded += 4;
-		else if (IS_CRC64(s->check_type))
+		#ifdef XZ_USE_CRC64
+		else if (s->check_type == XZ_CHECK_CRC64)
 			s->block.hash.unpadded += 8;
+		#endif
 #endif
 
 		s->block.hash.uncompressed += s->block.uncompressed;
@@ -693,11 +695,13 @@ static enum xz_ret dec_main(struct xz_dec *s, struct xz_buf *b)
 				if (ret != XZ_STREAM_END)
 					return ret;
 			}
-			else if (IS_CRC64(s->check_type)) {
+#ifdef XZ_USE_CRC64
+			else if (s->check_type == XZ_CHECK_CRC64) {
 				ret = crc_validate(s, b, 64);
 				if (ret != XZ_STREAM_END)
 					return ret;
 			}
+#endif
 #ifdef XZ_DEC_ANY_CHECK
 			else if (!check_skip(s, b)) {
 				return XZ_OK;
