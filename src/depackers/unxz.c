@@ -86,10 +86,8 @@ static int decrunch_xz(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 
 	xz_dec_end(xz);
 
-	/*
-	if ((tmp = (uint8 *) realloc(buf.out, buf.out_pos)) == NULL)
-		goto err;
-	*/
+	if ((tmp = (uint8 *) realloc(buf.out, buf.out_pos)) != NULL)
+		buf.out = tmp;
 
 	*out = buf.out;
 	*outlen = buf.out_pos;
