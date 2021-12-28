@@ -36,10 +36,9 @@
 #define XMP_MAXPATH  1024
 #endif
 
-#if defined(__MORPHOS__) || defined(__AROS__) || defined(AMIGAOS) || \
-    defined(__amigaos__) || defined(__amigaos4__) ||defined(__amigados__) || \
-    defined(AMIGA) || defined(_AMIGA) || defined(__AMIGA__)
-#define LIBXMP_AMIGA	1	/* to identify amiga platforms. */
+#if defined(__MORPHOS__) || defined(__AROS__) || defined(__AMIGA__) \
+ || defined(__amigaos__) || defined(__amigaos4__) || defined(AMIGA)
+#define LIBXMP_AMIGA	1
 #endif
 
 #ifdef HAVE_EXTERNAL_VISIBILITY
@@ -68,7 +67,7 @@ typedef unsigned short int uint16;
 typedef unsigned int uint32;
 #endif
 
-#ifdef _MSC_VER				/* MSVC++6.0 has no long long */
+#ifdef _MSC_VER /* MSVC6 has no long long */
 typedef signed __int64 int64;
 typedef unsigned __int64 uint64;
 #elif !(defined(B_BEOS_VERSION) || defined(__amigaos4__))
@@ -122,10 +121,7 @@ typedef signed long long int64;
 #define CLIB_DECL
 #endif
 #ifdef DEBUG
-#ifndef ATTR_PRINTF
-#define ATTR_PRINTF(x,y)
-#endif
-void CLIB_DECL D_(const char *text, ...) ATTR_PRINTF(1,2);
+void CLIB_DECL D_(const char *text, ...);
 #else
 /* VS prior to VC7.1 does not support variadic macros.
  * VC8.0 does not optimize unused parameters passing. */
@@ -490,6 +486,6 @@ uint32	readmem32b		(const uint8 *);
 struct xmp_instrument *libxmp_get_instrument(struct context_data *, int);
 struct xmp_sample *libxmp_get_sample(struct context_data *, int);
 
-int libxmp_get_filetype (const char *path);
+int libxmp_get_filetype (const char *);
 
 #endif /* LIBXMP_COMMON_H */
