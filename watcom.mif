@@ -167,27 +167,28 @@ DEPACKER_OBJS= &
  src/depackers/ppdepack.obj &
  src/depackers/unsqsh.obj &
  src/depackers/mmcmp.obj &
- src/depackers/readrle.obj &
- src/depackers/readlzw.obj &
+ src/depackers/s404_dec.obj &
  src/depackers/unarc.obj &
  src/depackers/arcfs.obj &
- src/depackers/xfd.obj &
- src/depackers/miniz.obj &
+ src/depackers/readrle.obj &
+ src/depackers/readlzw.obj &
  src/depackers/muse.obj &
- src/depackers/unlzx.obj &
- src/depackers/s404_dec.obj &
+ src/depackers/miniz_tinfl.obj &
+ src/depackers/miniz_zip.obj &
  src/depackers/unzip.obj &
  src/depackers/gunzip.obj &
  src/depackers/uncompress.obj &
- src/depackers/unxz.obj &
  src/depackers/bunzip2.obj &
  src/depackers/unlha.obj &
+ src/depackers/unlzx.obj &
+ src/depackers/unxz.obj &
  src/depackers/xz_dec_lzma2.obj &
  src/depackers/xz_dec_stream.obj &
  src/depackers/crc32.obj &
- src/depackers/ptpopen.obj &
- src/depackers/xfd_link.obj &
  src/depackers/xfnmatch.obj &
+ src/depackers/ptpopen.obj &
+ src/depackers/xfd.obj &
+ src/depackers/xfd_link.obj &
 
 ALL_OBJS=$(OBJS)
 !ifeq USE_PROWIZARD 1

@@ -22,7 +22,7 @@
 
 #include "../common.h"
 #include "depacker.h"
-#include "miniz.h"
+#include "miniz_zip.h"
 
 static int test_zip(unsigned char *b)
 {
@@ -91,7 +91,6 @@ static int decrunch_zip(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 
 	mz_zip_reader_end(&archive);
 #endif
-
 	return -1;
 }
 
