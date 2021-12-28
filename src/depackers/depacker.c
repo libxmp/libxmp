@@ -291,7 +291,7 @@ static int decrunch_internal_memory(HIO_HANDLE **h, struct depacker *depacker)
 	D_(D_INFO "done");
 
 	hio_close(*h);
-	*h = hio_open_mem2(out, outlen);
+	*h = hio_open_mem(out, outlen, 1);
 
 	return (*h == NULL)? -1 : 0;
 }
