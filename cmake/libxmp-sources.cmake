@@ -137,25 +137,26 @@ set(LIBXMP_SRC_LIST_DEPACKERS
     src/depackers/ppdepack.c
     src/depackers/unsqsh.c
     src/depackers/mmcmp.c
-    src/depackers/readrle.c
-    src/depackers/readlzw.c
+    src/depackers/s404_dec.c
     src/depackers/unarc.c
     src/depackers/arcfs.c
-    src/depackers/xfd.c
-    src/depackers/miniz.c
+    src/depackers/readrle.c
+    src/depackers/readlzw.c
     src/depackers/muse.c
-    src/depackers/unlzx.c
-    src/depackers/s404_dec.c
+    src/depackers/miniz_tinfl.c
+    src/depackers/miniz_zip.c
     src/depackers/unzip.c
     src/depackers/gunzip.c
     src/depackers/uncompress.c
-    src/depackers/unxz.c
     src/depackers/bunzip2.c
     src/depackers/unlha.c
+    src/depackers/unlzx.c
+    src/depackers/unxz.c
     src/depackers/xz_dec_lzma2.c
     src/depackers/xz_dec_stream.c
     src/depackers/crc32.c
-    src/depackers/ptpopen.c
-    src/depackers/xfd_link.c
     src/depackers/xfnmatch.c
+    src/depackers/ptpopen.c
+    src/depackers/xfd.c
+    src/depackers/xfd_link.c
 )
