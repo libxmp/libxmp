@@ -1023,6 +1023,7 @@ static MZ_FORCEINLINE int mz_zip_filename_compare(const mz_zip_array *pCentral_d
     return (pL == pE) ? (int)(l_len - r_len) : (l - r);
 }
 
+#if 0 /* not used in libxmp */
 static mz_bool mz_zip_locate_file_binary_search(mz_zip_archive *pZip, const char *pFilename, mz_uint32 *pIndex)
 {
     mz_zip_internal_state *pState = pZip->m_pState;
@@ -1136,6 +1137,7 @@ mz_bool mz_zip_reader_locate_file_v2(mz_zip_archive *pZip, const char *pName, co
 
     return mz_zip_set_error(pZip, MZ_ZIP_FILE_NOT_FOUND);
 }
+#endif /* #if 0 - not used in libxmp */
 
 mz_bool mz_zip_reader_extract_to_mem_no_alloc(mz_zip_archive *pZip, mz_uint file_index, void *pBuf, size_t buf_size, mz_uint flags, void *pUser_read_buf, size_t user_read_buf_size)
 {
