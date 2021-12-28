@@ -119,6 +119,10 @@
 
 #if 1 /* LIBXMP-SPECIFIC CONFIG: */
 
+#ifndef NDEBUG
+#define NDEBUG /* disable assert()s */
+#endif
+
 /* Defines to completely disable specific portions of miniz.c: 
    If all macros here are defined the only functionality remaining will be CRC-32 and adler-32. */
 
