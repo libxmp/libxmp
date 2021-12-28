@@ -43,22 +43,20 @@ static int test_xfd(unsigned char *b)
 	return _test_xfd(b, 1024);
 }
 
-static int decrunch_xfd(HIO_HANDLE *f1, FILE *f2, long inlen)
+static int decrunch_xfd(HIO_HANDLE *f, void **outbuf, long inlen, long *outlen)
 {
     struct xfdBufferInfo *xfdobj;
     uint8 *packed;
+    void *unpacked;
     int ret = -1;
 
     if (xfdMasterBase == NULL)
 	return -1;
 
-    if (f2 == NULL)
-	return -1;
-
     packed = (uint8 *) AllocVec(inlen,MEMF_CLEAR);
     if (!packed) return -1;
 
-    hio_read(packed,inlen,1,f1);
+    hio_read(packed,inlen,1,f);
 
 	xfdobj = (struct xfdBufferInfo *) xfdAllocObject(XFDOBJ_BUFFERINFO);
 	if(xfdobj)
@@ -72,7 +70,17 @@ static int decrunch_xfd(HIO_HANDLE *f1, FILE *f2, long inlen)
 			xfdobj->xfdbi_TargetBufMemType = MEMF_ANY;
 			if(xfdDecrunchBuffer(xfdobj))
 			{
-				if(fwrite(xfdobj->xfdbi_TargetBuffer,1,xfdobj->xfdbi_TargetBufSaveLen,f2) == xfdobj->xfdbi_TargetBufSaveLen) ret=0;
+				unpacked = malloc(xfdobj->xfdbi_TargetBufSaveLen);
+				if (unpacked) {
+					memcpy(unpacked, xfdobj->xfdbi_TargetBuffer, xfdobj->xfdbi_TargetBufSaveLen);
+					*outbuf = unpacked;
+					*outlen = xfdobj->xfdbi_TargetBufSaveLen;
+					ret=0;
+				}
+				else
+				{
+					ret=-1;
+				}
 				FreeMem(xfdobj->xfdbi_TargetBuffer,xfdobj->xfdbi_TargetBufLen);
 			}
 			else
@@ -88,8 +96,8 @@ static int decrunch_xfd(HIO_HANDLE *f1, FILE *f2, long inlen)
 
 struct depacker libxmp_depacker_xfd = {
 	test_xfd,
-	decrunch_xfd,
-	NULL
+	NULL,
+	decrunch_xfd
 };
 
 #endif /* AMIGA */
