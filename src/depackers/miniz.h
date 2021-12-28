@@ -334,7 +334,7 @@ typedef int mz_bool;
 
 #ifdef _MSC_VER
 #define MZ_FORCEINLINE __forceinline
-#elif defined(__GNUC__)
+#elif (defined(__GNUC__) && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 2))) || defined(__clang__)
 #define MZ_FORCEINLINE __inline__ __attribute__((__always_inline__))
 #else
 #define MZ_FORCEINLINE inline
