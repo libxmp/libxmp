@@ -160,6 +160,14 @@
 #define MINIZ_LITTLE_ENDIAN 0
 #endif
 
+/* prefix the public functions with 'libxmp_' : */
+#define tinfl_decompress libxmp_tinfl_decompress
+#define tinfl_decompress_mem_to_heap libxmp_tinfl_decompress_mem_to_heap
+#define tinfl_decompress_mem_to_mem libxmp_tinfl_decompress_mem_to_mem
+#define tinfl_decompress_mem_to_callback libxmp_tinfl_decompress_mem_to_callback
+#define tinfl_decompressor_alloc libxmp_tinfl_decompressor_alloc
+#define tinfl_decompressor_free libxmp_tinfl_decompressor_free
+
 #endif /* LIBXMP-SPECIFIC */
 
 #ifdef MINIZ_NO_INFLATE_APIS

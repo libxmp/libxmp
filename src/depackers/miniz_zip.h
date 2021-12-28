@@ -2,6 +2,24 @@
 #pragma once
 #include "miniz.h"
 
+#if 1 /* LIBXMP-SPECIFIC : */
+/* change namespace from mz_ to libxmp_ for public functions: */
+#define mz_zip_reader_init libxmp_zip_reader_init
+#define mz_zip_reader_end libxmp_zip_reader_end
+#define mz_zip_get_error_string libxmp_zip_get_error_string
+#define mz_zip_reader_is_file_a_directory libxmp_zip_reader_is_file_a_directory
+#define mz_zip_reader_is_file_encrypted libxmp_zip_reader_is_file_encrypted
+#define mz_zip_reader_is_file_supported libxmp_zip_reader_is_file_supported
+#define mz_zip_reader_get_filename libxmp_zip_reader_get_filename
+#define mz_zip_reader_locate_file libxmp_zip_reader_locate_file
+#define mz_zip_reader_locate_file_v2 libxmp_zip_reader_locate_file_v2
+#define mz_zip_reader_file_stat libxmp_zip_reader_file_stat
+#define mz_zip_reader_extract_to_mem libxmp_zip_reader_extract_to_mem
+#define mz_zip_reader_extract_to_mem_no_alloc libxmp_zip_reader_extract_to_mem_no_alloc
+#define mz_zip_reader_extract_to_heap libxmp_zip_reader_extract_to_heap
+#define mz_zip_reader_extract_to_callback libxmp_zip_reader_extract_to_callback
+#endif /* LIBXMP-SPECIFIC */
+
 /* ------------------- ZIP archive reading/writing */
 
 #ifndef MINIZ_NO_ARCHIVE_APIS
