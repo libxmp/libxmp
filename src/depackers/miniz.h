@@ -277,19 +277,25 @@ typedef void *(*mz_realloc_func)(void *opaque, void *address, size_t items, size
 #include <string.h>
 
 /* ------------------- Types and macros */
+
+#if 1 /* libxmp-specific typedefs: */
+#include "../common.h"
+typedef uint8 mz_uint8;
+typedef int16 mz_int16;
+typedef uint16 mz_uint16;
+typedef uint32 mz_uint32;
+typedef int64 mz_int64;
+typedef uint64 mz_uint64;
+#else
+#include <stdint.h>
 typedef unsigned char mz_uint8;
 typedef signed short mz_int16;
 typedef unsigned short mz_uint16;
 typedef unsigned int mz_uint32;
-typedef unsigned int mz_uint;
-#if defined(_MSC_VER) && (_MSC_VER < 1600)
-typedef signed __int64 mz_int64;
-typedef unsigned __int64 mz_uint64;
-#else
-#include <stdint.h>
 typedef int64_t mz_int64;
 typedef uint64_t mz_uint64;
 #endif
+typedef unsigned int mz_uint;
 typedef int mz_bool;
 
 #define MZ_FALSE (0)
