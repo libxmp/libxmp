@@ -205,6 +205,7 @@ static int decrunch_command(HIO_HANDLE **h, const char * const cmd[], char **tem
 	/* Don't use external helpers in android */
 	return 0;
 #else
+	HIO_HANDLE *tmp;
 	FILE *t;
 
 	D_(D_WARN "Depacking file... ");
@@ -227,10 +228,12 @@ static int decrunch_command(HIO_HANDLE **h, const char * const cmd[], char **tem
 		goto err2;
 	}
 
-	hio_close(*h);
-	*h = hio_open_file2(t);
+	if ((tmp = hio_open_file2(t)) == NULL)
+		return -1;  /* call closes on failure. */
 
-	return (*h == NULL)? -1 : 0;
+	hio_close(*h);
+	*h = tmp;
+	return 0;
 
     err2:
 	fclose(t);
@@ -241,6 +244,7 @@ static int decrunch_command(HIO_HANDLE **h, const char * const cmd[], char **tem
 
 static int decrunch_internal_tempfile(HIO_HANDLE **h, struct depacker *depacker, char **temp)
 {
+	HIO_HANDLE *tmp;
 	FILE *t;
 
 	D_(D_WARN "Depacking file... ");
@@ -263,10 +267,12 @@ static int decrunch_internal_tempfile(HIO_HANDLE **h, struct depacker *depacker,
 		goto err2;
 	}
 
-	hio_close(*h);
-	*h = hio_open_file2(t);
+	if ((tmp = hio_open_file2(t)) == NULL)
+		return -1; /* call closes on failure. */
 
-	return (*h == NULL)? -1 : 0;
+	hio_close(*h);
+	*h = tmp;
+	return 0;
 
     err2:
 	fclose(t);
@@ -276,6 +282,7 @@ static int decrunch_internal_tempfile(HIO_HANDLE **h, struct depacker *depacker,
 
 static int decrunch_internal_memory(HIO_HANDLE **h, struct depacker *depacker)
 {
+	HIO_HANDLE *tmp;
 	void *out;
 	long outlen;
 
@@ -290,10 +297,14 @@ static int decrunch_internal_memory(HIO_HANDLE **h, struct depacker *depacker)
 
 	D_(D_INFO "done");
 
-	hio_close(*h);
-	*h = hio_open_mem(out, outlen, 1);
+	if ((tmp = hio_open_mem(out, outlen, 1)) == NULL) {
+		free(out);
+		return -1;
+	}
 
-	return (*h == NULL)? -1 : 0;
+	hio_close(*h);
+	*h = tmp;
+	return 0;
 }
 
 int libxmp_decrunch(HIO_HANDLE **h, const char *filename, char **temp)
