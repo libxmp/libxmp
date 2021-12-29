@@ -250,7 +250,6 @@ unsigned char *libxmp_convert_lzw_dynamic(unsigned char *data_in,
 	}
 
 	free(data);
-
 	return d;
 
 err2:	free(data);
@@ -367,7 +366,7 @@ static int oldver_getidx(int oldcode,int chr, struct local_data *data)
 }
 
 /* add a string specified by oldstring + chr to string table */
-int addstring(int oldcode,int chr, struct local_data *data)
+static int addstring(int oldcode,int chr, struct local_data *data)
 {
 	int idx;
 
