@@ -628,7 +628,7 @@ enum STBVorbisError
     #elif (defined(__GNUC__) && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 2))) || defined(__clang__)
         #define STB_FORCEINLINE static __inline __attribute__((always_inline))
     #else
-        #define STB_FORCEINLINE static __inline
+        #define STB_FORCEINLINE static inline
     #endif
 #endif
 
