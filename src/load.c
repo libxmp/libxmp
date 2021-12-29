@@ -76,7 +76,7 @@ static char *get_dirname(const char *name)
 			dirname[len] = 0;
 		}
 	} else {
-		dirname = strdup("");
+		dirname = libxmp_strdup("");
 	}
 
 	return dirname;
@@ -88,9 +88,9 @@ static char *get_basename(const char *name)
 	char *basename;
 
 	if ((p = strrchr(name, '/')) != NULL) {
-		basename = strdup(p + 1);
+		basename = libxmp_strdup(p + 1);
 	} else {
-		basename = strdup(name);
+		basename = libxmp_strdup(name);
 	}
 
 	return basename;

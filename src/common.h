@@ -166,7 +166,6 @@ static void __inline D_(const char *text, ...) {
 #define dup _dup
 #define fileno _fileno
 #define strnicmp _strnicmp
-#define strdup _strdup
 #define fdopen _fdopen
 #define open _open
 #define close _close
@@ -486,6 +485,7 @@ uint32	readmem32b		(const uint8 *);
 struct xmp_instrument *libxmp_get_instrument(struct context_data *, int);
 struct xmp_sample *libxmp_get_sample(struct context_data *, int);
 
+char *libxmp_strdup(const char *);
 int libxmp_get_filetype (const char *);
 
 #endif /* LIBXMP_COMMON_H */

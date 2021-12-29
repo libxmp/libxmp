@@ -44,13 +44,12 @@ static int med2_test(HIO_HANDLE *f, char *t, const int start)
 	if (hio_read32b(f) !=  MAGIC_MED2)
 		return -1;
 
-        libxmp_read_title(f, t, 0);
+	libxmp_read_title(f, t, 0);
 
-        return 0;
+	return 0;
 }
 
-
-int med2_load(struct module_data *m, HIO_HANDLE *f, const int start)
+static int med2_load(struct module_data *m, HIO_HANDLE *f, const int start)
 {
 	struct xmp_module *mod = &m->mod;
 	int i, j, k;
