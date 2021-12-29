@@ -530,3 +530,13 @@ void libxmp_schism_tracker_string(char *buf, size_t size, int s_ver, int l_ver)
 	}
 }
 #endif
+
+char *libxmp_strdup(const char *src)
+{
+	size_t len = strlen(src) + 1;
+	char *buf = (char *) malloc(len);
+	if (buf) {
+		memcpy(buf, src, len);
+	}
+	return buf;
+}

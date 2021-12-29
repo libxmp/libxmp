@@ -126,7 +126,7 @@ FILE *make_temp_file(char **filename) {
 
 	strncat(tmp, "xmp_XXXXXX", XMP_MAXPATH - 10);
 
-	if ((*filename = strdup(tmp)) == NULL)
+	if ((*filename = libxmp_strdup(tmp)) == NULL)
 		goto err;
 
 #ifdef HAVE_UMASK

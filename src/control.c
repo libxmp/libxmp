@@ -563,7 +563,7 @@ int xmp_set_instrument_path(xmp_context opaque, const char *path)
 	if (m->instrument_path != NULL)
 		free(m->instrument_path);
 
-	m->instrument_path = strdup(path);
+	m->instrument_path = libxmp_strdup(path);
 	if (m->instrument_path == NULL) {
 		return -XMP_ERROR_SYSTEM;
 	}
