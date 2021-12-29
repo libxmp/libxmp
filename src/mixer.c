@@ -299,7 +299,7 @@ static void init_sample_wraparound(struct mixer_data *s, struct loop_data *ld,
 	int bidir;
 	int i;
 
-	if (s->interp == XMP_INTERP_NEAREST || (~xxs->flg & XMP_SAMPLE_LOOP)) {
+	if (!vi->sptr || s->interp == XMP_INTERP_NEAREST || (~xxs->flg & XMP_SAMPLE_LOOP)) {
 		ld->active = 0;
 		return;
 	}
