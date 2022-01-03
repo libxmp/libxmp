@@ -30,6 +30,7 @@ test_depack_mmcmp
 test_depack_zip
 test_depack_zip_filtered
 test_depack_zip_store
+test_depack_zip_zip64
 test_depack_arcfs
 test_depack_gzip
 test_depack_compress
