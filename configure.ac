@@ -267,6 +267,9 @@ dnl for depackers/xfd.c
   ;;
 esac
 
+dnl FIXME warn about static linking and LGPL 3+ if found.
+AC_CHECK_LIB(unarr, ar_open_rar_archive)
+
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([libxmp.pc])
 AC_OUTPUT

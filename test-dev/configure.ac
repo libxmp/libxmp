@@ -43,6 +43,7 @@ XMP_TRY_COMPILE(whether compiler understands -Wwrite-strings,
   CFLAGS="${CFLAGS} -Wwrite-strings")
 
 AC_CHECK_LIB(m,pow)
+AC_CHECK_LIB(unarr,ar_open_rar_archive)
 AC_CHECK_FUNCS(pipe popen mkstemp fnmatch)
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

@@ -10,7 +10,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Install dependencies
-        run: sudo apt install gcovr lcov unrar
+        run: sudo apt install gcovr lcov libunarr-dev
       - name: Create and run configure script
         run: |
           autoconf; ./configure

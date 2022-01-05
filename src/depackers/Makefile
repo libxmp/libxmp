@@ -4,7 +4,7 @@ DEPACKERS_OBJS	= depacker.o ppdepack.o unsqsh.o mmcmp.o s404_dec.o \
 		  muse.o miniz_tinfl.o miniz_zip.o \
 		  unzip.o gunzip.o uncompress.o bunzip2.o unlha.o \
 		  unlzx.o unxz.o xz_dec_lzma2.o xz_dec_stream.o \
-		  crc32.o xfnmatch.o ptpopen.o xfd.o xfd_link.o
+		  unrar.o crc32.o xfnmatch.o ptpopen.o xfd.o xfd_link.o
 
 DEPACKERS_DFILES = Makefile $(DEPACKERS_OBJS:.o=.c) depacker.h \
 		  miniz.h miniz_zip.h arc_crc16.h arc_types.h arc_unpack.h \

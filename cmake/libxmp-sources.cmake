@@ -154,6 +154,7 @@ set(LIBXMP_SRC_LIST_DEPACKERS
     src/depackers/unxz.c
     src/depackers/xz_dec_lzma2.c
     src/depackers/xz_dec_stream.c
+    src/depackers/unrar.c
     src/depackers/crc32.c
     src/depackers/xfnmatch.c
     src/depackers/ptpopen.c

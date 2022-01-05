@@ -184,6 +184,7 @@ DEPACKER_OBJS= &
  src/depackers/unxz.obj &
  src/depackers/xz_dec_lzma2.obj &
  src/depackers/xz_dec_stream.obj &
+ src/depackers/unrar.obj &
  src/depackers/crc32.obj &
  src/depackers/xfnmatch.obj &
  src/depackers/ptpopen.obj &

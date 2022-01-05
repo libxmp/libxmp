@@ -294,7 +294,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Install dependencies
-        run: sudo apt install unrar
+        run: sudo apt install libunarr-dev
       - name: Create and run configure script
         run: |
           export CC=clang
@@ -314,8 +314,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Install dependencies
-        run: sudo apt install unrar
       - name: Create and run configure script
         run: |
           export CC=clang
@@ -336,7 +334,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Install dependencies
-        run: sudo apt install unrar
+        run: sudo apt install libunarr-dev
       - name: Create and run configure script
         run: |
           export CC=clang

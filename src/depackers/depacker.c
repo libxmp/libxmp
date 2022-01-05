@@ -71,6 +71,7 @@ static struct depacker *depacker_list[] = {
 	&libxmp_depacker_muse,
 	&libxmp_depacker_lzx,
 	&libxmp_depacker_s404,
+	&libxmp_depacker_rar,
 	NULL
 };
 
@@ -342,21 +343,6 @@ int libxmp_decrunch(HIO_HANDLE **h, const char *filename, char **temp)
 			cmd[i++] = "-s";
 			cmd[i++] = filename;
 			cmd[i++] = "STDOUT";
-			cmd[i++] = NULL;
-		} else if (memcmp(b, "Rar", 3) == 0) {
-			/* rar */
-			D_(D_INFO "rar");
-			i = 0;
-			cmd[i++] = "unrar";
-			cmd[i++] = "p";
-			cmd[i++] = "-inul";
-			cmd[i++] = "-xreadme";
-			cmd[i++] = "-x*.diz";
-			cmd[i++] = "-x*.nfo";
-			cmd[i++] = "-x*.txt";
-			cmd[i++] = "-x*.exe";
-			cmd[i++] = "-x*.com";
-			cmd[i++] = filename;
 			cmd[i++] = NULL;
 		}
 	}

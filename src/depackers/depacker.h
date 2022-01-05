@@ -18,6 +18,7 @@ extern struct depacker libxmp_depacker_mmcmp;
 extern struct depacker libxmp_depacker_muse;
 extern struct depacker libxmp_depacker_lzx;
 extern struct depacker libxmp_depacker_s404;
+extern struct depacker libxmp_depacker_rar;
 extern struct depacker libxmp_depacker_xfd;
 
 struct depacker {
