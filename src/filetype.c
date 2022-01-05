@@ -82,15 +82,31 @@ int libxmp_get_filetype (const char *path)
 	return (attr & (_A_SUBDIR|_A_VOLID)) ? XMP_FILETYPE_DIR : XMP_FILETYPE_FILE;
 }
 
+#elif defined(__amigaos4__)
+
+#define __USE_INLINE__
+#include <proto/dos.h>
+
+int libxmp_get_filetype (const char *path)
+{
+	int typ = XMP_FILETYPE_NONE;
+	struct ExamineData *data = ExamineObjectTags(EX_StringNameInput, path, TAG_END);
+	if (data) {
+	    if (EXD_IS_FILE(data)) {
+		typ = XMP_FILETYPE_FILE;
+	    } else
+	    if (EXD_IS_DIRECTORY(data)) {
+		typ = XMP_FILETYPE_DIR;
+	    }
+	    FreeDosObject(DOS_EXAMINEDATA, data);
+	}
+	if (typ == XMP_FILETYPE_NONE) errno = ENOENT;
+	return typ;
+}
+
 #elif defined(LIBXMP_AMIGA)
 
-#ifdef __amigaos4__
-#define __USE_INLINE__
-#endif
 #include <proto/dos.h>
-#ifdef __amigaos4__
-#include <dos/obsolete.h>
-#endif
 
 int libxmp_get_filetype (const char *path)
 {
