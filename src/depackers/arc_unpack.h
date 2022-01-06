@@ -32,14 +32,9 @@
 extern "C" {
 #endif
 
-#include <stddef.h> /* size_t */
+#include "../common.h"
 
-/* TODO libxmp should probably detect this in autoconf. */
-#if 0
-#define ARC_RESTRICT __restrict__
-#endif
-
-#define ARC_RESTRICT
+#define ARC_RESTRICT LIBXMP_RESTRICT
 #define arc_unpack libxmp_arc_unpack
 
 enum arc_method
