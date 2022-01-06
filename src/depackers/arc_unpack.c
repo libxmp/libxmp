@@ -40,6 +40,7 @@
 
 #define ARC_NO_CODE 0xffffffffUL
 #define ARC_RESET_CODE 256
+#define ARC_BUFFER_SIZE 8192 /* Buffer size for multi-stage compression. */
 
 struct arc_code
 {
@@ -87,6 +88,7 @@ struct arc_unpack
   unsigned kwkwk;
   unsigned last_first_value;
 
+  unsigned char *window;
   struct arc_code *tree;
   struct arc_lookup *huffman_lookup;
   struct arc_huffman_index *huffman_tree;
@@ -116,6 +118,7 @@ static int arc_unpack_init(struct arc_unpack *arc, int init_width, int max_width
   arc->last_code = ARC_NO_CODE;
   arc->last_first_value = 0;
   arc->kwkwk = 0;
+  arc->window = NULL;
   arc->tree = NULL;
   arc->huffman_lookup = NULL;
   arc->huffman_tree = NULL;
@@ -143,8 +146,17 @@ static int arc_unpack_init(struct arc_unpack *arc, int init_width, int max_width
   return 0;
 }
 
+static int arc_unpack_window(struct arc_unpack *arc, size_t window_size)
+{
+  arc->window = (unsigned char *)malloc(window_size);
+  if(!arc->window)
+    return -1;
+  return 0;
+}
+
 static void arc_unpack_free(struct arc_unpack *arc)
 {
+  free(arc->window);
   free(arc->tree);
   free(arc->huffman_lookup);
   free(arc->huffman_tree);
@@ -567,7 +579,6 @@ static int arc_unpack_lzw_rle90(unsigned char * ARC_RESTRICT dest, size_t dest_l
  const unsigned char *src, size_t src_len, int init_width, int max_width)
 {
   struct arc_unpack arc;
-  arc_uint8 buffer[4096];
   int is_dynamic = (init_width != max_width);
 
   /* This is only used for Spark method 0xff, which doesn't use RLE. */
@@ -587,11 +598,13 @@ static int arc_unpack_lzw_rle90(unsigned char * ARC_RESTRICT dest, size_t dest_l
 
   if(arc_unpack_init(&arc, init_width, max_width, is_dynamic) != 0)
     return -1;
+  if(arc_unpack_window(&arc, ARC_BUFFER_SIZE) != 0)
+    goto err;
 
   while(arc.lzw_eof == 0)
   {
     arc.lzw_out = 0;
-    if(arc_unlzw_block(&arc, buffer, sizeof(buffer), src, src_len))
+    if(arc_unlzw_block(&arc, arc.window, ARC_BUFFER_SIZE, src, src_len))
     {
       #ifdef ARC_DEBUG
       fprintf(stderr, "arc_unlzw_block failed "
@@ -601,7 +614,7 @@ static int arc_unpack_lzw_rle90(unsigned char * ARC_RESTRICT dest, size_t dest_l
       goto err;
     }
 
-    if(arc_unrle90_block(&arc, dest, dest_len, buffer, arc.lzw_out))
+    if(arc_unrle90_block(&arc, dest, dest_len, arc.window, arc.lzw_out))
     {
       #ifdef ARC_DEBUG
       fprintf(stderr, "arc_unrle90_block failed (%zu in, %zu out)\n",
@@ -804,18 +817,18 @@ static int arc_unpack_huffman_rle90(unsigned char * ARC_RESTRICT dest, size_t de
  const unsigned char *src, size_t src_len)
 {
   struct arc_unpack arc;
-  arc_uint8 buffer[4096];
 
   if(arc_unpack_init(&arc, 0, 0, 0) != 0)
     return -1;
-
+  if(arc_unpack_window(&arc, ARC_BUFFER_SIZE) != 0)
+    goto err;
   if(arc_huffman_init(&arc, src, src_len) != 0)
     goto err;
 
   while(arc.lzw_eof == 0)
   {
     arc.lzw_out = 0;
-    if(arc_unhuffman_block(&arc, buffer, sizeof(buffer), src, src_len))
+    if(arc_unhuffman_block(&arc, arc.window, ARC_BUFFER_SIZE, src, src_len))
     {
       #ifdef ARC_DEBUG
       fprintf(stderr, "arc_unhuffman_block failed "
@@ -825,7 +838,7 @@ static int arc_unpack_huffman_rle90(unsigned char * ARC_RESTRICT dest, size_t de
       goto err;
     }
 
-    if(arc_unrle90_block(&arc, dest, dest_len, buffer, arc.lzw_out))
+    if(arc_unrle90_block(&arc, dest, dest_len, arc.window, arc.lzw_out))
     {
       #ifdef ARC_DEBUG
       fprintf(stderr, "arc_unrle90_block failed (%zu in, %zu out)\n",

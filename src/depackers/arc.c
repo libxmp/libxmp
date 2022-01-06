@@ -210,7 +210,7 @@ static int arc_read_entry(struct arc_entry *e, HIO_HANDLE *f)
   e->compressed_size = arc_mem_u32(buf + 15);
   e->crc16 = arc_mem_u16(buf + 23);
 
-  if(e->method == ARC_M_UNPACKED_OLD)
+  if(!is_packed(e->method))
     e->uncompressed_size = e->compressed_size;
   else
     e->uncompressed_size = arc_mem_u32(buf + 25);
@@ -271,13 +271,11 @@ static int arc_read(unsigned char **dest, size_t *dest_len, HIO_HANDLE *f, unsig
       continue;
     }
 
-    if(e.method == ARC_M_UNPACKED)
-      e.uncompressed_size = e.compressed_size;
-
     /* Skip unknown types, junk compressed sizes, and unsupported uncompressed sizes. */
     if(arc_method_is_supported(e.method) < 0 ||
        e.compressed_size > file_len ||
-       e.uncompressed_size > ARC_MAX_OUTPUT)
+       e.uncompressed_size > ARC_MAX_OUTPUT ||
+       libxmp_exclude_match(e.filename))
     {
 #ifdef ARC_DEBUG
       debug("skipping: method=%d compr=%zu uncompr=%zu\n",

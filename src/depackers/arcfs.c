@@ -218,7 +218,7 @@ static int arcfs_read(unsigned char **dest, size_t *dest_len, HIO_HANDLE *f, uns
     if(e.is_directory || e.method == ARCFS_END_OF_DIR || e.method == ARCFS_DELETED)
       continue;
 
-    if(e.method == ARC_M_UNPACKED && e.compressed_size != e.uncompressed_size)
+    if(e.method == ARC_M_UNPACKED)
       e.compressed_size = e.uncompressed_size;
 
     /* Ignore junk offset/size. */
@@ -235,6 +235,9 @@ static int arcfs_read(unsigned char **dest, size_t *dest_len, HIO_HANDLE *f, uns
 
     /* Ignore unsupported methods. */
     if(arc_method_is_supported(e.method) < 0)
+      continue;
+
+    if(libxmp_exclude_match(e.filename))
       continue;
 
     /* Read file. */

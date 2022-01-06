@@ -394,7 +394,8 @@ int libxmp_exclude_match(const char *name)
 	int i;
 
 	static const char *const exclude[] = {
-		"README", "readme",
+		"README", "readme", "ReadMe",
+		"ReadMe!", "readMe!", "!ReadMe!",
 		"*.DIZ", "*.diz",
 		"*.NFO", "*.nfo",
 		"*.DOC", "*.Doc", "*.doc",
@@ -403,6 +404,8 @@ int libxmp_exclude_match(const char *name)
 		"*.EXE", "*.exe",
 		"*.COM", "*.com",
 		"*.README", "*.readme", "*.Readme", "*.ReadMe",
+		/* Found in Spark archives. */
+		"\\?From", "From\\?", "InfoText",
 		NULL
 	};
 
