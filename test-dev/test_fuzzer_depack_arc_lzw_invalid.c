@@ -11,7 +11,7 @@ TEST(test_fuzzer_depack_arc_lzw_invalid)
 
 	opaque = xmp_create_context();
 	ret = xmp_load_module(opaque, "data/f/depack_arc_lzw_invalid");
-	fail_unless(ret == -XMP_ERROR_FORMAT, "depacking");
+	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking");
 
 	xmp_free_context(opaque);
 }

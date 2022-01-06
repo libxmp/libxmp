@@ -12,7 +12,7 @@ TEST(test_fuzzer_depack_arc_slow_rle)
 
 	opaque = xmp_create_context();
 	ret = xmp_load_module(opaque, "data/f/depack_arc_slow_rle");
-	fail_unless(ret == -XMP_ERROR_FORMAT, "depacking");
+	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking");
 
 	xmp_free_context(opaque);
 }

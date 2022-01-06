@@ -138,10 +138,10 @@ set(LIBXMP_SRC_LIST_DEPACKERS
     src/depackers/unsqsh.c
     src/depackers/mmcmp.c
     src/depackers/s404_dec.c
-    src/depackers/unarc.c
+    src/depackers/arc.c
     src/depackers/arcfs.c
-    src/depackers/readrle.c
-    src/depackers/readlzw.c
+    src/depackers/arc_crc16.c
+    src/depackers/arc_unpack.c
     src/depackers/muse.c
     src/depackers/miniz_tinfl.c
     src/depackers/miniz_zip.c

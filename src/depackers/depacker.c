@@ -65,12 +65,12 @@ static struct depacker *depacker_list[] = {
 	&libxmp_depacker_compress,
 	&libxmp_depacker_pp,
 	&libxmp_depacker_sqsh,
+	&libxmp_depacker_arc,
 	&libxmp_depacker_arcfs,
 	&libxmp_depacker_mmcmp,
 	&libxmp_depacker_muse,
 	&libxmp_depacker_lzx,
 	&libxmp_depacker_s404,
-	&libxmp_depacker_arc,
 	NULL
 };
 
