@@ -22,10 +22,12 @@ QUIRKS		=
 
 SMPLOADERS	= 8bit 16bit delta signal endian skip
 
-DEPACKERS	= pp sqsh s404 mmcmp zip zip_filtered zip_store zip_zip64 arcfs \
-		  gzip compress arc_method2 arc_method8 rar \
-		  spark j2b lzx bzip2 xz lha_l0_lzhuff1 lha_l0_lzhuff5 \
-		  lha_l1_lzhuff5 lha_l1_lzhuff6 lha_l1_lzhuff7 lha_l2_lzhuff7 \
+DEPACKERS	= pp sqsh s404 mmcmp zip zip_filtered zip_store zip_zip64 \
+		  arc_method2 arc_method3 arc_method4 arc_method8 arc_method9 \
+		  arc_subdir_6 arc_subdir_spark spark arcfs arcfs_subdir \
+		  gzip compress rar j2b lzx bzip2 xz \
+		  lha_l0_lzhuff1 lha_l0_lzhuff5 lha_l1_lzhuff5 \
+		  lha_l1_lzhuff6 lha_l1_lzhuff7 lha_l2_lzhuff7 \
 		  lha_l0_filtered lha_l1_filtered lha_l2_filtered \
 		  vorbis vorbis_8bit \
 		  it_sample_8bit it_sample_16bit
@@ -511,15 +513,10 @@ FUZZER		= misc \
 		  prowizard_unic_truncated \
 		  prowizard_xann_invalid \
 		  prowizard_zen_invalid_note \
-		  depack_arc_large_output \
-		  depack_arc_lzw_invalid \
+		  depack_arc_invalid \
+		  depack_arc_pak10 \
 		  depack_arc_slow_rle \
-		  depack_arcfs_invalid_bits \
-		  depack_arcfs_lzw_leak \
-		  depack_arcfs_negative_header_size \
-		  depack_arcfs_negative_size \
-		  depack_arcfs_no_files \
-		  depack_arcfs_zero_length \
+		  depack_arcfs_invalid \
 		  depack_bz2_invalid_selector \
 		  depack_compress_invalid_maxbits \
 		  depack_gzip_invalid_name \

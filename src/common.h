@@ -28,6 +28,14 @@
 #define inline __inline
 #endif
 
+#if (defined(__GNUC__) && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))) ||\
+    (defined(_MSC_VER) && (_MSC_VER >= 1400)) || \
+    (defined(__WATCOMC__) && (__WATCOMC__ >= 1250) && !defined(__cplusplus))
+#define LIBXMP_RESTRICT __restrict
+#else
+#define LIBXMP_RESTRICT
+#endif
+
 #if defined(_MSC_VER) ||  defined(__WATCOMC__) || defined(__EMX__)
 #define XMP_MAXPATH _MAX_PATH
 #elif defined(PATH_MAX)

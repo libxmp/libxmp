@@ -163,10 +163,10 @@ DEPACKER_OBJS	= \
  src\depackers\unsqsh.obj \
  src\depackers\mmcmp.obj \
  src\depackers\s404_dec.obj \
- src\depackers\unarc.obj \
+ src\depackers\arc.obj \
  src\depackers\arcfs.obj \
- src\depackers\readrle.obj \
- src\depackers\readlzw.obj \
+ src\depackers\arc_crc16.obj \
+ src\depackers\arc_unpack.obj \
  src\depackers\muse.obj \
  src\depackers\miniz_tinfl.obj \
  src\depackers\miniz_zip.obj \

@@ -65,12 +65,12 @@ static struct depacker *depacker_list[] = {
 	&libxmp_depacker_compress,
 	&libxmp_depacker_pp,
 	&libxmp_depacker_sqsh,
+	&libxmp_depacker_arc,
 	&libxmp_depacker_arcfs,
 	&libxmp_depacker_mmcmp,
 	&libxmp_depacker_muse,
 	&libxmp_depacker_lzx,
 	&libxmp_depacker_s404,
-	&libxmp_depacker_arc,
 	NULL
 };
 
@@ -394,7 +394,8 @@ int libxmp_exclude_match(const char *name)
 	int i;
 
 	static const char *const exclude[] = {
-		"README", "readme",
+		"README", "readme", "ReadMe",
+		"ReadMe!", "readMe!", "!ReadMe!",
 		"*.DIZ", "*.diz",
 		"*.NFO", "*.nfo",
 		"*.DOC", "*.Doc", "*.doc",
@@ -403,6 +404,8 @@ int libxmp_exclude_match(const char *name)
 		"*.EXE", "*.exe",
 		"*.COM", "*.com",
 		"*.README", "*.readme", "*.Readme", "*.ReadMe",
+		/* Found in Spark archives. */
+		"\\?From", "From\\?", "InfoText",
 		NULL
 	};
 
