@@ -11,29 +11,10 @@
  * No standard.
  */
 
+#include <setjmp.h>
 #include "../common.h"
 #include "depacker.h"
 #include "crc32.h"
-
-#if 1
-void error_exit(const char *msg) {
-    fputs(msg, stderr);
-    fflush(stderr);
-    exit(1);
-}
-
-void *xzalloc(size_t size) {
-    void *mem = calloc(1, size);
-    if (!mem) error_exit("Out of memory");
-    return mem;
-}
-
-void *xmalloc(size_t size) {
-    void *mem = malloc(size);
-    if (!mem) error_exit("Out of memory");
-    return mem;
-}
-#endif
 
 #define THREADS 1
 
@@ -53,6 +34,10 @@ void *xmalloc(size_t size) {
 #define RETVAL_NOT_BZIP_DATA     (-1)
 #define RETVAL_DATA_ERROR        (-2)
 #define RETVAL_OBSOLETE_INPUT    (-3)
+// libxmp additions:
+#define RETVAL_OUT_OF_MEMORY         (-4)
+#define RETVAL_UNEXPECTED_INPUT_EOF  (-5)
+#define RETVAL_UNEXPECTED_OUTPUT_EOF (-6)
 
 // This is what we know about each huffman coding group
 struct group_data {
@@ -100,6 +85,9 @@ struct bunzip_data {
   // Second pass decompression data (burrows-wheeler transform)
   unsigned int dbufSize;
   struct bwdata bwdata[THREADS];
+
+  /* libxmp: For I/O error handling */
+  jmp_buf jmpbuf;
 };
 
 static void crc_init(unsigned *crc_table, int little_endian)
@@ -129,7 +117,7 @@ static unsigned int get_bits(struct bunzip_data *bd, char bits_wanted)
     // If we need to read more data from file into byte buffer, do so
     if (bd->inbufPos == bd->inbufCount) {
       if (0 >= (bd->inbufCount = hio_read(bd->inbuf, 1, IOBUF_SIZE, bd->in_fd))) /* libxmp: read -> hio_read */
-        error_exit("input EOF");
+        longjmp(bd->jmpbuf, RETVAL_UNEXPECTED_INPUT_EOF); /* libxmp: error_exit -> longjmp */
       bd->inbufPos = 0;
     }
 
@@ -174,6 +162,11 @@ static int read_block_header(struct bunzip_data *bd, struct bwdata *bw)
   struct group_data *hufGroup;
   int hh, ii, jj, kk, symCount;
   unsigned char uc;
+  int i;
+
+  /* libxmp: Reset longjmp I/O error handling */
+  i = setjmp(bd->jmpbuf);
+  if (i) return i;
 
   // Read in header signature and CRC (which is stored big endian)
   ii = get_bits(bd, 24);
@@ -444,14 +437,15 @@ static int read_huffman_data(struct bunzip_data *bd, struct bwdata *bw)
 }
 
 // Flush output buffer to disk
-/* libxmp: int -> FILE * * */
-static void flush_bunzip_outbuf(struct bunzip_data *bd, FILE *out_fd)
+/* libxmp: int -> FILE *, added return value */
+static int flush_bunzip_outbuf(struct bunzip_data *bd, FILE *out_fd)
 {
   if (bd->outbufPos) {
     if (fwrite(bd->outbuf, 1, bd->outbufPos, out_fd) != bd->outbufPos) /* libxmp: write -> fwrite */
-      error_exit("output EOF");
+      return RETVAL_UNEXPECTED_OUTPUT_EOF; /* libxmp: error_exit -> RETVAL_UNEXPECTED_OUTPUT_EOF */
     bd->outbufPos = 0;
   }
+  return 0;
 }
 
 static void burrows_wheeler_prep(struct bunzip_data *bd, struct bwdata *bw)
@@ -567,7 +561,10 @@ static int write_bunzip_data(struct bunzip_data *bd, struct bwdata *bw,
 
       // Output bytes to buffer, flushing to file if necessary
       while (copies--) {
-        if (bd->outbufPos == IOBUF_SIZE) flush_bunzip_outbuf(bd, out_fd);
+        if (bd->outbufPos == IOBUF_SIZE) {
+            int i = flush_bunzip_outbuf(bd, out_fd); /* libxmp: error checking */
+            if (i) return i;
+        }
         bd->outbuf[bd->outbufPos++] = outbyte;
         bw->dataCRC = (bw->dataCRC << 8)
                 ^ bd->crc32Table[(bw->dataCRC >> 24) ^ outbyte];
@@ -619,7 +616,8 @@ static int start_bunzip(struct bunzip_data **bdp, HIO_HANDLE *src_fd, unsigned c
   if (!len) i += IOBUF_SIZE;
 
   // Allocate bunzip_data. Most fields initialize to zero.
-  bd = *bdp = xzalloc(i);
+  bd = *bdp = calloc(1, i); /* libxmp: xzalloc -> calloc + error checking */
+  if (!bd) return RETVAL_OUT_OF_MEMORY;
   if (len) {
     bd->inbuf = inbuf;
     bd->inbufCount = len;
@@ -631,6 +629,10 @@ static int start_bunzip(struct bunzip_data **bdp, HIO_HANDLE *src_fd, unsigned c
 
   crc_init(bd->crc32Table, 0);
 
+  /* libxmp: Setup for I/O error handling via longjmp */
+  i = setjmp(bd->jmpbuf);
+  if (i) return i;
+
   // Ensure that file starts with "BZh".
   for (i=0;i<3;i++) if (get_bits(bd,8)!="BZh"[i]) return RETVAL_NOT_BZIP_DATA;
 
@@ -639,8 +641,10 @@ static int start_bunzip(struct bunzip_data **bdp, HIO_HANDLE *src_fd, unsigned c
   i = get_bits(bd, 8);
   if (i<'1' || i>'9') return RETVAL_NOT_BZIP_DATA;
   bd->dbufSize = 100000*(i-'0')*THREADS;
-  for (i=0; i<THREADS; i++)
-    bd->bwdata[i].dbuf = xmalloc(bd->dbufSize * sizeof(int));
+  for (i=0; i<THREADS; i++) {
+    bd->bwdata[i].dbuf = malloc(bd->dbufSize * sizeof(int)); /* libxmp: xmalloc -> malloc + error checking */
+    if (!bd->bwdata[i].dbuf) return RETVAL_OUT_OF_MEMORY;
+  }
 
   return 0;
 }
@@ -662,7 +666,7 @@ static int decrunch_bzip2(HIO_HANDLE *src, FILE *dst, long inlen)
       else i = RETVAL_DATA_ERROR;
     }
   }
-  flush_bunzip_outbuf(bd, dst);
+  if (!i) i = flush_bunzip_outbuf(bd, dst);
 
   for (j=0; j<THREADS; j++) free(bd->bwdata[j].dbuf);
   free(bd);
