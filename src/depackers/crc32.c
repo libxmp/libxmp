@@ -25,42 +25,6 @@
 #include "../common.h"
 #include "crc32.h"
 
-/* FIXME removed in bunzip2 patch. bzip2 is pretty much the only thing libxmp
- * cares about that uses the MSB version of the standard CRC-32, and most
- * bunzip2 implementations come with their own. */
-uint32 libxmp_crc32_table_B[256];
-
-static void crc_table_init_B(uint32 poly, uint32 *table)
-{
-	int i, j;
-	uint32 k;
-
-	for (i = 0; i < 256; i++) {
-		k = i << 24;
-		for (j = 0; j < 8; j++) {
-			k = k & 0x80000000 ? (k << 1) ^ poly : k << 1;
-		}
-
-		table[i] = k;
-	}
-
-	return;
-}
-
-void libxmp_crc32_init_B()
-{
-	static int flag = 0;
-
-	if (flag)
-		return;
-
-	crc_table_init_B(0x04c11db7, libxmp_crc32_table_B);
-
-	flag = 1;
-}
-
-/* end FIXME removed in bunzip2 patch */
-
 #define CRC(table) do{ crc = table[*buf++ ^ (crc & 0xff)] ^ (crc >> 8); }while(0)
 
 static const uint32 crc32_A_table[256] = {
