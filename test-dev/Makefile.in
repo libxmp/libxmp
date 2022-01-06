@@ -513,15 +513,10 @@ FUZZER		= misc \
 		  prowizard_unic_truncated \
 		  prowizard_xann_invalid \
 		  prowizard_zen_invalid_note \
-		  depack_arc_large_output \
-		  depack_arc_lzw_invalid \
+		  depack_arc_invalid \
+		  depack_arc_pak10 \
 		  depack_arc_slow_rle \
-		  depack_arcfs_invalid_bits \
-		  depack_arcfs_lzw_leak \
-		  depack_arcfs_negative_header_size \
-		  depack_arcfs_negative_size \
-		  depack_arcfs_no_files \
-		  depack_arcfs_zero_length \
+		  depack_arcfs_invalid \
 		  depack_bz2_invalid_selector \
 		  depack_compress_invalid_maxbits \
 		  depack_gzip_invalid_name \

@@ -238,9 +238,9 @@ static int arc_read(unsigned char **dest, size_t *dest_len, HIO_HANDLE *f, unsig
   {
     if(arc_read_entry(&e, f) < 0)
     {
-#ifdef ARC_DEBUG
+      #ifdef ARC_DEBUG
       debug("failed to read ARC entry\n");
-#endif
+      #endif
       return -1;
     }
 
@@ -251,9 +251,9 @@ static int arc_read(unsigned char **dest, size_t *dest_len, HIO_HANDLE *f, unsig
         /* Valid directories can be continued out of directly into the following
          * parent directory files. Note: manually nested archives where the inner
          * archive has trailing data may end up erroring due to this simple handling. */
-#ifdef ARC_DEBUG
+        #ifdef ARC_DEBUG
         debug("exiting directory\n");
-#endif
+        #endif
         level--;
         continue;
       }
@@ -264,9 +264,9 @@ static int arc_read(unsigned char **dest, size_t *dest_len, HIO_HANDLE *f, unsig
      * The contents of these can just be read as if they're part of the parent. */
     if(is_directory(&e))
     {
-#ifdef ARC_DEBUG
+      #ifdef ARC_DEBUG
       debug("entering directory: %s\n", e.filename);
-#endif
+      #endif
       level++;
       continue;
     }
@@ -277,19 +277,19 @@ static int arc_read(unsigned char **dest, size_t *dest_len, HIO_HANDLE *f, unsig
        e.uncompressed_size > ARC_MAX_OUTPUT ||
        libxmp_exclude_match(e.filename))
     {
-#ifdef ARC_DEBUG
+      #ifdef ARC_DEBUG
       debug("skipping: method=%d compr=%zu uncompr=%zu\n",
        e.method, (size_t)e.compressed_size, (size_t)e.uncompressed_size);
-#endif
+      #endif
       if(hio_seek(f, e.compressed_size, SEEK_CUR) < 0)
         return -1;
 
       continue;
     }
 
-#ifdef ARC_DEBUG
+    #ifdef ARC_DEBUG
     debug("file: %s\n", e.filename);
-#endif
+    #endif
 
     /* Attempt to unpack. */
     in = (unsigned char *)malloc(e.compressed_size);
@@ -315,9 +315,9 @@ static int arc_read(unsigned char **dest, size_t *dest_len, HIO_HANDLE *f, unsig
       err = arc_unpack(out, out_len, in, e.compressed_size, e.method, 0);
       if(err != NULL)
       {
-#ifdef ARC_DEBUG
+        #ifdef ARC_DEBUG
         debug("error unpacking: %s\n", err);
-#endif
+        #endif
         free(in);
         free(out);
         return -1;
@@ -333,10 +333,10 @@ static int arc_read(unsigned char **dest, size_t *dest_len, HIO_HANDLE *f, unsig
     out_crc16 = arc_crc16(out, out_len);
     if(e.crc16 != out_crc16)
     {
-#ifdef ARC_DEBUG
+      #ifdef ARC_DEBUG
       debug("crc16 mismatch: expected %zu, got %zu\n",
        (size_t)e.crc16, (size_t)out_crc16);
-#endif
+      #endif
       free(out);
       return -1;
     }
