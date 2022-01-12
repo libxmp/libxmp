@@ -45,7 +45,7 @@ static int mmd1_test(HIO_HANDLE *f, char *t, const int start)
 	if (hio_read(id, 1, 4, f) < 4)
 		return -1;
 
-	if (memcmp(id, "MMD0", 4) && memcmp(id, "MMD1", 4))
+	if (memcmp(id, "MMD0", 4) && memcmp(id, "MMD1", 4) && memcmp(id, "MMDC", 4))
 		return -1;
 
 	hio_seek(f, 28, SEEK_CUR);
@@ -81,9 +81,10 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	struct xmp_event *event;
 	uint32 *blockarr = NULL;
 	uint32 *smplarr = NULL;
+	uint8 *patbuf = NULL;
 	int ver = 0;
+	int mmdc = 0;
 	int smp_idx = 0;
-	uint8 e[4];
 	int song_offset;
 	int blockarr_offset;
 	int smplarr_offset;
@@ -93,6 +94,7 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	int iinfo_offset;
 	int annotxt_offset;
 	int bpm_on, bpmlen, med_8ch, hexvol;
+	int max_lines;
 	int retval = -1;
 
 	LOAD_INIT();
@@ -100,6 +102,10 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	hio_read(&header.id, 4, 1, f);
 
 	ver = *((char *)&header.id + 3) - '1' + 1;
+	if (ver > 1) {
+		ver = 0;
+		mmdc = 1;
+	}
 
 	D_(D_WARN "load header");
 	header.modlen = hio_read32b(f);
@@ -335,6 +341,7 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	 */
 	D_(D_WARN "find number of channels");
 
+	max_lines = 1;
 	for (i = 0; i < mod->pat; i++) {
 		D_(D_INFO "block %d block_offset = 0x%08x", i, blockarr[i]);
 		if (blockarr[i] == 0)
@@ -347,14 +354,23 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		if (ver > 0) {
 			block.numtracks = hio_read16b(f);
-			/* block.lines = */ hio_read16b(f);
+			block.lines = hio_read16b(f);
 		} else {
 			block.numtracks = hio_read8(f);
-			/* block.lines = */ hio_read8(f);
+			block.lines = hio_read8(f);
+		}
+
+		/* Sanity check--Amiga OctaMED files have an upper bound of 3200 lines per block. */
+		if (block.lines + 1 > 3200) {
+			D_(D_CRIT "invalid line count %d in block %d", block.lines + 1, i);
+			goto err_cleanup;
 		}
 
 		if (block.numtracks > mod->chn) {
 			mod->chn = block.numtracks;
+		}
+		if (block.lines + 1 > max_lines) {
+			max_lines = block.lines + 1;
 		}
 	}
 
@@ -367,7 +383,8 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	mod->trk = mod->pat * mod->chn;
 
-	libxmp_set_type(m, ver == 0 ? mod->chn > 4 ? "OctaMED 2.00 MMD0" :
+	libxmp_set_type(m, ver == 0 ? mmdc ? "MED Packer MMDC" :
+				mod->chn > 4 ? "OctaMED 2.00 MMD0" :
 				"MED 2.10 MMD0" : "OctaMED 4.00 MMD1");
 
 	MODULE_INFO();
@@ -383,7 +400,14 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	if (libxmp_init_pattern(mod) < 0)
 		goto err_cleanup;
 
+	if ((patbuf = (uint8 *)malloc(mod->chn * max_lines * 4)) == NULL) {
+		goto err_cleanup;
+	}
+
 	for (i = 0; i < mod->pat; i++) {
+		uint8 *pos;
+		size_t size;
+
 		if (blockarr[i] == 0)
 			continue;
 
@@ -401,25 +425,50 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			block.lines = hio_read8(f);
 		}
 
-		/* Sanity check--Amiga OctaMED files have an upper bound of 3200 lines per block. */
-		if (block.lines + 1 > 3200) {
-			D_(D_CRIT "invalid line count %d in block %d", block.lines + 1, i);
-			goto err_cleanup;
+		size = block.numtracks * (block.lines + 1) * (ver ? 4 : 3);
+
+		if (mmdc) {
+			/* MMDC is just MMD0 with simple pattern packing. */
+			memset(patbuf, 0, size);
+			for (j = 0; j < size;) {
+				unsigned pack = hio_read8(f);
+				if (hio_error(f)) {
+					D_(D_CRIT "read error in block %d", i);
+					goto err_cleanup;
+				}
+
+				if (pack & 0x80) {
+					/* Run of 0 */
+					j += 256 - pack;
+					continue;
+				}
+				/* Uncompressed block */
+				pack++;
+				if (pack > size - j)
+					pack = size - j;
+
+				if (hio_read(patbuf + j, 1, pack, f) < pack) {
+					D_(D_CRIT "read error in block %d", i);
+					goto err_cleanup;
+				}
+				j += pack;
+			}
+		} else {
+			if (hio_read(patbuf, 1, size, f) < size) {
+				D_(D_CRIT "read error in block %d", i);
+				goto err_cleanup;
+			}
 		}
 
 		if (libxmp_alloc_pattern_tracks_long(mod, i, block.lines + 1) < 0)
 			goto err_cleanup;
 
+		pos = patbuf;
 		if (ver > 0) {		/* MMD1 */
 			for (j = 0; j < mod->xxp[i]->rows; j++) {
 				for (k = 0; k < block.numtracks; k++) {
-					e[0] = hio_read8(f);
-					e[1] = hio_read8(f);
-					e[2] = hio_read8(f);
-					e[3] = hio_read8(f);
-
 					event = &EVENT(i, k, j);
-					event->note = e[0] & 0x7f;
+					event->note = pos[0] & 0x7f;
 					if (event->note)
 						event->note +=
 						    12 + song.playtransp;
@@ -427,32 +476,25 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 					if (event->note >= XMP_MAX_KEYS)
 						event->note = 0;
 
-					event->ins = e[1] & 0x3f;
+					event->ins = pos[1] & 0x3f;
 
 					/* Decay */
 					if (event->ins && !event->note) {
 						event->f2t = FX_MED_HOLD;
 					}
 
-					event->fxt = e[2];
-					event->fxp = e[3];
+					event->fxt = pos[2];
+					event->fxp = pos[3];
 					mmd_xlat_fx(event, bpm_on, bpmlen,
 							med_8ch, hexvol);
-				}
-				if (hio_error(f)) {
-					D_(D_CRIT "read error in block %d", i);
-					goto err_cleanup;
+					pos += 4;
 				}
 			}
 		} else {		/* MMD0 */
 			for (j = 0; j < mod->xxp[i]->rows; j++) {
 				for (k = 0; k < block.numtracks; k++) {
-					e[0] = hio_read8(f);
-					e[1] = hio_read8(f);
-					e[2] = hio_read8(f);
-
 					event = &EVENT(i, k, j);
-					event->note = e[0] & 0x3f;
+					event->note = pos[0] & 0x3f;
 					if (event->note)
 						event->note += 12;
 
@@ -460,26 +502,25 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 						event->note = 0;
 
 					event->ins =
-					    (e[1] >> 4) | ((e[0] & 0x80) >> 3)
-					    | ((e[0] & 0x40) >> 1);
+					    (pos[1] >> 4) | ((pos[0] & 0x80) >> 3)
+					    | ((pos[0] & 0x40) >> 1);
 
 					/* Decay */
 					if (event->ins && !event->note) {
 						event->f2t = FX_MED_HOLD;
 					}
 
-					event->fxt = e[1] & 0x0f;
-					event->fxp = e[2];
+					event->fxt = pos[1] & 0x0f;
+					event->fxp = pos[2];
 					mmd_xlat_fx(event, bpm_on, bpmlen,
 							med_8ch, hexvol);
-				}
-				if (hio_error(f)) {
-					D_(D_CRIT "read error in block %d", i);
-					goto err_cleanup;
+					pos += 3;
 				}
 			}
 		}
 	}
+	free(patbuf);
+	patbuf = NULL;
 
 	if (libxmp_med_new_module_extras(m))
 		goto err_cleanup;
@@ -652,6 +693,7 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	free(exp_smp);
 	free(blockarr);
 	free(smplarr);
+	free(patbuf);
 
 	return retval;
 }
