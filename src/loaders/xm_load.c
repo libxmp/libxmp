@@ -600,7 +600,7 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 			for (j = 12; j < 108; j++) {
 				xxi->map[j].ins = xi.sample[j - 12];
 				if (xxi->map[j].ins >= xxi->nsm)
-					xxi->map[j].ins = -1;
+					xxi->map[j].ins = 0xff;
 			}
 		}
 
