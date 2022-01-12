@@ -144,6 +144,7 @@ test_loader_mmd0_compattempo
 test_loader_mmd1_longpat
 test_loader_mmd3
 test_loader_mmd_iff3oct
+test_loader_mmdc
 test_loader_mfp
 test_loader_mgt
 test_loader_mtm

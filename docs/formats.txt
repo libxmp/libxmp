@@ -99,6 +99,7 @@ PSM		Epic Megagames MASI	epic, sinaria
 J2B		Galaxy Music System 5.0	-
 -		Galaxy Music System 4.0	-
 MFP/SMP		Magnetic Fields Packer  -
+MMDC		MED Packer		-
 -		Novotrade Packer	-
 PSM		Protracker Studio	0.01, 1.00
 STIM		Slamtilt		-

@@ -77,9 +77,9 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	struct xmp_event *event;
 	uint32 *blockarr = NULL;
 	uint32 *smplarr = NULL;
+	uint8 *patbuf = NULL;
 	int ver = 0;
 	int smp_idx = 0;
-	uint8 e[4];
 	int song_offset;
 	int seqtable_offset;
 	int trackvols_offset;
@@ -93,6 +93,7 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	int mmdinfo_offset;
 	int playseq_offset;
 	int bpm_on, bpmlen, med_8ch, hexvol;
+	int max_lines;
 	int retval = -1;
 
 	LOAD_INIT();
@@ -345,6 +346,7 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	 */
 	D_(D_WARN "find number of channels");
 
+	max_lines = 1;
 	for (i = 0; i < mod->pat; i++) {
 		D_(D_INFO "block %d block_offset = 0x%08x", i, blockarr[i]);
 		if (blockarr[i] == 0)
@@ -353,14 +355,25 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		hio_seek(f, start + blockarr[i], SEEK_SET);
 
 		block.numtracks = hio_read16b(f);
-		/* block.lines = */ hio_read16b(f);
+		block.lines = hio_read16b(f);
 		if (hio_error(f)) {
 			D_(D_CRIT "read error at block %d", i);
 			goto err_cleanup;
 		}
 
+		/* Sanity check--Amiga OctaMED files have an upper bound of 3200 lines per block,
+		 * but MED Soundstudio for Windows allows up to 9999 lines.
+		  */
+		if (block.lines + 1 > 9999) {
+			D_(D_CRIT "invalid line count %d in block %d", block.lines + 1, i);
+			goto err_cleanup;
+		}
+
 		if (block.numtracks > mod->chn) {
 			mod->chn = block.numtracks;
+		}
+		if (block.lines + 1 > max_lines) {
+			max_lines = block.lines + 1;
 		}
 	}
 
@@ -391,7 +404,14 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	if (libxmp_init_pattern(mod) < 0)
 		goto err_cleanup;
 
+	if ((patbuf = (uint8 *)malloc(mod->chn * max_lines * 4)) == NULL) {
+		goto err_cleanup;
+	}
+
 	for (i = 0; i < mod->pat; i++) {
+		uint8 *pos;
+		size_t size;
+
 		if (blockarr[i] == 0)
 			continue;
 
@@ -401,26 +421,20 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		block.lines = hio_read16b(f);
 		hio_read32b(f); /* FIXME: should try to load extra command pages when they exist. */
 
-		/* Sanity check--Amiga OctaMED files have an upper bound of 3200 lines per block,
-		 * but MED Soundstudio for Windows allows up to 9999 lines.
-		  */
-		if (block.lines + 1 > 9999) {
-			D_(D_CRIT "invalid line count %d in block %d", block.lines + 1, i);
+		size = block.numtracks * (block.lines + 1) * 4;
+		if (hio_read(patbuf, 1, size, f) < size) {
+			D_(D_CRIT "read error in block %d", i);
 			goto err_cleanup;
 		}
 
 		if (libxmp_alloc_pattern_tracks_long(mod, i, block.lines + 1) < 0)
 			goto err_cleanup;
 
+		pos = patbuf;
 		for (j = 0; j < mod->xxp[i]->rows; j++) {
 			for (k = 0; k < block.numtracks; k++) {
-				e[0] = hio_read8(f);
-				e[1] = hio_read8(f);
-				e[2] = hio_read8(f);
-				e[3] = hio_read8(f);
-
 				event = &EVENT(i, k, j);
-				event->note = e[0] & 0x7f;
+				event->note = pos[0] & 0x7f;
 				if (event->note) {
 					event->note += song.playtransp;
 					if (ver == 2)
@@ -432,24 +446,23 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 				if (event->note >= XMP_MAX_KEYS)
 					event->note = 0;
 
-				event->ins = e[1] & 0x3f;
+				event->ins = pos[1] & 0x3f;
 
 				/* Decay */
 				if (event->ins && !event->note) {
 					event->f2t = FX_MED_HOLD;
 				}
 
-				event->fxt = e[2];
-				event->fxp = e[3];
+				event->fxt = pos[2];
+				event->fxp = pos[3];
 				mmd_xlat_fx(event, bpm_on, bpmlen,
 						med_8ch, hexvol);
-			}
-			if (hio_error(f)) {
-				D_(D_CRIT "read error in block %d", i);
-				goto err_cleanup;
+				pos += 4;
 			}
 		}
 	}
+	free(patbuf);
+	patbuf = NULL;
 
 	if (libxmp_med_new_module_extras(m) != 0)
 		goto err_cleanup;
@@ -640,6 +653,7 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	free(exp_smp);
 	free(blockarr);
 	free(smplarr);
+	free(patbuf);
 
 	return retval;
 }
