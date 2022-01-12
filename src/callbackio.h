@@ -31,7 +31,7 @@ static inline int8 cbread8s(CBFILE *f, int *err)
 static inline uint16 cbread16l(CBFILE *f, int *err)
 {
 	uint8 buf[2];
-	uint16 x = EOF;
+	uint16 x = 0xffff;
 	size_t r = f->callbacks.read_func(buf, 2, 1, f->priv);
 	f->eof = (r == 1) ? 0 : EOF;
 
@@ -44,7 +44,7 @@ static inline uint16 cbread16l(CBFILE *f, int *err)
 static inline uint16 cbread16b(CBFILE *f, int *err)
 {
 	uint8 buf[2];
-	uint16 x = EOF;
+	uint16 x = 0xffff;
 	size_t r = f->callbacks.read_func(buf, 2, 1, f->priv);
 	f->eof = (r == 1) ? 0 : EOF;
 
@@ -57,7 +57,7 @@ static inline uint16 cbread16b(CBFILE *f, int *err)
 static inline uint32 cbread24l(CBFILE *f, int *err)
 {
 	uint8 buf[3];
-	uint32 x = EOF;
+	uint32 x = 0xffffffff;
 	size_t r = f->callbacks.read_func(buf, 3, 1, f->priv);
 	f->eof = (r == 1) ? 0 : EOF;
 
@@ -70,7 +70,7 @@ static inline uint32 cbread24l(CBFILE *f, int *err)
 static inline uint32 cbread24b(CBFILE *f, int *err)
 {
 	uint8 buf[3];
-	uint32 x = EOF;
+	uint32 x = 0xffffffff;
 	size_t r = f->callbacks.read_func(buf, 3, 1, f->priv);
 	f->eof = (r == 1) ? 0 : EOF;
 
@@ -83,7 +83,7 @@ static inline uint32 cbread24b(CBFILE *f, int *err)
 static inline uint32 cbread32l(CBFILE *f, int *err)
 {
 	uint8 buf[4];
-	uint32 x = EOF;
+	uint32 x = 0xffffffff;
 	size_t r = f->callbacks.read_func(buf, 4, 1, f->priv);
 	f->eof = (r == 1) ? 0 : EOF;
 
@@ -96,7 +96,7 @@ static inline uint32 cbread32l(CBFILE *f, int *err)
 static inline uint32 cbread32b(CBFILE *f, int *err)
 {
 	uint8 buf[4];
-	uint32 x = EOF;
+	uint32 x = 0xffffffff;
 	size_t r = f->callbacks.read_func(buf, 4, 1, f->priv);
 	f->eof = (r == 1) ? 0 : EOF;
 
