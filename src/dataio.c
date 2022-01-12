@@ -33,7 +33,6 @@
 	if (err != NULL) *err = (x);	\
 } while (0)
 
-
 uint8 read8(FILE *f, int *err)
 {
 	int a;
@@ -103,7 +102,7 @@ uint32 read24l(FILE *f, int *err)
 
     error:
 	set_error(ferror(f) ? errno : EOF);
-	return 0xffffff;
+	return 0xffffffff;
 }
 
 uint32 read24b(FILE *f, int *err)
@@ -119,7 +118,7 @@ uint32 read24b(FILE *f, int *err)
 
     error:
 	set_error(ferror(f) ? errno : EOF);
-	return 0xffffff;
+	return 0xffffffff;
 }
 
 uint32 read32l(FILE *f, int *err)
