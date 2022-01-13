@@ -670,7 +670,7 @@ dist-test:
 	cp -RPp $(addprefix $(TEST_PATH)/,$(TEST_DFILES)) $(DIST)/$(TEST_PATH)
 
 clean: fuzzerclean
-	rm -f *.o core *~ $(T_OBJS)
+	@rm -f *.o core *~ $(T_OBJS)
 
 distclean: clean
 	@rm -f config.log config.status Makefile all_tests.c libxmp-tests* .test .read_test write_test

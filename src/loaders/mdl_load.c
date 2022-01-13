@@ -677,7 +677,7 @@ static int get_chunk_ii(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	    return -1;
 
 	for (j = 0; j < XMP_MAX_KEYS; j++)
-	    xxi->map[j].ins = -1;
+	    xxi->map[j].ins = 0xff;
 
 	for (last_map = j = 0; j < mod->xxi[i].nsm; j++) {
 	    int x;
