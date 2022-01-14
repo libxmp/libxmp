@@ -1,8 +1,5 @@
 #include "test.h"
 
-/* This input caused crashes in the ProWizard Eureka Packer
- * test function due to not requesting adequate pattern data.
- */
 
 TEST(test_fuzzer_prowizard_eureka_truncated)
 {
@@ -10,6 +7,9 @@ TEST(test_fuzzer_prowizard_eureka_truncated)
 	int ret;
 
 	opaque = xmp_create_context();
+
+	/* This input caused crashes in the ProWizard Eureka Packer
+	 * test function due to not requesting adequate pattern data. */
 	ret = xmp_load_module(opaque, "data/f/prowizard_eureka_truncated");
 	fail_unless(ret == -XMP_ERROR_FORMAT, "module load");
 

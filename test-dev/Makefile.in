@@ -462,57 +462,37 @@ FUZZER		= misc \
 		  ult_truncated \
 		  ult_v000 \
 		  umx_invalid_names \
-		  prowizard_ac1d_invalid_note \
-		  prowizard_ac1d_invalid_paddr \
-		  prowizard_di_invalid_offsets \
-		  prowizard_di_patterns_bound \
-		  prowizard_di_patterns_test \
+		  prowizard_ac1d_invalid \
+		  prowizard_di_invalid \
 		  prowizard_di_truncated \
 		  prowizard_eureka_truncated \
-		  prowizard_fuchs_pattern_length \
+		  prowizard_fuchs_invalid \
 		  prowizard_heatseek_truncated \
-		  prowizard_ksm_invalid_pattern \
-		  prowizard_noiserun_invalid_sample \
+		  prowizard_ksm_truncated \
+		  prowizard_noiserun_invalid \
 		  prowizard_noiserun_truncated \
-		  prowizard_novotrade_invalid_order \
-		  prowizard_novotrade_orders_bound \
-		  prowizard_novotrade_patterns_bound \
-		  prowizard_np2_patterns_bound \
-		  prowizard_np3_invalid_note \
-		  prowizard_np3_patterns_bound \
-		  prowizard_p40_invalid_offsets \
-		  prowizard_p40_invalid_packing \
-		  prowizard_p40_invalid_sample \
-		  prowizard_p40_zero_length \
-		  prowizard_p61a_invalid_note \
-		  prowizard_p61a_invalid_sample_dup \
+		  prowizard_novotrade_invalid \
+		  prowizard_np2_invalid \
+		  prowizard_np3_invalid \
+		  prowizard_p40_invalid \
+		  prowizard_p61a_invalid \
 		  prowizard_p61a_truncated \
-		  prowizard_pha_invalid_note \
-		  prowizard_pha_invalid_offset \
-		  prowizard_pha_invalid_paddr \
-		  prowizard_pha_patterns_bound \
-		  prowizard_pha_truncated \
-		  prowizard_pm10c_invalid_note \
-		  prowizard_pm10c_invalid_pattern \
-		  prowizard_pm10c_invalid_psize \
+		  prowizard_pha_invalid \
+		  prowizard_pm10c_invalid \
 		  prowizard_pm10c_zero_length \
-		  prowizard_pm18a_invalid_note \
-		  prowizard_pm18a_invalid_paddr \
+		  prowizard_pm18a_invalid \
 		  prowizard_pm18a_zero_length \
-		  prowizard_pp10_invalid_pattern \
+		  prowizard_pp10_invalid \
 		  prowizard_pp21_truncated \
 		  prowizard_pp30_invalid \
-		  prowizard_starpack_junk_orders \
-		  prowizard_theplayer_invalid_note \
-		  prowizard_theplayer_invalid_sample_dup \
+		  prowizard_starpack_invalid \
+		  prowizard_theplayer_invalid \
 		  prowizard_titanics_truncated \
-		  prowizard_tp1_invalid_length \
-		  prowizard_tp1_invalid_paddr \
-		  prowizard_tp3_patterns_bound \
-		  prowizard_tp3_samples_bound \
+		  prowizard_tp1_invalid \
+		  prowizard_tp3_invalid \
 		  prowizard_unic_truncated \
 		  prowizard_xann_invalid \
-		  prowizard_zen_invalid_note \
+		  prowizard_zen_invalid \
 		  depack_arc_invalid \
 		  depack_arc_pak10 \
 		  depack_arc_slow_rle \

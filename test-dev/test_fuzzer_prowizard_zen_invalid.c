@@ -4,7 +4,7 @@
  * depacker due to a missing note bounds check.
  */
 
-TEST(test_fuzzer_prowizard_zen_invalid_note)
+TEST(test_fuzzer_prowizard_zen_invalid)
 {
 	xmp_context opaque;
 	int ret;
