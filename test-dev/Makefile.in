@@ -353,10 +353,11 @@ FUZZER		= misc \
 		  st_truncated \
 		  s3m_invalid_sample_size \
 		  s3m_invalid_sample_size2 \
-		  xm_negative_instsize \
+		  xm_invalid \
 		  xm_orders_mismatch \
 		  xm_vorbis_crash \
 		  xm_vorbis_leak \
+		  xm_vorbis_truncated \
 		  xm_zero_samples \
 		  it_dca_3 \
 		  it_invalid_compressed \
@@ -498,30 +499,17 @@ FUZZER		= misc \
 		  depack_arc_slow_rle \
 		  depack_arcfs_invalid \
 		  depack_bz2_invalid_selector \
-		  depack_compress_invalid_maxbits \
-		  depack_gzip_invalid_name \
-		  depack_gzip_truncated \
-		  depack_lha_invalid_clen \
-		  depack_lha_invalid_tree \
+		  depack_compress_invalid \
+		  depack_gz_invalid \
+		  depack_lha_invalid \
 		  depack_lha_truncated \
 		  depack_lzx_invalid \
 		  depack_muse_truncated \
-		  depack_muse_truncated2 \
-		  depack_oxm_invalid \
-		  depack_oxm_pcm_leak \
-		  depack_oxm_truncated \
 		  depack_pp20_invalid \
-		  depack_s404_invalid_length \
-		  depack_s404_invalid_shift \
-		  depack_sqsh_invalid_verbatim \
-		  depack_sqsh_misaligned \
-		  depack_sqsh_no_checksum \
+		  depack_s404_invalid \
+		  depack_sqsh_invalid \
 		  depack_sqsh_truncated \
-		  depack_sqsh_truncated2 \
 		  depack_zip_truncated \
-		  depack_zip_truncated2 \
-		  depack_zip_truncated3 \
-		  depack_zip_truncated4 \
 		  play_mod_bad_invloop \
 		  play_xm_bad_env_sustain \
 		  play_xm_bad_instrument \
