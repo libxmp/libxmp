@@ -235,7 +235,7 @@ covercheck: coverage
 	$(MAKE) -C test-dev covercheck
 
 coverclean:
-	rm -f $(ALL_OBJS:.o=.gco) $(ALL_OBJS:.o=.gcno) $(ALL_OBJS:.o=.gcda)
+	@rm -f $(ALL_OBJS:.o=.gco) $(ALL_OBJS:.o=.gcno) $(ALL_OBJS:.o=.gcda)
 	$(MAKE) -C test-dev coverclean
 
 $(ALL_OBJS): Makefile
