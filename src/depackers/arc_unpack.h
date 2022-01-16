@@ -32,10 +32,18 @@
 extern "C" {
 #endif
 
+/* libxmp hacks */
 #include "../common.h"
+typedef int8   arc_int8;
+typedef int16  arc_int16;
+typedef int32  arc_int32;
+typedef uint8  arc_uint8;
+typedef uint16 arc_uint16;
+typedef uint32 arc_uint32;
 
 #define ARC_RESTRICT LIBXMP_RESTRICT
 #define arc_unpack libxmp_arc_unpack
+/* end libxmp hacks */
 
 enum arc_method
 {
@@ -50,6 +58,7 @@ enum arc_method
   ARC_M_SQUASHED     = 0x09, /* LZW 9-13 bit dynamic (PK extension)*/
   ARC_M_TRIMMED      = 0x0a, /* RLE90 + LZH with adaptive Huffman coding */
   ARC_M_COMPRESSED   = 0x7f, /* LZW 9-16 bit dynamic (Spark extension) */
+  ARC_M_MAX
 };
 
 /**

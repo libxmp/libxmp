@@ -911,7 +911,7 @@ static int extract_normal(HIO_HANDLE * in_file, struct LZXDecrData *decr)
 	    if (count > decr->unpack_size)
 		count = decr->unpack_size;	/* take only what we need */
 
-	    decr->sum = libxmp_crc32_A1(pos, count, decr->sum);
+	    decr->sum = libxmp_crc32_A(pos, count, decr->sum);
 
 	    if (out_file) {	/* Write the data to the file */
 		abort = 1;
@@ -977,7 +977,7 @@ static int extract_archive(HIO_HANDLE * in_file, struct LZXDecrData *decr)
 
 	/* Must set the field to 0 before calculating the crc */
 	memset(decr->archive_header + 26, 0, 4);
-	decr->sum = libxmp_crc32_A1(decr->archive_header, 31, decr->sum);
+	decr->sum = libxmp_crc32_A(decr->archive_header, 31, decr->sum);
 	temp = decr->archive_header[30];	/* filename length */
 	actual = hio_read(decr->header_filename, 1, temp, in_file);
 
@@ -992,7 +992,7 @@ static int extract_archive(HIO_HANDLE * in_file, struct LZXDecrData *decr)
 	}
 
 	decr->header_filename[temp] = 0;
-	decr->sum = libxmp_crc32_A1(decr->header_filename, temp, decr->sum);
+	decr->sum = libxmp_crc32_A(decr->header_filename, temp, decr->sum);
 	temp = decr->archive_header[14];	/* comment length */
 	actual = hio_read(decr->header_comment, 1, temp, in_file);
 
@@ -1007,7 +1007,7 @@ static int extract_archive(HIO_HANDLE * in_file, struct LZXDecrData *decr)
 	}
 
 	decr->header_comment[temp] = 0;
-	decr->sum = libxmp_crc32_A1(decr->header_comment, temp, decr->sum);
+	decr->sum = libxmp_crc32_A(decr->header_comment, temp, decr->sum);
 
 	if (decr->sum != decr->crc) {
 	    /* fprintf(stderr, "CRC: Archive_Header\n"); */
@@ -1110,7 +1110,6 @@ static int decrunch_lzx(HIO_HANDLE *f, FILE *fo, long inlen)
 	if (hio_seek(f, 10, SEEK_CUR) < 0)		/* skip header */
 		goto err2;
 
-	libxmp_crc32_init_A();
 	decr->outfile = fo;
 	extract_archive(f, decr);
 

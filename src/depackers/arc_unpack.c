@@ -24,7 +24,6 @@
  * Report bugs to libxmp or to here: https://github.com/AliceLR/megazeuxtests
  */
 
-#include "arc_types.h"
 #include "arc_unpack.h"
 
 #include <stdio.h>
