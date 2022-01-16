@@ -43,8 +43,6 @@ static int decrunch_xz(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 	uint8 *inbuf = NULL;
 	uint8 *tmp;
 
-	libxmp_crc32_init_A();
-
 	xz = xz_dec_init(XZ_DYNALLOC, XZ_MAX_DICT);
 	if (xz == NULL)
 		return -1;

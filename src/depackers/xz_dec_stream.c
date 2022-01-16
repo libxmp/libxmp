@@ -11,7 +11,7 @@
 #include "xz_stream.h"
 #include "crc32.h"
 
-#define xz_crc32 libxmp_crc32_A1
+#define xz_crc32 libxmp_crc32_A
 
 #ifdef XZ_USE_CRC64
 #	define IS_CRC64(check_type) ((check_type) == XZ_CHECK_CRC64)
