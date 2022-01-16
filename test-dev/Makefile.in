@@ -25,7 +25,7 @@ SMPLOADERS	= 8bit 16bit delta signal endian skip
 DEPACKERS	= pp sqsh s404 mmcmp zip zip_filtered zip_store zip_zip64 \
 		  arc_method2 arc_method3 arc_method4 arc_method8 arc_method9 \
 		  arc_subdir_6 arc_subdir_spark spark arcfs arcfs_subdir \
-		  gzip compress rar j2b lzx bzip2 xz \
+		  gzip compress rar j2b lzx lzx_merge lzx_store bzip2 xz \
 		  lha_l0_lzhuff1 lha_l0_lzhuff5 lha_l1_lzhuff5 \
 		  lha_l1_lzhuff6 lha_l1_lzhuff7 lha_l2_lzhuff7 \
 		  lha_l0_filtered lha_l1_filtered lha_l2_filtered \

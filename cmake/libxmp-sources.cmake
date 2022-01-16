@@ -141,6 +141,8 @@ set(LIBXMP_SRC_LIST_DEPACKERS
     src/depackers/arc.c
     src/depackers/arcfs.c
     src/depackers/arc_unpack.c
+    src/depackers/lzx.c
+    src/depackers/lzx_unpack.c
     src/depackers/muse.c
     src/depackers/miniz_tinfl.c
     src/depackers/miniz_zip.c
@@ -149,7 +151,6 @@ set(LIBXMP_SRC_LIST_DEPACKERS
     src/depackers/uncompress.c
     src/depackers/bunzip2.c
     src/depackers/unlha.c
-    src/depackers/unlzx.c
     src/depackers/unxz.c
     src/depackers/xz_dec_lzma2.c
     src/depackers/xz_dec_stream.c
