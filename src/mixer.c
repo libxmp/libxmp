@@ -941,7 +941,7 @@ int libxmp_mixer_on(struct context_data *ctx, int rate, int format, int c4rate)
 	s->format = format;
 	s->amplify = DEFAULT_AMPLIFY;
 	s->mix = DEFAULT_MIX;
-	/* s->pbase = C4_PERIOD * c4rate / s->freq; */(void) c4rate;
+	/* s->pbase = C4_PERIOD * c4rate / s->freq; */
 	s->interp = XMP_INTERP_LINEAR;	/* default interpolation type */
 	s->dsp = XMP_DSP_LOWPASS;	/* enable filters by default */
 	/* s->numvoc = SMIX_NUMVOC; */
