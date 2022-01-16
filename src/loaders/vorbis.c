@@ -601,8 +601,8 @@ enum STBVorbisError
 #else // STB_VORBIS_NO_CRT
    #define NULL 0
    #define malloc(s)   0
-   #define free(s)     ((void) 0)
-   #define realloc(s)  0
+   #define free(p)     ((void) 0)
+   #define realloc(p, s)  0
 #endif // STB_VORBIS_NO_CRT
 
 /* we need alloca() regardless of STB_VORBIS_NO_CRT,
