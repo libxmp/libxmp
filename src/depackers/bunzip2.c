@@ -123,7 +123,7 @@ static unsigned int get_bits(struct bunzip_data *bd, char bits_wanted)
 
     // Avoid 32-bit overflow (dump bit buffer to top of output)
     if (bd->inbufBitCount>=24) {
-      bits = bd->inbufBits&((1<<bd->inbufBitCount)-1);
+      bits = bd->inbufBits&((1u<<bd->inbufBitCount)-1);
       bits_wanted -= bd->inbufBitCount;
       bits <<= bits_wanted;
       bd->inbufBitCount = 0;
@@ -215,10 +215,8 @@ static int read_block_header(struct bunzip_data *bd, struct bwdata *bw)
   for (ii=0; ii<bd->nSelectors; ii++) {
 
     // Get next value
-    for(jj=0;get_bits(bd,1);) {
-      jj++; /* libxmp: Fix uninitialized read */
+    for(jj=0;get_bits(bd,1);jj++)
       if (jj>=bd->groupCount) return RETVAL_DATA_ERROR;
-    }
 
     // Decode MTF to get the next selector, and move it to the front.
     uc = bd->mtfSymbol[jj];
