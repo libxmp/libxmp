@@ -42,7 +42,7 @@ struct stx_file_header {
 	uint8 name[20];		/* Song name */
 	uint8 magic[8];		/* !Scream! */
 	uint16 psize;		/* Pattern 0 size? */
-	uint16 unknown1;	/* ??!? */
+	uint16 unknown1;	/* ?! */
 	uint16 pp_pat;		/* Pointer to pattern table */
 	uint16 pp_ins;		/* Pattern to instrument table */
 	uint16 pp_chn;		/* Pointer to channel table (?) */
@@ -201,8 +201,7 @@ static int stx_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	if (bmod2stm)
 		libxmp_set_type(m, "BMOD2STM STX");
 	else
-		snprintf(mod->type, XMP_NAME_SIZE, "STM2STX 1.%d",
-			 broken ? 0 : 1);
+		snprintf(mod->type, XMP_NAME_SIZE, "STM2STX 1.%d", broken ? 0 : 1);
 
 	MODULE_INFO();
 
@@ -286,7 +285,7 @@ static int stx_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		   mod->xxi[i].sub[0].vol, sih.c2spd);
 
 		libxmp_c2spd_to_note(sih.c2spd, &mod->xxi[i].sub[0].xpo,
-			      &mod->xxi[i].sub[0].fin);
+				      &mod->xxi[i].sub[0].fin);
 	}
 
 	if (libxmp_init_pattern(mod) < 0)

@@ -338,7 +338,7 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	pat_len = hio_read16l(f) - 4;
 
-        rows = hio_read16l(f);
+	rows = hio_read16l(f);
 
 	/* Sanity check */
 	if (rows > 256) {
@@ -370,7 +370,7 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		n = hio_read8(f);
 		switch (n) {
 		case 255:
-		case 160:	/* ??!? */
+		case 160:	/* ?! */
 		    n = XMP_KEY_OFF;
 		    break;	/* Key off */
 		default:
@@ -437,7 +437,7 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	xxi->nsm = ii.nsm;
 
-        if (xxi->nsm > 0) {
+	if (xxi->nsm > 0) {
 	    if (libxmp_alloc_subinstrument(mod, i, xxi->nsm) < 0)
 		return -1;
 	}
@@ -471,8 +471,8 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	}
 
 	for (j = 0; j < ii.nsm; j++, smp_num++) {
-            struct xmp_subinstrument *sub = &xxi->sub[j];
-            struct xmp_sample *xxs = &mod->xxs[smp_num];
+	    struct xmp_subinstrument *sub = &xxi->sub[j];
+	    struct xmp_sample *xxs = &mod->xxs[smp_num];
 	    int sid;
 
 	    hio_read(is.name, 13, 1, f);
@@ -490,8 +490,8 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	    is.dram = hio_read32l(f);
 	    is.magic = hio_read32b(f);
 
-            /* Sanity check */
-            if (is.len > 0x100000 || is.lps > 0x100000 || is.lpe > 0x100000)
+	    /* Sanity check */
+	    if (is.len > 0x100000 || is.lps > 0x100000 || is.lpe > 0x100000)
 		return -1;
 
 	    sub->sid = smp_num;
