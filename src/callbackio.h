@@ -108,7 +108,8 @@ static inline uint32 cbread32b(CBFILE *f, int *err)
 
 static inline size_t cbread(void *dest, size_t len, size_t nmemb, CBFILE *f)
 {
-	size_t r = f->callbacks.read_func(dest, len, nmemb, f->priv);
+	size_t r = f->callbacks.read_func(dest, (unsigned long)len,
+					(unsigned long)nmemb, f->priv);
 	f->eof = (r < nmemb) ? EOF : 0;
 	return r;
 }

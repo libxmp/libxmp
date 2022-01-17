@@ -46,6 +46,8 @@ test_depack_compress
 test_depack_rar
 test_depack_j2b
 test_depack_lzx
+test_depack_lzx_merge
+test_depack_lzx_store
 test_depack_bzip2
 test_depack_xz
 test_depack_lha_l0_lzhuff1

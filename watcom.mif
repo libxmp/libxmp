@@ -171,6 +171,8 @@ DEPACKER_OBJS= &
  src/depackers/arc.obj &
  src/depackers/arcfs.obj &
  src/depackers/arc_unpack.obj &
+ src/depackers/lzx.obj &
+ src/depackers/lzx_unpack.obj &
  src/depackers/muse.obj &
  src/depackers/miniz_tinfl.obj &
  src/depackers/miniz_zip.obj &
@@ -179,7 +181,6 @@ DEPACKER_OBJS= &
  src/depackers/uncompress.obj &
  src/depackers/bunzip2.obj &
  src/depackers/unlha.obj &
- src/depackers/unlzx.obj &
  src/depackers/unxz.obj &
  src/depackers/xz_dec_lzma2.obj &
  src/depackers/xz_dec_stream.obj &
