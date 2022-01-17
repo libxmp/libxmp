@@ -962,12 +962,17 @@ static int error(vorb *f, enum STBVorbisError e)
 
 #define array_size_required(count,size)  (count*(sizeof(void *)+(size)))
 
-#define temp_alloc(f,size)              (f->alloc.alloc_buffer ? setup_temp_malloc(f,size) : alloca(size))
+#ifdef STB_VORBIS_VAR_ARRAYS
+#define temp_alloc(f,size,stakbuf)      (f->alloc.alloc_buffer ? setup_temp_malloc(f,size) : stakbuf)
+#else
+#define temp_alloc(f,size,stakbuf)      (f->alloc.alloc_buffer ? setup_temp_malloc(f,size) : alloca(size))
+#endif
 #define temp_free(f,p)                  do {} while (0)
 #define temp_alloc_save(f)              ((f)->temp_offset)
 #define temp_alloc_restore(f,p)         ((f)->temp_offset = (p))
 
-#define temp_block_array(f,count,size)  make_block_array(temp_alloc(f,array_size_required(count,size)), count, size)
+#define temp_block_array(f,count,size,stakbuf) \
+        make_block_array(temp_alloc(f,array_size_required(count,size),stakbuf), count, size)
 
 // given a sufficiently large block of memory, make an array of pointers to subblocks of it
 static void *make_block_array(void *mem, int count, int size)
@@ -2160,11 +2165,30 @@ static void decode_residue(vorb *f, float *residue_buffers[], int ch, int n, int
    int n_read = limit_r_end - limit_r_begin;
    int part_read = n_read / r->part_size;
    int temp_alloc_point = temp_alloc_save(f);
+
    #ifndef STB_VORBIS_DIVIDES_IN_RESIDUE
-   uint8 ***part_classdata = (uint8 ***) temp_block_array(f,f->channels, part_read * sizeof(**part_classdata));
+   uint8 ***part_classdata;
+   #ifdef STB_VORBIS_VAR_ARRAYS
+   const int sz = f->alloc.alloc_buffer ? 1 : part_read * sizeof(**part_classdata);
+   uint8 **stk_array[sz];
    #else
-   int **classifications = (int **) temp_block_array(f,f->channels, part_read * sizeof(**classifications));
+   const int sz = part_read * sizeof(**part_classdata);
+   #define stk_array NULL
    #endif
+   part_classdata = (uint8 ***) temp_block_array(f,f->channels, sz, stk_array);
+
+   #else
+   int **classifications;
+   #ifdef STB_VORBIS_VAR_ARRAYS
+   const int sz = f->alloc.alloc_buffer ? 1 : part_read * sizeof(**classifications);
+   int *stk_array[sz];
+   #else
+   const int sz = part_read * sizeof(**classifications);
+   #define stk_array NULL
+   #endif
+   classifications = (int **) temp_block_array(f,f->channels, sz, stk_array);
+   #endif
+   #undef stk_array
 
    CHECK(f);
 
@@ -2678,10 +2702,20 @@ static void inverse_mdct(float *buffer, int n, vorb *f, int blocktype)
    int ld;
    // @OPTIMIZE: reduce register pressure by using fewer variables?
    int save_point = temp_alloc_save(f);
-   float *buf2 = (float *) temp_alloc(f, n2 * sizeof(*buf2));
+   float *buf2;
    float *u=NULL,*v=NULL;
    // twiddle factors
    float *A = f->A[blocktype];
+
+   #ifdef STB_VORBIS_VAR_ARRAYS
+   const int sz = f->alloc.alloc_buffer ? 1 : (n2 * sizeof(*buf2));
+   float stk_var[sz];
+   #else
+   #define stk_var NULL
+   const int sz = (n2 * sizeof(*buf2));
+   #endif
+   buf2 = (float *) temp_alloc(f, sz, stk_var);
+   #undef stk_var
 
    // IMDCT algorithm from "The use of multirate filter banks for coding of high quality digital audio"
    // See notes about bugs in that paper in less-optimal implementation 'inverse_mdct_old' after this function.
