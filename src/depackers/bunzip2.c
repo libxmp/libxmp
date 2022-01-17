@@ -445,7 +445,7 @@ static int read_huffman_data(struct bunzip_data *bd, struct bwdata *bw)
 static int flush_bunzip_outbuf(struct bunzip_data *bd, struct bunzip_output *out_fd)
 {
   if (bd->outbufPos) {
-    unsigned char *buf = realloc(out_fd->buf, out_fd->buf_size + bd->outbufPos);
+    unsigned char *buf = (unsigned char *)realloc(out_fd->buf, out_fd->buf_size + bd->outbufPos);
     if (!buf)
         return RETVAL_UNEXPECTED_OUTPUT_EOF;
     memcpy(buf + out_fd->buf_size, bd->outbuf, bd->outbufPos);
@@ -624,7 +624,7 @@ static int start_bunzip(struct bunzip_data **bdp, HIO_HANDLE *src_fd, unsigned c
   if (!len) i += IOBUF_SIZE;
 
   // Allocate bunzip_data. Most fields initialize to zero.
-  bd = *bdp = calloc(1, i); /* libxmp: xzalloc -> calloc + error checking */
+  bd = *bdp = (struct bunzip_data *)calloc(1, i); /* libxmp: xzalloc -> calloc + error checking */
   if (!bd) return RETVAL_OUT_OF_MEMORY;
   if (len) {
     bd->inbuf = inbuf;
@@ -650,7 +650,7 @@ static int start_bunzip(struct bunzip_data **bdp, HIO_HANDLE *src_fd, unsigned c
   if (i<'1' || i>'9') return RETVAL_NOT_BZIP_DATA;
   bd->dbufSize = 100000*(i-'0')*THREADS;
   for (i=0; i<THREADS; i++) {
-    bd->bwdata[i].dbuf = malloc(bd->dbufSize * sizeof(int)); /* libxmp: xmalloc -> malloc + error checking */
+    bd->bwdata[i].dbuf = (unsigned int *)malloc(bd->dbufSize * sizeof(int)); /* libxmp: xmalloc -> malloc + error checking */
     if (!bd->bwdata[i].dbuf) return RETVAL_OUT_OF_MEMORY;
   }
 
