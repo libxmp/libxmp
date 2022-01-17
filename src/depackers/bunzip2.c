@@ -90,6 +90,12 @@ struct bunzip_data {
   jmp_buf jmpbuf;
 };
 
+// libxmp addition
+struct bunzip_output {
+  unsigned char *buf;
+  size_t buf_size;
+};
+
 static void crc_init(unsigned *crc_table, int little_endian)
 {
   unsigned int i;
@@ -435,12 +441,16 @@ static int read_huffman_data(struct bunzip_data *bd, struct bwdata *bw)
 }
 
 // Flush output buffer to disk
-/* libxmp: int -> FILE *, added return value */
-static int flush_bunzip_outbuf(struct bunzip_data *bd, FILE *out_fd)
+// libxmp: changed to output to memory instead of a file
+static int flush_bunzip_outbuf(struct bunzip_data *bd, struct bunzip_output *out_fd)
 {
   if (bd->outbufPos) {
-    if (fwrite(bd->outbuf, 1, bd->outbufPos, out_fd) != bd->outbufPos) /* libxmp: write -> fwrite */
-      return RETVAL_UNEXPECTED_OUTPUT_EOF; /* libxmp: error_exit -> RETVAL_UNEXPECTED_OUTPUT_EOF */
+    unsigned char *buf = realloc(out_fd->buf, out_fd->buf_size + bd->outbufPos);
+    if (!buf)
+        return RETVAL_UNEXPECTED_OUTPUT_EOF;
+    memcpy(buf + out_fd->buf_size, bd->outbuf, bd->outbufPos);
+    out_fd->buf = buf;
+    out_fd->buf_size += bd->outbufPos;
     bd->outbufPos = 0;
   }
   return 0;
@@ -506,9 +516,9 @@ static int read_bunzip_data(struct bunzip_data *bd)
 // http://dogma.net/markn/articles/bwt/bwt.htm
 // http://marknelson.us/1996/09/01/bwt/
 
-/* libxmp: int -> FILE * * */
+/* libxmp: int -> struct bunzip_output * */
 static int write_bunzip_data(struct bunzip_data *bd, struct bwdata *bw,
-  FILE *out_fd, char *outbuf, int len)
+  struct bunzip_output *out_fd, char *outbuf, int len)
 {
   unsigned int *dbuf = bw->dbuf;
   int count, pos, current, run, copies, outbyte, previous, gotcount = 0;
@@ -652,28 +662,40 @@ static int test_bzip2(unsigned char *b)
 	return b[0] == 'B' && b[1] == 'Z' && b[2] == 'h';
 }
 
-static int decrunch_bzip2(HIO_HANDLE *src, FILE *dst, long inlen)
+static int decrunch_bzip2(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 {
   struct bunzip_data *bd;
+  struct bunzip_output output;
   int i, j;
 
-  if (!(i = start_bunzip(&bd,src, 0, 0))) {
-    i = write_bunzip_data(bd,bd->bwdata, dst, 0, 0);
+  output.buf = NULL;
+  output.buf_size = 0;
+
+  if (!(i = start_bunzip(&bd, in, 0, 0))) {
+    i = write_bunzip_data(bd, bd->bwdata, &output, 0, 0);
     if (i==RETVAL_LAST_BLOCK) {
       if (bd->bwdata[0].headerCRC==bd->totalCRC) i = 0;
       else i = RETVAL_DATA_ERROR;
     }
   }
-  if (!i) i = flush_bunzip_outbuf(bd, dst);
+  if (!i) i = flush_bunzip_outbuf(bd, &output);
 
   for (j=0; j<THREADS; j++) free(bd->bwdata[j].dbuf);
   free(bd);
 
-  return (i == 0) ? 0 : -1;
+  if (i != 0) {
+    free(output.buf);
+    return -1;
+  }
+
+  *out = output.buf;
+  *outlen = output.buf_size;
+
+  return 0;
 }
 
 struct depacker libxmp_depacker_bzip2 = {
 	test_bzip2,
-	decrunch_bzip2,
-	NULL
+	NULL,
+	decrunch_bzip2
 };
