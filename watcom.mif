@@ -239,6 +239,7 @@ clean: .symbolic
 	rm -f $(TEST_OBJS)
 
 distclean: clean .symbolic
+	rm -f *.err
 	rm -f $(DLLNAME) $(EXPNAME) $(MAPNAME) $(LIBNAME) $(LIBSTATIC) test/$(DLLNAME) test/$(TESTNAME)
 
 !ifdef __UNIX__

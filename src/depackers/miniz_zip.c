@@ -35,12 +35,10 @@ extern "C" {
 
 #ifndef MINIZ_DISABLE_ZIP_READER_CRC32_CHECKS
 #define MZ_CRC32_INIT (0)
-/* libxmp hack */
 static mz_ulong mz_crc32(mz_ulong crc, const mz_uint8 *ptr, size_t buf_len)
-{
+{/* libxmp hack: */
     return libxmp_crc32_A(ptr, buf_len, crc);
 }
-/* end libxmp hack */
 #endif /* MINIZ_DISABLE_ZIP_READER_CRC32_CHECKS */
 
 static void *miniz_def_alloc_func(void *opaque, size_t items, size_t size)

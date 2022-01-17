@@ -391,7 +391,7 @@ static int get_tracker_id(struct module_data *m, struct mod_header *mh, int id)
 			return TRACKER_FASTTRACKER;
 		}
 
-		id = TRACKER_UNKNOWN;	/* ??!? */
+		id = TRACKER_UNKNOWN;	/* ?! */
 	}
 
 	return id;

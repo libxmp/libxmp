@@ -73,7 +73,7 @@ struct digi_header {
     uint8 ver;			/* Version hi-nibble.lo-nibble */
     uint8 chn;			/* Number of channels */
     uint8 pack;			/* PackEnable */
-    uint8 unknown[19];		/* ??!? */
+    uint8 unknown[19];		/* ?! */
     uint8 pat;			/* Number of patterns */
     uint8 len;			/* Song length */
     uint8 ord[128];		/* Orders */

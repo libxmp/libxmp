@@ -601,8 +601,8 @@ enum STBVorbisError
 #else // STB_VORBIS_NO_CRT
    #define NULL 0
    #define malloc(s)   0
-   #define free(s)     ((void) 0)
-   #define realloc(s)  0
+   #define free(p)     ((void) 0)
+   #define realloc(p, s)  0
 #endif // STB_VORBIS_NO_CRT
 
 /* we need alloca() regardless of STB_VORBIS_NO_CRT,
@@ -645,7 +645,7 @@ enum STBVorbisError
 #include <crtdbg.h>
 #define CHECK(f)   _CrtIsValidHeapPointer(f->channel_buffers[1])
 #else
-#define CHECK(f)   ((void) 0)
+#define CHECK(f)   do {} while(0)
 #endif
 
 #define MAX_BLOCKSIZE_LOG  13   // from specification
@@ -963,7 +963,7 @@ static int error(vorb *f, enum STBVorbisError e)
 #define array_size_required(count,size)  (count*(sizeof(void *)+(size)))
 
 #define temp_alloc(f,size)              (f->alloc.alloc_buffer ? setup_temp_malloc(f,size) : alloca(size))
-#define temp_free(f,p)                  (void)0
+#define temp_free(f,p)                  do {} while (0)
 #define temp_alloc_save(f)              ((f)->temp_offset)
 #define temp_alloc_restore(f,p)         ((f)->temp_offset = (p))
 

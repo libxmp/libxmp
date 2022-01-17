@@ -22,7 +22,7 @@ extern "C" {
 
 /* In Linux, this is used to make extern functions static when needed. */
 #ifndef XZ_EXTERN
-#	define XZ_EXTERN extern
+#	define XZ_EXTERN /*extern*/
 #endif
 
 /**
