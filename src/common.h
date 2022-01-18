@@ -1,6 +1,15 @@
 #ifndef LIBXMP_COMMON_H
 #define LIBXMP_COMMON_H
 
+#ifdef LIBXMP_CORE_PLAYER
+#ifndef LIBXMP_NO_PROWIZARD
+#define LIBXMP_NO_PROWIZARD
+#endif
+#ifndef LIBXMP_NO_DEPACKERS
+#define LIBXMP_NO_DEPACKERS
+#endif
+#endif
+
 #include <stdarg.h>
 #include <limits.h>
 #include <stdlib.h>
