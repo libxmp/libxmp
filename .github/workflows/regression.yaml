@@ -268,6 +268,48 @@ jobs:
           cd build
           ctest --output-on-failure
 
+  windows-openwatcom:
+    runs-on: windows-latest
+    env:
+      WATCOM: ${{ github.workspace }}/WATCOM
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Cache OpenWatcom
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-openwatcom
+        with:
+          path: ${{ env.WATCOM }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}
+      - name: Download OpenWatcom if not cached
+        run: |
+         if (Test-Path -Path ${{ env.WATCOM }}) {
+         } else {
+           Invoke-WebRequest -Uri "https://github.com/open-watcom/open-watcom-v2/releases/download/Current-build/open-watcom-2_0-c-win-x64.exe" -OutFile "$env:TEMP\ow.exe"
+           Expand-Archive -Path "$env:TEMP\ow.exe" -DestinationPath "${{ env.WATCOM }}"
+         }
+      - name: Add OpenWatcom to the system path
+        run: echo "${{ env.WATCOM }}/binnt64" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - name: WMake Build (Win32)
+        run: |
+          wmake -f Makefile.w32
+      - name: WMake check (Win32)
+        run: |
+          wmake -f Makefile.w32 check
+      - name: WMake distclean (Win32)
+        run: |
+          wmake -f Makefile.w32 distclean
+      - name: WMake Build (OS/2)
+        run: |
+          wmake -f Makefile.os2
+      - name: WMake check (OS/2)
+        run: |
+          wmake -f Makefile.os2 check-build
+      - name: WMake distclean (OS/2)
+        run: |
+          wmake -f Makefile.os2 distclean
+
   amiga:
     strategy:
        matrix:
