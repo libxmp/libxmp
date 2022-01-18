@@ -135,7 +135,6 @@ endif()
 xmp_check_function(powf "math.h" HAVE_POWF)
 cmake_pop_check_state()
 
-xmp_check_include(alloca.h HAVE_ALLOCA_H)
 xmp_check_function(popen "stdio.h" HAVE_POPEN)
 xmp_check_function(fnmatch "fnmatch.h" HAVE_FNMATCH)
 xmp_check_function(umask "sys/stat.h" HAVE_UMASK)
@@ -165,7 +164,6 @@ endif()
 
 # Symbol visibility attributes check
 if(NOT (WIN32 OR CYGWIN OR AMIGA OR OS2))
-
     cmake_push_check_state()
     set(CMAKE_REQUIRED_FLAGS "-fvisibility=hidden -Werror")
 

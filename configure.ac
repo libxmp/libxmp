@@ -221,12 +221,6 @@ else
 fi
 AC_SUBST(PROWIZARD_OBJS)
 
-XMP_TRY_COMPILE(whether alloca() needs alloca.h,
-  ac_cv_c_flag_w_have_alloca_h,,[
-  #include <alloca.h>
-  int main(void){return 0;}],
-  AC_DEFINE(HAVE_ALLOCA_H, 1, [ ]))
-
 LIBM=
 case "${host_os}" in
 dnl These systems don't have libm or don't need it (list based on libtool)
@@ -262,7 +256,6 @@ esac
 
 case "${host_os}" in
 amigaos*|aros*|morphos*)
-dnl for depackers/xfd.c
   AC_CHECK_HEADERS(proto/xfdmaster.h)
   ;;
 esac
