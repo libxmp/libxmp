@@ -11,3 +11,4 @@ A tracker module player library
 :Manual section: 3
 :Manual group: Extended Module Player
 
+.. include:: libxmp.rst
