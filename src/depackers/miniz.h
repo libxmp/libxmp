@@ -120,8 +120,10 @@
 
 #if 1 /* LIBXMP-SPECIFIC CONFIG: */
 
+#ifndef DEBUG  /* not a debug build */
 #ifndef NDEBUG
 #define NDEBUG /* disable assert()s */
+#endif
 #endif
 
 /* Defines to completely disable specific portions of miniz.c: 

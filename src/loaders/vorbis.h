@@ -1,5 +1,7 @@
+#ifndef DEBUG  /* not a debug build */
 #ifndef NDEBUG
 #define NDEBUG /* disable assert()s */
+#endif
 #endif
 
 #define STB_VORBIS_NO_PUSHDATA_API
