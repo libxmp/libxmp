@@ -907,6 +907,7 @@ static mz_bool mz_zip_file_stat_internal(mz_zip_archive *pZip, mz_uint file_inde
     return MZ_TRUE;
 }
 
+#if 0 /* not used in libxmp */
 static MZ_FORCEINLINE mz_bool mz_zip_string_equal(const char *pA, const char *pB, mz_uint len, mz_uint flags)
 {
     mz_uint i;
@@ -935,7 +936,6 @@ static MZ_FORCEINLINE int mz_zip_filename_compare(const mz_zip_array *pCentral_d
     return (pL == pE) ? (int)(l_len - r_len) : (l - r);
 }
 
-#if 0 /* not used in libxmp */
 static mz_bool mz_zip_locate_file_binary_search(mz_zip_archive *pZip, const char *pFilename, mz_uint32 *pIndex)
 {
     mz_zip_internal_state *pState = pZip->m_pState;
