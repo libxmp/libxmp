@@ -166,11 +166,16 @@ static void __inline D_(const char *text, ...) {
 #else
 
 #ifdef DEBUG
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#define LIBXMP_FUNC __func__
+#else
+#define LIBXMP_FUNC __FUNCTION__
+#endif
 #define D_INFO "\x1b[33m"
 #define D_CRIT "\x1b[31m"
 #define D_WARN "\x1b[36m"
 #define D_(...) do { \
-	printf("\x1b[33m%s \x1b[37m[%s:%d] " D_INFO, __FUNCTION__, \
+	printf("\x1b[33m%s \x1b[37m[%s:%d] " D_INFO, LIBXMP_FUNC, \
 		__FILE__, __LINE__); printf (__VA_ARGS__); printf ("\x1b[0m\n"); \
 	} while (0)
 #else
