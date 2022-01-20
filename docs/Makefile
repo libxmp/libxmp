@@ -1,6 +1,9 @@
 
-DOCS_DFILES	= Makefile COPYING.LIB CREDITS Changelog formats.txt \
-		  fixloop.txt libxmp.rst custom.style $(DOCS_FILES)
+DOCS_DFILES	= Makefile CMakeLists.txt           \
+		  COPYING.LIB CREDITS Changelog     \
+		  formats.txt fixloop.txt           \
+		  libxmp.rst manpage.rst pdfdoc.rst \
+		  custom.style style.css $(DOCS_FILES)
 
 DOCS_PATH	= docs
 
@@ -21,16 +24,12 @@ dist-docs:
 	mkdir -p $(DIST)/$(DOCS_PATH)
 	cp -RPp $(addprefix $(DOCS_PATH)/,$(DOCS_DFILES)) $(DIST)/$(DOCS_PATH)
 
-docs/libxmp.3: docs/libxmp.man.rst
-	rst2man docs/libxmp.man.rst > $@
+docs/libxmp.3: docs/libxmp.rst docs/manpage.rst
+	rst2man docs/manpage.rst > $@
 
-docs/libxmp.man.rst: docs/libxmp.rst docs/manpage-header.rst docs/Makefile
-	cp docs/manpage-header.rst $@
-	sed -n '/^Introduction/,$$p' docs/libxmp.rst >> $@
+docs/libxmp.html: docs/libxmp.rst docs/pdfdoc.rst docs/style.css
+	rst2html docs/pdfdoc.rst --stylesheet docs/style.css > $@
 
-docs/libxmp.html: docs/libxmp.rst
-	rst2html docs/libxmp.rst --stylesheet docs/style.css > $@
-
-docs/libxmp.pdf: docs/libxmp.rst docs/custom.style
-	rst2pdf docs/libxmp.rst -c --smart-quotes=1 -s docs/custom.style --footer="###Page###" -o $@
+docs/libxmp.pdf: docs/libxmp.rst docs/pdfdoc.rst docs/custom.style
+	rst2pdf docs/pdfdoc.rst -c --smart-quotes=1 -s docs/custom.style --footer="###Page###" -o $@
 

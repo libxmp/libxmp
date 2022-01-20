@@ -154,6 +154,10 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/examples/CMakeLists.txt")
 endif()
 
 
+# === Documentation ====
+add_subdirectory(docs)
+
+
 # === Install ====
 include(GNUInstallDirs)
 
