@@ -6,6 +6,7 @@ COMPAT_VERSION	= $(VERSION_MAJOR)
 
 CC		= @CC@
 CFLAGS		= -c @CFLAGS@ @DEFS@ -D_REENTRANT -DLIBXMP_CORE_PLAYER
+#CFLAGS		+= -DDEBUG
 CFLAGS_SHARED	= @CFLAGS_SHARED@
 CFLAGS_STATIC	= -DBUILDING_STATIC
 LD		= @CC@
@@ -28,7 +29,7 @@ SHELL		= /bin/sh
 DIST		= libxmp-lite-$(VERSION)
 DFILES		= README INSTALL install-sh configure configure.ac config.sub config.guess    \
 		  Makefile.in Makefile.vc Makefile.os2 Makefile.w32 watcom.mif CMakeLists.txt \
-		  aclocal.m4 libxmp.map libxmp-lite.pc.in Changelog
+		  aclocal.m4 autogen.sh libxmp.map libxmp-lite.pc.in Changelog
 DDIRS		= include src loaders test cmake m4
 V		= 0
 LIB		= libxmp-lite.a
@@ -167,6 +168,7 @@ install: all
 	@mkdir -p $(DESTDIR)$(LIBDIR)/pkgconfig
 	@$(INSTALL) -m644 libxmp-lite.pc $(DESTDIR)$(LIBDIR)/pkgconfig/
 
+#FIXME: do better?
 depend:
 	@echo Building dependencies...
 	@echo > $@
@@ -175,7 +177,7 @@ depend:
 	    $(CC) $(CFLAGS) -MM $$c | \
 		sed "s!^.*\.o:!$$i $$l:!" >> $@ ; \
 	done
-	    
+
 dist: version-prepare dist-prepare dist-jni dist-subdirs
 
 dist-jni:
