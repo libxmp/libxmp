@@ -352,6 +352,18 @@ void libxmp_virt_release(struct context_data *ctx, int chn, int rel)
 	libxmp_mixer_release(ctx, voc, rel);
 }
 
+void libxmp_virt_reverse(struct context_data *ctx, int chn, int rev)
+{
+	struct player_data *p = &ctx->p;
+	int voc;
+
+	if ((voc = map_virt_channel(p, chn)) < 0) {
+		return;
+	}
+
+	libxmp_mixer_reverse(ctx, voc, rev);
+}
+
 void libxmp_virt_setpan(struct context_data *ctx, int chn, int pan)
 {
 	struct player_data *p = &ctx->p;

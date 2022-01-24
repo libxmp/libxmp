@@ -79,6 +79,44 @@ struct dbm_envelope {
 };
 
 
+static void dbm_translate_effect(struct xmp_event *event, uint8 *fxt, uint8 *fxp)
+{
+	switch (*fxt) {
+	case 0x0e:
+		switch (MSN(*fxp)) {
+		case 0x3:	/* Play from backward */
+			/* TODO: this is supposed to play the sample in
+			 * reverse only once, then forward. */
+			if (event->note) {
+				*fxt = FX_REVERSE;
+				*fxp = 1;
+			} else {
+				*fxt = *fxp = 0;
+			}
+			break;
+		case 0x4:	/* Turn off sound in channel */
+			*fxt = FX_EXTENDED;
+			*fxp = (EX_CUT << 4);
+			break;
+		case 0x5:	/* Turn on/off channel */
+			/* In DigiBooster Pro, this is tied to
+			 * the channel mute toggle in the UI. */
+			*fxt = FX_TRK_VOL;
+			*fxp = *fxp ? 0x40 : 0x00;
+			break;
+		}
+		break;
+
+	case 0x1c:		/* Set Real BPM */
+		*fxt = FX_S3M_BPM;
+		break;
+
+	default:
+		if (*fxt > 0x1c)
+			*fxt = *fxp = 0;
+	}
+}
+
 static int get_info(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
@@ -313,17 +351,8 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 				if (--sz <= 0) break;
 			}
 
-			if (event->fxt == 0x1c)
-				event->fxt = FX_S3M_BPM;
-
-			if (event->fxt > 0x1c)
-				event->fxt = event->f2p = 0;
-
-			if (event->f2t == 0x1c)
-				event->f2t = FX_S3M_BPM;
-
-			if (event->f2t > 0x1c)
-				event->f2t = event->f2p = 0;
+			dbm_translate_effect(event, &event->fxt, &event->fxp);
+			dbm_translate_effect(event, &event->f2t, &event->f2p);
 		}
 	}
 

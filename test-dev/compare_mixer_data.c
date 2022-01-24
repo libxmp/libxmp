@@ -9,8 +9,8 @@ static void _compare_mixer_data(const char *mod, const char *data, int loops, in
 	xmp_context opaque;
 	struct context_data *ctx;
 	struct module_data *m;
-        struct player_data *p;
-        struct mixer_voice *vi;
+	struct player_data *p;
+	struct mixer_voice *vi;
 	struct xmp_frame_info fi;
 	int time, row, frame, chan, period, note, ins, vol, pan, pos0, cutoff;
 	char line[200];
@@ -68,6 +68,12 @@ static void _compare_mixer_data(const char *mod, const char *data, int loops, in
 				fail_unless(vi->vol == vol, "volume mismatch");
 				fail_unless(vi->pan == pan, "pan mismatch");
 			}
+			/* x87 precision edge cases can slightly change loop
+			 * wrapping behavior, which the abs() can't catch. */
+			if ((vi->pos0 == vi->start && pos0 == vi->end) ||
+			    (vi->pos0 == vi->end && pos0 == vi->start)) {
+				pos0 = vi->pos0;
+			}
 			fail_unless(abs(vi->pos0 - pos0) <= 1, "position mismatch");
 			if (num >= 11) {
 				fail_unless(vi->filter.cutoff == cutoff,
@@ -79,7 +85,6 @@ static void _compare_mixer_data(const char *mod, const char *data, int loops, in
 				vi->note, vi->ins, vi->vol, vi->pan, vi->pos0, vi->filter.cutoff);
 #endif
 		}
-		
 	}
 
 	if (fgets(line, 200, f) != NULL)

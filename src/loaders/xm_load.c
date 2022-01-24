@@ -202,6 +202,20 @@ static int load_xm_pattern(struct module_data *m, int num, int version,
 					break;
 				}
 			}
+			if (event->fxt == FX_XF_PORTA && MSN(event->fxp) == 0x09) {
+				/* Translate MPT hacks */
+				switch (LSN(event->fxp)) {
+				case 0x0:	/* Surround off */
+				case 0x1:	/* Surround on */
+					event->fxt = FX_SURROUND;
+					event->fxp = LSN(event->fxp);
+					break;
+				case 0xe:	/* Play forward */
+				case 0xf:	/* Play reverse */
+					event->fxt = FX_REVERSE;
+					event->fxp = LSN(event->fxp) - 0xe;
+				}
+			}
 
 			if (!event->vol) {
 				continue;

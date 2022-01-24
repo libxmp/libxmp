@@ -137,6 +137,7 @@
 #endif
 
 #define FX_SURROUND	0x8d	/* S3M/IT */
+#define FX_REVERSE	0x8f	/* XM/IT/others: play forward/reverse */
 #define FX_S3M_SPEED	0xa3	/* S3M */
 #define FX_VOLSLIDE_2	0xa4
 #define FX_FINETUNE	0xa6
