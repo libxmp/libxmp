@@ -973,7 +973,6 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 	int use_ins_vol;
 	int sample_mode;
 	int toneporta_offset;
-	int disabled_toneporta;
 	int retrig_ins;
 	struct xmp_event ev;
 
@@ -1000,7 +999,6 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 	candidate_ins = xc->ins;
 	sample_mode = !HAS_QUIRK(QUIRK_VIRTUAL);
 	toneporta_offset = 0;
-	disabled_toneporta = 0;
 	retrig_ins = 0;
 
 	/* Keyoff + instrument retrigs current instrument in old fx mode */
@@ -1044,10 +1042,8 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 
 	/* Off-Porta.it */
 	if (is_toneporta && ev.fxt == FX_OFFSET) {
-		disabled_toneporta = 1;
-		is_toneporta = 0;
+		toneporta_offset = 1;
  		if (!HAS_QUIRK(QUIRK_PRENV)) {
-			toneporta_offset = 1;
 			RESET_NOTE(NOTE_ENV_END);
 		}
 	}
@@ -1177,9 +1173,7 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 			/* portamento_after_keyoff.it test case */
 			/* also see suburban_streets o13 c45 */
 			if (ev.ins || !is_toneporta) {
-				if (!disabled_toneporta) {
-					reset_env = 1;
-				}
+				reset_env = 1;
 			}
 
 			if (is_toneporta) {
@@ -1316,7 +1310,7 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 
 			if (TEST_NOTE(NOTE_CUT)) {
 				reset_envelopes(ctx, xc);
-			} else if (!toneporta_offset) {
+			} else if (!toneporta_offset || HAS_QUIRK(QUIRK_PRENV)) {
 				reset_envelopes_carry(ctx, xc);
 			}
 			RESET_NOTE(NOTE_CUT);
@@ -1346,6 +1340,8 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 
 	if (note >= 0) {
 		xc->note = note;
+	}
+	if (note >= 0 || toneporta_offset) {
 		libxmp_virt_voicepos(ctx, chn, xc->offset.val);
 	}
 
