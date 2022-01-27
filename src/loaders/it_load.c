@@ -137,9 +137,16 @@ static void xlat_fx(int c, struct xmp_event *e, uint8 *last_fxp, int new_fx)
 			e->fxt = FX_SETPAN;
 			e->fxp = l << 4;
 			break;
-		case 0x9:	/* 0x91 = set surround */
-			e->fxt = FX_SURROUND;
-			e->fxp = l;
+		case 0x9:
+			if (l == 0 || l == 1) {
+				/* 0x91 = set surround */
+				e->fxt = FX_SURROUND;
+				e->fxp = l;
+			} else if (l == 0xe || l == 0xf) {
+				/* 0x9f Play reverse (MPT) */
+				e->fxt = FX_REVERSE;
+				e->fxp = l - 0xe;
+			}
 			break;
 		case 0xa:	/* High offset */
 			e->fxt = FX_HIOFFSET;

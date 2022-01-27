@@ -430,7 +430,10 @@ static int loop_reposition(struct context_data *ctx, struct mixer_voice *vi,
 
 	if (~vi->flags & VOICE_BIDIR) {
 		/* Reposition for next loop */
-		vi->pos -= vi->end - vi->start;
+		if (~vi->flags & VOICE_REVERSE)
+			vi->pos -= vi->end - vi->start;
+		else
+			vi->pos += vi->end - vi->start;
 	} else {
 		/* Bidirectional loop: switch directions */
 		vi->flags ^= VOICE_REVERSE;
@@ -765,6 +768,9 @@ void libxmp_mixer_voicepos(struct context_data *ctx, int voc, double pos, int ac
 		vi->pos = vi->end;
 		if (has_active_loop(ctx, vi, xxs))
 			loop_reposition(ctx, vi, xxs, xtra);
+	} else if ((vi->flags & VOICE_REVERSE) && vi->pos <= 0.1) {
+		/* Hack: 0 maps to the end for reversed samples. */
+		vi->pos = vi->end;
 	}
 
 	if (ac) {
@@ -874,9 +880,34 @@ void libxmp_mixer_release(struct context_data *ctx, int voc, int rel)
 	struct mixer_voice *vi = &p->virt.voice_array[voc];
 
 	if (rel) {
+#ifndef LIBXMP_CORE_DISABLE_IT
+		/* Cancel voice reverse when releasing an active sustain loop,
+		 * unless the main loop is bidirectional. This is done both for
+		 * bidirectional sustain loops and for forward sustain loops
+		 * that have been reversed with MPT S9F Play Backward. */
+		if (~vi->flags & VOICE_RELEASE) {
+			struct xmp_sample *xxs = libxmp_get_sample(ctx, vi->smp);
+
+			if (has_active_sustain_loop(ctx, vi, xxs) &&
+			    (~xxs->flg & XMP_SAMPLE_LOOP_BIDIR))
+				vi->flags &= ~VOICE_REVERSE;
+		}
+#endif
 		vi->flags |= VOICE_RELEASE;
 	} else {
 		vi->flags &= ~VOICE_RELEASE;
+	}
+}
+
+void libxmp_mixer_reverse(struct context_data *ctx, int voc, int rev)
+{
+	struct player_data *p = &ctx->p;
+	struct mixer_voice *vi = &p->virt.voice_array[voc];
+
+	if (rev) {
+		vi->flags |= VOICE_REVERSE;
+	} else {
+		vi->flags &= ~VOICE_REVERSE;
 	}
 }
 

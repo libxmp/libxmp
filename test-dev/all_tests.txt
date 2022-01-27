@@ -313,6 +313,7 @@ test_effect_it_panslide
 test_effect_it_vcol_g
 test_effect_it_break_to_row
 test_effect_it_multi_retrig
+test_effect_reverse
 test_effect_pastnote_cut
 test_effect_pastnote_off
 test_effect_pastnote_fade
@@ -464,6 +465,7 @@ test_openmpt_it_samplenumberchange
 test_openmpt_it_scx
 test_openmpt_it_smpinspansurround
 test_openmpt_it_stoppedinstrswap
+test_openmpt_it_susafterloop
 test_openmpt_it_swaptest
 test_openmpt_it_swing1
 test_openmpt_it_swing2

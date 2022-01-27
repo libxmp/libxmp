@@ -734,6 +734,9 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 	case FX_SURROUND:
 		xc->pan.surround = fxp;
 		break;
+	case FX_REVERSE:	/* Play forward/backward */
+		libxmp_virt_reverse(ctx, chn, fxp);
+		break;
 
 #ifndef LIBXMP_CORE_DISABLE_IT
 	case FX_TRK_VOL:	/* Track volume setting */

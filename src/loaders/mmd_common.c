@@ -208,7 +208,7 @@ void mmd_xlat_fx(struct xmp_event *event, int bpm_on, int bpmlen, int med_8ch,
 		 * The effect depends upon the value of the argument.
 		 */
 		if (event->fxp == 0x00) {	/* Jump to next block */
-			event->fxt = 0x0d;
+			event->fxt = FX_BREAK;
 			break;
 		} else if (event->fxp <= 0xf0) {
 			event->fxt = FX_S3M_BPM;
@@ -356,6 +356,21 @@ void mmd_xlat_fx(struct xmp_event *event, int bpm_on, int bpmlen, int med_8ch,
 			/* retrig */
 			event->fxt = FX_EXTENDED;
 			event->fxp = 0x90 | (event->fxp & 0x0f);
+		}
+		break;
+	case 0x20:
+		/* Command 20: REVERSE SAMPLE / RELATIVE SAMPLE OFFSET
+		 * With command level $00, the sample is reversed. With other
+		 * levels, it changes the sample offset, just like command 19,
+		 * except the command level is the new offset relative to the
+		 * current sample position being played.
+		 * Note: 20 00 only works on the same line as a new note.
+		 */
+		if (event->fxp == 0 && event->note != 0) {
+			event->fxt = FX_REVERSE;
+			event->fxp = 1;
+		} else {
+			event->fxt = event->fxp = 0;
 		}
 		break;
 	case 0x2e:
