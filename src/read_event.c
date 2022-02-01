@@ -1084,10 +1084,11 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 
 		if (set_new_ins) {
 			SET(NEW_INS);
-			use_ins_vol = 1;
 			reset_env = 1;
-			reset_susloop = 1;
 		}
+		/* Sample default volume is always enabled if a valid sample
+		 * is provided (Atomic Playboy, default_volume.it). */
+		use_ins_vol = 1;
 		xc->per_flags = 0;
 
 		if (IS_VALID_INSTRUMENT(ins)) {
@@ -1127,7 +1128,10 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 				}
 			}
 		} else {
-			/* In sample mode invalid ins cut previous ins */
+			/* In sample mode invalid instruments cut the current
+			 * note (OpenMPT SampleNumberChange.it).
+			 * TODO: portamento_sustain.it order 3 row 19: when
+			 * sample release is set, this isn't always done? */
 			if (sample_mode) {
 				xc->volume = 0;
 			}
@@ -1136,7 +1140,6 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 			new_invalid_ins = 1;
 			xc->flags = 0;
 			use_ins_vol = 0;
-			reset_susloop = 1;
 		}
 	}
 
@@ -1176,9 +1179,12 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 				use_ins_vol = 0;
 			}
 		} else {
+			/* Sample sustain release should always carry for tone
+			 * portamento, and is not reset unless a note is
+			 * present (Atomic Playboy, portamento_sustain.it). */
 			/* portamento_after_keyoff.it test case */
 			/* also see suburban_streets o13 c45 */
-			if (ev.ins || !is_toneporta) {
+			if (!is_toneporta) {
 				reset_env = 1;
 				reset_susloop = 1;
 			}
@@ -1197,6 +1203,8 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 		}
 	}
 
+	/* TODO: instrument change+porta(+release?) doesn't require a key.
+	 * Order 3/row 11 of portamento_sustain.it should change the sample. */
 	if (IS_VALID_NOTE(key - 1) && !new_invalid_ins) {
 		if (TEST_NOTE(NOTE_CUT)) {
 			use_ins_vol = 1;	/* See OpenMPT NoteOffInstr.it */
