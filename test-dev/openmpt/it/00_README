@@ -447,10 +447,7 @@ Off-Porta.it[[156]edit]
    Download: [157]Off-Porta.it
    Description: When "Compatible Gxx" is disabled, the key-off flag should
    only be removed when triggering new notes, but not when continuing a
-   note using a portamento command (row 2, 4). However, you should keep in
-   mind that the portamento flag is still set even if there is an offset
-   command next to the portamento command (row 4), which would normally
-   nullify the portamento effect (see [158]porta-offset.it).
+   note using a portamento command.
 
 Off-Porta-CompatGxx.it[[159]edit]
 
@@ -513,9 +510,9 @@ porta-offset.it[[172]edit]
 
    Current status: OpenMPT passes this test since revision 0.
    Download: [173]porta-offset.it
-   Description: Unlike Fasttracker 2, Impulse Tracker ignores the
-   portamento command if there is an portamento command next to an offset
-   command. Even ModPlug Tracker 1.16 gets this test right.
+   Description: Unlike Fasttracker 2, Impulse Tracker does not ignore
+   offset commands next to portamentos and executes them both.
+   Even ModPlug Tracker 1.16 gets this test right.
 
 PortaReset.it[[174]edit]
 
