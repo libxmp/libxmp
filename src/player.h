@@ -58,15 +58,19 @@ struct retrig_control {
 #define TREMOR		(1 << 27)	/* for XM tremor */
 
 #define NOTE_FADEOUT	(1 << 0)
-#define NOTE_RELEASE	(1 << 1)
+#define NOTE_ENV_RELEASE (1 << 1)	/* envelope sustain loop release */
 #define NOTE_END	(1 << 2)
 #define NOTE_CUT	(1 << 3)
 #define NOTE_ENV_END	(1 << 4)
 #define NOTE_SAMPLE_END	(1 << 5)
 #define NOTE_SET	(1 << 6)	/* for IT portamento after keyoff */
-#define NOTE_SUSEXIT	(1 << 7)	/* for delayed note release */
+#define NOTE_SUSEXIT	(1 << 7)	/* for delayed envelope release */
 #define NOTE_KEY_CUT	(1 << 8)	/* note cut with XMP_KEY_CUT event */
 #define NOTE_GLISSANDO	(1 << 9)
+#define NOTE_SAMPLE_RELEASE (1 << 10)	/* sample sustain loop release */
+
+/* Most of the time, these should be set/reset together. */
+#define NOTE_RELEASE	(NOTE_ENV_RELEASE | NOTE_SAMPLE_RELEASE)
 
 #define IS_VALID_INSTRUMENT(x) ((uint32)(x) < mod->ins && mod->xxi[(x)].nsm > 0)
 #define IS_VALID_INSTRUMENT_OR_SFX(x) (((uint32)(x) < mod->ins && mod->xxi[(x)].nsm > 0) || (smix->ins > 0 && (uint32)(x) < mod->ins + smix->ins))
