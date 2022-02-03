@@ -40,7 +40,7 @@
 /* #define LZX_DEBUG */
 
 /* Arbitrary output maximum file length. */
-#define LZX_OUTPUT_MAX (1 << 29)
+#define LZX_OUTPUT_MAX LIBXMP_DEPACK_LIMIT
 
 #define LZX_HEADER_SIZE  10
 #define LZX_ENTRY_SIZE   31

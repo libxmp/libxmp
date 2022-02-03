@@ -282,6 +282,7 @@ typedef void *(*mz_realloc_func)(void *opaque, void *address, size_t items, size
 
 #if 1 /* libxmp-specific typedefs: */
 #include "../common.h"
+#include "depacker.h"
 typedef uint8 mz_uint8;
 typedef int16 mz_int16;
 typedef uint16 mz_uint16;
@@ -303,6 +304,10 @@ typedef int mz_bool;
 #define MZ_FALSE (0)
 #define MZ_TRUE (1)
 
+/* tinfl doesn't have a nicer way of limiting the output buffer size. */
+#define MZ_MALLOC(sz) (((sz) <= LIBXMP_DEPACK_LIMIT) ? malloc((sz)) : NULL)
+#define MZ_REALLOC(p,sz) (((sz) <= LIBXMP_DEPACK_LIMIT) ? realloc((p),(sz)) : NULL)
+
 /* Works around MSVC's spammy "warning C4127: conditional expression is constant" message. */
 #ifdef _MSC_VER
 #define MZ_MACRO_END while (0, 0)
@@ -314,9 +319,9 @@ typedef int mz_bool;
 
 #define MZ_ASSERT(x) assert(x)
 
-#define MZ_MALLOC(x) malloc(x)
+/*#define MZ_MALLOC(x) malloc(x)*/
 #define MZ_FREE(x) free(x)
-#define MZ_REALLOC(p, x) realloc(p, x)
+/*#define MZ_REALLOC(p, x) realloc(p, x)*/
 
 #define MZ_MAX(a, b) (((a) > (b)) ? (a) : (b))
 #define MZ_MIN(a, b) (((a) < (b)) ? (a) : (b))
