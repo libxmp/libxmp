@@ -732,6 +732,7 @@ FUZZ_UBSAN_FLAGS	= -O3 -fsanitize=fuzzer,undefined -fno-sanitize-recover=all -fn
 FUZZLIB_ASAN_FLAGS	= $(subst fuzzer,fuzzer-no-link,$(FUZZ_ASAN_FLAGS))
 FUZZLIB_MSAN_FLAGS	= $(subst fuzzer,fuzzer-no-link,$(FUZZ_MSAN_FLAGS))
 FUZZLIB_UBSAN_FLAGS	= $(subst fuzzer,fuzzer-no-link,$(FUZZ_UBSAN_FLAGS))
+FUZZ_CC			?= clang
 
 .PHONY: fuzzers fuzzerclean $(FUZZLIB_PATH)
 
@@ -747,7 +748,7 @@ $(FUZZLIB_PATH):
 $(FUZZLIB_PATH)/libxmp-asan.a: $(FUZZLIB_PATH)
 	(cd $(FUZZLIB_PATH) && \
 		autoconf && \
-		CC="clang" CFLAGS="$(FUZZLIB_ASAN_FLAGS)" LDFLAGS="$(FUZZLIB_ASAN_FLAGS)" ./configure && \
+		CC="$(FUZZ_CC)" CFLAGS="$(FUZZLIB_ASAN_FLAGS)" LDFLAGS="$(FUZZLIB_ASAN_FLAGS)" ./configure && \
 		$(MAKE) static && \
 		cp lib/libxmp.a libxmp-asan.a && \
 		$(MAKE) distclean)
@@ -755,7 +756,7 @@ $(FUZZLIB_PATH)/libxmp-asan.a: $(FUZZLIB_PATH)
 $(FUZZLIB_PATH)/libxmp-msan.a: $(FUZZLIB_PATH) | $(FUZZLIB_PATH)/libxmp-asan.a
 	(cd $(FUZZLIB_PATH) && \
 		autoconf && \
-		CC="clang" CFLAGS="$(FUZZLIB_MSAN_FLAGS)" LDFLAGS="$(FUZZLIB_MSAN_FLAGS)" ./configure && \
+		CC="$(FUZZ_CC)" CFLAGS="$(FUZZLIB_MSAN_FLAGS)" LDFLAGS="$(FUZZLIB_MSAN_FLAGS)" ./configure && \
 		$(MAKE) static && \
 		cp lib/libxmp.a libxmp-msan.a && \
 		$(MAKE) distclean)
@@ -763,22 +764,22 @@ $(FUZZLIB_PATH)/libxmp-msan.a: $(FUZZLIB_PATH) | $(FUZZLIB_PATH)/libxmp-asan.a
 $(FUZZLIB_PATH)/libxmp-ubsan.a: $(FUZZLIB_PATH) | $(FUZZLIB_PATH)/libxmp-msan.a
 	(cd $(FUZZLIB_PATH) && \
 		autoconf && \
-		CC="clang" CFLAGS="$(FUZZLIB_UBSAN_FLAGS)" LDFLAGS="$(FUZZLIB_UBSAN_FLAGS)" ./configure && \
+		CC="$(FUZZ_CC)" CFLAGS="$(FUZZLIB_UBSAN_FLAGS)" LDFLAGS="$(FUZZLIB_UBSAN_FLAGS)" ./configure && \
 		$(MAKE) static && \
 		cp lib/libxmp.a libxmp-ubsan.a && \
 		$(MAKE) distclean)
 
 libxmp_fuzz_asan: libxmp_fuzz.c $(FUZZLIB_PATH)/libxmp-asan.a
-	@CMD='$(LD) $(FUZZ_ASAN_FLAGS) -o $@ $< -L$(FUZZLIB_PATH) -lxmp-asan'; \
+	@CMD='$(FUZZ_CC) $(FUZZ_ASAN_FLAGS) -o $@ $< -L$(FUZZLIB_PATH) -lxmp-asan'; \
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
 	eval $$CMD
 
 libxmp_fuzz_msan: libxmp_fuzz.c $(FUZZLIB_PATH)/libxmp-msan.a
-	@CMD='$(LD) $(FUZZ_MSAN_FLAGS) -o $@ $< -L$(FUZZLIB_PATH) -lxmp-msan'; \
+	@CMD='$(FUZZ_CC) $(FUZZ_MSAN_FLAGS) -o $@ $< -L$(FUZZLIB_PATH) -lxmp-msan'; \
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
 	eval $$CMD
 
 libxmp_fuzz_ubsan: libxmp_fuzz.c $(FUZZLIB_PATH)/libxmp-ubsan.a
-	@CMD='$(LD) $(FUZZ_UBSAN_FLAGS) -o $@ $< -L$(FUZZLIB_PATH) -lxmp-ubsan'; \
+	@CMD='$(FUZZ_CC) $(FUZZ_UBSAN_FLAGS) -o $@ $< -L$(FUZZLIB_PATH) -lxmp-ubsan'; \
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
 	eval $$CMD
