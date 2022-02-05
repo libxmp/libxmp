@@ -135,7 +135,7 @@ static int decrunch_gzip(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 	free(pCmp_data);
 
 	crc_in = hio_read32l(in);
-	crc = libxmp_crc32_A(pOut_buf, pOut_len, 0UL);
+	crc = libxmp_crc32_A((uint8 *)pOut_buf, pOut_len, 0UL);
 	if (crc_in != crc) {
 		D_(D_CRIT "CRC-32 mismatch: expected %08zx, got %08zx",
 		   (size_t)crc_in, (size_t)crc);
