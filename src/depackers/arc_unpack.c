@@ -59,7 +59,7 @@ struct arc_huffman_index
   arc_int16 value[2];
 };
 
-struct arc_unpack
+struct arc_data
 {
   /* RLE90. */
   size_t rle_in;
@@ -94,7 +94,7 @@ struct arc_unpack
   unsigned num_huffman;
 };
 
-static int arc_unpack_init(struct arc_unpack *arc, int init_width, int max_width, int is_dynamic)
+static int arc_unpack_init(struct arc_data *arc, int init_width, int max_width, int is_dynamic)
 {
   arc->rle_out = 0;
   arc->rle_in = 0;
@@ -145,7 +145,7 @@ static int arc_unpack_init(struct arc_unpack *arc, int init_width, int max_width
   return 0;
 }
 
-static int arc_unpack_window(struct arc_unpack *arc, size_t window_size)
+static int arc_unpack_window(struct arc_data *arc, size_t window_size)
 {
   arc->window = (unsigned char *)malloc(window_size);
   if(!arc->window)
@@ -153,7 +153,7 @@ static int arc_unpack_window(struct arc_unpack *arc, size_t window_size)
   return 0;
 }
 
-static void arc_unpack_free(struct arc_unpack *arc)
+static void arc_unpack_free(struct arc_data *arc)
 {
   free(arc->window);
   free(arc->tree);
@@ -178,7 +178,7 @@ static arc_uint32 arc_get_bytes(const unsigned char *pos, int num)
   }
 }
 
-static arc_int32 arc_read_bits(struct arc_unpack * ARC_RESTRICT arc,
+static arc_int32 arc_read_bits(struct arc_data * ARC_RESTRICT arc,
  const unsigned char *src, size_t src_len, unsigned int num_bits)
 {
   arc_uint32 ret;
@@ -199,7 +199,7 @@ static arc_int32 arc_read_bits(struct arc_unpack * ARC_RESTRICT arc,
   return ret;
 }
 
-static arc_uint32 arc_next_code(struct arc_unpack * ARC_RESTRICT arc,
+static arc_uint32 arc_next_code(struct arc_data * ARC_RESTRICT arc,
  const unsigned char *src, size_t src_len)
 {
   /**
@@ -229,7 +229,7 @@ static arc_uint32 arc_next_code(struct arc_unpack * ARC_RESTRICT arc,
   return arc->codes_buffered[arc->buffered_pos++];
 }
 
-static void arc_unlzw_add(struct arc_unpack *arc)
+static void arc_unlzw_add(struct arc_data *arc)
 {
   if(arc->last_code != ARC_NO_CODE && arc->next_code < arc->max_code)
   {
@@ -252,7 +252,7 @@ static void arc_unlzw_add(struct arc_unpack *arc)
   }
 }
 
-static int arc_unlzw_get_length(const struct arc_unpack *arc,
+static int arc_unlzw_get_length(const struct arc_data *arc,
  const struct arc_code *e)
 {
   unsigned length = 1;
@@ -274,7 +274,7 @@ static int arc_unlzw_get_length(const struct arc_unpack *arc,
   return length;
 }
 
-static int arc_unlzw_block(struct arc_unpack * ARC_RESTRICT arc,
+static int arc_unlzw_block(struct arc_data * ARC_RESTRICT arc,
  unsigned char * ARC_RESTRICT dest, size_t dest_len,
  const unsigned char *src, size_t src_len)
 {
@@ -399,7 +399,7 @@ continue_code:
   return 0;
 }
 
-static int arc_unrle90_block(struct arc_unpack * ARC_RESTRICT arc,
+static int arc_unrle90_block(struct arc_data * ARC_RESTRICT arc,
  unsigned char * ARC_RESTRICT dest, size_t dest_len,
  const unsigned char *src, size_t src_len)
 {
@@ -500,7 +500,7 @@ static int arc_unrle90_block(struct arc_unpack * ARC_RESTRICT arc,
 static int arc_unpack_rle90(unsigned char * ARC_RESTRICT dest, size_t dest_len,
  const unsigned char *src, size_t src_len)
 {
-  struct arc_unpack arc;
+  struct arc_data arc;
   if(arc_unpack_init(&arc, 0, 0, 0) != 0)
     return -1;
 
@@ -531,7 +531,7 @@ err:
 static int arc_unpack_lzw(unsigned char * ARC_RESTRICT dest, size_t dest_len,
  const unsigned char *src, size_t src_len, int init_width, int max_width)
 {
-  struct arc_unpack arc;
+  struct arc_data arc;
   int is_dynamic = (init_width != max_width);
 
   if(max_width == ARC_MAX_CODE_IN_STREAM)
@@ -577,7 +577,7 @@ err:
 static int arc_unpack_lzw_rle90(unsigned char * ARC_RESTRICT dest, size_t dest_len,
  const unsigned char *src, size_t src_len, int init_width, int max_width)
 {
-  struct arc_unpack arc;
+  struct arc_data arc;
   int is_dynamic = (init_width != max_width);
 
   /* This is only used for Spark method 0xff, which doesn't use RLE. */
@@ -683,7 +683,7 @@ static int arc_huffman_check_tree(const struct arc_huffman_index *tree)
   return 0;
 }
 
-static int arc_huffman_init(struct arc_unpack * ARC_RESTRICT arc,
+static int arc_huffman_init(struct arc_data * ARC_RESTRICT arc,
  const unsigned char *src, size_t src_len)
 {
   size_t table_size = 1 << LOOKUP_BITS;
@@ -747,7 +747,7 @@ static int arc_huffman_init(struct arc_unpack * ARC_RESTRICT arc,
   return 0;
 }
 
-static int arc_huffman_read_bits(struct arc_unpack * ARC_RESTRICT arc,
+static int arc_huffman_read_bits(struct arc_data * ARC_RESTRICT arc,
  const unsigned char *src, size_t src_len)
 {
   struct arc_huffman_index *tree = arc->huffman_tree;
@@ -790,7 +790,7 @@ static int arc_huffman_read_bits(struct arc_unpack * ARC_RESTRICT arc,
   return ~index;
 }
 
-static int arc_unhuffman_block(struct arc_unpack * ARC_RESTRICT arc,
+static int arc_unhuffman_block(struct arc_data * ARC_RESTRICT arc,
  unsigned char * ARC_RESTRICT dest, size_t dest_len,
  const unsigned char *src, size_t src_len)
 {
@@ -815,7 +815,7 @@ static int arc_unhuffman_block(struct arc_unpack * ARC_RESTRICT arc,
 static int arc_unpack_huffman_rle90(unsigned char * ARC_RESTRICT dest, size_t dest_len,
  const unsigned char *src, size_t src_len)
 {
-  struct arc_unpack arc;
+  struct arc_data arc;
 
   if(arc_unpack_init(&arc, 0, 0, 0) != 0)
     return -1;
