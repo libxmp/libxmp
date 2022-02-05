@@ -34,7 +34,7 @@
 #include "crc32.h"
 
 /* Arbitrary maximum allowed output filesize. */
-#define ARC_MAX_OUTPUT (1 << 28)
+#define ARC_MAX_OUTPUT LIBXMP_DEPACK_LIMIT
 
 /* #define ARC_DEBUG */
 

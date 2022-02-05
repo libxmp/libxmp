@@ -24,7 +24,7 @@
 #include "xz.h"
 #include "crc32.h"
 
-#define XZ_MAX_OUTPUT	(512 << 20)
+#define XZ_MAX_OUTPUT	LIBXMP_DEPACK_LIMIT
 #define XZ_MAX_DICT	(16 << 20)
 #define XZ_BUFFER_SIZE	4096
 

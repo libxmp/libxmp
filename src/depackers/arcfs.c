@@ -34,7 +34,7 @@
 #include "crc32.h"
 
 /* Arbitrary maximum allowed output filesize. */
-#define ARCFS_MAX_OUTPUT (1 << 28)
+#define ARCFS_MAX_OUTPUT LIBXMP_DEPACK_LIMIT
 
 /* #define ARCFS_DEBUG */
 

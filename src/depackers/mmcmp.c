@@ -339,7 +339,7 @@ static int decrunch_mmcmp(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 	h.fmt_comp = hio_read8(in);
 	if (hio_error(in) != 0) goto err;
 
-	if (h.nblocks == 0 || h.filesize < 16)
+	if (h.nblocks == 0 || h.filesize < 16 || h.filesize > LIBXMP_DEPACK_LIMIT)
 		goto err;
 
 	/* Block table */

@@ -8,6 +8,7 @@
 
 #include "../common.h"
 #include "depacker.h"
+#include "crc32.h"
 #include "miniz.h"
 
 /* See RFC1952 for further information */
@@ -55,7 +56,8 @@ static int decrunch_gzip(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 	size_t in_buf_size;
 	void *pCmp_data, *pOut_buf;
 	size_t pOut_len;
-	long start, end;
+	uint32 crc_in, crc;
+	long start;
 
 	member.id1 = hio_read8(in);
 	member.id2 = hio_read8(in);
@@ -103,8 +105,11 @@ static int decrunch_gzip(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 	}
 
 	start = hio_tell(in);
-	end = inlen - 8;
-	in_buf_size = end - start;
+	if (hio_error(in) || start < 0 || inlen < start || inlen - start < 8) {
+		D_(D_CRIT "input file is truncated or is missing gzip footer");
+		return -1;
+	}
+	in_buf_size = inlen - start - 8;
 
 	pCmp_data = (uint8 *)malloc(in_buf_size);
 	if (!pCmp_data)
@@ -129,8 +134,14 @@ static int decrunch_gzip(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 
 	free(pCmp_data);
 
-	/* TODO: Check CRC32 */
-	val = hio_read32l(in);
+	crc_in = hio_read32l(in);
+	crc = libxmp_crc32_A(pOut_buf, pOut_len, 0UL);
+	if (crc_in != crc) {
+		D_(D_CRIT "CRC-32 mismatch: expected %08zx, got %08zx",
+		   (size_t)crc_in, (size_t)crc);
+		free(pOut_buf);
+		return -1;
+	}
 
 	/* Check file size */
 	val = hio_read32l(in);
