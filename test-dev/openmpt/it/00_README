@@ -390,6 +390,17 @@ macro-lastnote.it[[140]edit]
    and similar “notes” are not considered. This module should remain
    silent as both channels should receive exactly the same cutoff values.
 
+MacroExtendedParam.it
+
+   Current status: OpenMPT passes this test since revision 16715.
+   Download: MacroExtendedParam.it
+   Description: Even fixed macros (Z80-ZFF) can contain the letter “z”,
+   which inserts the raw command parameter into the macro (i.e. a value
+   in [80, FF[). In this file, macro ZF0 is used to insert byte F0 into
+   the string. This way, two MIDI messages to set both the filter cutoff
+   and resonance to 60h are created, which are the same filter settings
+   as used in instrument 2, so the module should stay silent.
+
 MultiZxx.it[[142]edit]
 
    Current status: OpenMPT passes this test since revision 947 (?).
@@ -397,8 +408,7 @@ MultiZxx.it[[142]edit]
    Description: A MIDI macro can contain more than one MIDI message. In
    this case, the Z90 macro sets both the filter cutoff frequency and
    resonance, so if only the first MIDI message is considered in this
-   macro, both patterns will sound identical. If the macro is interpreted
-   correctly, they will sound different.
+   macro, the module will no longer stay silent at row 8.
 
 NoMap.it[[144]edit]
 
@@ -765,6 +775,28 @@ wnoteoff.it[[232]edit]
    Current status: OpenMPT currently fails this test.
    Download: [233]wnoteoff.it
    Description: Note Off + instrument / portamento combinations.
+
+ZxxSecrets.it
+
+   Current status: OpenMPT passes this test since revision 9855.
+   Download: ZxxSecrets.it
+   Description: Impulse Tracker supports three MIDI macro characters which
+   are not documented in MIDI.TXT:
+     * h: Host channel, i.e. the pattern channel in which the Zxx command
+       is encountered (0-based).
+     * o: The last used sample offset value. The high offset (SAx) is not
+       taken into account. Note that offsets above 80h are not clamped, i.e.
+       they generate MIDI command bytes (e.g. O90 would cause a note-on
+       command to be emitted).
+     * m: This command sends the current MIDI note if the channel is a MIDI
+       channel, but on sample channels the current loop direction
+       (forward = 0, backward = 1) of the sample is stored in the same memory
+       location, so the macro evaluates to that instead of a note number.
+
+   In addition, the MIDI messages FA (start song), FC (stop song) and
+   FF (reset) reset the resonant filter parameters (cutoff = 127,
+   resonance = 0) for all channels, but do not immediately update the filter
+   coefficients.
 
    In total, OpenMPT passes 70 out of 75 tests.
    Retrieved from

@@ -81,9 +81,9 @@ static const uint8 fx[32] = {
 	/* W */ FX_GVOL_SLIDE,
 	/* X */ FX_SETPAN,
 	/* Y */ FX_PANBRELLO,
-	/* Z */ FX_FLT_CUTOFF,
+	/* Z */ FX_MACRO,
 	/* ? */ FX_NONE,
-	/* ? */ FX_NONE,
+	/* / */ FX_MACROSMOOTH,
 	/* ? */ FX_NONE,
 	/* ? */ FX_NONE,
 	/* ? */ FX_NONE
@@ -165,16 +165,12 @@ static void xlat_fx(int c, struct xmp_event *e, uint8 *last_fxp, int new_fx)
 			e->fxt = FX_IT_ROWDELAY;
 			e->fxp = l;
 			break;
+		case 0xf:	/* Set parametered macro */
+			e->fxt = FX_MACRO_SET;
+			e->fxp = l;
+			break;
 		default:
 			e->fxt = e->fxp = 0;
-		}
-		break;
-	case FX_FLT_CUTOFF:
-		if (e->fxp > 0x7f && e->fxp < 0x90) {	/* Resonance */
-			e->fxt = FX_FLT_RESN;
-			e->fxp = (e->fxp - 0x80) * 16;
-		} else {	/* Cutoff */
-			e->fxp *= 2;
 		}
 		break;
 	case FX_TREMOR:
@@ -255,6 +251,34 @@ static void fix_name(uint8 *s, int l)
 		if (s[i] == ' ')
 			s[i] = 0;
 	}
+}
+
+
+static int load_it_midi_config(struct module_data *m, HIO_HANDLE *f)
+{
+	int i;
+
+	m->midi = (struct midi_macro_data *) calloc(1, sizeof(struct midi_macro_data));
+	if (m->midi == NULL)
+		return -1;
+
+	/* Skip global MIDI macros */
+	if (hio_seek(f, 9 * 32, SEEK_CUR) < 0)
+		return -1;
+
+	/* SFx macros */
+	for (i = 0; i < 16; i++) {
+		if (hio_read(m->midi->param[i].data, 1, 32, f) < 32)
+			return -1;
+		m->midi->param[i].data[31] = '\0';
+	}
+	/* Zxx macros */
+	for (i = 0; i < 128; i++) {
+		if (hio_read(m->midi->fixed[i].data, 1, 32, f) < 32)
+			return -1;
+		m->midi->fixed[i].data[31] = '\0';
+	}
+	return 0;
 }
 
 
@@ -1161,6 +1185,17 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		pp_smp[i] = hio_read32l(f);
 	for (i = 0; i < mod->pat; i++)
 		pp_pat[i] = hio_read32l(f);
+
+	if ((ifh.flags & IT_MIDI_CONFIG) || (ifh.special & IT_SPEC_MIDICFG)) {
+		/* Skip edit history if it exists. */
+		if (ifh.special & IT_EDIT_HISTORY) {
+			int skip = hio_read16l(f) * 8;
+			if (hio_error(f) || (skip && hio_seek(f, skip, SEEK_CUR) < 0))
+				goto err3;
+		}
+		if (load_it_midi_config(m, f) < 0)
+			goto err3;
+	}
 
 	m->c4rate = C4_NTSC_RATE;
 

@@ -32,9 +32,14 @@
 #define IT_LINEAR_FREQ	0x08
 #define IT_OLD_FX	0x10
 #define IT_LINK_GXX	0x20
+#define IT_MIDI_WHEEL	0x40
+#define IT_MIDI_CONFIG	0x80
 
 /* IT special */
 #define IT_HAS_MSG	0x01
+#define IT_EDIT_HISTORY	0x02
+#define IT_HIGHLIGHTS	0x04
+#define IT_SPEC_MIDICFG	0x08
 
 /* IT instrument flags */
 #define IT_INST_SAMPLE	0x01
