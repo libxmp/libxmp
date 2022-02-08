@@ -238,6 +238,7 @@ struct channel_data {
 		int cutoff;	/* IT filter cutoff frequency */
 		int resonance;	/* IT filter resonance */
 		int envelope;	/* IT filter envelope */
+		int can_disable;/* IT hack: allow disabling for cutoff 127 */
 	} filter;
 
 #endif

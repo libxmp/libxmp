@@ -830,9 +830,7 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 		}
 		break;
 	case FX_FLT_CUTOFF:
-		if (fxp < 0xfe || xc->filter.resonance > 0) {
-			xc->filter.cutoff = fxp;
-		}
+		xc->filter.cutoff = fxp;
 		break;
 	case FX_FLT_RESN:
 		xc->filter.resonance = fxp;

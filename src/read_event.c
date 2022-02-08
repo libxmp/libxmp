@@ -120,18 +120,6 @@ static void set_effect_defaults(struct context_data *ctx, int note,
 	struct module_data *m = &ctx->m;
 
 	if (sub != NULL && note >= 0) {
-#ifndef LIBXMP_CORE_DISABLE_IT
-		struct xmp_module *mod = &m->mod;
-		struct smix_data *smix = &ctx->smix;
-		struct xmp_instrument *xxi;
-
-		if (xc->ins >= mod->ins) {
-			xxi = &smix->xxi[xc->ins - mod->ins];
-		} else {
-			xxi = &mod->xxi[xc->ins];
-		}
-#endif
-
 		if (!HAS_QUIRK(QUIRK_PROTRACK)) {
 			xc->finetune = sub->fin;
 		}
@@ -140,16 +128,16 @@ static void set_effect_defaults(struct context_data *ctx, int note,
 #ifndef LIBXMP_CORE_DISABLE_IT
 		if (sub->ifc & 0x80) {
 			xc->filter.cutoff = (sub->ifc - 0x80) * 2;
-		} else if (~xxi->fei.flg & XMP_ENVELOPE_FLT) {
-			xc->filter.cutoff = 0xff;
 		}
 		xc->filter.envelope = 0x100;
 
 		if (sub->ifr & 0x80) {
 			xc->filter.resonance = (sub->ifr - 0x80) * 2;
-		} /* else {
-			xc->filter.resonance = 0;
-		} */
+		}
+
+		/* IT: on a new note without toneporta, allow a computed cutoff
+		 * of 127 with resonance 0 to disable the filter. */
+		xc->filter.can_disable = !is_toneporta;
 #endif
 
 		/* TODO: should probably expand the LFO period size instead

@@ -80,6 +80,9 @@ static void _compare_mixer_data(const char *mod, const char *data, int loops, in
 			}
 			fail_unless(abs(vi->pos0 - pos0) <= 1, "position mismatch");
 			if (num >= 11) {
+				if (cutoff >= 254 && vi->filter.cutoff >= 254) {
+					cutoff = vi->filter.cutoff;
+				}
 				fail_unless(vi->filter.cutoff == cutoff,
 							  "cutoff mismatch");
 			}

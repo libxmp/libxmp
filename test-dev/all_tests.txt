@@ -506,6 +506,7 @@ test_player_nna_off
 test_player_nna_fade
 test_player_dct_note
 test_player_s3m_sample_porta
+test_player_it_channel_filter
 test_player_it_fade_env_reset
 test_player_it_fade_env_reset_carry
 test_player_it_keyoff
