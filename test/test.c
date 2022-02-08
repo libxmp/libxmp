@@ -110,8 +110,8 @@ int main(void)
 	  x87 floating point results in a very slightly different output from
 	  SSE and other floating point implementations, so check two hashes.
 	 */
-	if (compare_md5(digest, "28cb82d8774f4388a91e32cc6d3a29ed") < 0 && /* SSE2 */
-	    compare_md5(digest, "051d9d24253f9cf010672a0c2625034f") < 0) { /* x87 */
+	if (compare_md5(digest, "0fb814a84db24a21d93851cbeebe2a98") < 0 && /* SSE2 */
+	    compare_md5(digest, "97eb1ff2bb3ee8252133cdee90fb162d") < 0) { /* x87 */
 		printf("rendering error\n");
 		goto err;
 	}

@@ -1217,6 +1217,7 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 		if (sub != NULL) {
 			int transp = mod->xxi[candidate_ins].map[key].xpo;
 			int smp, to;
+			int dct;
 			int rvv;
 
 			note = key + sub->xpo + transp;
@@ -1224,13 +1225,18 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 			if (!IS_VALID_SAMPLE(smp)) {
 				smp = -1;
 			}
+			dct = sub->dct;
 
 			if (not_same_smp) {
 				fix_period(ctx, chn, sub);
-				libxmp_virt_resetchannel(ctx, chn);
+				/* Toneporta, even when not executed, disables
+				 * NNA and DCAs for the current note:
+				 * portamento_nna_sample.it, gxsmp2.it */
+				libxmp_virt_setnna(ctx, chn, XMP_INST_NNA_CUT);
+				dct = XMP_INST_DCT_OFF;
 			}
 			to = libxmp_virt_setpatch(ctx, chn, candidate_ins, smp,
-				note, sub->nna, sub->dct, sub->dca);
+				note, sub->nna, dct, sub->dca);
 
 			/* Random value for volume swing */
 			rvv = sub->rvv & 0xff;

@@ -250,7 +250,8 @@ PLAYER		= read_event scan period_amiga period_mod_range pan \
 		  s3m_sample_porta \
 		  it_fade_env_reset it_fade_env_reset_carry \
 		  it_keyoff it_note_after_cut it_sample_porta \
-		  it_default_volume it_portamento_offset it_portamento_sustain \
+		  it_default_volume it_portamento_nna_sample \
+		  it_portamento_offset it_portamento_sustain \
 		  it_portamento_after_keyoff it_portamento_after_keyoff_cg \
 		  it_portamento_after_cut_fade it_portamento_after_cut_fade_cg \
 		  it_portamento_envelope_reset it_portamento_envelope_reset_cg \
