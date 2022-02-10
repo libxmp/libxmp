@@ -26,11 +26,10 @@ int main(int argc, char **argv)
 {
 	xmp_context opaque;
 	struct context_data *ctx;
-	struct module_data *m;
 	struct player_data *p;
 	struct mixer_voice *vi;
 	struct xmp_frame_info fi;
-	int i, voc;
+	int i, voc, max_channels;
 
 	if (argc < 2) {
 		fprintf(stderr, "usage: %s <module>\n", argv[0]);
@@ -45,19 +44,20 @@ int main(int argc, char **argv)
 	}
 
 	ctx = (struct context_data *)opaque;
-	m = &ctx->m;
 	p = &ctx->p;
 
 	xmp_start_player(opaque, 44100, 0);
 	xmp_set_player(opaque, XMP_PLAYER_MIX, 100);
+
+	max_channels = p->virt.virt_channels;
 
 	while (xmp_play_frame(opaque) == 0) {
 		xmp_get_frame_info(opaque, &fi);
 		if (fi.loop_count > 0)
 			break;
 
-		for (i = 0; i < m->mod.chn; i++) {
-			struct xmp_channel_info *ci = &fi.channel_info[i];
+		for (i = 0; i < max_channels; i++) {
+			/*struct xmp_channel_info *ci = &fi.channel_info[i];*/
 			struct channel_data *xc = &p->xc_data[i];
 
 			voc = map_channel(p, i);
@@ -66,10 +66,10 @@ int main(int argc, char **argv)
 
 			vi = &p->virt.voice_array[voc];
 
-			printf("%d %d %d %d %d %d %d %d %d %d %d\n",
-				fi.time, fi.row, fi.frame, i, ci->period,
+			printf("%d %d %d %d %d %d %d %d %d %d %d %d\n",
+				fi.time, fi.row, fi.frame, i, xc->info_period,
 				vi->note, vi->ins, vi->vol, vi->pan, vi->pos0,
-				vi->filter.cutoff);
+				vi->filter.cutoff, vi->filter.resonance);
 		}
 	}
 
