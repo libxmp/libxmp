@@ -33,6 +33,7 @@ struct mixer_voice {
 	int start;		/* loop start */
 	int end;		/* loop end */
 	int act;		/* nna info & status of voice */
+	int key;		/* key for DCA note check */
 	int old_vl;		/* previous volume, left channel */
 	int old_vr;		/* previous volume, right channel */
 	int sleft;		/* last left sample output, in 32bit */

@@ -233,7 +233,7 @@ static void set_period_ft2(struct context_data *ctx, int note,
 #endif
 
 #define set_patch(ctx,chn,ins,smp,note) \
-	libxmp_virt_setpatch(ctx, chn, ins, smp, note, 0, 0, 0)
+	libxmp_virt_setpatch(ctx, chn, ins, smp, note, 0, 0, 0, 0)
 
 static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn)
 {
@@ -1236,7 +1236,7 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 				dct = XMP_INST_DCT_OFF;
 			}
 			to = libxmp_virt_setpatch(ctx, chn, candidate_ins, smp,
-				note, sub->nna, dct, sub->dca);
+				note, key, sub->nna, dct, sub->dca);
 
 			/* Random value for volume swing */
 			rvv = sub->rvv & 0xff;
