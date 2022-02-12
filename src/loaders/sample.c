@@ -237,6 +237,10 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 		if (~xxs->flg & XMP_SAMPLE_LOOP)
 			xxs->flg &= ~XMP_SAMPLE_LOOP_BIDIR;
 	}
+	if (xxs->flg & XMP_SAMPLE_SLOOP_BIDIR) {
+		if (~xxs->flg & XMP_SAMPLE_SLOOP)
+			xxs->flg &= ~XMP_SAMPLE_SLOOP_BIDIR;
+	}
 
 	if (xxs->flg & XMP_SAMPLE_16BIT) {
 		bytelen *= 2;
