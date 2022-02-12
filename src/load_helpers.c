@@ -218,7 +218,7 @@ void libxmp_load_epilogue(struct context_data *ctx)
 	struct xmp_module *mod = &m->mod;
 	int i, j;
 
-    	mod->gvl = m->gvol;
+	mod->gvl = m->gvol;
 
 	/* Sanity check for module parameters */
 	CLAMP(mod->len, 0, XMP_MAX_MOD_LENGTH);
@@ -265,6 +265,25 @@ void libxmp_load_epilogue(struct context_data *ctx)
 		check_envelope(&mod->xxi[i].pei);
 		clamp_volume_envelope(m, &mod->xxi[i].aei);
 	}
+
+#ifndef LIBXMP_CORE_DISABLE_IT
+	/* TODO: there's no unintrusive and clean way to get this struct into
+	 * libxmp_load_sample currently, so bound these fields here for now. */
+	for (i = 0; i < mod->smp; i++) {
+		struct xmp_sample *xxs = &mod->xxs[i];
+		struct extra_sample_data *xtra = &m->xtra[i];
+		if (xtra->sus < 0) {
+			xtra->sus = 0;
+		}
+		if (xtra->sue > xxs->len) {
+			xtra->sue = xxs->len;
+		}
+		if (xtra->sus >= xxs->len || xtra->sus >= xtra->sue) {
+			xtra->sus = xtra->sue = 0;
+			xxs->flg &= ~(XMP_SAMPLE_SLOOP | XMP_SAMPLE_SLOOP_BIDIR);
+		}
+	}
+#endif
 
 	p->filter = 0;
 	p->mode = XMP_MODE_AUTO;
