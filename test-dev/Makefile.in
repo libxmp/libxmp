@@ -503,6 +503,7 @@ FUZZER		= misc \
 		  depack_arc_slow_rle \
 		  depack_arcfs_invalid \
 		  depack_bz2_invalid_selector \
+		  depack_bz2_truncated \
 		  depack_compress_invalid \
 		  depack_gz_invalid \
 		  depack_lha_invalid \
