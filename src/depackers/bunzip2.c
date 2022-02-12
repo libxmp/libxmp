@@ -179,11 +179,6 @@ static int read_block_header(struct bunzip_data *bd, struct bwdata *bw)
   struct group_data *hufGroup;
   int hh, ii, jj, kk, symCount;
   unsigned char uc;
-  int i;
-
-  /* libxmp: Reset longjmp I/O error handling */
-  i = setjmp(bd->jmpbuf);
-  if (i) return i;
 
   // Read in header signature and CRC (which is stored big endian)
   ii = get_bits(bd, 24);
@@ -244,6 +239,7 @@ static int read_block_header(struct bunzip_data *bd, struct bwdata *bw)
   // Read the huffman coding tables for each group, which code for symTotal
   // literal symbols, plus two run symbols (RUNA, RUNB)
   symCount = bd->symTotal+2;
+  if (symCount < 1) return RETVAL_DATA_ERROR; /* libxmp: fix broken warning */
   for (jj=0; jj<bd->groupCount; jj++) {
     unsigned char length[MAX_SYMBOLS];
     unsigned temp[MAX_HUFCODE_BITS+1];
@@ -533,6 +529,10 @@ static int write_bunzip_data(struct bunzip_data *bd, struct bwdata *bw,
 {
   unsigned int *dbuf = bw->dbuf;
   int count, pos, current, run, copies, outbyte, previous, gotcount = 0;
+
+  /* libxmp: Reset longjmp I/O error handling */
+  int ret = setjmp(bd->jmpbuf);
+  if (ret) return ret;
 
   for (;;) {
     // If last read was short due to end of file, return last block now
