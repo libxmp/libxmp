@@ -1540,7 +1540,7 @@ static int read_event_smix(struct context_data *ctx, struct xmp_event *e, int ch
 	struct xmp_module *mod = &m->mod;
 	struct channel_data *xc = &p->xc_data[chn];
 	struct xmp_subinstrument *sub;
-	int is_smix_ins;
+	struct xmp_instrument *xxi;
 	int ins, note, transp, smp;
 
 	xc->flags = 0;
@@ -1548,33 +1548,37 @@ static int read_event_smix(struct context_data *ctx, struct xmp_event *e, int ch
 	if (!e->ins)
 		return 0;
 
-	is_smix_ins = 0;
 	ins = e->ins - 1;
 	SET(NEW_INS);
-	xc->fadeout = 0x10000;
 	xc->per_flags = 0;
 	xc->offset.val = 0;
-	RESET_NOTE(NOTE_RELEASE);
+	RESET_NOTE(NOTE_RELEASE|NOTE_FADEOUT);
 
+	xxi = libxmp_get_instrument(ctx, ins);
+	xc->ins_fade = xxi->rls;
 	xc->ins = ins;
-
-	if (ins >= mod->ins && ins < mod->ins + smix->ins) {
-		is_smix_ins = 1;
-		xc->ins_fade = smix->xxi[xc->ins - mod->ins].rls;
-	}
 
 	SET(NEW_NOTE);
 
 	if (e->note == XMP_KEY_OFF) {
 		SET_NOTE(NOTE_RELEASE);
 		return 0;
+	} else if (e->note == XMP_KEY_FADE) {
+		SET_NOTE(NOTE_FADEOUT);
+		return 0;
+	} else if (e->note == XMP_KEY_CUT) {
+		SET_NOTE(NOTE_END);
+		xc->period = 0;
+		libxmp_virt_resetchannel(ctx, chn);
+		return 0;
 	}
 
 	xc->key = e->note - 1;
+	xc->fadeout = 0x10000;
 	RESET_NOTE(NOTE_END);
 
-	if (is_smix_ins) {
-		sub = &smix->xxi[xc->ins - mod->ins].sub[0];
+	if (ins >= mod->ins && ins < mod->ins + smix->ins) {
+		sub = &xxi->sub[0];
 		if (sub == NULL) {
 			return 0;
 		}
@@ -1594,7 +1598,7 @@ static int read_event_smix(struct context_data *ctx, struct xmp_event *e, int ch
 		if (sub == NULL) {
 			return 0;
 		}
-		transp = mod->xxi[xc->ins].map[xc->key].xpo;
+		transp = xxi->map[xc->key].xpo;
 		note = xc->key + sub->xpo + transp;
 		smp = sub->sid;
 		if (!IS_VALID_SAMPLE(smp))

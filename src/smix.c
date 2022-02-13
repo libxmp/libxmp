@@ -110,7 +110,7 @@ int xmp_smix_play_instrument(xmp_context opaque, int ins, int note, int vol, int
 		return -XMP_ERROR_STATE;
 	}
 
-	if (chn >= smix->chn || ins >= mod->ins) {
+	if (chn >= smix->chn || chn < 0 || ins >= mod->ins || ins < 0) {
 		return -XMP_ERROR_INVALID;
 	}
 
@@ -120,7 +120,7 @@ int xmp_smix_play_instrument(xmp_context opaque, int ins, int note, int vol, int
 
 	event = &p->inject_event[mod->chn + chn];
 	memset(event, 0, sizeof (struct xmp_event));
-	event->note = note + 1;
+	event->note = (note < XMP_MAX_KEYS) ? note + 1 : note;
 	event->ins = ins + 1;
 	event->vol = vol + 1;
 	event->_flag = 1;
@@ -141,7 +141,7 @@ int xmp_smix_play_sample(xmp_context opaque, int ins, int note, int vol, int chn
 		return -XMP_ERROR_STATE;
 	}
 
-	if (chn >= smix->chn || ins >= smix->ins) {
+	if (chn >= smix->chn || chn < 0 || ins >= smix->ins || ins < 0) {
 		return -XMP_ERROR_INVALID;
 	}
 
@@ -151,7 +151,7 @@ int xmp_smix_play_sample(xmp_context opaque, int ins, int note, int vol, int chn
 
 	event = &p->inject_event[mod->chn + chn];
 	memset(event, 0, sizeof (struct xmp_event));
-	event->note = note + 1;
+	event->note = (note < XMP_MAX_KEYS) ? note + 1 : note;
 	event->ins = mod->ins + ins + 1;
 	event->vol = vol + 1;
 	event->_flag = 1;
