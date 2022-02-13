@@ -282,7 +282,10 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	if (mod->xxi[i].pei.npt <= 0 || mod->xxi[i].pei.npt > MIN(10, XMP_MAX_ENV_POINTS))
 		mod->xxi[i].pei.flg &= ~XMP_ENVELOPE_ON;
 
-	hio_read(buf, 1, 30, f);		/* volume envelope points */;
+	if (hio_read(buf, 1, 30, f) < 30) {	/* volume envelope points */
+		D_(D_CRIT "read error at vol env %d", i);
+		return -1;
+	}
 	for (j = 0; j < mod->xxi[i].aei.npt; j++) {
 		if (j >= 10) {
 			break;
@@ -291,7 +294,10 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 		mod->xxi[i].aei.data[j * 2 + 1] = buf[j * 3 + 2];
 	}
 
-	hio_read(buf, 1, 30, f);		/* pan envelope points */;
+	if (hio_read(buf, 1, 30, f) < 30) {	/* pan envelope points */
+		D_(D_CRIT "read error at pan env %d", i);
+		return -1;
+	}
 	for (j = 0; j < mod->xxi[i].pei.npt; j++) {
 		if (j >= 10) {
 			break;
