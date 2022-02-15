@@ -18,6 +18,12 @@ TEST(test_fuzzer_depack_bz2_invalid)
 	ret = xmp_load_module(opaque, "data/f/depack_bz2_invalid_tree.bz2");
 	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking (invalid_tree)");
 
+	/* This input is a BZip2-bomb created by libFuzzer that found slow
+	 * loads caused by slow output buffer expansion. It eventually
+	 * fails depacking on a bad block CRC, which should now take <.2s. */
+	ret = xmp_load_module(opaque, "data/f/depack_bz2_invalid_crc.bz2");
+	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking (invalid_crc)");
+
 	xmp_free_context(opaque);
 }
 END_TEST

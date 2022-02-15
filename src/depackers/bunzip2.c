@@ -105,6 +105,7 @@ struct bunzip_data {
 struct bunzip_output {
   unsigned char *buf;
   size_t buf_size;
+  size_t buf_alloc;
 };
 
 static void crc_init(unsigned *crc_table, int little_endian)
@@ -447,16 +448,36 @@ static int read_huffman_data(struct bunzip_data *bd, struct bwdata *bw)
   return 0;
 }
 
+static size_t next_power_of_two_32(size_t i)
+{
+  i |= i >> 16UL;
+  i |= i >> 8UL;
+  i |= i >> 4UL;
+  i |= i >> 2UL;
+  i |= i >> 1UL;
+  return i + 1;
+}
+
 // Flush output buffer to disk
 // libxmp: changed to output to memory instead of a file
 static int flush_bunzip_outbuf(struct bunzip_data *bd, struct bunzip_output *out_fd)
 {
   if (bd->outbufPos) {
-    unsigned char *buf = (unsigned char *)realloc(out_fd->buf, out_fd->buf_size + bd->outbufPos);
-    if (!buf)
+    unsigned char *buf = out_fd->buf;
+
+    if (bd->outbufPos > out_fd->buf_alloc - out_fd->buf_size) {
+      size_t new_size = next_power_of_two_32(out_fd->buf_size + bd->outbufPos);
+      if (new_size <= out_fd->buf_alloc || new_size > LIBXMP_DEPACK_LIMIT)
         return RETVAL_UNEXPECTED_OUTPUT_EOF;
+
+      buf = (unsigned char *)realloc(buf, new_size);
+      if (!buf)
+        return RETVAL_UNEXPECTED_OUTPUT_EOF;
+
+      out_fd->buf = buf;
+      out_fd->buf_alloc = new_size;
+    }
     memcpy(buf + out_fd->buf_size, bd->outbuf, bd->outbufPos);
-    out_fd->buf = buf;
     out_fd->buf_size += bd->outbufPos;
     bd->outbufPos = 0;
   }
@@ -681,6 +702,7 @@ static int decrunch_bzip2(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 
   output.buf = NULL;
   output.buf_size = 0;
+  output.buf_alloc = 0;
 
   if (!(i = start_bunzip(&bd, in, 0, 0))) {
     i = write_bunzip_data(bd, bd->bwdata, &output, 0, 0);
@@ -697,6 +719,13 @@ static int decrunch_bzip2(HIO_HANDLE *in, void **out, long inlen, long *outlen)
   if (i != 0) {
     free(output.buf);
     return -1;
+  }
+
+  /* Shrink allocation */
+  if (output.buf_size < output.buf_alloc) {
+    unsigned char *tmp = (unsigned char *)realloc(output.buf, output.buf_size);
+    if (tmp)
+      output.buf = tmp;
   }
 
   *out = output.buf;
