@@ -99,8 +99,13 @@
     *(buffer++) += smp_in * (old_vl >> 8); old_vl += delta_l; \
 } while (0)
 
+/* IT's WAV output driver uses a clamp that seems to roughly match this:
+ * compare the WAV output of OpenMPT env-flt-max.it and filter-reset.it */
+#define MIX_FILTER_CLAMP(a) CLAMP((a), -65536, 65535)
+
 #define MIX_MONO_FILTER() do { \
     sl = (a0 * smp_in + b0 * fl1 + b1 * fl2) >> FILTER_SHIFT; \
+    MIX_FILTER_CLAMP(sl); \
     fl2 = fl1; fl1 = sl; \
     *(buffer++) += sl * vl; \
 } while (0)
@@ -123,8 +128,10 @@
 
 #define MIX_STEREO_FILTER() do { \
     sr = (a0 * smp_in + b0 * fr1 + b1 * fr2) >> FILTER_SHIFT; \
+    MIX_FILTER_CLAMP(sr); \
     fr2 = fr1; fr1 = sr; \
     sl = (a0 * smp_in + b0 * fl1 + b1 * fl2) >> FILTER_SHIFT; \
+    MIX_FILTER_CLAMP(sl); \
     fl2 = fl1; fl1 = sl; \
     *(buffer++) += sr * vr; \
     *(buffer++) += sl * vl; \
