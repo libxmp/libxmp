@@ -54,7 +54,7 @@
 struct group_data {
   // limit and base are 1-indexed. index 0 is never used but increasing
   // the length by 1 simplifies the code and isn't that much of a waste.
-  int limit[1+MAX_HUFCODE_BITS+1], base[1+MAX_HUFCODE_BITS], permute[MAX_SYMBOLS];
+  int limit[1+MAX_HUFCODE_BITS+1], base[1+MAX_HUFCODE_BITS+1], permute[MAX_SYMBOLS];
   char minLen, maxLen;
 };
 
