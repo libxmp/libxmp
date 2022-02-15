@@ -453,6 +453,9 @@ tinfl_status tinfl_decompress(tinfl_decompressor *r, const mz_uint8 *pIn_buf_nex
                                 sym2 = r->m_tree_0[~sym2 + ((bit_buf >> code_len++) & 1)];
                             } while (sym2 < 0);
                         }
+                        /* FIXME: workaround for miniz/#229 */
+                        if (!code_len)
+                            TINFL_CR_RETURN_FOREVER(100, TINFL_STATUS_FAILED);
                         counter = sym2;
                         bit_buf >>= code_len;
                         num_bits -= code_len;

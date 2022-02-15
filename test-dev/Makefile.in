@@ -502,7 +502,7 @@ FUZZER		= misc \
 		  depack_arc_pak10 \
 		  depack_arc_slow_rle \
 		  depack_arcfs_invalid \
-		  depack_bz2_invalid_selector \
+		  depack_bz2_invalid \
 		  depack_bz2_truncated \
 		  depack_compress_invalid \
 		  depack_gz_invalid \
@@ -521,8 +521,10 @@ FUZZER		= misc \
 		  play_xm_bad_instrument \
 		  play_xm_vol_env_clamp \
 		  play_it_bad_env_sustain \
+		  play_it_bad_loop \
 		  play_it_bad_set_nna \
 		  play_it_bad_sustain \
+		  play_it_extreme_filter \
 		  play_it_row_0_loop_row_delay \
 		  play_it_sustain_bidi \
 		  play_669_low_freq \
