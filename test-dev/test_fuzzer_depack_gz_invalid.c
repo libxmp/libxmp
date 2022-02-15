@@ -25,6 +25,11 @@ TEST(test_fuzzer_depack_gz_invalid)
 	ret = xmp_load_module(opaque, "data/f/depack_gz_invalid_length.gz");
 	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking (invalid_length)");
 
+	/* This input contains an invalid tree that tinfl reads zero-length
+	 * codes from until it runs out of memory. */
+	ret = xmp_load_module(opaque, "data/f/depack_gz_invalid_tree.gz");
+	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking (invalid_tree)");
+
 	xmp_free_context(opaque);
 }
 END_TEST
