@@ -8,7 +8,7 @@ V		= 0
 GCLIB		= libxmp-gc.a
 
 .c.o:
-	@CMD='$(CC) $(CFLAGS) -o $*.o $<'; \
+	@CMD='$(CC) -MMD $(CFLAGS) -o $*.o $<'; \
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo CC $*.o ; fi; \
 	eval $$CMD
 
@@ -648,7 +648,9 @@ dist-test:
 	cp -RPp $(addprefix $(TEST_PATH)/,$(TEST_DFILES)) $(DIST)/$(TEST_PATH)
 
 clean: fuzzerclean
-	@rm -f *.o core *~ $(T_OBJS)
+	@rm -f core *~ $(T_OBJS)
+	@rm -f *.o
+	@rm -f *.d
 
 distclean: clean
 	@rm -f config.log config.status Makefile all_tests.c libxmp-tests* .test .read_test write_test
@@ -658,6 +660,8 @@ vc-prepare: $(TEST_PATH)/all_tests.txt
 	@sed -e 's!@MAINSRCS@!\\\r\n $(subst /,\\,$(MAIN_OBJS:.o=.c \\\r\n))!' \
 	     -e 's!@XMPSRCS@!\\\r\n $(subst .o,.c \\\r\n,$(subst /,\\,$(addprefix $(SRC_PATH)/,$(TEST_INTERNAL))))!' \
 	     Makefile.vc.in > Makefile.vc
+
+sinclude $(T_OBJS:.o=.d)
 
 #
 # Utilities
@@ -711,6 +715,7 @@ $(TEST_PATH)/libxmp-covertest: $(GCT_OBJS) ../lib/$(GCLIB)
 $(TEST_PATH)/main.o: $(TEST_PATH)/main.c $(TEST_PATH)/all_tests.c $(TEST_PATH)/test.h $(TEST_PATH)/all_tests.c
 
 $(TEST_PATH)/test.h $(TEST_PATH)/main.c: $(TEST_PATH)/all_tests.c
+$(addprefix $(TEST_PATH)/,$(TEST_OBJS)): $(TEST_PATH)/all_tests.c
 
 $(TEST_PATH)/all_tests.c: $(TEST_PATH)/Makefile
 	@echo > $@; \
