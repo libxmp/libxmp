@@ -95,6 +95,7 @@ lite/Makefile.in
 # Other stuff and leftovers
 xmp.out
 .svn
+*.d
 *.orig
 *.rej
 tags
