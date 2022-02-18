@@ -30,6 +30,10 @@ TEST(test_fuzzer_depack_gz_invalid)
 	ret = xmp_load_module(opaque, "data/f/depack_gz_invalid_tree.gz");
 	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking (invalid_tree)");
 
+	/* Same as invalid_tree, but it affected a different code branch. */
+	ret = xmp_load_module(opaque, "data/f/depack_gz_invalid_tree2.gz");
+	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking (invalid_tree2)");
+
 	xmp_free_context(opaque);
 }
 END_TEST
