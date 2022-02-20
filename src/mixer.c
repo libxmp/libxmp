@@ -283,6 +283,7 @@ static void set_sample_end(struct context_data *ctx, int voc, int end)
 
 	if (end) {
 		SET_NOTE(NOTE_SAMPLE_END);
+		vi->fidx &= ~FLAG_ACTIVE;
 		if (HAS_QUIRK(QUIRK_RSTCHN)) {
 			libxmp_virt_resetvoice(ctx, voc, 0);
 		}
@@ -914,6 +915,11 @@ void libxmp_mixer_reverse(struct context_data *ctx, int voc, int rev)
 {
 	struct player_data *p = &ctx->p;
 	struct mixer_voice *vi = &p->virt.voice_array[voc];
+
+	/* Don't reverse samples that have already ended */
+	if (~vi->fidx & FLAG_ACTIVE) {
+		return;
+	}
 
 	if (rev) {
 		vi->flags |= VOICE_REVERSE;
