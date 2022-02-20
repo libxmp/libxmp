@@ -972,6 +972,7 @@ static void *make_block_array(void *mem, int count, int size)
 
 static void *setup_malloc(vorb *f, int sz)
 {
+   if (sz <= 0) return NULL; /* libxmp hack: https://github.com/nothings/stb/issues/1248 */
    sz = (sz+7) & ~7; // round up to nearest 8 for alignment of future allocs.
    f->setup_memory_required += sz;
    if (f->alloc.alloc_buffer) {
@@ -991,6 +992,7 @@ static void setup_free(vorb *f, void *p)
 
 static void *setup_temp_malloc(vorb *f, int sz)
 {
+   if (sz <= 0) return NULL; /* libxmp hack: https://github.com/nothings/stb/issues/1248 */
    sz = (sz+7) & ~7; // round up to nearest 8 for alignment of future allocs.
    if (f->alloc.alloc_buffer) {
       if (f->temp_offset - sz < f->setup_offset) return NULL;
