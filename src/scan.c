@@ -63,7 +63,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
     int gvl, bpm, speed, base_time, chn;
     int frame_count;
     double time, start_time;
-    int loop_chn, loop_num, inside_loop;
+    int loop_chn, loop_num, inside_loop, line_jump;
     int pdelay = 0;
     int loop_count[XMP_MAX_CHANNELS];
     int loop_row[XMP_MAX_CHANNELS];
@@ -90,6 +90,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
     }
     loop_num = 0;
     loop_chn = -1;
+    line_jump = 0;
 
     gvl = mod->gvl;
     bpm = mod->bpm;
@@ -241,7 +242,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 		goto end_module;
 	    }
 
-	    if (!loop_num && m->scan_cnt[ord][row]) {
+	    if (!loop_num && !line_jump && m->scan_cnt[ord][row]) {
 		row_count--;
 		goto end_module;
 	    }
@@ -257,6 +258,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 	    }
 
 	    pdelay = 0;
+	    line_jump = 0;
 
 	    for (chn = 0; chn < mod->chn; chn++) {
 		if (row >= tracks[chn]->rows)
@@ -397,7 +399,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 
 		if ((f1 == FX_S3M_BPM && p1) || (f2 == FX_S3M_BPM && p2)) {
 		    parm = (f1 == FX_S3M_BPM) ? p1 : p2;
-		    if (parm >= 0x20) {
+		    if (parm >= XMP_MIN_BPM) {
 			frame_count += row_count * speed;
 			row_count = 0;
 			time += m->time_factor * frame_count * base_time / bpm;
@@ -470,6 +472,19 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 		    break_row = 10 * MSN(parm) + LSN(parm);
 		    last_row = 0;
 		}
+
+#ifndef LIBXMP_CORE_PLAYER
+		/* Archimedes line jump */
+		if (f1 == FX_LINE_JUMP || f2 == FX_LINE_JUMP) {
+		    /* Don't set order if preceded by jump or break. */
+		    if (last_row > 0)
+			ord2 = ord;
+		    parm = (f1 == FX_LINE_JUMP) ? p1 : p2;
+		    break_row = parm;
+		    last_row = 0;
+		    line_jump = 1;
+		}
+#endif
 
 		if (f1 == FX_EXTENDED || f2 == FX_EXTENDED) {
 		    parm = (f1 == FX_EXTENDED) ? p1 : p2;

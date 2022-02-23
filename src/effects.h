@@ -134,6 +134,7 @@
 #define FX_VOL_SUB	0xb7	/* SFX change volume down */
 #define FX_PITCH_ADD	0xb8	/* SFX add steps to current note */
 #define FX_PITCH_SUB	0xb9	/* SFX add steps to current note */
+#define FX_LINE_JUMP	0xba	/* Archimedes jump to line in current order */
 #endif
 
 #define FX_SURROUND	0x8d	/* S3M/IT */

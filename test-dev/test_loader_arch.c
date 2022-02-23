@@ -1,16 +1,16 @@
 #include "test.h"
 
-TEST(test_loader_sym_sigmadelta)
+TEST(test_loader_arch)
 {
 	xmp_context opaque;
 	struct xmp_module_info info;
 	FILE *f;
 	int ret;
 
-	f = fopen("data/format_sym_sigmadelta.data", "r");
+	f = fopen("data/format_arch.data", "r");
 
 	opaque = xmp_create_context();
-	ret = xmp_load_module(opaque, "data/m/gummis.dsym");
+	ret = xmp_load_module(opaque, "data/m/AOM-Mind.Tracker");
 	fail_unless(ret == 0, "module load");
 
 	xmp_get_module_info(opaque, &info);

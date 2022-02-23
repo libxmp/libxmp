@@ -373,7 +373,7 @@ int libxmp_read_lzw(void *dest, size_t dest_len, size_t max_read_len,
  * Based on the sigma-delta unpacker from OpenMPT by Saga Musix.
  */
 int libxmp_read_sigma_delta(void *dest, size_t dest_len, size_t max_read_len,
-                            HIO_HANDLE *f)
+			    HIO_HANDLE *f)
 {
 	struct bitstream bs;
 	uint8 *pos = (uint8 *)dest;
