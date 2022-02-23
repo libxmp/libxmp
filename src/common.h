@@ -227,6 +227,7 @@ int libxmp_snprintf (char *, size_t, const char *, ...);
 #define QUIRK_UNISLD	(1 << 10)	/* Unified pitch slide/portamento */
 #define QUIRK_ITVPOR	(1 << 11)	/* Disable fine bends in IT vol fx */
 #define QUIRK_FTMOD	(1 << 12)	/* Flag for multichannel mods */
+#define QUIRK_INVLOOP	(1 << 13)	/* Enable invert loop */
 /*#define QUIRK_MODRNG	(1 << 13)*/	/* Limit periods to MOD range */
 #define QUIRK_INSVOL	(1 << 14)	/* Use instrument volume */
 #define QUIRK_VIRTUAL	(1 << 15)	/* Enable virtual channels */
@@ -367,6 +368,9 @@ struct flow_control {
 	int delay;
 	int jumpline;
 	int loop_chn;
+#ifndef LIBXMP_CORE_PLAYER
+	int jump_in_pat;
+#endif
 
 	struct pattern_loop *loop;
 
@@ -480,6 +484,7 @@ void	libxmp_free_scan	(struct context_data *);
 int	libxmp_scan_sequences	(struct context_data *);
 int	libxmp_get_sequence	(struct context_data *, int);
 int	libxmp_set_player_mode	(struct context_data *);
+void	libxmp_reset_flow	(struct context_data *);
 
 int8	read8s			(FILE *, int *err);
 uint8	read8			(FILE *, int *err);

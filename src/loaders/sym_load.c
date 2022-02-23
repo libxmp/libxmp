@@ -74,8 +74,12 @@ static void fix_effect(struct xmp_event *e, int parm)
 	switch (e->fxt) {
 	case 0x00:	/* 00 xyz Normal play or Arpeggio + Volume Slide Up */
 	case 0x01:	/* 01 xyy Slide Up + Volume Slide Up */
-	case 0x02:	/* 01 xyy Slide Up + Volume Slide Up */
-		e->fxp = parm & 0xff;
+	case 0x02:	/* 02 xyy Slide Down + Volume Slide Up */
+		if (parm & 0xff) {
+			e->fxp = parm & 0xff;
+		} else {
+			e->fxt = 0;
+		}
 		if (parm >> 8) {
 			e->f2t = FX_VOLSLIDE_UP;
 			e->f2p = parm >> 8;
@@ -94,6 +98,8 @@ static void fix_effect(struct xmp_event *e, int parm)
 		break;
 	case 0x09:	/* 09 xxx Set Sample Offset */
 		e->fxp = parm >> 1;
+		e->f2t = FX_HIOFFSET;
+		e->f2p = parm >> 9;
 		break;
 	case 0x0a:	/* 0A xyz Volume Slide + Fine Slide Up */
 		if (parm & 0xff) {
@@ -106,9 +112,19 @@ static void fix_effect(struct xmp_event *e, int parm)
 		break;
 	case 0x0b:	/* 0B xxx Position Jump */
 	case 0x0c:	/* 0C xyy Set Volume */
-	case 0x0d:	/* 0D xyy Pattern Break */
-	case 0x0f:	/* 0F xxx Set Speed */
 		e->fxp = parm;
+		break;
+	case 0x0d:	/* 0D xyy Pattern Break */
+		e->fxt = FX_IT_BREAK;
+		e->fxp = (parm & 0xff) < 0x40 ? parm : 0;
+		break;
+	case 0x0f:	/* 0F xxx Set Speed */
+		if (parm) {
+			e->fxt = FX_S3M_SPEED;
+			e->fxp = MIN(parm, 255);
+		} else {
+			e->fxt = 0;
+		}
 		break;
 	case 0x13:	/* 13 xxy Glissando Control */
 		e->fxt = FX_EXTENDED;
@@ -123,8 +139,9 @@ static void fix_effect(struct xmp_event *e, int parm)
 		e->fxp = (EX_FINETUNE << 4) | (parm & 0x0f);
 		break;
 	case 0x16:	/* 16 xxx Jump to Loop */
+		/* TODO: 16, 19 should be able to support larger params. */
 		e->fxt = FX_EXTENDED;
-		e->fxp = (EX_PATTERN_LOOP << 4) | (parm & 0x0f);
+		e->fxp = (EX_PATTERN_LOOP << 4) | MIN(parm, 0x0f);
 		break;
 	case 0x17:	/* 17 xxy Set Tremolo Waveform */
 		e->fxt = FX_EXTENDED;
@@ -145,35 +162,37 @@ static void fix_effect(struct xmp_event *e, int parm)
 	case 0x1b:	/* 1B xyy Fine Slide Down + Fine Volume Slide Down */
 	{
 		uint8 pitch_effect = ((e->fxt == 0x11 || e->fxt == 0x1a) ?
-				      EX_F_PORTA_UP : EX_F_PORTA_DN);
+				      FX_F_PORTA_UP : FX_F_PORTA_DN);
 		uint8 vol_effect = ((e->fxt == 0x11 || e->fxt == 0x12) ?
-				      EX_F_VSLIDE_UP : EX_F_VSLIDE_DN);
+				      FX_F_VSLIDE_UP : FX_F_VSLIDE_DN);
 
-		if ((parm & 0xff) && ((parm & 0xff) < 0x10)) {
-			e->fxt = FX_EXTENDED;
-			e->fxp = (pitch_effect << 4) | (parm & 0x0f);
+		if (parm & 0xff) {
+			e->fxt = pitch_effect;
+			e->fxp = parm & 0xff;
 		} else
 			e->fxt = 0;
 		if (parm >> 8) {
-			e->f2t = FX_EXTENDED;
-			e->f2p = (vol_effect << 4) | (parm >> 8);
+			e->f2t = vol_effect;
+			e->f2p = parm >> 8;
 		}
 		break;
 	}
 	case 0x1c:	/* 1C xxx Note Cut */
+		/* TODO: 1c, 1d, 1e should be able to support larger params. */
 		e->fxt = FX_EXTENDED;
-		e->fxp = (EX_CUT << 4) | (parm & 0x0f);
+		e->fxp = (EX_CUT << 4) | MIN(parm, 0x0f);
 		break;
 	case 0x1d:	/* 1D xxx Note Delay */
 		e->fxt = FX_EXTENDED;
-		e->fxp = (EX_DELAY << 4) | (parm & 0x0f);
+		e->fxp = (EX_DELAY << 4) | MIN(parm, 0x0f);
 		break;
 	case 0x1e:	/* 1E xxx Pattern Delay */
 		e->fxt = FX_EXTENDED;
-		e->fxp = (EX_PATT_DELAY << 4) | (parm & 0x0f);
+		e->fxp = (EX_PATT_DELAY << 4) | MIN(parm, 0x0f);
 		break;
 	case 0x1f:	/* 1F xxy Invert Loop */
-		e->fxt = 0;
+		e->fxt = FX_EXTENDED;
+		e->fxp = (EX_INVLOOP << 4) | (parm & 0xf);
 		break;
 	case 0x20:	/* 20 xyz Normal play or Arpeggio + Volume Slide Down */
 		e->fxt = FX_ARPEGGIO;
@@ -184,34 +203,80 @@ static void fix_effect(struct xmp_event *e, int parm)
 		}
 		break;
 	case 0x21:	/* 21 xyy Slide Up + Volume Slide Down */
-		e->fxt = FX_PORTA_UP;
-		e->fxp = parm & 0xff;
+		if (parm & 0xff) {
+			e->fxt = FX_PORTA_UP;
+			e->fxp = parm & 0xff;
+		} else {
+			e->fxt = 0;
+		}
 		if (parm >> 8) {
 			e->f2t = FX_VOLSLIDE_DN;
 			e->f2p = parm >> 8;
 		}
 		break;
 	case 0x22:	/* 22 xyy Slide Down + Volume Slide Down */
-		e->fxt = FX_PORTA_DN;
-		e->fxp = parm & 0xff;
+		if (parm & 0xff) {
+			e->fxt = FX_PORTA_DN;
+			e->fxp = parm & 0xff;
+		} else {
+			e->fxt = 0;
+		}
 		if (parm >> 8) {
 			e->f2t = FX_VOLSLIDE_DN;
 			e->f2p = parm >> 8;
 		}
 		break;
-	case 0x2f:	/* 2F xxx Set Tempo */
-		if (parm >= 0x100 && parm <= 0x800) {
-			e->fxt = FX_SPEED;
-			e->fxp = (parm+4) >> 3; /* round to nearest */
+	case 0x2a:	/* 2A xyz Volume Slide + Fine Slide Down */
+		if (parm & 0xff) {
+			e->fxt = FX_VOLSLIDE;
+			e->fxp = parm & 0xff;
 		} else {
-			/* umm... */
+			e->fxt = 0;
+		}
+		e->f2t = FX_EXTENDED;
+		e->f2p = (EX_F_PORTA_DN << 4) | (parm >> 8);
+		break;
+	case 0x2b:	/* 2B xyy Line Jump */
+		e->fxt = FX_LINE_JUMP;
+		e->fxp = (parm < 0x40) ? parm : 0;
+		break;
+	case 0x2f:	/* 2F xxx Set Tempo */
+		if (parm) {
+			parm = (parm + 4) >> 3; /* round to nearest */
+			CLAMP(parm, XMP_MIN_BPM, 255);
+			e->fxt = FX_S3M_BPM;
+			e->fxp = parm;
+		} else {
+			e->fxt = 0;
 		}
 		break;
-	case 0x2a:	/* 2A xyz Volume Slide + Fine Slide Down */
-	case 0x2b:	/* 2B xyy Line Jump */
 	case 0x30:	/* 30 xxy Set Stereo */
+		e->fxt = FX_SETPAN;
+		if (parm & 7) {
+			/* !Tracker-style panning: 1=left, 4=center, 7=right. */
+			if (!(parm & 8)) {
+				e->fxp = 42 * ((parm & 7) - 1) + 2;
+			} else {
+				e->fxt = 0;
+			}
+		} else {
+			parm >>= 4;
+			if (parm < 128) {
+				e->fxp = parm + 128;
+			} else if (parm > 128) {
+				e->fxp = 255 - parm;
+			} else {
+				e->fxt = 0;
+			}
+		}
+		break;
 	case 0x31:	/* 31 xxx Song Upcall */
+		e->fxt = 0;
+		break;
 	case 0x32:	/* 32 xxx Unset Sample Repeat */
+		e->fxt = FX_KEYOFF;
+		e->fxp = 0;
+		break;
 	default:
 		e->fxt = 0;
 	}
@@ -248,6 +313,8 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	uint32 a, b;
 	uint8 *buf;
 	int size, ret;
+	int tracks_size;
+	int sequence_size;
 	int max_sample_size = 1;
 	uint8 allowed_effects[8];
 
@@ -312,35 +379,39 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	if (libxmp_init_pattern(mod) < 0)
 		return -1;
 
+	/* Determine the required size of temporary buffer and allocate it now. */
+	/* Uncompressed sequence size */
+	sequence_size = mod->len * mod->chn * 2;
+	if (sequence_size > max_sample_size)
+		max_sample_size = sequence_size;
+
+	tracks_size = 64 * (mod->trk - 1) * 4; /* Uncompressed tracks size */
+	if (tracks_size > max_sample_size)
+		max_sample_size = tracks_size;
+
+	if ((buf = (uint8 *)malloc(max_sample_size)) == NULL)
+		return -1;
+
 	/* Sequence */
 	a = hio_read8(f);		/* packing */
 
 	if (a != 0 && a != 1)
-		return -1;
+		goto err;
 
 	D_(D_INFO "Packed sequence: %s", a ? "yes" : "no");
 
-	size = mod->len * mod->chn * 2;
-	if ((buf = (uint8 *)malloc(size)) == NULL)
-		return -1;
-
 	if (a) {
-		if (libxmp_read_lzw(buf, size, size, LZW_FLAGS_SYM, f) < 0) {
-			free(buf);
-			return -1;
-		}
+		if (libxmp_read_lzw(buf, sequence_size, sequence_size, LZW_FLAGS_SYM, f) < 0)
+			goto err;
 	} else {
-		if (hio_read(buf, 1, size, f) != size) {
-			free(buf);
-			return -1;
-		}
+		if (hio_read(buf, 1, sequence_size, f) != sequence_size)
+			goto err;
 	}
 
 	for (i = 0; i < mod->len; i++) {	/* len == pat */
-		if (libxmp_alloc_pattern(mod, i) < 0) {
-			free(buf);
-			return -1;
-		}
+		if (libxmp_alloc_pattern(mod, i) < 0)
+			goto err;
+
 		mod->xxp[i]->rows = 64;
 
 		for (j = 0; j < mod->chn; j++) {
@@ -352,47 +423,45 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 				t = mod->trk - 1;
 			} else if (t >= mod->trk - 1) {
 				/* Sanity check */
-				free(buf);
-				return -1;
+				goto err;
 			}
 
 			mod->xxp[i]->index[j] = t;
 		}
 		mod->xxo[i] = i;
 	}
-	free(buf);
 
 	/* Read and convert patterns */
 
-	a = hio_read8(f);
-
-	if (a != 0 && a != 1)
-		return -1;
-
-	D_(D_INFO "Packed tracks: %s", a ? "yes" : "no");
 	D_(D_INFO "Stored tracks: %d", mod->trk - 1);
 
-	size = 64 * (mod->trk - 1) * 4;
-	if ((buf = (uint8 *)malloc(size)) == NULL)
-		return -1;
+	/* Patterns are stored in blocks of up to 2000 patterns. If there are
+	 * more than 2000 patterns, they need to be read in multiple passes.
+	 *
+	 * See 4096_patterns.dsym.
+	 */
+	for (i = 0; i < tracks_size; i += 4 * 64 * 2000) {
+		int blk_size = MIN(tracks_size - i, 4 * 64 * 2000);
 
-	if (a) {
-		if (libxmp_read_lzw(buf, size, size, LZW_FLAGS_SYM, f) < 0) {
-			free(buf);
-			return -1;
-		}
-	} else {
-		if (hio_read(buf, 1, size, f) != size) {
-			free(buf);
-			return -1;
+		a = hio_read8(f);
+
+		if (a != 0 && a != 1)
+			goto err;
+
+		D_(D_INFO "Packed tracks: %s", a ? "yes" : "no");
+
+		if (a) {
+			if (libxmp_read_lzw(buf + i, blk_size, blk_size, LZW_FLAGS_SYM, f) < 0)
+				goto err;
+		} else {
+			if (hio_read(buf + i, 1, blk_size, f) != blk_size)
+				goto err;
 		}
 	}
 
 	for (i = 0; i < mod->trk - 1; i++) {
-		if (libxmp_alloc_track(mod, i, 64) < 0) {
-			free(buf);
-			return -1;
-		}
+		if (libxmp_alloc_track(mod, i, 64) < 0)
+			goto err;
 
 		for (j = 0; j < mod->xxt[i]->rows; j++) {
 			int parm;
@@ -415,19 +484,17 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		}
 	}
 
-	free(buf);
-
 	/* Extra track */
 	if (libxmp_alloc_track(mod, i, 64) < 0)
-		return -1;
+		goto err;
 
 	/* Load and convert instruments */
 	D_(D_INFO "Instruments: %d", mod->ins);
 
-	if ((buf = (uint8 *)malloc(max_sample_size)) == NULL)
-		return -1;
-
 	for (i = 0; i < mod->ins; i++) {
+		struct xmp_sample *xxs = &mod->xxs[i];
+		struct xmp_instrument *xxi = &mod->xxi[i];
+		struct extra_sample_data *xtra = &m->xtra[i];
 		uint8 namebuf[128];
 
 		memset(namebuf, 0, sizeof(namebuf));
@@ -437,26 +504,27 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (~sn[i] & 0x80) {
 			int looplen;
 
-			mod->xxs[i].lps = hio_read24l(f) << 1;
+			xtra->sus = hio_read24l(f) << 1;
 			looplen = hio_read24l(f) << 1;
-			if (looplen > 2)
-				mod->xxs[i].flg |= XMP_SAMPLE_LOOP;
-			mod->xxs[i].lpe = mod->xxs[i].lps + looplen;
-			mod->xxi[i].sub[0].vol = hio_read8(f);
-			mod->xxi[i].sub[0].pan = 0x80;
+			xtra->sue = xtra->sus + looplen;
+			if (xtra->sus < xxs->len && xtra->sus < xtra->sue &&
+			    xtra->sue <= xxs->len && looplen > 2)
+				xxs->flg |= XMP_SAMPLE_SLOOP;
+			xxi->sub[0].vol = hio_read8(f);
+			xxi->sub[0].pan = 0x80;
 			/* finetune adjusted comparing DSym and S3M versions
 			 * of "inside out" */
-			mod->xxi[i].sub[0].fin = (int8)(hio_read8(f) << 4);
-			mod->xxi[i].sub[0].sid = i;
+			xxi->sub[0].fin = (int8)(hio_read8(f) << 4);
+			xxi->sub[0].sid = i;
 		}
 
 		D_(D_INFO "[%2X] %-22.22s %05x %05x %05x %c V%02x %+03d",
-				i, mod->xxi[i].name, mod->xxs[i].len,
-				mod->xxs[i].lps, mod->xxs[i].lpe,
-				mod->xxs[i].flg & XMP_SAMPLE_LOOP ? 'L' : ' ',
-				mod->xxi[i].sub[0].vol, mod->xxi[i].sub[0].fin);
+				i, xxi->name, xxs->len,
+				xtra->sus, xtra->sue,
+				xxs->flg & XMP_SAMPLE_SLOOP ? 'L' : ' ',
+				xxi->sub[0].vol, xxi->sub[0].fin);
 
-		if (sn[i] & 0x80 || mod->xxs[i].len == 0)
+		if (sn[i] & 0x80 || xxs->len == 0)
 			continue;
 
 		a = hio_read8(f);
@@ -465,76 +533,69 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		case 0: /* Signed 8-bit, logarithmic. */
 			D_(D_INFO "%27s VIDC", "");
 			ret = libxmp_load_sample(m, f, SAMPLE_FLAG_VIDC,
-					&mod->xxs[i], NULL);
+					xxs, NULL);
 			break;
 
 		case 1: /* LZW compressed signed 8-bit delta, linear. */
 			D_(D_INFO "%27s LZW", "");
-			size = mod->xxs[i].len;
+			size = xxs->len;
 
-			if (libxmp_read_lzw(buf, size, size, LZW_FLAGS_SYM, f) < 0) {
-				free(buf);
-				return -1;
-			}
+			if (libxmp_read_lzw(buf, size, size, LZW_FLAGS_SYM, f) < 0)
+				goto err;
+
 			ret = libxmp_load_sample(m, NULL,
 					SAMPLE_FLAG_NOLOAD | SAMPLE_FLAG_DIFF,
-					&mod->xxs[i], buf);
+					xxs, buf);
 			break;
 
 		case 2: /* Signed 8-bit, linear. */
 			D_(D_INFO "%27s 8-bit", "");
-			ret = libxmp_load_sample(m, f, 0, &mod->xxs[i], NULL);
+			ret = libxmp_load_sample(m, f, 0, xxs, NULL);
 			break;
 
 		case 3: /* Signed 16-bit, linear. */
 			D_(D_INFO "%27s 16-bit", "");
-			mod->xxs[i].flg |= XMP_SAMPLE_16BIT;
-			ret = libxmp_load_sample(m, f, 0, &mod->xxs[i], NULL);
+			xxs->flg |= XMP_SAMPLE_16BIT;
+			ret = libxmp_load_sample(m, f, 0, xxs, NULL);
 			break;
 
 		case 4: /* Sigma-delta compressed unsigned 8-bit, linear. */
 			D_(D_INFO "%27s Sigma-delta", "");
-			size = mod->xxs[i].len;
-			if (libxmp_read_sigma_delta(buf, size, size, f) < 0) {
-				free(buf);
-				return -1;
-			}
+			size = xxs->len;
+			if (libxmp_read_sigma_delta(buf, size, size, f) < 0)
+				goto err;
+
 			ret = libxmp_load_sample(m, NULL,
 					SAMPLE_FLAG_NOLOAD | SAMPLE_FLAG_UNS,
-					&mod->xxs[i], buf);
+					xxs, buf);
 			break;
 
 		case 5: /* Sigma-delta compressed signed 8-bit, logarithmic. */
 			D_(D_INFO "%27s Sigma-delta VIDC", "");
-			size = mod->xxs[i].len;
-			if (libxmp_read_sigma_delta(buf, size, size, f) < 0) {
-				free(buf);
-				return -1;
-			} else {
-				/* This uses a bit packing that isn't either mu-law or
-				 * normal Archimedes VIDC. Convert to the latter... */
-				for (j = 0; j < size; j++) {
-					uint8 t = (buf[j] < 128) ? ~buf[j] : buf[j];
-					buf[j] = (buf[j] >> 7) | (t << 1);
-				}
+			size = xxs->len;
+			if (libxmp_read_sigma_delta(buf, size, size, f) < 0)
+				goto err;
+
+			/* This uses a bit packing that isn't either mu-law or
+			 * normal Archimedes VIDC. Convert to the latter... */
+			for (j = 0; j < size; j++) {
+				uint8 t = (buf[j] < 128) ? ~buf[j] : buf[j];
+				buf[j] = (buf[j] >> 7) | (t << 1);
 			}
+
 			ret = libxmp_load_sample(m, NULL,
 					SAMPLE_FLAG_NOLOAD | SAMPLE_FLAG_VIDC,
-					&mod->xxs[i], buf);
+					xxs, buf);
 			break;
 
 		default:
 			D_(D_CRIT "unknown sample type %d @ %ld\n", a, hio_tell(f));
-			ret = -1;
-			break;
+			goto err;
 		}
 
-		if (ret < 0) {
-			free(buf);
-			return -1;
-		}
+		if (ret < 0)
+			goto err;
 	}
-	free(buf);
 
 	/* Information text */
 	if (infolen > 0) {
@@ -560,5 +621,12 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		mod->xxc[i].pan = DEFPAN((((i + 3) / 2) % 2) * 0xff);
 	}
 
+	m->quirk = QUIRK_VIBALL | QUIRK_KEYOFF | QUIRK_INVLOOP;
+
+	free(buf);
 	return 0;
+
+err:
+	free(buf);
+	return -1;
 }

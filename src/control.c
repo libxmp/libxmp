@@ -117,13 +117,9 @@ static void set_position(struct context_data *ctx, int pos, int dir)
 			} else {
 				p->pos = pos;
 			}
-			f->jumpline = 0;
-			f->jump = -1;
-			f->pbreak = 0;
-			f->loop_chn = 0;
-			f->delay = 0;
-			f->rowdelay = 0;
-			f->rowdelay_set = 0;
+			/* Clear flow vars to prevent old pattern jumps and
+			 * other junk from executing in the new position. */
+			libxmp_reset_flow(ctx);
 		}
 	}
 }

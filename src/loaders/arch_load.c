@@ -159,8 +159,13 @@ static void fix_effect(struct xmp_event *e)
 		e->fxt = FX_JUMP;
 		break;
 	case 0x15:			/* 15 xy Line Jump. (not in manual) */
-		e->fxt = e->fxp = 0;
 		/* Jump to line 10*x+y in same pattern. (10*x+y>63 ignored) */
+		if (MSN(e->fxp) * 10 + LSN(e->fxp) < 64) {
+			e->fxt = FX_LINE_JUMP;
+			e->fxp = MSN(e->fxp) * 10 + LSN(e->fxp);
+		} else {
+			e->fxt = e->fxp = 0;
+		}
 		break;
 	case 0x1c:			/* 1C xy Set Speed */
 		e->fxt = FX_SPEED;
