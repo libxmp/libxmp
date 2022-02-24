@@ -317,6 +317,15 @@ struct extra_sample_data {
 	int sue;
 };
 
+struct midi_macro {
+	char data[32];
+};
+
+struct midi_macro_data {
+	struct midi_macro param[16];
+	struct midi_macro fixed[128];
+};
+
 struct module_data {
 	struct xmp_module mod;
 
@@ -354,6 +363,7 @@ struct module_data {
 	void *extra;			/* format-specific extra fields */
 	uint8 **scan_cnt;		/* scan counters */
 	struct extra_sample_data *xtra;
+	struct midi_macro_data *midi;
 };
 
 

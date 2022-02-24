@@ -835,6 +835,21 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 	case FX_FLT_RESN:
 		xc->filter.resonance = fxp;
 		break;
+	case FX_MACRO_SET:
+		xc->macro.active = LSN(fxp);
+		break;
+	case FX_MACRO:
+		SET(MIDI_MACRO);
+		xc->macro.val = fxp;
+		xc->macro.slide = 0;
+		break;
+	case FX_MACROSMOOTH:
+		if (ctx->p.speed && xc->macro.val < 0x80) {
+			SET(MIDI_MACRO);
+			xc->macro.target = fxp;
+			xc->macro.slide = ((float)fxp - xc->macro.val) / ctx->p.speed;
+		}
+		break;
 	case FX_PANBRELLO:	/* Panbrello */
 		SET(PANBRELLO);
 		SET_LFO_NOTZERO(&xc->panbrello.lfo, LSN(fxp) << 4, MSN(fxp));

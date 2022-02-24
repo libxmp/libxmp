@@ -56,6 +56,7 @@ struct retrig_control {
 #define FINE_VOLS_2	(1 << 25)
 #define KEY_OFF		(1 << 26)	/* for IT release on envloop end */
 #define TREMOR		(1 << 27)	/* for XM tremor */
+#define MIDI_MACRO	(1 << 28)	/* IT midi macro */
 
 #define NOTE_FADEOUT	(1 << 0)
 #define NOTE_ENV_RELEASE (1 << 1)	/* envelope sustain loop release */
@@ -241,6 +242,14 @@ struct channel_data {
 		int can_disable;/* IT hack: allow disabling for cutoff 127 */
 	} filter;
 
+	struct {
+		float val;	/* Current macro effect (use float for slides) */
+		float target;	/* Current macro target (smooth macro) */
+		float slide;	/* Current macro slide (smooth macro) */
+		int active;	/* Current active parameterized macro */
+		int finalvol;	/* Previous tick calculated volume (0-0x400) */
+		int notepan;	/* Previous tick note panning (0x80 center) */
+	} macro;
 #endif
 
 #ifndef LIBXMP_CORE_PLAYER

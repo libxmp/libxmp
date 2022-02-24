@@ -248,6 +248,218 @@ static int check_envelope_fade(struct xmp_envelope *env, int x)
 }
 
 
+#ifndef LIBXMP_CORE_DISABLE_IT
+
+/* Impulse Tracker's filter effects are implemented using its MIDI macros.
+ * Any module can customize these and they are parameterized using various
+ * player and mixer values, which requires parsing them here instead of in
+ * the loader. Since they're MIDI macros, they can contain actual MIDI junk
+ * that needs to be skipped, and one macro may have multiple IT commands. */
+
+struct midi_stream
+{
+	const char *pos;
+	int buffer;
+	int param;
+};
+
+static int midi_nibble(struct context_data *ctx, struct channel_data *xc,
+		       int chn, struct midi_stream *in)
+{
+	struct xmp_instrument *xxi;
+	struct mixer_voice *vi;
+	int voc, val, byte = -1;
+	if (in->buffer >= 0) {
+		val = in->buffer;
+		in->buffer = -1;
+		return val;
+	}
+
+	while (*in->pos) {
+		val = *(in->pos)++;
+		if (val >= '0' && val <= '9') return val - '0';
+		if (val >= 'A' && val <= 'F') return val - 'A' + 10;
+		switch (val) {
+		case 'z':			/* Macro parameter */
+			byte = in->param;
+			break;
+		case 'n':			/* Host key */
+			byte = xc->key & 0x7f;
+			break;
+		case 'h':			/* Host channel */
+			byte = chn;
+			break;
+		case 'o':			/* Offset effect memory */
+			/* Intentionally not clamped, see ZxxSecrets.it */
+			byte = xc->offset.memory;
+			break;
+		case 'm':			/* Voice reverse flag */
+			voc = libxmp_virt_mapchannel(ctx, chn);
+			vi = (voc >= 0) ? &ctx->p.virt.voice_array[voc] : NULL;
+			byte = vi ? !!(vi->flags & VOICE_REVERSE) : 0;
+			break;
+		case 'v':			/* Note velocity */
+			xxi = libxmp_get_instrument(ctx, xc->ins);
+			byte = ((uint32)ctx->p.gvol *
+				(uint32)xc->volume *
+				(uint32)xc->mastervol *
+				(uint32)xc->gvl *
+				(uint32)(xxi ? xxi->vol : 0x40)) >> 24UL;
+			CLAMP(byte, 1, 127);
+			break;
+		case 'u':			/* Computed velocity */
+			byte = xc->macro.finalvol >> 3;
+			CLAMP(byte, 1, 127);
+			break;
+		case 'x':			/* Note panning */
+			byte = xc->macro.notepan >> 1;
+			CLAMP(byte, 0, 127);
+			break;
+		case 'y':			/* Computed panning */
+			byte = xc->info_finalpan >> 1;
+			CLAMP(byte, 0, 127);
+			break;
+		case 'a':			/* Ins MIDI Bank hi */
+		case 'b':			/* Ins MIDI Bank lo */
+		case 'p':			/* Ins MIDI Program */
+		case 's':			/* MPT: SysEx checksum */
+			byte = 0;
+			break;
+		case 'c':			/* Ins MIDI Channel */
+			return 0;
+		}
+
+		/* Byte output */
+		if (byte >= 0) {
+			in->buffer = byte & 0xf;
+			return (byte >> 4) & 0xf;
+		}
+	}
+	return -1;
+}
+
+static int midi_byte(struct context_data *ctx, struct channel_data *xc,
+		     int chn, struct midi_stream *in)
+{
+	int a = midi_nibble(ctx, xc, chn, in);
+	int b = midi_nibble(ctx, xc, chn, in);
+	return (a >= 0 && b >= 0) ? (a << 4) | b : -1;
+}
+
+static void apply_midi_macro_effect(struct channel_data *xc, int type, int val)
+{
+	switch (type) {
+	case 0:			/* Filter cutoff */
+		xc->filter.cutoff = val << 1;
+		break;
+	case 1:			/* Filter resonance */
+		xc->filter.resonance = val << 1;
+		break;
+	}
+}
+
+static void execute_midi_macro(struct context_data *ctx, struct channel_data *xc,
+			       int chn, struct midi_macro *midi, int param)
+{
+	struct midi_stream in;
+	int byte, cmd, val;
+
+	in.pos = midi->data;
+	in.buffer = -1;
+	in.param = param;
+
+	while (*in.pos) {
+		/* Very simple MIDI 1.0 parser--most bytes can just be ignored
+		 * (or passed through, if libxmp gets MIDI output). All bytes
+		 * with bit 7 are statuses which interrupt unfinished messages
+		 * ("Data Types: Status Bytes") or are real time messages.
+		 * This holds even for SysEx messages, which end at ANY non-
+		 * real time status ("System Common Messages: EOX").
+		 *
+		 * IT intercepts internal "messages" that begin with F0 F0,
+		 * which in MIDI is a useless zero-length SysEx followed by
+		 * a second SysEx. They are four bytes long including F0 F0,
+		 * and shouldn't be passed through. OpenMPT also uses F0 F1.
+		 */
+		cmd = -1;
+		byte = midi_byte(ctx, xc, chn, &in);
+		if (byte == 0xf0) {
+			byte = midi_byte(ctx, xc, chn, &in);
+			if (byte == 0xf0 || byte == 0xf1)
+				cmd = byte & 0xf;
+		}
+		if (cmd < 0) {
+			if (byte == 0xfa || byte == 0xfc || byte == 0xff) {
+				/* These real time statuses can appear anywhere
+				 * (even in SysEx) and reset the channel filter
+				 * params. See: OpenMPT ZxxSecrets.it */
+				apply_midi_macro_effect(xc, 0, 127);
+				apply_midi_macro_effect(xc, 1, 0);
+			}
+			continue;
+		}
+		cmd = midi_byte(ctx, xc, chn, &in) | (cmd << 8);
+		val = midi_byte(ctx, xc, chn, &in);
+		if (cmd < 0 || cmd >= 0x80 || val < 0 || val >= 0x80) {
+			continue;
+		}
+		apply_midi_macro_effect(xc, cmd, val);
+	}
+}
+
+/* This needs to occur before all process_* functions:
+ * - It modifies the filter parameters, used by process_frequency.
+ * - process_volume and process_pan apply slide effects, which the
+ *   filter parameters expect to occur after macro effect parsing. */
+static void update_midi_macro(struct context_data *ctx, int chn)
+{
+	struct player_data *p = &ctx->p;
+	struct module_data *m = &ctx->m;
+	struct channel_data *xc = &p->xc_data[chn];
+	struct midi_macro_data *midicfg = m->midi;
+	struct midi_macro *macro;
+	int val;
+
+	if (TEST(MIDI_MACRO) && HAS_QUIRK(QUIRK_FILTER)) {
+		if (xc->macro.slide > 0) {
+			xc->macro.val += xc->macro.slide;
+			if (xc->macro.val > xc->macro.target) {
+				xc->macro.val = xc->macro.target;
+				xc->macro.slide = 0;
+			}
+		} else if (xc->macro.slide < 0) {
+			xc->macro.val += xc->macro.slide;
+			if (xc->macro.val < xc->macro.target) {
+				xc->macro.val = xc->macro.target;
+				xc->macro.slide = 0;
+			}
+		} else if (p->frame) {
+			/* Execute non-smooth macros on frame 0 only */
+			return;
+		}
+
+		val = (int)xc->macro.val;
+		if (val >= 0x80) {
+			if (midicfg) {
+				macro = &midicfg->fixed[val - 0x80];
+				execute_midi_macro(ctx, xc, chn, macro, val);
+			} else if (val < 0x90) {
+				/* Default fixed macro: set resonance */
+				apply_midi_macro_effect(xc, 1, (val - 0x80) << 3);
+			}
+		} else if (midicfg) {
+			macro = &midicfg->param[xc->macro.active];
+			execute_midi_macro(ctx, xc, chn, macro, val);
+		} else if (xc->macro.active == 0) {
+			/* Default parameterized macro 0: set filter cutoff */
+			apply_midi_macro_effect(xc, 0, val);
+		}
+	}
+}
+
+#endif /* LIBXMP_CORE_DISABLE_IT */
+
+
 #ifndef LIBXMP_CORE_PLAYER
 
 /* From http://www.un4seen.com/forum/?topic=7554.0
@@ -780,6 +992,9 @@ static void process_volume(struct context_data *ctx, int chn, int act)
 	} else {
 		finalvol = tremor_s3m(ctx, chn, finalvol);
 	}
+#ifndef LIBXMP_CORE_DISABLE_IT
+	xc->macro.finalvol = finalvol;
+#endif
 
 	if (chn < m->mod.chn) {
 		finalvol = finalvol * p->master_vol / 100;
@@ -1040,6 +1255,7 @@ static void process_pan(struct context_data *ctx, int chn, int act)
 			libxmp_lfo_update(&xc->panbrello.lfo);
 		}
 	}
+	xc->macro.notepan = xc->pan.val + panbrello + 0x80;
 #endif
 
 	channel_pan = xc->pan.val;
@@ -1288,6 +1504,11 @@ static void play_channel(struct context_data *ctx, int chn)
 			libxmp_read_event(ctx, &xc->delayed_event, chn);
 		}
 	}
+
+#ifndef LIBXMP_CORE_DISABLE_IT
+	/* IT MIDI macros need to update regardless of the current voice state. */
+	update_midi_macro(ctx, chn);
+#endif
 
 	act = libxmp_virt_cstat(ctx, chn);
 	if (act == VIRT_INVALID) {

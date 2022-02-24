@@ -555,7 +555,9 @@ void xmp_release_module(xmp_context opaque)
 	}
 
 	free(m->xtra);
+	free(m->midi);
 	m->xtra = NULL;
+	m->midi = NULL;
 
 	libxmp_free_scan(ctx);
 

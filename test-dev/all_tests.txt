@@ -315,6 +315,7 @@ test_effect_it_panslide
 test_effect_it_vcol_g
 test_effect_it_break_to_row
 test_effect_it_multi_retrig
+test_effect_it_smooth_macro
 test_effect_reverse
 test_effect_line_jump
 test_effect_pastnote_cut
@@ -437,6 +438,7 @@ test_openmpt_it_filter_reset
 test_openmpt_it_filter_reset_carry
 test_openmpt_it_finevolcolslide
 test_openmpt_it_flt_env_carry
+test_openmpt_it_fltmacro
 test_openmpt_it_freqreset_noins
 test_openmpt_it_globalvol_invalid
 test_openmpt_it_gxsmp
@@ -445,6 +447,9 @@ test_openmpt_it_gxxtest
 test_openmpt_it_ins_flt_porta_reset
 test_openmpt_it_instrumentnumberchange
 test_openmpt_it_linearslides
+test_openmpt_it_macro_extended_param
+test_openmpt_it_macro_lastnote
+test_openmpt_it_multizxx
 test_openmpt_it_nomap
 test_openmpt_it_noteoff2
 test_openmpt_it_noteoff3
@@ -475,7 +480,9 @@ test_openmpt_it_swing2
 test_openmpt_it_swing3
 test_openmpt_it_vol_env_carry
 test_openmpt_it_volcolmemory
+test_openmpt_it_volume_macro_letters
 test_openmpt_it_wnoteoff
+test_openmpt_it_zxxsecrets
 test_openmpt_s3m_amigalimits
 test_openmpt_s3m_freqlimits
 test_openmpt_s3m_parammemory
