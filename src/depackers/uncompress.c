@@ -50,7 +50,7 @@ static int test_compress(unsigned char *b)
  * with those of the compress() routine.  See the definitions above.
  */
 
-static int decrunch_compress(HIO_HANDLE * in, FILE * out, long inlen)
+static int decrunch_compress(HIO_HANDLE * in, void ** out, long inlen, long * outlen)
 {
 	char_type *stackp;
 	code_int code;
@@ -60,6 +60,7 @@ static int decrunch_compress(HIO_HANDLE * in, FILE * out, long inlen)
 	int inbits;
 	int posbits;
 	int outpos;
+	int outsize;
 	int insize;
 	int bitmask;
 	code_int free_ent;
@@ -74,7 +75,8 @@ static int decrunch_compress(HIO_HANDLE * in, FILE * out, long inlen)
 	/*long bytes_in;*/		/* Total number of byte from input */
 	/*long bytes_out;*/		/* Total number of byte to output */
 	char_type inbuf[IBUFSIZ + 64];	/* Input buffer */
-	char_type outbuf[OBUFSIZ + 2048];/* Output buffer */
+	char_type *outbuf;		/* Output buffer */
+	char_type *tmp;
 	count_int htab[HSIZE];
 	unsigned short codetab[HSIZE];
 
@@ -104,6 +106,7 @@ static int decrunch_compress(HIO_HANDLE * in, FILE * out, long inlen)
 	oldcode = -1;
 	finchar = 0;
 	outpos = 0;
+	outsize = OBUFSIZ;
 	posbits = 3 << 3;
 
 	free_ent = ((block_mode) ? FIRST : 256);
@@ -113,6 +116,11 @@ static int decrunch_compress(HIO_HANDLE * in, FILE * out, long inlen)
 
 	for (code = 255; code >= 0; --code)
 		tab_suffixof(code) = (char_type) code;
+
+	outbuf = (char_type *) malloc(outsize + 2048);
+	if (!outbuf) {
+		return -1;
+	}
 
 	do {
 	      resetbuf:;
@@ -132,8 +140,10 @@ static int decrunch_compress(HIO_HANDLE * in, FILE * out, long inlen)
 		}
 
 		if (insize < sizeof(inbuf) - IBUFSIZ) {
-			if ((rsize = hio_read(inbuf + insize, 1, IBUFSIZ, in)) < 0)
+			if ((rsize = hio_read(inbuf + insize, 1, IBUFSIZ, in)) < 0) {
+				free(outbuf);
 				return -1;
+			}
 
 			insize += rsize;
 		}
@@ -168,6 +178,7 @@ static int decrunch_compress(HIO_HANDLE * in, FILE * out, long inlen)
 					fprintf(stderr, "uncompress: corrupt input\n");
 					*/
 					/* abort_compress(); */
+					free(outbuf);
 					return -1;
 				}
 				outbuf[outpos++] = (char_type)(finchar = (int)(oldcode = code));
@@ -204,6 +215,7 @@ static int decrunch_compress(HIO_HANDLE * in, FILE * out, long inlen)
 						"uncompress: corrupt input\n");
 					*/
 					/* abort_compress(); */
+					free(outbuf);
 					return -1;
 				}
 
@@ -220,23 +232,25 @@ static int decrunch_compress(HIO_HANDLE * in, FILE * out, long inlen)
 
 			/* And put them out in forward order */
 
-			if (outpos + (i = (de_stack - stackp)) >= OBUFSIZ) {
+			if (outpos + (i = (de_stack - stackp)) >= outsize) {
 				do {
-					if (i > OBUFSIZ - outpos)
-						i = OBUFSIZ - outpos;
+					if (i > outsize - outpos)
+						i = outsize - outpos;
 
 					if (i > 0) {
 						memcpy(outbuf + outpos, stackp, i);
 						outpos += i;
 					}
 
-					if (outpos >= OBUFSIZ) {
-						if (fwrite(outbuf, 1, outpos, out) != outpos) {
-							return -1;
-							/*write_error(); */
-						}
+					if (outpos >= outsize) {
+						outsize += OBUFSIZ;
 
-						outpos = 0;
+						tmp = (char_type *) realloc(outbuf, outsize + 2048);
+						if (!tmp) {
+							free(outbuf);
+							return -1;
+						}
+						outbuf = tmp;
 					}
 					stackp += i;
 				}
@@ -259,14 +273,17 @@ static int decrunch_compress(HIO_HANDLE * in, FILE * out, long inlen)
 	}
 	while (rsize > 0);
 
-	if (outpos > 0 && fwrite(outbuf, 1, outpos, out) != outpos)
-		return -1;
+	if ((tmp = (char_type *) realloc(outbuf, outpos)) != NULL)
+		outbuf = tmp;
+
+	*out = outbuf;
+	*outlen = outpos;
 
 	return 0;
 }
 
 struct depacker libxmp_depacker_compress = {
 	test_compress,
-	decrunch_compress,
-	NULL
+	NULL,
+	decrunch_compress
 };
