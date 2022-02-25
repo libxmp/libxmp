@@ -193,16 +193,19 @@ jobs:
           (cd test-dev && make -j 4)
 
   windows-vc:
-    strategy:
-       matrix:
-         targetplatform: [x86, amd64]
     runs-on: windows-latest
+    strategy:
+      matrix:
+        include: [
+          {targetplatform: "x86", cmakeflags: "-A Win32" },
+          {targetplatform: "amd64", cmakeflags: "-A x64" },
+        ]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: CMake configure
         run: |
-          cmd.exe /C "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" ${{ matrix.targetplatform }} "&&" cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
+          cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build ${{ matrix.cmakeflags }}
       - name: CMake build
         run: |
           cmake --build build --config Debug --target ALL_BUILD
@@ -210,15 +213,20 @@ jobs:
         run: |
           cd build
           ctest -C Debug --output-on-failure
+      - name: Preparing NMake
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.targetplatform }}
       - name: NMake Build
         run: |
-          cmd.exe /C "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" ${{ matrix.targetplatform }} "&&" nmake -f Makefile.vc
+          nmake -f Makefile.vc
       - name: NMake check
         run: |
-          cmd.exe /C "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" ${{ matrix.targetplatform }} "&&" nmake -f Makefile.vc check
+          nmake -f Makefile.vc check
       - name: NMake devcheck
         run: |
-          cmd.exe /C "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" ${{ matrix.targetplatform }} "&&" cd test-dev "&&" nmake -f Makefile.vc
+          cd test-dev
+          nmake -f Makefile.vc
 
   windows-msys2:
     runs-on: windows-latest
