@@ -1191,10 +1191,10 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (ifh.special & IT_EDIT_HISTORY) {
 			int skip = hio_read16l(f) * 8;
 			if (hio_error(f) || (skip && hio_seek(f, skip, SEEK_CUR) < 0))
-				goto err3;
+				goto err4;
 		}
 		if (load_it_midi_config(m, f) < 0)
-			goto err3;
+			goto err4;
 	}
 
 	m->c4rate = C4_NTSC_RATE;
