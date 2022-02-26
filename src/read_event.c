@@ -1133,7 +1133,7 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 
 	/* Check note */
 
-	if (key && !new_invalid_ins) {
+	if (key) {
 		SET(NEW_NOTE);
 		SET_NOTE(NOTE_SET);
 
@@ -1166,7 +1166,7 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 			if (!ev.ins) {
 				use_ins_vol = 0;
 			}
-		} else {
+		} else if (!new_invalid_ins) {
 			/* Sample sustain release should always carry for tone
 			 * portamento, and is not reset unless a note is
 			 * present (Atomic Playboy, portamento_sustain.it). */
