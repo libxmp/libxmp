@@ -57,6 +57,8 @@
 #define VT_SKIP ce->vp++
 #define WT_SKIP ce->wp++
 
+#define ARP(idx) ((idx) < ie->wtlen ? me->wav_table[xc->ins][(idx)] : 0xfd)
+
 
 static const int sine[32] = {
 	   0,  49,  97, 141, 180, 212, 235, 250,
@@ -93,8 +95,10 @@ int libxmp_med_change_period(struct context_data *ctx, struct channel_data *xc)
 int libxmp_med_linear_bend(struct context_data *ctx, struct channel_data *xc)
 {
 	struct module_data *m = &ctx->m;
+	struct xmp_instrument *xxi = &m->mod.xxi[xc->ins];
 	struct med_module_extras *me = (struct med_module_extras *)m->extra;
 	struct med_channel_extras *ce = (struct med_channel_extras *)xc->extra;
+	struct med_instrument_extras *ie = MED_INSTRUMENT_EXTRAS(*xxi);
 	int arp;
 
 	/* Arpeggio */
@@ -102,14 +106,15 @@ int libxmp_med_linear_bend(struct context_data *ctx, struct channel_data *xc)
 	if (ce->arp == 0)
 		return 0;
 
-	if (me->wav_table[xc->ins][ce->arp] == 0xfd) /* empty arpeggio */
+	if (ARP(ce->arp) == 0xfd) /* empty arpeggio */
 		return 0;
 
-	arp = me->wav_table[xc->ins][ce->aidx++];
+	arp = ARP(ce->aidx);
 	if (arp == 0xfd) {
 		ce->aidx = ce->arp;
-		arp = me->wav_table[xc->ins][ce->aidx++];
+		arp = ARP(ce->aidx);
 	}
+	ce->aidx++;
 
 	return (100 << 7) * arp;
 }

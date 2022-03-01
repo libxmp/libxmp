@@ -283,6 +283,7 @@ static void set_sample_end(struct context_data *ctx, int voc, int end)
 
 	if (end) {
 		SET_NOTE(NOTE_SAMPLE_END);
+		vi->fidx &= ~FLAG_ACTIVE;
 		if (HAS_QUIRK(QUIRK_RSTCHN)) {
 			libxmp_virt_resetvoice(ctx, voc, 0);
 		}
@@ -548,6 +549,11 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 			continue;
 		}
 
+		/* Negative positions can be left over from some
+		 * loop edge cases. These can be safely clamped. */
+		if (vi->pos < 0.0)
+			vi->pos = 0.0;
+
 		vi->pos0 = vi->pos;
 
 		buf_pos = s->buf32;
@@ -689,7 +695,13 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 			size -= samples;
 			if (size <= 0) {
 				if (has_active_loop(ctx, vi, xxs)) {
-					if (vi->pos >= vi->end) {
+					/* This isn't particularly important for
+					 * forward loops, but reverse loops need
+					 * to be corrected here to avoid their
+					 * negative positions getting clamped
+					 * in later ticks. */
+					if (((~vi->flags & VOICE_REVERSE) && vi->pos >= vi->end) ||
+					    ((vi->flags & VOICE_REVERSE) && vi->pos <= vi->start)) {
 						if (loop_reposition(ctx, vi, xxs, xtra)) {
 							reset_sample_wraparound(&loop_data);
 							init_sample_wraparound(s, &loop_data, vi, xxs);
@@ -903,6 +915,11 @@ void libxmp_mixer_reverse(struct context_data *ctx, int voc, int rev)
 {
 	struct player_data *p = &ctx->p;
 	struct mixer_voice *vi = &p->virt.voice_array[voc];
+
+	/* Don't reverse samples that have already ended */
+	if (~vi->fidx & FLAG_ACTIVE) {
+		return;
+	}
 
 	if (rev) {
 		vi->flags |= VOICE_REVERSE;
