@@ -383,6 +383,7 @@ FUZZER		= misc \
 		  abk_truncated \
 		  amf_truncated \
 		  amf_truncated2 \
+		  arch_duplicate_chunk \
 		  arch_invalid_patterns \
 		  asy_invalid_samples \
 		  chip_truncated \

@@ -597,6 +597,7 @@ test_fuzzer_abk_test_title
 test_fuzzer_abk_truncated
 test_fuzzer_amf_truncated
 test_fuzzer_amf_truncated2
+test_fuzzer_arch_duplicate_chunk
 test_fuzzer_arch_invalid_patterns
 test_fuzzer_asy_invalid_samples
 test_fuzzer_chip_truncated

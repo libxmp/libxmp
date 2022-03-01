@@ -203,14 +203,16 @@ static int get_mvox(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
+	uint32 chn;
 
-	mod->chn = hio_read32l(f);
+	chn = hio_read32l(f);
 
 	/* Sanity check */
-	if (mod->chn < 1 || mod->chn > 8 || data->has_mvox) {
+	if (chn < 1 || chn > 8 || data->has_mvox) {
 		return -1;
 	}
 
+	mod->chn = chn;
 	data->has_mvox = 1;
 	return 0;
 }
@@ -254,13 +256,15 @@ static int get_anam(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 static int get_mlen(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
+	uint32 len;
 
-	mod->len = hio_read32l(f);
+	len = hio_read32l(f);
 
 	/* Sanity check */
-	if (mod->len > 0xff)
+	if (len > 0xff)
 		return -1;
 
+	mod->len = len;
 	return 0;
 }
 
@@ -268,13 +272,15 @@ static int get_pnum(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
+	uint32 pat;
 
-	mod->pat = hio_read32l(f);
+	pat = hio_read32l(f);
 
 	/* Sanity check */
-	if (mod->pat < 1 || mod->pat > 64 || data->has_pnum)
+	if (pat < 1 || pat > 64 || data->has_pnum)
 		return -1;
 
+	mod->pat = pat;
 	data->has_pnum = 1;
 	return 0;
 }
