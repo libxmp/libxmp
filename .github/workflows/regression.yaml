@@ -316,6 +316,15 @@ jobs:
       - name: WMake distclean (OS/2)
         run: |
           wmake -f Makefile.os2 distclean
+      - name: WMake Build (MS-DOS)
+        run: |
+          wmake -f Makefile.dos
+      - name: WMake check (MS-DOS)
+        run: |
+          wmake -f Makefile.dos check-build
+      - name: WMake distclean (MS-DOS)
+        run: |
+          wmake -f Makefile.dos distclean
 
   amiga:
     strategy:
