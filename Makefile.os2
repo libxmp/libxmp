@@ -29,6 +29,6 @@ CFLAGS += -wcd=303
 # -5s  :  Pentium stack calling conventions.
 # -5r  :  Pentium register calling conventions.
 CFLAGS += -5s
-CFLAGS += -I"$(%WATCOM)/h" -I"$(%WATCOM)/h/os2"
+CFLAGS += -I"$(%WATCOM)/h/os2" -I"$(%WATCOM)/h"
 
 !include watcom.mif
