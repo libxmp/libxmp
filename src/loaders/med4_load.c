@@ -615,8 +615,10 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 				return -1;
 			}
 
-			hio_read(synth.voltbl, 1, synth.voltbllen, f);;
-			hio_read(synth.wftbl, 1, synth.wftbllen, f);;
+			hio_read(synth.voltbl, 1, synth.voltbllen, f);
+			hio_read(synth.wftbl, 1, synth.wftbllen, f);
+			if (hio_error(f))
+				return -1;
 
 			hio_seek(f, pos + hio_read32b(f), SEEK_SET);
 			length = hio_read32b(f);
@@ -684,21 +686,24 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			synth.wfspeed = hio_read8(f);
 			synth.wforms = hio_read16b(f);
 
+			if (synth.wforms == 0xffff)
+				continue;
+
 			/* Sanity check */
 			if (synth.voltbllen > 128 ||
 			    synth.wftbllen > 128 ||
-			    synth.wforms > 256) {
+			    synth.wforms > 64) {
 				return -1;
 			}
 
-			hio_read(synth.voltbl, 1, synth.voltbllen, f);;
-			hio_read(synth.wftbl, 1, synth.wftbllen, f);;
-			if (synth.wforms == 0xffff)
-				continue;
-			if (synth.wforms > 64)
-				return -1;
+			hio_read(synth.voltbl, 1, synth.voltbllen, f);
+			hio_read(synth.wftbl, 1, synth.wftbllen, f);
+
 			for (j = 0; j < synth.wforms; j++)
 				synth.wf[j] = hio_read32b(f);
+
+			if (hio_error(f))
+				return -1;
 
 			D_(D_INFO "  VS:%02x WS:%02x WF:%02x %02x %+03d",
 					synth.volspeed, synth.wfspeed,
