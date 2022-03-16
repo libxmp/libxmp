@@ -18,6 +18,12 @@ TEST(test_fuzzer_depack_lha_invalid)
 	ret = xmp_load_module(opaque, "data/f/depack_lha_invalid_tree.lha");
 	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking (invalid_tree)");
 
+	/* This input caused infinite loops in the LHA depacker due to
+	 * attempting to skip a file with a file size that libxmp loads as
+	 * -53, negative the length of the LHA file header :( */
+	ret = xmp_load_module(opaque, "data/f/depack_lha_invalid_size.lha");
+	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking (invalid_size)");
+
 	xmp_free_context(opaque);
 }
 END_TEST

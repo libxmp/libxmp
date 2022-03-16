@@ -1847,6 +1847,9 @@ static int decrunch_lha(HIO_HANDLE *in, FILE *out, long inlen)
 		printf("position = %lx\n", hio_tell(in));
 #endif
 
+		if (data.packed_size <= 0)
+			return -1;
+
 		if (libxmp_exclude_match(data.name)) {
 			if (hio_seek(in, data.packed_size, SEEK_CUR) < 0) {
 				return -1;
