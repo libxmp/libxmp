@@ -220,7 +220,7 @@ static int arcfs_read(unsigned char **dest, size_t *dest_len, HIO_HANDLE *f, uns
     #endif
 
     /* Ignore directories, end of directory markers, deleted files. */
-    if(e.is_directory || e.method == ARCFS_END_OF_DIR || e.method == ARCFS_DELETED)
+    if(e.method == ARCFS_END_OF_DIR || e.method == ARCFS_DELETED || e.is_directory)
       continue;
 
     if(e.method == ARC_M_UNPACKED)

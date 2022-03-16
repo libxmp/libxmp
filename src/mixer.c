@@ -778,7 +778,8 @@ void libxmp_mixer_voicepos(struct context_data *ctx, int voc, double pos, int ac
 
 	if (vi->pos >= vi->end) {
 		vi->pos = vi->end;
-		if (has_active_loop(ctx, vi, xxs))
+		/* Restart forward sample loops. */
+		if ((~vi->flags & VOICE_REVERSE) && has_active_loop(ctx, vi, xxs))
 			loop_reposition(ctx, vi, xxs, xtra);
 	} else if ((vi->flags & VOICE_REVERSE) && vi->pos <= 0.1) {
 		/* Hack: 0 maps to the end for reversed samples. */

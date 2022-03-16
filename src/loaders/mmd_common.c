@@ -444,8 +444,10 @@ int mmd_load_hybrid_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 	synth->volspeed = hio_read8(f);
 	synth->wfspeed = hio_read8(f);
 	synth->wforms = hio_read16b(f);
-	hio_read(synth->voltbl, 1, 128, f);;
-	hio_read(synth->wftbl, 1, 128, f);;
+	hio_read(synth->voltbl, 1, 128, f);
+	hio_read(synth->wftbl, 1, 128, f);
+	if (hio_error(f))
+		return -1;
 
 	/* Sanity check */
 	if (synth->voltbllen > 128 || synth->wftbllen > 128) {
@@ -516,15 +518,24 @@ int mmd_load_synth_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 	synth->volspeed = hio_read8(f);
 	synth->wfspeed = hio_read8(f);
 	synth->wforms = hio_read16b(f);
-	hio_read(synth->voltbl, 1, 128, f);;
-	hio_read(synth->wftbl, 1, 128, f);;
-	for (j = 0; j < 64; j++)
-		synth->wf[j] = hio_read32b(f);
+	hio_read(synth->voltbl, 1, 128, f);
+	hio_read(synth->wftbl, 1, 128, f);
 
-	/* Sanity check */
-	if (synth->voltbllen > 128 || synth->wftbllen > 128 || synth->wforms > 256) {
+	if (synth->wforms == 0xffff) {
+		xxi->nsm = 0;
+		return 1;
+	}
+	if (synth->voltbllen > 128 ||
+	    synth->wftbllen > 128 ||
+	    synth->wforms > 64) {
 		return -1;
 	}
+
+	for (j = 0; j < synth->wforms; j++)
+		synth->wf[j] = hio_read32b(f);
+
+	if (hio_error(f))
+		return -1;
 
 	D_(D_INFO "  VS:%02x WS:%02x WF:%02x %02x %+3d %+1d",
 			synth->volspeed, synth->wfspeed,
@@ -532,14 +543,6 @@ int mmd_load_synth_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 			sample->svol,
 			sample->strans,
 			exp_smp->finetune);
-
-	if (synth->wforms == 0xffff) {
-		xxi->nsm = 0;
-		return 1;
-	}
-
-	if (synth->wforms > 64)
-		return -1;
 
 	if (libxmp_med_new_instrument_extras(&mod->xxi[i]) != 0)
 		return -1;
