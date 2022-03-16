@@ -476,7 +476,7 @@ FUZZER		= misc \
 		  ult_invalid_tracks \
 		  ult_truncated \
 		  ult_v000 \
-		  umx_invalid_names \
+		  umx_invalid \
 		  prowizard_ac1d_invalid \
 		  prowizard_di_invalid \
 		  prowizard_di_truncated \
