@@ -111,6 +111,9 @@ static int get_envelope(struct xmp_envelope *env, int x, int def)
 	x2 = data[idx + 2];
 	y2 = data[idx + 3];
 
+	/* Interpolation requires x1 <= x <= x2 */
+	if (x < x1 || x2 < x1) return y1;
+
 	return x2 == x1 ? y2 : ((y2 - y1) * (x - x1) / (x2 - x1)) + y1;
 }
 
