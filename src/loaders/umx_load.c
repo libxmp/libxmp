@@ -128,9 +128,9 @@ static int get_objtype (HIO_HANDLE *f, int32 ofs, int type)
 {
 	char sig[16];
 _retry:
+	memset(sig, 0, sizeof(sig));
 	hio_seek(f, ofs, SEEK_SET);
-	if (hio_read(sig, 16, 1, f) < 16)
-		return -1;
+	hio_read(sig, 16, 1, f);
 	if (type == UMUSIC_IT) {
 		if (memcmp(sig, "IMPM", 4) == 0)
 			return UMUSIC_IT;
