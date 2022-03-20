@@ -126,8 +126,9 @@ int libxmp_get_filetype (const char *path)
 	return typ;
 }
 
-#else /* unix (ish) */
+#else /* unix (ish): */
 
+#include <sys/types.h>
 #include <sys/stat.h>
 
 int libxmp_get_filetype (const char *path)
