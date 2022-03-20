@@ -138,6 +138,7 @@ static int execute_command(const char * const cmd[], FILE *t)
 #endif /* USE_PTPOPEN */
 
 #ifdef DECRUNCH_USE_FORK
+#include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 

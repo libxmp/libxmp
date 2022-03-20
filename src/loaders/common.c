@@ -22,6 +22,7 @@
 
 #include <ctype.h>
 #if defined(HAVE_DIRENT)
+#include <sys/types.h>
 #include <dirent.h>
 #endif
 

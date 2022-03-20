@@ -32,6 +32,7 @@
 #include <unistd.h>
 #endif
 #ifdef HAVE_UMASK
+#include <sys/types.h>
 #include <sys/stat.h>
 #endif
 
