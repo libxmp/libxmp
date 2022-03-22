@@ -5,12 +5,17 @@ CFLAGS += -I"include/libxmp-lite"
 DLLFLAGS=-bd -DBUILDING_DLL
 STATICFLAGS=-DBUILDING_STATIC
 
-DLLNAME=libxmp.dll
-EXPNAME=libxmp.exp
+!ifeq TARGET_OS2 yes
+DLLNAME=libxmplt.dll
+LIBNAME=libxmplt.lib
+!else
+DLLNAME=libxmp-lite.dll
+LIBNAME=libxmp-lite.lib
+!endif
+EXPNAME=xmp-lite.exp
 # Note: not libxmp.map...
 MAPNAME=xmp-lite.map
-LIBNAME=libxmp.lib
-LIBSTATIC=xmp_static.lib
+LIBSTATIC=xmplite_static.lib
 TESTNAME=libxmp-test.exe
 
 !ifeq target static

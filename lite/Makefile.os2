@@ -22,4 +22,5 @@ CFLAGS += -wcd=303
 CFLAGS += -5s
 CFLAGS += -I"$(%WATCOM)/h/os2" -I"$(%WATCOM)/h"
 
+TARGET_OS2=yes
 !include watcom.mif
