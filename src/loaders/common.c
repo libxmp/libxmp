@@ -502,7 +502,7 @@ void libxmp_schism_tracker_string(char *buf, size_t size, int s_ver, int l_ver)
 {
 	if (s_ver >= 0x50) {
 		/* time_t epoch_sec = 1256947200; */
-		int t = schism_tracker_date(2009, 10, 31);
+		int64 t = schism_tracker_date(2009, 10, 31);
 		int year, month, day, dayofyear;
 
 		if (s_ver == 0xfff) {
@@ -512,11 +512,11 @@ void libxmp_schism_tracker_string(char *buf, size_t size, int s_ver, int l_ver)
 
 		/* Date algorithm reimplemented from OpenMPT.
 		 */
-		year = (int)(((int64)t * 10000L + 14780) / 3652425);
-		dayofyear = t - (365 * year + (year / 4) - (year / 100) + (year / 400));
+		year = (int)((t * 10000L + 14780) / 3652425);
+		dayofyear = t - (365L * year + (year / 4) - (year / 100) + (year / 400));
 		if (dayofyear < 0) {
 			year--;
-			dayofyear = t - (365 * year + (year / 4) - (year / 100) + (year / 400));
+			dayofyear = t - (365L * year + (year / 4) - (year / 100) + (year / 400));
 		}
 		month = (100 * dayofyear + 52) / 3060;
 		day = dayofyear - (month * 306 + 5) / 10 + 1;

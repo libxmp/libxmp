@@ -24,6 +24,11 @@ TEST(test_fuzzer_depack_lha_invalid)
 	ret = xmp_load_module(opaque, "data/f/depack_lha_invalid_size.lha");
 	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking (invalid_size)");
 
+	/* This input caused signed underflows from the same negative length
+	 * problem, this time in the level 1 header parser. */
+	ret = xmp_load_module(opaque, "data/f/depack_lha_invalid_size2.lha");
+	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking (invalid_size2)");
+
 	xmp_free_context(opaque);
 }
 END_TEST
