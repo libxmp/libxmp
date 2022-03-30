@@ -1759,6 +1759,8 @@ static int get_header(HIO_HANDLE *f, struct lha_data *data)
 		if (hio_error(f) != 0) {
 			return -1;
 		}
+		if (data->packed_size <= 0)
+			return -1;
 		if (hio_read(data->name, 1, namelen, f) != namelen) {
 			return -1;
 		}
