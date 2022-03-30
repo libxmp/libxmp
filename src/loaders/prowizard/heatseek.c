@@ -205,7 +205,7 @@ static int test_crb(const uint8 *data, char *t, int s)
 				if (idx >= init_data) {
 					/* 1 event per track left minimum */
 					int left = 4 * 4 * (max - i - 1);
-					PW_REQUEST_DATA(s, 378 + left + 4);
+					PW_REQUEST_DATA(s, 378 + idx + left + 4);
 				}
 				switch (d[0] & 0xC0) {
 				case 0x00:
