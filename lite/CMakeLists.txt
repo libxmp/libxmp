@@ -116,6 +116,9 @@ if(BUILD_SHARED)
 
     set_target_properties(xmp_lite_shared PROPERTIES VERSION ${libxmplite_VERSION} SOVERSION ${libxmplite_VERSION_MAJOR})
 
+    if(ANDROID AND CMAKE_BUILD_TYPE_LOWER STREQUAL "debug")
+        target_link_libraries(xmp_shared PRIVATE log)
+    endif()
     if(LIBM_REQUIRED)
         target_link_libraries(xmp_lite_shared PUBLIC ${LIBM_LIBRARY})
     endif()
