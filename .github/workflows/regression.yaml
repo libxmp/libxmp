@@ -275,7 +275,7 @@ jobs:
           cd build
           ctest --output-on-failure
 
-  windows-openwatcom:
+  openwatcom:
     runs-on: windows-latest
     steps:
       - name: Checkout repository
