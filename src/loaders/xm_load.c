@@ -376,10 +376,16 @@ err:
 #ifndef LIBXMP_CORE_PLAYER
 #define MAGIC_OGGS	0x4f676753
 
-static int is_ogg_sample(HIO_HANDLE *f)
+static int is_ogg_sample(HIO_HANDLE *f, struct xmp_sample *xxs)
 {
 	/* uint32 size; */
 	uint32 id;
+
+	/* Sample must be at least 4 bytes long to be an OGG sample.
+	 * Bonnie's Bookstore music.oxm contains zero length samples
+	 * followed immediately by OGG samples. */
+	if (xxs->len < 4)
+		return 0;
 
 	/* size = */ hio_read32l(f);
 	id = hio_read32b(f);
@@ -398,11 +404,6 @@ static int oggdec(struct module_data *m, HIO_HANDLE *f, struct xmp_sample *xxs, 
 	int i, n, ch, rate, ret, flags = 0;
 	uint8 *data;
 	int16 *pcm16 = NULL;
-
-	/* Sanity check */
-	if (xxs->len < 4) {
-		return -1;
-	}
 
 	if ((data = (uint8 *)calloc(1, len)) == NULL)
 		return -1;
@@ -701,6 +702,7 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 		total_sample_size = 0;
 		for (j = 0; j < xxi->nsm; j++) {
 			struct xmp_subinstrument *sub = &xxi->sub[j];
+			struct xmp_sample *xxs = &mod->xxs[sub->sid];
 			int flags;
 
 			flags = SAMPLE_FLAG_DIFF;
@@ -714,8 +716,8 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 			        D_(D_INFO "  read sample: index:%d sample id:%d", j, sub->sid);
 
 #ifndef LIBXMP_CORE_PLAYER
-				if (is_ogg_sample(f)) {
-					if (oggdec(m, f, &mod->xxs[sub->sid], xsh[j].length) < 0) {
+				if (is_ogg_sample(f, xxs)) {
+					if (oggdec(m, f, xxs, xsh[j].length) < 0) {
 						return -1;
 					}
 
@@ -725,7 +727,7 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 				}
 #endif
 
-				if (libxmp_load_sample(m, f, flags, &mod->xxs[sub->sid], NULL) < 0) {
+				if (libxmp_load_sample(m, f, flags, xxs, NULL) < 0) {
 					return -1;
 				}
 				if (flags & SAMPLE_FLAG_ADPCM) {

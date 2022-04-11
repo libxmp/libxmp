@@ -32,6 +32,12 @@ TEST(test_depack_vorbis)
 			fail_unless(abs(pcm16[i] - ((int16 *)buf)[i]) <= 1, "data error");
 	}
 
+	/* If an empty sample is followed by an OGG, make sure the empty
+	 * sample isn't incorrectly detected as an OGG, which breaks loading.
+	 * (Bonnie's Bookstore music.oxm) */
+	ret = xmp_load_module(c, "data/beep2.oxm");
+	fail_unless(ret == 0, "can't load module (beep2)");
+
 	xmp_release_module(c);
 	xmp_free_context(c);
 	free(buf);
