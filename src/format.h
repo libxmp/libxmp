@@ -83,7 +83,7 @@ extern const struct format_loader libxmp_loader_polly;
 extern const struct format_loader libxmp_loader_stc;
 #endif
 
-#define NUM_FORMATS 53
+#define NUM_FORMATS 50
 #define NUM_PW_FORMATS 43
 
 #ifndef LIBXMP_NO_PROWIZARD

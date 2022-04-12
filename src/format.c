@@ -90,8 +90,10 @@ const struct format_loader *const format_loaders[NUM_FORMATS + 2] = {
 	/* &libxmp_loader_stc, */
 #ifndef LIBXMP_NO_PROWIZARD
 	&libxmp_loader_pw,
+#else
+	NULL,
 #endif
-	NULL
+	NULL /* list teminator */
 };
 
 static const char *_farray[NUM_FORMATS + NUM_PW_FORMATS + 1] = { NULL };
