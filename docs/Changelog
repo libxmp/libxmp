@@ -1,6 +1,65 @@
 Stable versions
 ---------------
 
+4.5.1 ():
+	Changes by Alice Rowan:
+	- Add IT MIDI macro filter effects support.
+	- Fix for IT filter cutoff 127 on new note behavior.
+	- Add missing IT filter clamp to mixer loops.
+	- Fix IT duplicate note check to use the key prior to transpose.
+	- Fix multiple IT playback bugs affecting, e.g. Atomic Playboy.
+	- Fix IT tone portamento + offset.
+	- Fix reverse sustain loop release bug, add IT effect S9F support.
+	- Add Modplug ADPCM4 support for Impulse Tracker modules.
+	- Improve anticlick performance and fix anticlick filter volume bug.
+	- IT fade envelope reset should only affect volume envelope.
+	- Fix Impulse Tracker envelope and fadeout order.
+	- Replace bidirectional loop unrolling with reverse sample rendering.
+	- Fix crash when xmp_set_row() is used on an IT end marker.
+	- Fix NNA and tone portamento interaction with sample changes.
+	- Fix detection for TakeTracker TDZx MODs.
+	- Fix loading of Digital Tracker FA0x MODs.
+	- Fix ASYLUM Music Format restart byte.
+	- Fix >1MB S3M modules relying on the sample segment high byte.
+	- New MIT-licensed Digital Symphony LZW decoder.
+	- Add support for Digital Symphony sigma-delta samples.
+	- Fix Digital Symphony effects and pattern loading issues.
+	- Fix support for most Farandole Composer effects.
+	- Implement Ultra Tracker tone portamento.
+	- Add support for MMDC packed OctaMED modules.
+	- Move interpolation wraparound handling out of sample loader.
+	- Don't increment voice position by step value at loop/tick end.
+	- Several loading performance improvements.
+	- Allow up to 255 sequences to be scanned.
+	- Allow xmp_smix_play functions to play key off, cut and fade events.
+	- Integrate the OXM depacker with the XM loader.
+	- Allow loading MED2 samples from the module directory.
+	- Fix heap corruption in Coconizer loader with invalid sequences.
+	- Fix MMCMP literal block unpacking.
+	- Fix bad seeking behavior in MMCMP compressed blocks.
+	- New permissive licensed Amiga LZX depacker.
+	- New permissive licensed ARC/ArcFS depackers.
+	- Update XZ depacker with an MIT reimplementation.
+	- Fixed numerous defects found by fuzzing.
+	Changes by Vitaly Novichkov:
+	- Cmake build system support.
+	Changes by Ozkan Sezer:
+	- Cleanups and refactoring of platform-specific code.
+	- Multiple code cleanups.
+	- Build system fixes and clean-ups.
+	Changes by Claudio Matsuoka:
+	- Fix linkage with gcc when versioned symbols and LTO are enabled.
+	Changes by Cameron Cawley:
+	- Change several depackers to work without using a temporary file.
+	- Replace inflate code with permissive licensed miniz.
+	- Update the bzip2 depacker code to a newer 0BSD-licensed version.
+	- Update to latest version of stb_vorbis depacker.
+	- Several code and build system clean-ups.
+	Changes by Clownacy:
+	- Fixes and cleanups for C++ compatibility.
+	Changes by Chris Young:
+	- Relicense XFD decruncher under MIT.
+
 4.5.0 (20210606):
 	Changes by Alice Rowan:
 	- xmp_load_module_from_callbacks and xmp_test_module_from_callbacks

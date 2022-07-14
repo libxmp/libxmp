@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
-project(libxmp VERSION 4.5.0 LANGUAGES C)
+project(libxmp VERSION 4.5.1 LANGUAGES C)
 
 set(LIBXMP_DEFINES)
 set(LIBXMP_DEFINES_PUBLIC)
