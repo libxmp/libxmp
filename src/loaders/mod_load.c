@@ -89,6 +89,19 @@ const struct mod_magic mod_magic[] = {
 	{"LARD", 1, TRACKER_UNKNOWN, 4},	/* in judgement_day_gvine.mod */
 	{"NSMS", 1, TRACKER_UNKNOWN, 4},	/* in Kingdom.mod */
 };
+
+/* Returns non-zero if the given tracker ONLY supports VBlank timing. This
+ * should be used only when the tracker is known for sure, e.g. magic match. */
+static int tracker_is_vblank(int id)
+{
+	switch (id) {
+	case TRACKER_NOISETRACKER:
+	case TRACKER_SOUNDTRACKER:
+		return 1;
+	default:
+		return 0;
+	}
+}
 #endif /* LIBXMP_CORE_PLAYER */
 
 static int mod_test(HIO_HANDLE *, char *, const int);
@@ -425,14 +438,18 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
     struct mod_header mh;
     char magic[8];
     uint8 *patbuf;
-    #ifndef LIBXMP_CORE_PLAYER
+#ifndef LIBXMP_CORE_PLAYER
+    uint8 pat_high_fxx[256];
     const char *tracker = "";
     int detected = 0;
     int tracker_id = TRACKER_PROTRACKER;
     int out_of_range = 0;
     int maybe_wow = 1;
     int smp_size, ptsong = 0;
-    #endif
+    int needs_timing_detection = 0;
+    int samerow_fxx = 0;		/* speed + BPM set on same row */
+    int high_fxx = 0;			/* high Fxx is used anywhere */
+#endif
     int ptkloop = 0;			/* Protracker loop */
 
     LOAD_INIT();
@@ -475,7 +492,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
         return -1;
     }
 
-    #ifndef LIBXMP_CORE_PLAYER
+#ifndef LIBXMP_CORE_PLAYER
     /* Mod's Grave WOW files always have a 0 restart byte; 6692WOW implements
      * 669 repeating by inserting a pattern jump and ignores this byte.
      */
@@ -491,12 +508,16 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	}
     }
 
+    /* Enable timing detection for M.K. and M!K! modules. */
+    if (tracker_id == TRACKER_PROTRACKER)
+	needs_timing_detection = 1;
+
     /* Digital Tracker MODs have an extra four bytes after the magic.
      * These are always 00h 40h 00h 00h and can probably be ignored. */
     if (tracker_id == TRACKER_DIGITALTRACKER) {
 	hio_read32b(f);
     }
-    #endif
+#endif
 
     if (mod->chn == 0) {
 	#ifdef LIBXMP_CORE_PLAYER
@@ -547,12 +568,13 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 	    return -1;
 
-	#ifndef LIBXMP_CORE_PLAYER
+#ifndef LIBXMP_CORE_PLAYER
 	if (mh.ins[i].size >= 0x8000) {
 	    tracker_id = TRACKER_OPENMPT;
+	    needs_timing_detection = 0;
 	    detected = 1;
 	}
-	#endif
+#endif
 
 	xxi = &mod->xxi[i];
 	sub = &xxi->sub[0];
@@ -606,6 +628,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	if (num_read == 4 && !memcmp(idbuffer, "FLEX", 4)) {
 	    tracker_id = TRACKER_FLEXTRAX;
+	    needs_timing_detection = 0;
 	    goto skip_test;
 	}
     }
@@ -631,6 +654,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		(0x43c + mod->pat * 32 * 0x40 + smp_size) == (m->size & ~1)) {
 	mod->chn = 8;
 	tracker_id = TRACKER_MODSGRAVE;
+	needs_timing_detection = 0;
     } else {
 	/* Test for Protracker song files */
 	ptsong = !strncmp((char *)magic, "M.K.", 4) &&
@@ -674,6 +698,10 @@ skip_test:
 	return -1;
     }
 
+#ifndef LIBXMP_CORE_PLAYER
+    memset(pat_high_fxx, 0, sizeof(pat_high_fxx));
+#endif
+
     for (i = 0; i < mod->pat; i++) {
 	uint8 *mod_event;
 
@@ -690,6 +718,8 @@ skip_test:
 #ifndef LIBXMP_CORE_PLAYER
 	mod_event = patbuf;
 	for (j = 0; j < 64; j++) {
+	    int speed_row = 0;
+	    int bpm_row = 0;
 	    for (k = 0; k < mod->chn; k++) {
 		int period;
 
@@ -707,7 +737,21 @@ skip_test:
 			tracker_id = TRACKER_UNKNOWN;
 		    }
 		}
+		/* Needs CIA/VBlank detection? */
+		if (LSN(mod_event[2]) == 0x0f) {
+		    if (mod_event[3] >= 0x20) {
+			pat_high_fxx[i] = mod_event[3];
+			m->compare_vblank = 1;
+			high_fxx = 1;
+			bpm_row = 1;
+		    } else {
+			speed_row = 1;
+		    }
+		}
 		mod_event += 4;
+	    }
+	    if (bpm_row && speed_row) {
+		samerow_fxx = 1;
 	    }
 	}
 
@@ -750,6 +794,65 @@ skip_test:
     free(patbuf);
 
 #ifndef LIBXMP_CORE_PLAYER
+    /* VBlank detection routine.
+     * Despite VBlank being dependent on the tracker used, VBlank detection
+     * is complex and uses heuristics mostly independent from tracker ID.
+     * See also: the scan.c comparison code enabled by m->compare_vblank
+     */
+    if (!needs_timing_detection) {
+	/* Noisetracker and some other trackers do not support CIA timing. The
+	 * only known MOD in the wild that relies on this is muppenkorva.mod
+	 * by Glue Master (loaded by the His Master's Noise loader).
+	 */
+	if (tracker_is_vblank(tracker_id)) {
+	    m->quirk |= QUIRK_NOBPM;
+	}
+	m->compare_vblank = 0;
+
+    } else if (samerow_fxx) {
+	/* If low Fxx and high Fxx are on the same row, there's a high chance
+	 * this is from a CIA-based tracker. There are some exceptions.
+	 */
+	if (tracker_id == TRACKER_NOISETRACKER ||
+	    tracker_id == TRACKER_PROBABLY_NOISETRACKER ||
+	    tracker_id == TRACKER_SOUNDTRACKER) {
+
+	    tracker_id = TRACKER_UNKNOWN;
+	}
+	m->compare_vblank = 0;
+
+    } else if (high_fxx && mod->len >= 8) {
+	/* Test for high Fxx at the end only--this is typically VBlank,
+	 * and is used to add silence to the end of modules.
+	 *
+	 * Exception: if the final high Fxx is F7D, this module is either CIA
+	 * or is VBlank that was modified to play as CIA, so do nothing.
+	 *
+	 * TODO: MPT resets modules on the end loop, so some of the very long
+	 * silent sections in modules affected by this probably expect CIA. It
+	 * should eventually be possible to detect those.
+	 */
+	const int threshold = mod->len - 2;
+
+	for (i = 0; i < threshold; i++) {
+	    if (pat_high_fxx[mod->xxo[i]])
+		break;
+	}
+	if (i == threshold) {
+	    for (i = mod->len - 1; i >= threshold; i--) {
+		uint8 fxx = pat_high_fxx[mod->xxo[i]];
+		if (fxx == 0x00)
+		    continue;
+		if (fxx == 0x7d)
+		    break;
+
+		m->compare_vblank = 0;
+		m->quirk |= QUIRK_NOBPM;
+		break;
+	    }
+	}
+    }
+
     switch (tracker_id) {
     case TRACKER_PROTRACKER:
 	tracker = "Protracker";
@@ -758,11 +861,9 @@ skip_test:
     case TRACKER_PROBABLY_NOISETRACKER:
     case TRACKER_NOISETRACKER:
 	tracker = "Noisetracker";
-	m->quirk |= QUIRK_NOBPM;
 	break;
     case TRACKER_SOUNDTRACKER:
 	tracker = "Soundtracker";
-	m->quirk |= QUIRK_NOBPM;
 	break;
     case TRACKER_FASTTRACKER:
     case TRACKER_FASTTRACKER2:
