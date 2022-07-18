@@ -272,5 +272,5 @@ AC_SUBST([libxmp_VERSION],libxmp_VERSION)
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([libxmp.pc])
-AC_CONFIG_FILES([libxmp-config-version.cmake.autotools:libxmp-config-version.cmake.autotools.in])
+AC_CONFIG_FILES([libxmp-config-version.cmake.autotools])
 AC_OUTPUT

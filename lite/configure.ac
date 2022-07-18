@@ -236,5 +236,5 @@ AC_SUBST([libxmplite_VERSION],libxmplite_VERSION)
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([libxmp-lite.pc])
-AC_CONFIG_FILES([libxmp-lite-config-version.cmake.autotools:libxmp-lite-config-version.cmake.autotools.in])
+AC_CONFIG_FILES([libxmp-lite-config-version.cmake.autotools])
 AC_OUTPUT
