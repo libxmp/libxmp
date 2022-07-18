@@ -1,5 +1,5 @@
 AC_PREREQ(2.60)
-AC_INIT
+AC_INIT([libxmp],[4.5.1])
 AC_ARG_ENABLE(depackers, [  --disable-depackers     Don't build depackers])
 AC_ARG_ENABLE(prowizard, [  --disable-prowizard     Don't build ProWizard])
 AC_ARG_ENABLE(static,    [  --enable-static         Build static library])
@@ -260,6 +260,9 @@ amigaos*|aros*|morphos*)
   ;;
 esac
 
+AC_SUBST(PACKAGE_VERSION)
+
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([libxmp.pc])
+AC_CONFIG_FILES([libxmp-config-version.cmake.autotools:libxmp-config-version.cmake.autotools.in])
 AC_OUTPUT

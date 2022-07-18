@@ -31,7 +31,7 @@ DFILES		= README INSTALL install-sh configure configure.ac config.sub config.gue
 		  Makefile.in Makefile.vc Makefile.dos Makefile.os2 Makefile.w32 watcom.mif \
 		  CMakeLists.txt aclocal.m4 autogen.sh libxmp.map libxmp-lite.pc.in Changelog \
 		  libxmp-lite-config.cmake libxmp-lite-config.cmake.autotools \
-		  libxmp-lite-config-version.cmake.autotools
+		  libxmp-lite-config-version.cmake.autotools.in
 DDIRS		= include src loaders test cmake m4
 V		= 0
 LIB		= libxmp-lite.a

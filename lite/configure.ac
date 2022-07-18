@@ -1,5 +1,5 @@
 AC_PREREQ(2.60)
-AC_INIT
+AC_INIT([libxmp-lite],[4.5.1])
 AC_ARG_ENABLE(it,        [  --disable-it            Don't build IT format support])
 AC_ARG_ENABLE(static,    [  --enable-static         Build static library])
 AC_ARG_ENABLE(shared,    [  --disable-shared        Don't build shared library])
@@ -224,6 +224,9 @@ dnl djgpp has all c89 math funcs in libc.a
 esac
 AC_CHECK_FUNCS(powf)
 
+AC_SUBST([PACKAGE_VERSION])
+
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([libxmp-lite.pc])
+AC_CONFIG_FILES([libxmp-lite-config-version.cmake.autotools:libxmp-lite-config-version.cmake.autotools.in])
 AC_OUTPUT
