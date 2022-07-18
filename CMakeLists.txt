@@ -176,8 +176,6 @@ else()
     set(cmake_install_cmakdir "${CMAKE_INSTALL_LIBDIR}/cmake/libxmp")
 endif()
 
-set(PACKAGE_VERSION "${libxmp_VERSION}")
-
 set(prefix ${CMAKE_INSTALL_PREFIX})
 set(exec_prefix "\${prefix}")
 set(includedir "${CMAKE_INSTALL_FULL_INCLUDEDIR}")

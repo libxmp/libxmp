@@ -1,5 +1,10 @@
+m4_define([libxmp_VERSION_MAJOR], 4)
+m4_define([libxmp_VERSION_MINOR], 5)
+m4_define([libxmp_VERSION_PATCH], 1)
+m4_define([libxmp_VERSION], libxmp_VERSION_MAJOR[.]libxmp_VERSION_MINOR[.]libxmp_VERSION_PATCH)
+
 AC_PREREQ(2.60)
-AC_INIT([libxmp],[4.5.1])
+AC_INIT([libxmp],libxmp_VERSION)
 AC_ARG_ENABLE(depackers, [  --disable-depackers     Don't build depackers])
 AC_ARG_ENABLE(prowizard, [  --disable-prowizard     Don't build ProWizard])
 AC_ARG_ENABLE(static,    [  --enable-static         Build static library])
@@ -260,7 +265,10 @@ amigaos*|aros*|morphos*)
   ;;
 esac
 
-AC_SUBST(PACKAGE_VERSION)
+AC_SUBST([libxmp_VERSION_MAJOR],libxmp_VERSION_MAJOR)
+AC_SUBST([libxmp_VERSION_MINOR],libxmp_VERSION_MINOR)
+AC_SUBST([libxmp_VERSION_PATCH],libxmp_VERSION_PATCH)
+AC_SUBST([libxmp_VERSION],libxmp_VERSION)
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([libxmp.pc])
