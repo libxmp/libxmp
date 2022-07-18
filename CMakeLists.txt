@@ -6,6 +6,7 @@ set(LIBXMP_DEFINES_PUBLIC)
 set(LIBXMP_CFLAGS)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/libxmp-checks.cmake)
+include(GNUInstallDirs)
 
 # -fPIC thing
 if(NOT WIN32 AND NOT EMSCRIPTEN AND NOT VITA)
@@ -54,6 +55,7 @@ set(XMP_INSTALLS)
 
 if(BUILD_STATIC)
     add_library(xmp_static STATIC ${LIBXMP_SRC_LIST})
+    add_library(libxmp::xmp_static ALIAS xmp_static)
     list(APPEND XMP_INSTALLS xmp_static)
     set_target_properties(xmp_static PROPERTIES C_STANDARD 90)
     if(MSVC)
@@ -70,7 +72,8 @@ if(BUILD_STATIC)
         target_compile_options(xmp_static PRIVATE -fPIC)
     endif()
 
-    target_include_directories(xmp_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    target_include_directories(xmp_static PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>")
+    target_include_directories(xmp_static PUBLIC "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 
     if(LIBM_REQUIRED)
         target_link_libraries(xmp_static PUBLIC ${LIBM_LIBRARY})
@@ -79,6 +82,7 @@ endif()
 
 if(BUILD_SHARED)
     add_library(xmp_shared SHARED ${LIBXMP_SRC_LIST})
+    add_library(libxmp::xmp_shared ALIAS xmp_shared)
     list(APPEND XMP_INSTALLS xmp_shared)
     set_target_properties(xmp_shared PROPERTIES C_STANDARD 90)
     if(MSVC)
@@ -120,7 +124,8 @@ if(BUILD_SHARED)
     target_compile_options(xmp_shared PRIVATE ${LIBXMP_CFLAGS})
     target_compile_definitions(xmp_shared PUBLIC ${LIBXMP_DEFINES_PUBLIC})
 
-    target_include_directories(xmp_shared PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    target_include_directories(xmp_shared PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>")
+    target_include_directories(xmp_shared PUBLIC "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 
     set_target_properties(xmp_shared PROPERTIES VERSION ${libxmp_VERSION} SOVERSION ${libxmp_VERSION_MAJOR})
 
@@ -162,7 +167,14 @@ add_subdirectory(docs)
 
 
 # === Install ====
-include(GNUInstallDirs)
+
+include(CMakePackageConfigHelpers)
+
+if(WIN32)
+    set(cmake_install_cmakdir "cmake")
+else()
+    set(cmake_install_cmakdir "${CMAKE_INSTALL_LIBDIR}/cmake/libxmp")
+endif()
 
 set(prefix ${CMAKE_INSTALL_PREFIX})
 set(exec_prefix "\${prefix}")
@@ -172,10 +184,37 @@ set(bindir     "${CMAKE_INSTALL_FULL_BINDIR}")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/libxmp.pc.in"
                "${CMAKE_CURRENT_BINARY_DIR}/libxmp.pc" @ONLY
 )
-install(TARGETS ${XMP_INSTALLS}
+write_basic_package_version_file(libxmp-config-version.cmake
+    COMPATIBILITY AnyNewerVersion
+)
+if(TARGET xmp_shared)
+    install(TARGETS xmp_shared EXPORT libxmp_shared_exports
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    )
+    install(EXPORT libxmp_shared_exports
+        DESTINATION "${cmake_install_cmakdir}"
+        FILE "libxmp-shared-targets.cmake"
+        NAMESPACE "libxmp::"
+    )
+endif()
+if(TARGET xmp_static)
+    install(TARGETS xmp_static EXPORT libxmp_static_exports
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    )
+    install(EXPORT libxmp_static_exports
+        DESTINATION "${cmake_install_cmakdir}"
+        FILE "libxmp-static-targets.cmake"
+        NAMESPACE "libxmp::"
+    )
+endif()
+install(FILES
+        libxmp-config.cmake
+        "${CMAKE_CURRENT_BINARY_DIR}/libxmp-config-version.cmake"
+        DESTINATION "${cmake_install_cmakdir}"
 )
 install(FILES
         include/xmp.h

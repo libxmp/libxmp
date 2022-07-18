@@ -1,8 +1,8 @@
-VERSION_MAJOR	= 4
-VERSION_MINOR	= 5
-VERSION_RELEASE	= 1
+VERSION_MAJOR	= @libxmp_VERSION_MAJOR@
+VERSION_MINOR	= @libxmp_VERSION_MINOR@
+VERSION_RELEASE	= @libxmp_VERSION_PATCH@
 
-VERSION		= $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_RELEASE)
+VERSION		= @libxmp_VERSION@
 
 # This dylib will support anything linked against COMPAT_VERSION through VERSION
 COMPAT_VERSION	= $(VERSION_MAJOR)
@@ -32,7 +32,8 @@ SHELL		= /bin/sh
 DIST		= libxmp-$(VERSION)
 DFILES		= README INSTALL install-sh configure configure.ac config.sub config.guess  \
 		  Makefile.in Makefile.vc Makefile.dos Makefile.os2 Makefile.w32 watcom.mif \
-		  CMakeLists.txt aclocal.m4 autogen.sh libxmp.map libxmp.pc.in
+		  CMakeLists.txt aclocal.m4 autogen.sh libxmp.map libxmp.pc.in libxmp-config.cmake \
+		  libxmp-config.cmake.autotools libxmp-config-version.cmake.autotools.in
 DDIRS		= docs include src loaders prowiz depackers test cmake m4
 V		= 0
 LIB		= libxmp.a
@@ -177,6 +178,10 @@ install: all
 	@echo "Installing libxmp.pc..."
 	@mkdir -p $(DESTDIR)$(LIBDIR)/pkgconfig
 	@$(INSTALL) -m644 libxmp.pc $(DESTDIR)$(LIBDIR)/pkgconfig/
+	@echo "Installing libxmp-config.cmake..."
+	@mkdir -p $(DESTDIR)$(LIBDIR)/cmake/libxmp
+	@$(INSTALL) -m644 libxmp-config.cmake.autotools $(DESTDIR)$(LIBDIR)/cmake/libxmp/libxmp-config.cmake
+	@$(INSTALL) -m644 libxmp-config-version.cmake.autotools $(DESTDIR)$(LIBDIR)/cmake/libxmp/libxmp-config-version.cmake
 
 #FIXME: do better?
 depend:
@@ -248,8 +253,6 @@ $(ALL_OBJS): Makefile
 $(LOBJS): Makefile
 
 version-prepare:
-	sed -i -e '/^Version: /s/:.*/: $(VERSION)/g' libxmp.pc.in
-	sed -i -e '/^Version: /s/:.*/: $(VERSION)/g' lite/libxmp-lite.pc.in
 	vercode=`printf "0x%02x%02x%02x" $(VERSION_MAJOR) $(VERSION_MINOR) $(VERSION_RELEASE)`; \
 	sed -i -e "s/\(^#define XMP_VERSION\).*/\1 \"$(VERSION)\"/;s/\(^#define XMP_VERCODE\).*/\1 $$vercode/;s/\(^#define XMP_VER_MAJOR\).*/\1 $(VERSION_MAJOR)/;s/\(^#define XMP_VER_MINOR\).*/\1 $(VERSION_MINOR)/;s/\(^#define XMP_VER_RELEASE\).*/\1 $(VERSION_RELEASE)/" include/xmp.h
 	./config.status

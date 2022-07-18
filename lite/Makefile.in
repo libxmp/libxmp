@@ -1,5 +1,8 @@
+VERSION_MAJOR	= @libxmplite_VERSION_MAJOR@
+VERSION_MINOR	= @libxmplite_VERSION_MINOR@
+VERSION_RELEASE	= @libxmplite_VERSION_PATCH@
 
-VERSION		= $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_RELEASE)
+VERSION		= @libxmplite_VERSION@
 
 # This dylib will support anything linked against COMPAT_VERSION through VERSION
 COMPAT_VERSION	= $(VERSION_MAJOR)
@@ -29,7 +32,9 @@ SHELL		= /bin/sh
 DIST		= libxmp-lite-$(VERSION)
 DFILES		= README INSTALL install-sh configure configure.ac config.sub config.guess  \
 		  Makefile.in Makefile.vc Makefile.dos Makefile.os2 Makefile.w32 watcom.mif \
-		  CMakeLists.txt aclocal.m4 autogen.sh libxmp.map libxmp-lite.pc.in Changelog
+		  CMakeLists.txt aclocal.m4 autogen.sh libxmp.map libxmp-lite.pc.in Changelog \
+		  libxmp-lite-config.cmake libxmp-lite-config.cmake.autotools \
+		  libxmp-lite-config-version.cmake.autotools.in
 DDIRS		= include src loaders test cmake m4
 V		= 0
 LIB		= libxmp-lite.a
@@ -167,6 +172,10 @@ install: all
 	@echo "Installing libxmp-lite.pc..."
 	@mkdir -p $(DESTDIR)$(LIBDIR)/pkgconfig
 	@$(INSTALL) -m644 libxmp-lite.pc $(DESTDIR)$(LIBDIR)/pkgconfig/
+	@echo "Installing libxmp-lite-config.cmake..."
+	@mkdir -p $(DESTDIR)$(LIBDIR)/cmake/libxmp-lite
+	@$(INSTALL) -m644 libxmp-lite-config.cmake.autotools $(DESTDIR)$(LIBDIR)/cmake/libxmp-lite/libxmp-lite-config.cmake
+	@$(INSTALL) -m644 libxmp-lite-config-version.cmake.autotools $(DESTDIR)$(LIBDIR)/cmake/libxmp-lite/libxmp-lite-config-version.cmake
 
 #FIXME: do better?
 depend:
@@ -224,7 +233,6 @@ $(OBJS): Makefile
 $(LOBJS): Makefile
 
 version-prepare:
-	sed -i -e '/^Version: /s/:.*/: $(VERSION)/g' libxmp-lite.pc.in
 	vercode=`printf "0x%02x%02x%02x" $(VERSION_MAJOR) $(VERSION_MINOR) $(VERSION_RELEASE)`; \
 	sed -i -e "s/\(^#define XMP_VERSION\).*/\1 \"$(VERSION)\"/;s/\(^#define XMP_VERCODE\).*/\1 $$vercode/;s/\(^#define XMP_VER_MAJOR\).*/\1 $(VERSION_MAJOR)/;s/\(^#define XMP_VER_MINOR\).*/\1 $(VERSION_MINOR)/;s/\(^#define XMP_VER_RELEASE\).*/\1 $(VERSION_RELEASE)/" include/libxmp-lite/xmp.h
 	./config.status
