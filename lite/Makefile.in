@@ -1,3 +1,6 @@
+VERSION_MAJOR	= @libxmplite_VERSION_MAJOR@
+VERSION_MINOR	= @libxmplite_VERSION_MINOR@
+VERSION_RELEASE	= @libxmplite_VERSION_PATCH@
 
 VERSION		= @libxmplite_VERSION@
 
