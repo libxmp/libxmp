@@ -1,10 +1,10 @@
 m4_define([libxmplite_VERSION_MAJOR_m4], 4)
 m4_define([libxmplite_VERSION_MINOR_m4], 5)
 m4_define([libxmplite_VERSION_PATCH_m4], 1)
-m4_define([libxmplite_VERSION], libxmplite_VERSION_MAJOR_m4[.]libxmplite_VERSION_MINOR_m4[.]libxmplite_VERSION_PATCH_m4)
+m4_define([libxmplite_VERSION_m4], libxmplite_VERSION_MAJOR_m4[.]libxmplite_VERSION_MINOR_m4[.]libxmplite_VERSION_PATCH_m4)
 
 AC_PREREQ(2.60)
-AC_INIT([libxmp-lite],libxmplite_VERSION)
+AC_INIT([libxmp-lite],libxmplite_VERSION_m4)
 AC_ARG_ENABLE(it,        [  --disable-it            Don't build IT format support])
 AC_ARG_ENABLE(static,    [  --enable-static         Build static library])
 AC_ARG_ENABLE(shared,    [  --disable-shared        Don't build shared library])
