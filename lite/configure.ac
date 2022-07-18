@@ -1,7 +1,7 @@
-m4_define([libxmplite_VERSION_MAJOR], 4)
-m4_define([libxmplite_VERSION_MINOR], 5)
-m4_define([libxmplite_VERSION_PATCH], 1)
-m4_define([libxmplite_VERSION], libxmplite_VERSION_MAJOR[.]libxmplite_VERSION_MINOR[.]libxmplite_VERSION_PATCH)
+m4_define([libxmplite_VERSION_MAJOR_m4], 4)
+m4_define([libxmplite_VERSION_MINOR_m4], 5)
+m4_define([libxmplite_VERSION_PATCH_m4], 1)
+m4_define([libxmplite_VERSION], libxmplite_VERSION_MAJOR_m4[.]libxmplite_VERSION_MINOR_m4[.]libxmplite_VERSION_PATCH_m4)
 
 AC_PREREQ(2.60)
 AC_INIT([libxmp-lite],libxmplite_VERSION)
@@ -229,10 +229,10 @@ dnl djgpp has all c89 math funcs in libc.a
 esac
 AC_CHECK_FUNCS(powf)
 
-AC_SUBST([libxmplite_VERSION_MAJOR],libxmplite_VERSION_MAJOR)
-AC_SUBST([libxmplite_VERSION_MINOR],libxmplite_VERSION_MINOR)
-AC_SUBST([libxmplite_VERSION_PATCH],libxmplite_VERSION_PATCH)
-AC_SUBST([libxmplite_VERSION],libxmplite_VERSION)
+AC_SUBST([libxmplite_VERSION_MAJOR],libxmplite_VERSION_MAJOR_m4)
+AC_SUBST([libxmplite_VERSION_MINOR],libxmplite_VERSION_MINOR_m4)
+AC_SUBST([libxmplite_VERSION_PATCH],libxmplite_VERSION_PATCH_m4)
+AC_SUBST([libxmplite_VERSION],libxmplite_VERSION_m4)
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([libxmp-lite.pc])
