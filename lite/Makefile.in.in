@@ -1,5 +1,5 @@
 
-VERSION		= $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_RELEASE)
+VERSION		= @libxmplite_VERSION@
 
 # This dylib will support anything linked against COMPAT_VERSION through VERSION
 COMPAT_VERSION	= $(VERSION_MAJOR)

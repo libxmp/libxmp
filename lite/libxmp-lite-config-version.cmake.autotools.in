@@ -1,4 +1,4 @@
-set(PACKAGE_VERSION "@PACKAGE_VERSION@")
+set(PACKAGE_VERSION "@libxmplite_VERSION@")
 
 if (PACKAGE_FIND_VERSION_RANGE)
   # Package version must be in the requested version range
