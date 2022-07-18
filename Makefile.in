@@ -178,6 +178,7 @@ install: all
 	@echo "Installing libxmp.pc..."
 	@mkdir -p $(DESTDIR)$(LIBDIR)/pkgconfig
 	@$(INSTALL) -m644 libxmp.pc $(DESTDIR)$(LIBDIR)/pkgconfig/
+	@echo "Installing libxmp-config.cmake..."
 	@mkdir -p $(DESTDIR)$(LIBDIR)/cmake/libxmp
 	@$(INSTALL) -m644 libxmp-config.cmake.autotools $(DESTDIR)$(LIBDIR)/cmake/libxmp/libxmp-config.cmake
 	@$(INSTALL) -m644 libxmp-config-version.cmake.autotools $(DESTDIR)$(LIBDIR)/cmake/libxmp/libxmp-config-version.cmake
