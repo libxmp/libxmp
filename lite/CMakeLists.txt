@@ -6,6 +6,7 @@ set(LIBXMP_DEFINES_PUBLIC)
 set(LIBXMP_CFLAGS)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/libxmp-checks.cmake)
+include(GNUInstallDirs)
 
 # -fPIC thing
 if(NOT WIN32 AND NOT EMSCRIPTEN AND NOT VITA)
@@ -46,6 +47,7 @@ set(XMP_INSTALLS)
 
 if(BUILD_STATIC)
     add_library(xmp_lite_static STATIC ${LIBXMP_SRC_LIST})
+    add_library(libxmp-lite::xmp_lite_static ALIAS xmp_lite_static)
     list(APPEND XMP_INSTALLS xmp_lite_static)
     set_target_properties(xmp_lite_static PROPERTIES C_STANDARD 90)
     if(MSVC)
@@ -62,7 +64,8 @@ if(BUILD_STATIC)
         target_compile_options(xmp_lite_static PRIVATE -fPIC)
     endif()
 
-    target_include_directories(xmp_lite_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/libxmp-lite)
+    target_include_directories(xmp_lite_static PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/libxmp-lite>")
+    target_include_directories(xmp_lite_static PUBLIC "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/libxmp-lite>")
 
     if(LIBM_REQUIRED)
         target_link_libraries(xmp_lite_static PUBLIC ${LIBM_LIBRARY})
@@ -71,6 +74,7 @@ endif()
 
 if(BUILD_SHARED)
     add_library(xmp_lite_shared SHARED ${LIBXMP_SRC_LIST})
+    add_library(libxmp-lite::xmp_lite_shared ALIAS xmp_lite_shared)
     list(APPEND XMP_INSTALLS xmp_lite_shared)
     set_target_properties(xmp_lite_shared PROPERTIES C_STANDARD 90)
     if(MSVC)
@@ -112,12 +116,13 @@ if(BUILD_SHARED)
     target_compile_options(xmp_lite_shared PRIVATE ${LIBXMP_CFLAGS})
     target_compile_definitions(xmp_lite_shared PUBLIC ${LIBXMP_DEFINES_PUBLIC})
 
-    target_include_directories(xmp_lite_shared PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/libxmp-lite)
+    target_include_directories(xmp_lite_shared PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/libxmp-lite>")
+    target_include_directories(xmp_lite_shared PUBLIC "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/libxmp-lite>")
 
     set_target_properties(xmp_lite_shared PROPERTIES VERSION ${libxmplite_VERSION} SOVERSION ${libxmplite_VERSION_MAJOR})
 
     if(ANDROID AND CMAKE_BUILD_TYPE_LOWER STREQUAL "debug")
-        target_link_libraries(xmp_shared PRIVATE log)
+        target_link_libraries(xmp_lite_shared PRIVATE log)
     endif()
     if(LIBM_REQUIRED)
         target_link_libraries(xmp_lite_shared PUBLIC ${LIBM_LIBRARY})
@@ -147,7 +152,14 @@ endif()
 
 
 # === Install ====
-include(GNUInstallDirs)
+
+include(CMakePackageConfigHelpers)
+
+if(WIN32)
+    set(cmake_install_cmakdir "cmake")
+else()
+    set(cmake_install_cmakdir "${CMAKE_INSTALL_LIBDIR}/cmake/libxmp-lite")
+endif()
 
 set(prefix ${CMAKE_INSTALL_PREFIX})
 set(exec_prefix "\${prefix}")
@@ -157,10 +169,37 @@ set(bindir     "${CMAKE_INSTALL_FULL_BINDIR}")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/libxmp-lite.pc.in"
                "${CMAKE_CURRENT_BINARY_DIR}/libxmp-lite.pc" @ONLY
 )
-install(TARGETS ${XMP_INSTALLS}
+write_basic_package_version_file(libxmp-lite-config-version.cmake
+    COMPATIBILITY AnyNewerVersion
+)
+if(TARGET xmp_lite_shared)
+    install(TARGETS xmp_lite_shared EXPORT libxmp_lite_shared_exports
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    )
+    install(EXPORT libxmp_lite_shared_exports
+        DESTINATION "${cmake_install_cmakdir}"
+        FILE "libxmp-lite-shared-targets.cmake"
+        NAMESPACE "libxmp-lite::"
+    )
+endif()
+if(TARGET xmp_lite_static)
+    install(TARGETS xmp_lite_static EXPORT libxmp_lite_static_exports
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    )
+    install(EXPORT libxmp_lite_static_exports
+        DESTINATION "${cmake_install_cmakdir}"
+        FILE "libxmp-lite-static-targets.cmake"
+        NAMESPACE "libxmp-lite::"
+    )
+endif()
+install(FILES
+    libxmp-lite-config.cmake
+    "${CMAKE_CURRENT_BINARY_DIR}/libxmp-lite-config-version.cmake"
+    DESTINATION "${cmake_install_cmakdir}"
 )
 install(FILES
         include/libxmp-lite/xmp.h
