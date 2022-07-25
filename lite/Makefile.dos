@@ -1,7 +1,10 @@
 # Makefile for MS-DOS using Watcom compiler.
 #
 # wmake -f Makefile.dos
-# - builds the static library xmp_static.lib
+# - builds the static library xmplite_static.lib
+#
+# To disable Impulse Tracker support :
+#	wmake -f Makefile.dos DISABLE_IT=1
 #
 target = static
 
