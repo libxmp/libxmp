@@ -33,12 +33,16 @@
  * - Digital Tracker FA04, FA06 and FA08
  * - TakeTracker TDZ1, TDZ2, TDZ3, and TDZ4
  * - (unknown) NSMS, LARD
+ *
+ * The 'lite' version only recognizes Protracker M.K. and
+ * Fasttracker ?CHN and ??CH formats.
  */
 
 #include <ctype.h>
 #include "loader.h"
 #include "mod.h"
 
+#ifndef LIBXMP_CORE_PLAYER
 struct mod_magic {
 	const char *magic;
 	int flag;
@@ -85,16 +89,22 @@ const struct mod_magic mod_magic[] = {
 	{"LARD", 1, TRACKER_UNKNOWN, 4},	/* in judgement_day_gvine.mod */
 	{"NSMS", 1, TRACKER_UNKNOWN, 4},	/* in Kingdom.mod */
 };
+#endif /* LIBXMP_CORE_PLAYER */
 
 static int mod_test(HIO_HANDLE *, char *, const int);
 static int mod_load(struct module_data *, HIO_HANDLE *, const int);
 
 const struct format_loader libxmp_loader_mod = {
+	#ifdef LIBXMP_CORE_PLAYER
+	"Protracker",
+	#else
 	"Amiga Protracker/Compatible",
+	#endif
 	mod_test,
 	mod_load
 };
 
+#ifndef LIBXMP_CORE_PLAYER
 static int validate_pattern(uint8 *buf)
 {
 	int i, j;
@@ -111,16 +121,19 @@ static int validate_pattern(uint8 *buf)
 
 	return 0;
 }
+#endif
 
 static int mod_test(HIO_HANDLE * f, char *t, const int start)
 {
 	int i;
 	char buf[4];
+	#ifndef LIBXMP_CORE_PLAYER
 	uint8 pat_buf[1024];
 	int smp_size, num_pat;
 	long size;
 	int count;
 	int detected;
+	#endif
 
 	hio_seek(f, start + 1080, SEEK_SET);
 	if (hio_read(buf, 1, 4, f) < 4) {
@@ -141,6 +154,10 @@ static int mod_test(HIO_HANDLE * f, char *t, const int start)
 		}
 	}
 
+#ifdef LIBXMP_CORE_PLAYER
+	if (memcmp(buf, "M.K.", 4))
+		return -1;
+#else
 	for (i = 0; i < ARRAY_SIZE(mod_magic); i++) {
 		if (!memcmp(buf, mod_magic[i].magic, 4))
 			break;
@@ -235,6 +252,7 @@ static int mod_test(HIO_HANDLE * f, char *t, const int start)
 	if (count > 2) {
 		return -1;
 	}
+#endif /* LIBXMP_CORE_PLAYER */
 
 found:
 	hio_seek(f, start + 0, SEEK_SET);
@@ -244,7 +262,8 @@ found:
 }
 
 
-static int is_st_ins(char *s)
+#ifndef LIBXMP_CORE_PLAYER
+static int is_st_ins(const char *s)
 {
 	if (s[0] != 's' && s[0] != 'S')
 		return 0;
@@ -396,31 +415,39 @@ static int get_tracker_id(struct module_data *m, struct mod_header *mh, int id)
 
 	return id;
 }
+#endif /* LIBXMP_CORE_PLAYER */
 
 static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 {
     struct xmp_module *mod = &m->mod;
     int i, j, k;
-    int smp_size, ptsong = 0;
     struct xmp_event *event;
     struct mod_header mh;
+    #ifdef LIBXMP_CORE_PLAYER
+    uint8 mod_event[4];
+    char magic[8];
+    #else
     const char *tracker = "";
     int detected = 0;
     char magic[8], idbuffer[32];
-    int ptkloop = 0;			/* Protracker loop */
     int tracker_id = TRACKER_PROTRACKER;
     int out_of_range = 0;
     int maybe_wow = 1;
     uint8 *patbuf;
+    int smp_size, ptsong = 0;
+    #endif
+    int ptkloop = 0;			/* Protracker loop */
 
     LOAD_INIT();
 
     mod->ins = 31;
     mod->smp = mod->ins;
     mod->chn = 0;
+    #ifndef LIBXMP_CORE_PLAYER
     smp_size = 0;
-    /*pat_size = 0;*/
-
+    #else
+    m->quirk |= QUIRK_PROTRACK;
+    #endif
     m->period_type = PERIOD_MODRNG;
 
     hio_read(mh.name, 20, 1, f);
@@ -432,6 +459,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	mh.ins[i].loop_start = hio_read16b(f);	/* Loop start in 16-bit words */
 	mh.ins[i].loop_size = hio_read16b(f);	/* Loop size in 16-bit words */
 
+	#ifndef LIBXMP_CORE_PLAYER
 	/* Mod's Grave WOW files are converted from 669s and have default
 	 * finetune and volume.
 	 */
@@ -439,6 +467,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	    maybe_wow = 0;
 
 	smp_size += 2 * mh.ins[i].size;
+	#endif
     }
     mh.len = hio_read8(f);
     mh.restart = hio_read8(f);
@@ -449,6 +478,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
         return -1;
     }
 
+    #ifndef LIBXMP_CORE_PLAYER
     /* Mod's Grave WOW files always have a 0 restart byte; 6692WOW implements
      * 669 repeating by inserting a pattern jump and ignores this byte.
      */
@@ -463,8 +493,14 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	    break;
 	}
     }
+    #endif
 
     if (mod->chn == 0) {
+	#ifdef LIBXMP_CORE_PLAYER
+	if (!memcmp(magic, "M.K.", 4)) {
+		mod->chn = 4;
+	} else
+	#endif
 	if (!strncmp(magic + 2, "CH", 2) &&
 	    isdigit((unsigned char)magic[0]) && isdigit((unsigned char)magic[1])) {
 	    mod->chn = (*magic - '0') * 10 + magic[1] - '0';
@@ -473,8 +509,10 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	} else {
 	    return -1;
 	}
+	#ifndef LIBXMP_CORE_PLAYER
 	tracker_id = mod->chn & 1 ? TRACKER_TAKETRACKER : TRACKER_FASTTRACKER2;
 	detected = 1;
+	#endif
     }
 
     strncpy(mod->name, (char *) mh.name, 20);
@@ -495,8 +533,6 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
     }
     mod->pat++;
 
-    /*pat_size = 256 * mod->chn * mod->pat;*/
-
     if (libxmp_init_instrument(m) < 0)
 	return -1;
 
@@ -508,10 +544,12 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 	    return -1;
 
+	#ifndef LIBXMP_CORE_PLAYER
 	if (mh.ins[i].size >= 0x8000) {
 	    tracker_id = TRACKER_OPENMPT;
 	    detected = 1;
 	}
+	#endif
 
 	xxi = &mod->xxi[i];
 	sub = &xxi->sub[0];
@@ -536,6 +574,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	}
     }
 
+#ifndef LIBXMP_CORE_PLAYER
     /* Experimental tracker-detection routine */
 
     if (detected)
@@ -602,6 +641,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
     }
 
 skip_test:
+#endif
 
     if (mod->chn >= XMP_MAX_CHANNELS) {
         return -1;
@@ -609,14 +649,19 @@ skip_test:
 
     mod->trk = mod->chn * mod->pat;
 
+    #ifndef LIBXMP_CORE_PLAYER
     /* Digital Tracker MODs have an extra four bytes after the magic.
      * These are always 00h 40h 00h 00h and can probably be ignored. */
     if (tracker_id == TRACKER_DIGITALTRACKER) {
 	hio_read32b(f);
     }
+    #else
+    libxmp_set_type(m, (mod->chn == 4) ? "Protracker" : "Fasttracker");
+    MODULE_INFO();
+    #endif
 
     for (i = 0; i < mod->ins; i++) {
-	D_(D_INFO "[%2X] %-22.22s %04x %04x %04x %c V%02x %+d %c",
+	D_(D_INFO "[%2X] %-22.22s %04x %04x %04x %c V%02x %+d %c\n",
 		i, mod->xxi[i].name,
 		mod->xxs[i].len, mod->xxs[i].lps, mod->xxs[i].lpe,
 		(mh.ins[i].loop_size > 1 && mod->xxs[i].lpe > 8) ?
@@ -632,18 +677,25 @@ skip_test:
     /* Load and convert patterns */
     D_(D_INFO "Stored patterns: %d", mod->pat);
 
+    #ifndef LIBXMP_CORE_PLAYER
     if ((patbuf = (uint8 *) malloc(64 * 4 * mod->chn)) == NULL) {
 	return -1;
     }
+    #endif
 
     for (i = 0; i < mod->pat; i++) {
+	#ifndef LIBXMP_CORE_PLAYER
 	uint8 *mod_event;
+	#endif
 
 	if (libxmp_alloc_pattern_tracks(mod, i, 64) < 0) {
+	    #ifndef LIBXMP_CORE_PLAYER
 	    free(patbuf);
+	    #endif
 	    return -1;
 	}
 
+	#ifndef LIBXMP_CORE_PLAYER
 	if (hio_read(patbuf, 64 * 4 * mod->chn, 1, f) < 1) {
 	    free(patbuf);
 	    return -1;
@@ -688,10 +740,17 @@ skip_test:
 	}
 
 	mod_event = patbuf;
+	#endif
+
 	for (j = 0; j < 64; j++) {
 	    for (k = 0; k < mod->chn; k++) {
 		event = &EVENT(i, k, j);
-
+		#ifdef LIBXMP_CORE_PLAYER
+		if (hio_read(mod_event, 1, 4, f) < 4) {
+			return -1;
+		}
+		libxmp_decode_protracker_event(event, mod_event);
+		#else
 		switch (tracker_id) {
 		case TRACKER_PROBABLY_NOISETRACKER:
 		case TRACKER_NOISETRACKER:
@@ -701,9 +760,12 @@ skip_test:
 		    libxmp_decode_protracker_event(event, mod_event);
 		}
 		mod_event += 4;
+		#endif
 	    }
 	}
     }
+
+#ifndef LIBXMP_CORE_PLAYER
     free(patbuf);
 
     switch (tracker_id) {
@@ -776,6 +838,7 @@ skip_test:
     }
 
     MODULE_INFO();
+#endif
 
     /* Load samples */
 
@@ -789,6 +852,10 @@ skip_test:
 
 	flags = (ptkloop && mod->xxs[i].lps == 0) ? SAMPLE_FLAG_FULLREP : 0;
 
+	#ifdef LIBXMP_CORE_PLAYER
+	if (libxmp_load_sample(m, f, flags, &mod->xxs[i], NULL) < 0)
+		return -1;
+	#else
 	if (ptsong) {
 	    HIO_HANDLE *s;
 	    char sn[XMP_MAXPATH];
@@ -829,8 +896,17 @@ skip_test:
 	    if (libxmp_load_sample(m, f, flags, &mod->xxs[i], NULL) < 0)
 		return -1;
 	}
+	#endif
     }
 
+    #ifdef LIBXMP_CORE_PLAYER
+    if (mod->chn > 4) {
+	m->quirk &= ~QUIRK_PROTRACK;
+	m->quirk |= QUIRKS_FT2 | QUIRK_FTMOD;
+	m->read_event_type = READ_EVENT_FT2;
+	m->period_type = PERIOD_AMIGA;
+    }
+    #else
     if (tracker_id == TRACKER_PROTRACKER || tracker_id == TRACKER_OPENMPT) {
 	m->quirk |= QUIRK_PROTRACK;
     } else if (tracker_id == TRACKER_SCREAMTRACKER3) {
@@ -843,6 +919,7 @@ skip_test:
 	m->read_event_type = READ_EVENT_FT2;
 	m->period_type = PERIOD_AMIGA;
     }
+    #endif
 
     return 0;
 }
