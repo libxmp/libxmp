@@ -683,6 +683,12 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 				xxs->lps >>= 1;
 				xxs->lpe >>= 1;
 			}
+			if (xsh[j].type & XM_SAMPLE_STEREO) {
+				/* xxs->flg |= XMP_SAMPLE_STEREO; */
+				xxs->len >>= 1;
+				xxs->lps >>= 1;
+				xxs->lpe >>= 1;
+			}
 
 			xxs->flg |= xsh[j].type & XM_LOOP_FORWARD ? XMP_SAMPLE_LOOP : 0;
 			xxs->flg |= xsh[j].type & XM_LOOP_PINGPONG ? XMP_SAMPLE_LOOP | XMP_SAMPLE_LOOP_BIDIR : 0;
@@ -735,6 +741,12 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 					total_sample_size += 16 + ((xsh[j].length + 1) >> 1);
 				} else {
 					total_sample_size += xsh[j].length;
+				}
+
+				/* TODO: implement stereo samples.
+				 * For now, just skip the right channel. */
+				if (xsh[j].type & XM_SAMPLE_STEREO) {
+					hio_seek(f, xsh[j].length >> 1, SEEK_CUR);
 				}
 			}
 		}
