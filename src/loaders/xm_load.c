@@ -799,19 +799,31 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	xfh.bpm = readmem16l(buf + 78);		/* Default BPM */
 
 	/* Sanity checks */
-	if (xfh.songlen > 256 || xfh.patterns > 256 || xfh.instruments > 255) {
-		D_(D_CRIT "Sanity check: %d %d %d", xfh.songlen, xfh.patterns, xfh.instruments);
+	if (xfh.songlen > 256) {
+		D_(D_CRIT "bad song length: %d", xfh.songlen);
+		return -1;
+	}
+	if (xfh.patterns > 256) {
+		D_(D_CRIT "bad pattern count: %d", xfh.patterns);
+		return -1;
+	}
+	if (xfh.instruments > 255) {
+		D_(D_CRIT "bad instrument count: %d", xfh.instruments);
 		return -1;
 	}
 
-	if (xfh.restart > 255 || xfh.channels > XMP_MAX_CHANNELS) {
-		D_(D_CRIT "Sanity check: %d %d", xfh.restart, xfh.channels);
+	if (xfh.restart > 255) {
+		D_(D_CRIT "bad restart position: %d", xfh.restart);
+		return -1;
+	}
+	if (xfh.channels > XMP_MAX_CHANNELS) {
+		D_(D_CRIT "bad channel count: %d", xfh.channels);
 		return -1;
 	}
 
 	if (xfh.tempo >= 32 || xfh.bpm < 32 || xfh.bpm > 255) {
 		if (memcmp("MED2XM", xfh.tracker, 6)) {
-			D_(D_CRIT "Sanity check: %d %d", xfh.tempo, xfh.bpm);
+			D_(D_CRIT "bad tempo or BPM: %d %d", xfh.tempo, xfh.bpm);
 			return -1;
 		}
 	}
@@ -819,7 +831,7 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	/* Honor header size -- needed by BoobieSqueezer XMs */
 	len = xfh.headersz - 0x14;
 	if (len < 0 || len > 256) {
-		D_(D_CRIT "Sanity check: %d", len);
+		D_(D_CRIT "bad XM header length: %d", len);
 		return -1;
 	}
 
