@@ -20,7 +20,6 @@ extern const struct format_loader libxmp_loader_it;
 extern const struct format_loader libxmp_loader_s3m;
 
 #ifndef LIBXMP_CORE_PLAYER
-
 extern const struct format_loader libxmp_loader_flt;
 extern const struct format_loader libxmp_loader_st;
 extern const struct format_loader libxmp_loader_stm;
@@ -68,7 +67,6 @@ extern const struct format_loader libxmp_loader_pw;
 extern const struct format_loader libxmp_loader_hmn;
 extern const struct format_loader libxmp_loader_chip;
 extern const struct format_loader libxmp_loader_abk;
-
 #if 0 /* broken / unused, yet. */
 extern const struct format_loader libxmp_loader_dmf;
 extern const struct format_loader libxmp_loader_tcb;
@@ -82,14 +80,22 @@ extern const struct format_loader libxmp_loader_alm;
 extern const struct format_loader libxmp_loader_polly;
 extern const struct format_loader libxmp_loader_stc;
 #endif
+#endif /* LIBXMP_CORE_PLAYER */
 
+#ifndef LIBXMP_CORE_PLAYER
 #define NUM_FORMATS 50
-#define NUM_PW_FORMATS 43
+#elif !defined(LIBXMP_CORE_DISABLE_IT)
+#define NUM_FORMATS 4
+#else
+#define NUM_FORMATS 3
+#endif
 
 #ifndef LIBXMP_NO_PROWIZARD
+#define NUM_PW_FORMATS 43
 extern const struct pw_format *const pw_formats[];
 int pw_test_format(HIO_HANDLE *, char *, const int, struct xmp_test_info *);
+#else
+#define NUM_PW_FORMATS 0
 #endif
-#endif /* LIBXMP_CORE_PLAYER */
 
 #endif /* LIBXMP_FORMAT_H */

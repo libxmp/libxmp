@@ -8,6 +8,8 @@
 #ifndef LIBXMP_NO_DEPACKERS
 #define LIBXMP_NO_DEPACKERS
 #endif
+#else
+#undef LIBXMP_CORE_DISABLE_IT
 #endif
 
 #include <stdarg.h>

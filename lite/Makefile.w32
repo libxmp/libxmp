@@ -1,10 +1,13 @@
 # Makefile for Win32 using Watcom compiler.
 #
 # wmake -f Makefile.w32
-# - builds libxmp.dll and its import lib (libxmp.lib)
+# - builds libxmp-lite.dll and its import lib (libxmp-lite.lib)
 #
 # wmake -f Makefile.w32 target=static
-# - builds the static library xmp_static.lib
+# - builds the static library xmplite_static.lib
+#
+# To disable Impulse Tracker support :
+#	wmake -f Makefile.w32 DISABLE_IT=1
 #
 !ifndef target
 target = dll

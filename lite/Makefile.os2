@@ -1,10 +1,13 @@
 # Makefile for OS/2 using Watcom compiler.
 #
 # wmake -f Makefile.os2
-# - builds libxmp.dll and its import lib (libxmp.lib)
+# - builds libxmplt.dll and its import lib (libxmplt.lib)
 #
 # wmake -f Makefile.os2 target=static
-# - builds the static library xmp_static.lib
+# - builds the static library xmplite_static.lib
+#
+# To disable Impulse Tracker support :
+#	wmake -f Makefile.os2 DISABLE_IT=1
 #
 !ifndef target
 target = dll

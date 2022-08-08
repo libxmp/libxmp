@@ -1,6 +1,9 @@
 # Visual Studio makefile for Windows:
 #	nmake -f Makefile.vc
 #
+# To disable Impulse Tracker support :
+#	nmake -f Makefile.vc DISABLE_IT=1
+#
 CC	= cl
 CFLAGS	= /O2 /W3 /MD /Iinclude\libxmp-lite /DBUILDING_DLL /DWIN32 \
 	  /D_USE_MATH_DEFINES /D_CRT_SECURE_NO_WARNINGS /DLIBXMP_CORE_PLAYER
@@ -8,6 +11,10 @@ CFLAGS	= /O2 /W3 /MD /Iinclude\libxmp-lite /DBUILDING_DLL /DWIN32 \
 LD	= link
 LDFLAGS	= /DLL /RELEASE /OUT:$(DLL)
 DLL	= libxmp-lite.dll
+
+!if $(DISABLE_IT)==1
+CFLAGS	= $(CFLAGS) /DLIBXMP_CORE_DISABLE_IT
+!endif
 
 OBJS	= @OBJS@
 

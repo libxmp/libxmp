@@ -21,7 +21,6 @@
  */
 
 #include "format.h"
-
 #ifndef LIBXMP_NO_PROWIZARD
 #include "loaders/prowizard/prowiz.h"
 #endif
@@ -29,10 +28,13 @@
 const struct format_loader *const format_loaders[NUM_FORMATS + 2] = {
 	&libxmp_loader_xm,
 	&libxmp_loader_mod,
+#ifndef LIBXMP_CORE_DISABLE_IT
+	&libxmp_loader_it,
+#endif
+	&libxmp_loader_s3m,
+#ifndef LIBXMP_CORE_PLAYER
 	&libxmp_loader_flt,
 	&libxmp_loader_st,
-	&libxmp_loader_it,
-	&libxmp_loader_s3m,
 	&libxmp_loader_stm,
 	&libxmp_loader_stx,
 	&libxmp_loader_mtm,
@@ -90,9 +92,8 @@ const struct format_loader *const format_loaders[NUM_FORMATS + 2] = {
 	/* &libxmp_loader_stc, */
 #ifndef LIBXMP_NO_PROWIZARD
 	&libxmp_loader_pw,
-#else
-	NULL,
 #endif
+#endif /* LIBXMP_CORE_PLAYER */
 	NULL /* list teminator */
 };
 
