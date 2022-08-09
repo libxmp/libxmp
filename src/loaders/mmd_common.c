@@ -596,6 +596,7 @@ int mmd_load_sampled_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 	struct xmp_instrument *xxi = &mod->xxi[i];
 	struct xmp_subinstrument *sub;
 	struct xmp_sample *xxs;
+	uint32 rep, replen;
 	int j, k;
 
 	/* Sanity check */
@@ -612,15 +613,17 @@ int mmd_load_sampled_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 	if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 		return -1;
 
+	rep = sample->rep << 1;
+	replen = sample->replen << 1;
+
 	sub = &xxi->sub[0];
 
 	sub->vol = sample->svol;
 	sub->pan = 0x80;
 	sub->xpo = sample->strans + 36;
-	if (ver >= 2 && expdata->s_ext_entrsz > 4) {	/* MMD2+ */
-		if (exp_smp->default_pitch) {
-			sub->xpo += exp_smp->default_pitch - 25;
-		}
+	if (ver >= 2 && expdata->s_ext_entrsz >= 18) {	/* MMD2+ */
+		rep = exp_smp->long_repeat;
+		replen = exp_smp->long_replen;
 	}
 	sub->sid = smp_idx;
 	sub->fin = exp_smp->finetune << 4;
@@ -628,8 +631,8 @@ int mmd_load_sampled_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 	xxs = &mod->xxs[smp_idx];
 
 	xxs->len = instr->length;
-	xxs->lps = 2 * sample->rep;
-	xxs->lpe = xxs->lps + 2 * sample->replen;
+	xxs->lps = rep;
+	xxs->lpe = rep + replen;
 	xxs->flg = 0;
 
 	if (sample->replen > 1) {

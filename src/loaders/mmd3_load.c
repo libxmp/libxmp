@@ -499,10 +499,20 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			exp_smp[i].suppress_midi_off = hio_read8(f);
 			exp_smp[i].finetune = hio_read8(f);
 
-			if (expdata.s_ext_entrsz > 4) {	/* Octamed V5 */
+			if (expdata.s_ext_entrsz >= 8) {	/* Octamed V5 */
 				exp_smp[i].default_pitch = hio_read8(f);
 				exp_smp[i].instr_flags = hio_read8(f);
+				hio_read16b(f);
+				skip -= 4;
+			}
+			if (expdata.s_ext_entrsz >= 10) {	/* OctaMED V5.02 */
+				hio_read16b(f);
 				skip -= 2;
+			}
+			if (expdata.s_ext_entrsz >= 18) {	/* OctaMED V7 */
+				exp_smp[i].long_repeat = hio_read32b(f);
+				exp_smp[i].long_replen = hio_read32b(f);
+				skip -= 8;
 			}
 
 			if (hio_error(f)) {
