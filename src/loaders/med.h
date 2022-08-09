@@ -162,6 +162,7 @@ struct MMD1Block {
 struct InstrHdr {
     ULONG length;
 #define S_16 0x10			/* 16-bit sample */
+#define MD16 0x18			/* 16-bit sample (Aura) */
 #define STEREO 0x20			/* Stereo sample, not interleaved */
     WORD type;
     /* Followed by actual data */

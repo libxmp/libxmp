@@ -649,6 +649,12 @@ int mmd_load_sampled_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 	 * specifies the size of one channel only! The actual memory
 	 * usage for both samples is length * 2 bytes.
 	 */
+	if (instr->type & STEREO) {
+		D_(D_WARN "stereo sample unsupported");
+		/* TODO: implement stereo sample support.
+		xxs->flg |= XMP_SAMPLE_STEREO;
+		*/
+	}
 
         /* Restrict sampled instruments to 3 octave range except for MMD3.
          * Checked in MMD0 with med.egypian/med.medieval from Lemmings 2

@@ -605,11 +605,7 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			smp_idx += oct;
 
 			continue;
-		} else if ((instr.type & STEREO) != 0) {
-			D_(D_WARN "stereo sample unsupported");
-			mod->xxi[i].nsm = 0;
-			continue;
-		} else if ((instr.type & S_16) == 0) {	/* Sample */
+		} else if ((instr.type & ~(S_16|MD16|STEREO)) == 0) {	/* Sample */
 			int ret;
 
 			ret = mmd_load_sampled_instrument(f, m, i, smp_idx,
