@@ -500,6 +500,7 @@ static int mmd_load_hybrid_instrument(HIO_HANDLE *f, struct module_data *m, int 
 	struct mmd_instrument_info info;
 	struct InstrHdr instr;
 	int pos = hio_tell(f);
+	int j;
 
 	/* Sanity check */
 	if (smp_idx >= mod->smp) {
@@ -517,15 +518,19 @@ static int mmd_load_hybrid_instrument(HIO_HANDLE *f, struct module_data *m, int 
 	synth->wforms = hio_read16b(f);
 	hio_read(synth->voltbl, 1, 128, f);
 	hio_read(synth->wftbl, 1, 128, f);
-	if (hio_error(f))
-		return -1;
 
 	/* Sanity check */
 	if (synth->voltbllen > 128 || synth->wftbllen > 128) {
 		return -1;
 	}
 
-	hio_seek(f, pos - 6 + hio_read32b(f), SEEK_SET);
+	for (j = 0; j < synth->wforms; j++)
+		synth->wf[j] = hio_read32b(f);
+
+	if (hio_error(f))
+		return -1;
+
+	hio_seek(f, pos - 6 + synth->wf[0], SEEK_SET);
 	instr.length = hio_read32b(f);
 	instr.type = hio_read16b(f);
 
@@ -540,8 +545,8 @@ static int mmd_load_hybrid_instrument(HIO_HANDLE *f, struct module_data *m, int 
 	if (libxmp_med_new_instrument_extras(xxi) != 0)
 		return -1;
 
-	xxi->nsm = 1;
-	if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
+	xxi->nsm = synth->wforms;
+	if (libxmp_alloc_subinstrument(mod, i, synth->wforms) < 0)
 		return -1;
 
 	ie = MED_INSTRUMENT_EXTRAS(*xxi);
@@ -569,6 +574,34 @@ static int mmd_load_hybrid_instrument(HIO_HANDLE *f, struct module_data *m, int 
 	if (libxmp_load_sample(m, f, 0, xxs, NULL) < 0)
 		return -1;
 
+	smp_idx++;
+
+	for (j = 1; j < synth->wforms; j++) {
+		sub = &xxi->sub[j];
+		xxs = &mod->xxs[smp_idx];
+
+		/* Sanity check */
+		if (j >= xxi->nsm || smp_idx >= mod->smp)
+			return -1;
+
+		sub->pan = 0x80;
+		sub->vol = info.enable ? 64 : 0;
+		sub->xpo = 12 + sample->strans;
+		sub->sid = smp_idx;
+		sub->fin = exp_smp->finetune;
+
+		hio_seek(f, pos - 6 + synth->wf[j], SEEK_SET);
+
+		xxs->len = hio_read16b(f) * 2;
+		xxs->lps = 0;
+		xxs->lpe = xxs->len;
+		xxs->flg = XMP_SAMPLE_LOOP;
+
+		if (libxmp_load_sample(m, f, 0, xxs, NULL) < 0)
+			return -1;
+
+		smp_idx++;
+	}
 	return 0;
 }
 
@@ -624,7 +657,7 @@ static int mmd_load_synth_instrument(HIO_HANDLE *f, struct module_data *m, int i
 	if (libxmp_med_new_instrument_extras(&mod->xxi[i]) != 0)
 		return -1;
 
-	mod->xxi[i].nsm = synth->wforms;
+	xxi->nsm = synth->wforms;
 	if (libxmp_alloc_subinstrument(mod, i, synth->wforms) < 0)
 		return -1;
 
@@ -652,7 +685,7 @@ static int mmd_load_synth_instrument(HIO_HANDLE *f, struct module_data *m, int i
 
 		xxs->len = hio_read16b(f) * 2;
 		xxs->lps = 0;
-		xxs->lpe = mod->xxs[smp_idx].len;
+		xxs->lpe = xxs->len;
 		xxs->flg = XMP_SAMPLE_LOOP;
 
 		if (libxmp_load_sample(m, f, 0, xxs, NULL) < 0)
@@ -847,12 +880,12 @@ int mmd_load_instrument(HIO_HANDLE *f, struct module_data *m, int i, int smp_idx
 		int ret = mmd_load_hybrid_instrument(f, m, i, smp_idx,
 			&synth, expdata, exp_smp, sample, ver);
 
-		smp_idx++;
-
 		if (ret < 0) {
 			D_(D_CRIT "error loading hybrid instrument %d", i);
 			return -1;
 		}
+
+		smp_idx += synth.wforms;
 
 		if (mmd_alloc_tables(m, i, &synth) != 0)
 			return -1;

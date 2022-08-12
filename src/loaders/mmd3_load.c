@@ -241,7 +241,7 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		hio_seek(f, start + smplarr[i], SEEK_SET);
 		hio_read32b(f);				/* length */
 		type = hio_read16b(f);
-		if (type == -1) {			/* type is synth? */
+		if (type == -1 || type == -2) {		/* type is synth? */
 			hio_seek(f, 14, SEEK_CUR);
 			mod->smp += hio_read16b(f);	/* wforms */
 		} else {

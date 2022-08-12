@@ -228,7 +228,7 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		hio_read32b(f);				/* length */
 		type = hio_read16b(f);
-		if (type == -1) {			/* type is synth? */
+		if (type == -1 || type == -2) {		/* type is synth? */
 			int wforms;
 			hio_seek(f, 14, SEEK_CUR);
 			wforms = hio_read16b(f);
