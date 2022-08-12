@@ -200,6 +200,10 @@ struct InstrExt {
     BYTE  finetune;
     /* Below fields saved by >= V5 */
     UBYTE default_pitch;
+#define SSFLG_LOOP	0x01		/* Loop On/Off */
+#define SSFLG_EXTPSET	0x02		/* Ext. Preset */
+#define SSFLG_DISABLED	0x04		/* Disabled */
+#define SSFLG_PINGPONG	0x08		/* Ping-pong looping */
     UBYTE instr_flags;
     UWORD long_midi_preset;
     /* Below fields saved by >= V5.02 */
@@ -308,18 +312,13 @@ struct MMDDump {
     UBYTE name[20];			/* name of the dump */
 };
 
+extern const int mmd_num_oct[6];
+
 void mmd_xlat_fx(struct xmp_event *, int, int, int, int);
 int mmd_alloc_tables(struct module_data *, int, struct SynthInstr *);
 
-int mmd_load_hybrid_instrument(HIO_HANDLE *, struct module_data *, int, int,
-		struct SynthInstr *, struct InstrExt *, struct MMD0sample *);
-int mmd_load_synth_instrument(HIO_HANDLE *, struct module_data *, int, int,
-		struct SynthInstr *, struct InstrExt *, struct MMD0sample *);
-int mmd_load_sampled_instrument(HIO_HANDLE *, struct module_data *, int, int,
-		struct InstrHdr *, struct MMD0exp *, struct InstrExt *,
-		struct MMD0sample *, int);
-int mmd_load_iffoct_instrument(HIO_HANDLE *, struct module_data *, int, int,
-		struct InstrHdr *, int, struct InstrExt *, struct MMD0sample *);
+int mmd_load_instrument(HIO_HANDLE *, struct module_data *, int, int,
+		struct MMD0exp *, struct InstrExt *, struct MMD0sample *, int);
 
 void mmd_set_bpm(struct module_data *, int, int, int, int);
 void mmd_info_text(HIO_HANDLE *, struct module_data *, int);
