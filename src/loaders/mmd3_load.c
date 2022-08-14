@@ -432,12 +432,8 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 				event = &EVENT(i, k, j);
 				event->note = pos[0] & 0x7f;
 				if (event->note) {
-					event->note += song.playtransp;
-					if (ver == 2)
-						event->note += 12;
-					else
-						event->note -= 12;
-				};
+					event->note += 12 + song.playtransp;
+				}
 
 				if (event->note >= XMP_MAX_KEYS)
 					event->note = 0;
