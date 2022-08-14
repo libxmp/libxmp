@@ -73,7 +73,7 @@ static int get_d_t_(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	hio_read16b(f);			/* reserved */
 	mod->spd = hio_read16b(f);
 	if ((b = hio_read16b(f)) > 0)	/* RAMBO.DTM has bpm 0 */
-		mod->bpm = b;
+		mod->bpm = b;		/* Not clamped by Digital Tracker. */
 	hio_read32b(f);			/* undocumented */
 
 	hio_read(mod->name, 32, 1, f);

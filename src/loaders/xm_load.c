@@ -821,7 +821,8 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		return -1;
 	}
 
-	if (xfh.tempo >= 32 || xfh.bpm < 32 || xfh.bpm > 255) {
+	/* FT2 and MPT allow up to 255 BPM. OpenMPT allows up to 1000 BPM. */
+	if (xfh.tempo >= 32 || xfh.bpm < 32 || xfh.bpm > 1000) {
 		if (memcmp("MED2XM", xfh.tracker, 6)) {
 			D_(D_CRIT "bad tempo or BPM: %d %d", xfh.tempo, xfh.bpm);
 			return -1;

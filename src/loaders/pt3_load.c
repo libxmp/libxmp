@@ -97,7 +97,7 @@ static int get_info(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	mod->len = hio_read16b(f);
 	mod->pat = hio_read16b(f);
 	mod->gvl = hio_read16b(f);
-	mod->bpm = hio_read16b(f);
+	mod->bpm = hio_read16b(f);	/* Not clamped by Protracker 3.6 */
 	/*flags =*/ hio_read16b(f);
 	/*day   =*/ hio_read16b(f);
 	/*month =*/ hio_read16b(f);

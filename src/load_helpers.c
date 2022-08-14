@@ -240,7 +240,7 @@ void libxmp_load_epilogue(struct context_data *ctx)
 	if (mod->spd <= 0 || mod->spd > 255) {
 		mod->spd = 6;
 	}
-	CLAMP(mod->bpm, XMP_MIN_BPM, 255);
+	CLAMP(mod->bpm, XMP_MIN_BPM, 1000);
 
 	/* Set appropriate values for instrument volumes and subinstrument
 	 * global volumes when QUIRK_INSVOL is not set, to keep volume values
