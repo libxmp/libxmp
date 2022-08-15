@@ -86,7 +86,7 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 	}
 	pat++;
 
-	if (pat > 0x7f || mh.len == 0 || mh.len > 0x7f)
+	if (pat > 0x7f || mh.len == 0 || mh.len > 0x80)
 		return -1;
 
 	for (i = 0; i < 15; i++) {
