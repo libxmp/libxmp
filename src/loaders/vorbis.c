@@ -669,6 +669,8 @@ typedef float codetype;
 
 #ifdef _MSC_VER
 #define STBV_NOTUSED(v)  (void)(v)
+#elif defined(__VBCC__)
+#define STBV_NOTUSED(v)
 #else
 #define STBV_NOTUSED(v)  (void)sizeof(v)
 #endif
