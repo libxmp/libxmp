@@ -278,7 +278,8 @@ int libxmp_test_name(uint8 *s, int n)
 		if (s[i] > 0x7f)
 			return -1;
 		/* ACS_Team2.mod has a backspace in instrument name */
-		if (s[i] > 0 && s[i] < 32 && s[i] != 0x08)
+		/* Numerous ST modules from Music Channel BBS have char 14. */
+		if (s[i] > 0 && s[i] < 32 && s[i] != 0x08 && s[i] != 0x0e)
 			return -1;
 	}
 
