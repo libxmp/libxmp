@@ -37,6 +37,9 @@ const struct format_loader libxmp_loader_st = {
 	st_load
 };
 
+/* musanx.mod contains 22 period and instrument errors */
+#define ST_MAX_PATTERN_ERRORS 22
+
 static const int period[] = {
 	856, 808, 762, 720, 678, 640, 604, 570, 538, 508, 480, 453,
 	428, 404, 381, 360, 339, 320, 302, 285, 269, 254, 240, 226,
@@ -54,6 +57,7 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 	int pat, ins, smp_size;
 	struct st_header mh;
 	uint8 mod_event[4];
+	int pattern_errors;
 	long size;
 
 	size = hio_size(f);
@@ -67,6 +71,7 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 	hio_seek(f, start, SEEK_SET);
 	hio_read(mh.name, 1, 20, f);
 	if (libxmp_test_name(mh.name, 20) < 0) {
+		D_(D_CRIT "bad module name; not ST");
 		return -1;
 	}
 
@@ -97,8 +102,10 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 		/* Crepequs.mod has random values in first byte */
 		mh.ins[i].name[0] = 'X';
 
-		if (libxmp_test_name(mh.ins[i].name, 22) < 0)
+		if (libxmp_test_name(mh.ins[i].name, 22) < 0) {
+			D_(D_CRIT "bad instrument name %d; not ST", i);
 			return -1;
+		}
 
 		if (mh.ins[i].volume > 0x40)
 			return -1;
@@ -141,22 +148,22 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 		return -1;
 	}
 
+	pattern_errors = 0;
 	for (ins = i = 0; i < pat; i++) {
 		for (j = 0; j < (64 * 4); j++) {
 			int p, s;
 
 			if (hio_read(mod_event, 1, 4, f) < 4) {
+				D_(D_CRIT "read error at pattern %d; not ST", i);
 				return -1;
 			}
 
 			s = (mod_event[0] & 0xf0) | MSN(mod_event[2]);
 
 			if (s > 15) {	/* sample number > 15 */
-				/* cant.mod has this invalid sample number */
-				if (!(s == 64 && i == 3 && j == 183)) {
-					D_(D_CRIT "%d/%d/%d: invalid sample number: %d", i, j / 4, j % 4, s);
-					return -1;
-				}
+				D_(D_INFO "%d/%d/%d: invalid sample number: %d", i, j / 4, j % 4, s);
+				if ((++pattern_errors) > ST_MAX_PATTERN_ERRORS)
+					goto bad_pattern_data;
 			}
 
 			if (s > ins) {	/* find highest used sample */
@@ -169,18 +176,14 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 				continue;
 			}
 
-			/* another special check for cant.mod */
-			if (p == 3792 && i == 3 && j == 183) {
-				continue;
-			}
-
 			for (k = 0; period[k] >= 0; k++) {
 				if (p == period[k])
 					break;
 			}
 			if (period[k] < 0) {
-				D_(D_CRIT "%d/%d/%d: invalid period", i, j / 4, j % 4);
-				return -1;
+				D_(D_INFO "%d/%d/%d: invalid period: %d", i, j / 4, j % 4, p);
+				if ((++pattern_errors) > ST_MAX_PATTERN_ERRORS)
+					goto bad_pattern_data;
 			}
 		}
 	}
@@ -193,6 +196,8 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 		}
 
 		if (size < 600 + pat * 1024 + ss) {
+			D_(D_CRIT "expected size %d, real size %ld",
+			 600 + pat * 1024 + ss, size);
 			return -1;
 		}
 	}
@@ -201,6 +206,10 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 	libxmp_read_title(f, t, 20);
 
 	return 0;
+
+bad_pattern_data:
+	D_(D_CRIT "too many pattern errors; not ST: %d", pattern_errors);
+	return -1;
 }
 
 static int st_load(struct module_data *m, HIO_HANDLE *f, const int start)
