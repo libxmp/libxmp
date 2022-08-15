@@ -51,10 +51,15 @@ static const int period[] = {
 	-1
 };
 
+static int st_expected_size(int smp_size, int pat)
+{
+	return 600 + smp_size + 1024 * pat;
+}
+
 static int st_test(HIO_HANDLE *f, char *t, const int start)
 {
 	int i, j, k;
-	int pat, ins, smp_size;
+	int pat, pat_short, ins, smp_size;
 	struct st_header mh;
 	uint8 mod_event[4];
 	int pattern_errors;
@@ -87,13 +92,17 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 	mh.restart = hio_read8(f);
 	hio_read(mh.order, 1, 128, f);
 
-	for (pat = i = 0; i < 128; i++) {
+	for (pat = pat_short = i = 0; i < 128; i++) {
 		if (mh.order[i] > 0x7f)
 			return -1;
-		if (mh.order[i] > pat)
+		if (mh.order[i] > pat) {
 			pat = mh.order[i];
+			if (i < mh.len)
+				pat_short = pat;
+		}
 	}
 	pat++;
+	pat_short++;
 
 	if (pat > 0x7f || mh.len == 0 || mh.len > 0x80)
 		return -1;
@@ -146,6 +155,17 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 
 	if (smp_size < 8) {
 		return -1;
+	}
+
+	/* If the file size is correct when counting only patterns prior to the
+	 * module length, use the shorter count. This quirk is found in some
+	 * ST modules, most of them authored by Jean Baudlot. See razor-1911.mod,
+	 * the Operation Wolf soundtrack, or the Bad Dudes soundtrack.
+	 */
+	if (size < st_expected_size(smp_size, pat) &&
+	    size == st_expected_size(smp_size, pat_short)) {
+		D_(D_INFO "ST pattern list probably quirked, ignoring patterns past len");
+		pat = pat_short;
 	}
 
 	pattern_errors = 0;
@@ -225,12 +245,16 @@ static int st_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	int fxused;
 	int pos;
 	int used_ins;		/* Number of samples actually used */
+	int smp_size, pat_short;
+	long size;
 
 	LOAD_INIT();
 
 	mod->chn = 4;
 	mod->ins = 15;
 	mod->smp = mod->ins;
+
+	smp_size = 0;
 
 	hio_read(mh.name, 1, 20, f);
 	for (i = 0; i < 15; i++) {
@@ -240,6 +264,7 @@ static int st_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		mh.ins[i].volume = hio_read8(f);
 		mh.ins[i].loop_start = hio_read16b(f);
 		mh.ins[i].loop_size = hio_read16b(f);
+		smp_size += 2 * mh.ins[i].size;
 	}
 	mh.len = hio_read8(f);
 	mh.restart = hio_read8(f);
@@ -256,11 +281,24 @@ static int st_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	memcpy(mod->xxo, mh.order, 128);
 
-	for (i = 0; i < 128; i++) {
-		if (mod->xxo[i] > mod->pat)
+	for (pat_short = i = 0; i < 128; i++) {
+		if (mod->xxo[i] > mod->pat) {
 			mod->pat = mod->xxo[i];
+			if (i < mh.len)
+				pat_short = mod->pat;
+		}
 	}
 	mod->pat++;
+	pat_short++;
+
+	/* If the file size is correct when counting only patterns prior to the
+	 * module length, use the shorter count. See test function for info.
+	 */
+	size = hio_size(f);
+	if (size < st_expected_size(smp_size, mod->pat) &&
+	    size == st_expected_size(smp_size, pat_short)) {
+		mod->pat = pat_short;
+	}
 
 	for (i = 0; i < mod->ins; i++) {
 		/* UST: Volume word does not contain a "Finetuning" value in its

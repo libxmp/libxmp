@@ -83,6 +83,7 @@ test_loader_wow_extra
 test_loader_m15
 test_loader_m15_invalid
 test_loader_m15_invalid2
+test_loader_m15_orderquirk
 test_loader_m15_short_rip
 test_loader_s3m
 test_loader_s3m_adpcm
