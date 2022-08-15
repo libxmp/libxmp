@@ -283,7 +283,7 @@ static int liq_load(struct module_data *m, HIO_HANDLE *f, const int start)
     }
 
     mod->spd = lh.speed;
-    mod->bpm = lh.bpm;
+    mod->bpm = MIN(lh.bpm, 255);
     mod->chn = lh.chn;
     mod->pat = lh.pat;
     mod->ins = mod->smp = lh.ins;
@@ -366,7 +366,7 @@ static int liq_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	    continue;
 	if (pmag != 0x4c500000)		/* LP\0\0 */
 	    return -1;
-	
+
 	hio_read(lp.name, 30, 1, f);
 	lp.rows = hio_read16l(f);
 	lp.size = hio_read32l(f);
@@ -404,9 +404,9 @@ read_event:
 	if (x2) {
 	    if (decode_event(x1, event, f) < 0)
 		return -1;
-	    xlat_fx (channel, event); 
+	    xlat_fx (channel, event);
 	    x2--;
-	    goto next_row;	
+	    goto next_row;
 	}
 
 	x1 = hio_read8(f);
@@ -454,7 +454,7 @@ test_event:
 	    D_(D_INFO "  [packed data]");
 	    if (decode_event(x1, event, f) < 0)
 		return -1;
-	    xlat_fx (channel, event); 
+	    xlat_fx (channel, event);
 	    goto next_row;
 	}
 
@@ -463,7 +463,7 @@ test_event:
 	    D_(D_INFO "  [packed data - repeat %d times]", x2);
 	    if (decode_event(x1, event, f) < 0)
 		return -1;
-	    xlat_fx (channel, event); 
+	    xlat_fx (channel, event);
 	    goto next_row;
 	}
 
@@ -472,7 +472,7 @@ test_event:
 	    D_(D_INFO "  [packed data - repeat %d times, keep note]", x2);
 	    if (decode_event(x1, event, f) < 0)
 		return -1;
-	    xlat_fx (channel, event); 
+	    xlat_fx (channel, event);
 	    while (x2) {
 	        row++;
 
@@ -517,7 +517,7 @@ test_event:
 		return -1;
 	}
 
-	xlat_fx(channel, event); 
+	xlat_fx(channel, event);
 
 	D_(D_INFO "  event: %02x %02x %02x %02x %02x\n",
 	    event->note, event->ins, event->vol, event->fxt, event->fxp);
