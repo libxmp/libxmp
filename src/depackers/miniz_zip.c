@@ -27,6 +27,12 @@
 #include "miniz_zip.h"
 #include "crc32.h"
 
+#ifdef __VBCC__
+#define MZ_NOTUSED(v)
+#else
+#define MZ_NOTUSED(v) (void)(v)
+#endif
+
 #ifndef MINIZ_NO_ARCHIVE_APIS
 
 #ifdef __cplusplus
@@ -43,17 +49,17 @@ static mz_ulong mz_crc32(mz_ulong crc, const mz_uint8 *ptr, size_t buf_len)
 
 static void *miniz_def_alloc_func(void *opaque, size_t items, size_t size)
 {
-    (void)opaque;
+    MZ_NOTUSED(opaque);
     return MZ_MALLOC(items * size);
 }
 static void miniz_def_free_func(void *opaque, void *address)
 {
-    (void)opaque;
+    MZ_NOTUSED(opaque);
     MZ_FREE(address);
 }
 static void *miniz_def_realloc_func(void *opaque, void *address, size_t items, size_t size)
 {
-    (void)opaque;
+    MZ_NOTUSED(opaque);
     return MZ_REALLOC(address, items * size);
 }
 
@@ -235,7 +241,7 @@ static MZ_FORCEINLINE mz_bool mz_zip_set_error(mz_zip_archive *pZip, mz_zip_erro
 
 static mz_bool mz_zip_reader_init_internal(mz_zip_archive *pZip, mz_uint flags)
 {
-    (void)flags;
+    MZ_NOTUSED(flags);
     if ((!pZip) || (pZip->m_pState) || (pZip->m_zip_mode != MZ_ZIP_MODE_INVALID))
         return mz_zip_set_error(pZip, MZ_ZIP_INVALID_PARAMETER);
 
@@ -779,7 +785,7 @@ mz_bool mz_zip_reader_is_file_a_directory(mz_zip_archive *pZip, mz_uint file_ind
     /* Most/all zip writers (hopefully) set DOS file/directory attributes in the low 16-bits, so check for the DOS directory flag and ignore the source OS ID in the created by field. */
     /* FIXME: Remove this check? Is it necessary - we already check the filename. */
     attribute_mapping_id = MZ_READ_LE16(p + MZ_ZIP_CDH_VERSION_MADE_BY_OFS) >> 8;
-    (void)attribute_mapping_id;
+    MZ_NOTUSED(attribute_mapping_id);
 
     external_attr = MZ_READ_LE32(p + MZ_ZIP_CDH_EXTERNAL_ATTR_OFS);
     if ((external_attr & MZ_ZIP_DOS_DIR_ATTRIBUTE_BITFLAG) != 0)
