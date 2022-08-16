@@ -39,6 +39,9 @@ const struct format_loader libxmp_loader_st = {
 
 /* musanx.mod contains 22 period and instrument errors */
 #define ST_MAX_PATTERN_ERRORS 22
+/* Allow some degree of sample truncation for ST modules.
+ * The worst known module currently is u2.mod with 7% truncation. */
+#define ST_TRUNCATION_LIMIT   93
 
 static const int period[] = {
 	856, 808, 762, 720, 678, 640, 604, 570, 538, 508, 480, 453,
@@ -209,15 +212,16 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 	}
 
 	/* Check if file was cut before any unused samples */
-	if (size < 600 + pat * 1024 + smp_size) {
-		int ss;
+	if (size < st_expected_size(smp_size, pat)) {
+		int ss, limit;
 		for (ss = i = 0; i < 15 && i < ins; i++) {
 			ss += 2 * mh.ins[i].size;
 		}
 
-		if (size < 600 + pat * 1024 + ss) {
-			D_(D_CRIT "expected size %d, real size %ld",
-			 600 + pat * 1024 + ss, size);
+		limit = st_expected_size(ss, pat) * ST_TRUNCATION_LIMIT / 100;
+		if (size < limit) {
+			D_(D_CRIT "expected size %d, minimum allowed size %d, real size %ld, diff %ld",
+			 st_expected_size(smp_size, pat), limit, size, size - limit);
 			return -1;
 		}
 	}
