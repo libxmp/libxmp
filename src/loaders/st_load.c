@@ -111,6 +111,8 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 		return -1;
 
 	for (i = 0; i < 15; i++) {
+		smp_size += 2 * mh.ins[i].size;
+
 		/* Crepequs.mod has random values in first byte */
 		mh.ins[i].name[0] = 'X';
 
@@ -143,6 +145,14 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 		 *    return -1;
 		 */
 
+		/* Bad rip of fin-nv1.mod has this unused instrument. */
+		if (mh.ins[i].size == 0 &&
+		    mh.ins[i].loop_start == 4462 &&
+		    mh.ins[i].loop_size == 2078) {
+			D_(D_INFO "ignoring bad instrument for fin-nv1.mod");
+			continue;
+		}
+
 		if ((mh.ins[i].loop_start >> 1) > mh.ins[i].size)
 			return -1;
 
@@ -152,8 +162,6 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 
 		if (mh.ins[i].size == 0 && mh.ins[i].loop_start > 0)
 			return -1;
-
-		smp_size += 2 * mh.ins[i].size;
 	}
 
 	if (smp_size < 8) {
