@@ -94,7 +94,7 @@ static int ims_test(HIO_HANDLE *f, char *t, const int start)
 
 	smp_size += ih.ins[i].size * 2;
 
-	if (libxmp_test_name(ih.ins[i].name, 20) < 0)
+	if (libxmp_test_name(ih.ins[i].name, 20, 0) < 0)
 	    return -1;
 
 	if (ih.ins[i].volume > 0x40)

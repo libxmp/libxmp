@@ -66,6 +66,7 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 	struct st_header mh;
 	uint8 mod_event[4];
 	int pattern_errors;
+	int test_flags = 0;
 	long size;
 
 	size = hio_size(f);
@@ -78,7 +79,13 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 
 	hio_seek(f, start, SEEK_SET);
 	hio_read(mh.name, 1, 20, f);
-	if (libxmp_test_name(mh.name, 20) < 0) {
+	/* The Super Ski 2 modules have unusual "SONG\x13\x88" names. */
+	if (mh.name[5] == 0x88) {
+		mh.name[5] = 'X';
+		if (mh.name[4] == 0x13)
+			mh.name[4] = 'X';
+	}
+	if (libxmp_test_name(mh.name, 20, 0) < 0) {
 		D_(D_CRIT "bad module name; not ST");
 		return -1;
 	}
@@ -113,10 +120,19 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 	for (i = 0; i < 15; i++) {
 		smp_size += 2 * mh.ins[i].size;
 
+		/* pennylane.mod and heymusic-sssexremix.mod have unusual
+		 * values after the \0. */
+		if (i == 0 &&
+		    (!memcmp(mh.ins[i].name, "funbass\0\r", 9) ||
+		     !memcmp(mh.ins[i].name, "st-69:baseline\0R\0\0\xA5", 17))) {
+			D_(D_INFO "ignoring junk name values after \\0");
+			test_flags |= TEST_NAME_IGNORE_AFTER_0;
+		}
+
 		/* Crepequs.mod has random values in first byte */
 		mh.ins[i].name[0] = 'X';
 
-		if (libxmp_test_name(mh.ins[i].name, 22) < 0) {
+		if (libxmp_test_name(mh.ins[i].name, 22, test_flags) < 0) {
 			D_(D_CRIT "bad instrument name %d; not ST", i);
 			return -1;
 		}

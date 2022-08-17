@@ -20,6 +20,9 @@
 #define SAMPLE_FLAG_HSC		0x2000	/* HSC Adlib synth instrument */
 #define SAMPLE_FLAG_ADPCM	0x4000	/* ADPCM4 encoded samples */
 
+/* libxmp_test_name flags */
+#define TEST_NAME_IGNORE_AFTER_0	0x0001
+
 #define DEFPAN(x) (0x80 + ((x) - 0x80) * m->defpan / 100)
 
 int	libxmp_init_instrument		(struct module_data *);
@@ -37,7 +40,7 @@ char	*libxmp_instrument_name		(struct xmp_module *, int, uint8 *, int);
 
 char	*libxmp_copy_adjust		(char *, uint8 *, int);
 int	libxmp_copy_name_for_fopen	(char *, const char *, int);
-int	libxmp_test_name		(uint8 *, int);
+int	libxmp_test_name		(const uint8 *, int, int);
 void	libxmp_read_title		(HIO_HANDLE *, char *, int);
 void	libxmp_set_xxh_defaults		(struct xmp_module *);
 void	libxmp_decode_protracker_event	(struct xmp_event *, const uint8 *);

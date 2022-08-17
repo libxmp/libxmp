@@ -275,8 +275,8 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  nst \
 		  ust \
 		  wow wow_extra \
-		  m15 m15_invalid m15_invalid2 m15_invalid3 \
-		  m15_orderquirk m15_short_rip \
+		  m15 m15_invalid m15_invalid2 m15_invalid3 m15_invalid4 \
+		  m15_invalid5 m15_orderquirk m15_short_rip \
 		  s3m s3m_adpcm s3m_schism \
 		  xm102 xm_adpcm xm_xmlite xm_short xm_instsamples \
 		  it it_adpcm it_oldins it_schism it_invalid_fx \
