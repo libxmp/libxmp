@@ -86,6 +86,7 @@ test_loader_m15_invalid2
 test_loader_m15_invalid3
 test_loader_m15_invalid4
 test_loader_m15_invalid5
+test_loader_m15_invalid6
 test_loader_m15_orderquirk
 test_loader_m15_short_rip
 test_loader_s3m
