@@ -22,6 +22,7 @@
 
 /* libxmp_test_name flags */
 #define TEST_NAME_IGNORE_AFTER_0	0x0001
+#define TEST_NAME_IGNORE_AFTER_CR	0x0002
 
 #define DEFPAN(x) (0x80 + ((x) - 0x80) * m->defpan / 100)
 

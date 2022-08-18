@@ -66,7 +66,7 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 	struct st_header mh;
 	uint8 mod_event[4];
 	int pattern_errors;
-	int test_flags = 0;
+	int test_flags = TEST_NAME_IGNORE_AFTER_CR;
 	long size;
 
 	size = hio_size(f);
