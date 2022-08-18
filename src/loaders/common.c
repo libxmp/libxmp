@@ -270,15 +270,18 @@ void libxmp_read_title(HIO_HANDLE *f, char *t, int s)
 
 #ifndef LIBXMP_CORE_PLAYER
 
-int libxmp_test_name(uint8 *s, int n)
+int libxmp_test_name(const uint8 *s, int n, int flags)
 {
 	int i;
 
 	for (i = 0; i < n; i++) {
+		if (s[i] == '\0' && (flags & TEST_NAME_IGNORE_AFTER_0))
+			break;
 		if (s[i] > 0x7f)
 			return -1;
 		/* ACS_Team2.mod has a backspace in instrument name */
-		if (s[i] > 0 && s[i] < 32 && s[i] != 0x08)
+		/* Numerous ST modules from Music Channel BBS have char 14. */
+		if (s[i] > 0 && s[i] < 32 && s[i] != 0x08 && s[i] != 0x0e)
 			return -1;
 	}
 

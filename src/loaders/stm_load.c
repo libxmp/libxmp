@@ -92,7 +92,7 @@ static int stm_test(HIO_HANDLE * f, char *t, const int start)
 	if (hio_read(buf, 1, 8, f) < 8)
 		return -1;
 
-	if (libxmp_test_name(buf, 8))	/* Tracker name should be ASCII */
+	if (libxmp_test_name(buf, 8, 0))	/* Tracker name should be ASCII */
 		return -1;
 
 	if (hio_read8(f) != 0x1a)
