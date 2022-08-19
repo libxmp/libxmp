@@ -64,7 +64,8 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 	int i, j, k;
 	int pat, pat_short, ins, smp_size;
 	struct st_header mh;
-	uint8 mod_event[4];
+	uint8 pat_buf[1024];
+	uint8 *mod_event;
 	int pattern_errors;
 	int test_flags = TEST_NAME_IGNORE_AFTER_CR;
 	long size;
@@ -197,13 +198,13 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 
 	pattern_errors = 0;
 	for (ins = i = 0; i < pat; i++) {
-		for (j = 0; j < (64 * 4); j++) {
+		if (hio_read(pat_buf, 1, 1024, f) < 1024) {
+			D_(D_CRIT "read error at pattern %d; not ST", i);
+			return -1;
+		}
+		mod_event = pat_buf;
+		for (j = 0; j < (64 * 4); j++, mod_event += 4) {
 			int p, s;
-
-			if (hio_read(mod_event, 1, 4, f) < 4) {
-				D_(D_CRIT "read error at pattern %d; not ST", i);
-				return -1;
-			}
 
 			s = (mod_event[0] & 0xf0) | MSN(mod_event[2]);
 
@@ -264,15 +265,14 @@ static int st_load(struct module_data *m, HIO_HANDLE *f, const int start)
 {
 	struct xmp_module *mod = &m->mod;
 	int i, j;
-	struct xmp_event ev, *event;
+	struct xmp_event *event;
 	struct st_header mh;
-	uint8 mod_event[4];
+	uint8 pat_buf[1024];
+	uint8 *mod_event;
 	int ust = 1;
 	/* int lps_mult = m->fetch & XMP_CTL_FIXLOOP ? 1 : 2; */
 	const char *modtype;
 	int fxused;
-	int pos;
-	int used_ins;		/* Number of samples actually used */
 	int smp_size, pat_short;
 	long size;
 
@@ -381,37 +381,49 @@ static int st_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	strncpy(mod->name, (char *)mh.name, 20);
 
-	/* Scan patterns for tracker detection */
+	if (libxmp_init_pattern(mod) < 0) {
+		return -1;
+	}
+
+	/* Load and convert patterns */
+	/* Also scan patterns for tracker detection */
 	fxused = 0;
-	pos = hio_tell(f);
+
+	D_(D_INFO "Stored patterns: %d", mod->pat);
 
 	for (i = 0; i < mod->pat; i++) {
-		for (j = 0; j < (64 * mod->chn); j++) {
-			hio_read(mod_event, 1, 4, f);
+		if (libxmp_alloc_pattern_tracks(mod, i, 64) < 0)
+			return -1;
 
-			libxmp_decode_protracker_event(&ev, mod_event);
+		if (hio_read(pat_buf, 1, 1024, f) < 1024)
+			return -1;
 
-			if (ev.fxt)
-				fxused |= 1 << ev.fxt;
-			else if (ev.fxp)
+		mod_event = pat_buf;
+		for (j = 0; j < (64 * 4); j++, mod_event += 4) {
+			event = &EVENT(i, j % 4, j / 4);
+			libxmp_decode_protracker_event(event, mod_event);
+
+			if (event->fxt)
+				fxused |= 1 << event->fxt;
+			else if (event->fxp)
 				fxused |= 1;
 
 			/* UST: Only effects 1 (arpeggio) and 2 (pitchbend) are
 			 * available.
 			 */
-			if (ev.fxt && ev.fxt != 1 && ev.fxt != 2)
+			if (event->fxt && event->fxt != 1 && event->fxt != 2)
 				ust = 0;
 
 			/* Karsten Obarski's sleepwalk uses arpeggio 30 and 40 */
-			if (ev.fxt == 1) {	/* unlikely arpeggio */
-				if (ev.fxp == 0x00)
+			if (event->fxt == 1) {	/* unlikely arpeggio */
+				if (event->fxp == 0x00)
 					ust = 0;
 				/*if ((ev.fxp & 0x0f) == 0 || (ev.fxp & 0xf0) == 0)
 				   ust = 0; */
 			}
 
-			if (ev.fxt == 2) {  /* bend up and down at same time? */
-				if ((ev.fxp & 0x0f) != 0 && (ev.fxp & 0xf0) != 0)
+			if (event->fxt == 2) {  /* bend up and down at same time? */
+				if ((event->fxp & 0x0f) != 0 && (event->fxp & 0xf0) != 0)
 					ust = 0;
 			}
 		}
@@ -434,34 +446,6 @@ static int st_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	snprintf(mod->type, XMP_NAME_SIZE, "%s", modtype);
 
 	MODULE_INFO();
-
-	if (hio_seek(f, start + pos, SEEK_SET) < 0) {
-		return -1;
-	}
-
-	if (libxmp_init_pattern(mod) < 0) {
-		return -1;
-	}
-
-	/* Load and convert patterns */
-
-	D_(D_INFO "Stored patterns: %d", mod->pat);
-
-	used_ins = 0;
-	for (i = 0; i < mod->pat; i++) {
-		if (libxmp_alloc_pattern_tracks(mod, i, 64) < 0)
-			return -1;
-
-		for (j = 0; j < (64 * mod->chn); j++) {
-			event = &EVENT(i, j % mod->chn, j / mod->chn);
-			hio_read(mod_event, 1, 4, f);
-
-			libxmp_decode_protracker_event(event, mod_event);
-
-			if (ev.ins > used_ins)
-				used_ins = ev.ins;
-		}
-	}
 
 	for (i = 0; i < mod->ins; i++) {
 		D_(D_INFO "[%2X] %-22.22s %04x %04x %04x %c V%02x %+d",
@@ -486,8 +470,8 @@ static int st_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		/* Fix effects (arpeggio and pitchbending) */
 		for (i = 0; i < mod->pat; i++) {
-			for (j = 0; j < (64 * mod->chn); j++) {
-				event = &EVENT(i, j % mod->chn, j / mod->chn);
+			for (j = 0; j < (64 * 4); j++) {
+				event = &EVENT(i, j % 4, j / 4);
 				if (event->fxt == 1)
 					event->fxt = 0;
 				else if (event->fxt == 2
