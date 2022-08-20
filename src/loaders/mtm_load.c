@@ -257,7 +257,31 @@ static int mtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	}
 
 	/* Comments */
-	hio_seek(f, mfh.extralen, SEEK_CUR);
+	if (mfh.extralen) {
+		m->comment = (char *)malloc(mfh.extralen + 1);
+		if (m->comment) {
+			/* Comments are stored in 40 byte ASCIIZ lines. */
+			int len = hio_read(m->comment, 1, mfh.extralen, f);
+			int line, last_line = 0;
+
+			for (i = 0; i + 40 <= len; i += 40) {
+				if (m->comment[i] != '\0')
+					last_line = i + 40;
+			}
+			for (j = 0, line = 0; line < last_line; line += 40) {
+				char *pos = m->comment + line;
+				for (i = 0; i < 39; i++) {
+					if (pos[i] == '\0')
+						break;
+					m->comment[j++] = pos[i];
+				}
+				m->comment[j++] = '\n';
+			}
+			m->comment[j] = '\0';
+		} else {
+			hio_seek(f, mfh.extralen, SEEK_CUR);
+		}
+	}
 
 	/* Read samples */
 	D_(D_INFO "Stored samples: %d", mod->smp);
