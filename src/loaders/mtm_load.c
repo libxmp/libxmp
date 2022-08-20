@@ -218,6 +218,15 @@ static int mtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 				e->fxt = e->fxp = 0;
 			}
 
+			/* The MTM tempo effect has an unusual property:
+			 * when speed is set, the tempo resets to 125, and
+			 * when tempo is set, the speed resets to 6.
+			 * absolve.mtm by Sybaris relies on the former. */
+			if (e->fxt == FX_SPEED) {
+				e->f2t = FX_SPEED;
+				e->f2p = (e->fxp < 0x20) ? 125 : 6;
+			}
+
 			/* Set pan effect translation */
 			if (e->fxt == FX_EXTENDED && MSN(e->fxp) == 0x8) {
 				e->fxt = FX_SETPAN;
