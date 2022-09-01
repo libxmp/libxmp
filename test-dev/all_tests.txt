@@ -551,6 +551,7 @@ test_player_invalid_mod_length
 test_player_invalid_mod_channels
 test_player_it_noteoff_nosuck
 test_player_mdl_period
+test_player_mtm_tempo
 test_player_sample_sync
 test_mixer_interpolation_default
 test_mixer_interpolation_loop
