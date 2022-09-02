@@ -156,7 +156,7 @@ int xmp_test_module(const char *path, struct xmp_test_info *info)
 		return -XMP_ERROR_SYSTEM;
 
 #ifndef LIBXMP_NO_DEPACKERS
-	if (libxmp_decrunch(&h, path, &temp) < 0) {
+	if (libxmp_decrunch(h, path, &temp) < 0) {
 		ret = -XMP_ERROR_DEPACK;
 		goto err;
 	}
@@ -204,7 +204,7 @@ int xmp_test_module_from_file(void *file, struct xmp_test_info *info)
 		return -XMP_ERROR_SYSTEM;
 
 #ifndef LIBXMP_NO_DEPACKERS
-	if (libxmp_decrunch(&h, NULL, &temp) < 0) {
+	if (libxmp_decrunch(h, NULL, &temp) < 0) {
 		ret = -XMP_ERROR_DEPACK;
 		goto err;
 	}
@@ -368,7 +368,7 @@ int xmp_load_module(xmp_context opaque, const char *path)
 
 #ifndef LIBXMP_NO_DEPACKERS
 	D_(D_INFO "decrunch");
-	if (libxmp_decrunch(&h, path, &temp_name) < 0) {
+	if (libxmp_decrunch(h, path, &temp_name) < 0) {
 		ret = -XMP_ERROR_DEPACK;
 		goto err;
 	}

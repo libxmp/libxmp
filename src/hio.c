@@ -467,7 +467,7 @@ HIO_HANDLE *hio_open_callbacks(void *priv, struct xmp_callbacks callbacks)
 	return h;
 }
 
-int hio_close(HIO_HANDLE *h)
+static int hio_close_internal(HIO_HANDLE *h)
 {
 	int ret = -1;
 
@@ -482,7 +482,58 @@ int hio_close(HIO_HANDLE *h)
 		ret = cbclose(h->handle.cbfile);
 		break;
 	}
+	return ret;
+}
 
+/* hio_close + hio_open_mem. Reuses the same HIO_HANDLE. */
+int hio_reopen_mem(const void *ptr, long size, int free_after_use, HIO_HANDLE *h)
+{
+	MFILE *m;
+	int ret;
+	if (size <= 0) return -1;
+
+	m = mopen(ptr, size, free_after_use);
+	if (m == NULL) {
+		return -1;
+	}
+
+	ret = hio_close_internal(h);
+	if (ret < 0) {
+		m->free_after_use = 0;
+		mclose(m);
+		return ret;
+	}
+
+	h->type = HIO_HANDLE_TYPE_MEMORY;
+	h->handle.mem = m;
+	h->size = size;
+	return 0;
+}
+
+/* hio_close + hio_open_file. Reuses the same HIO_HANDLE. */
+int hio_reopen_file(FILE *f, int close_after_use, HIO_HANDLE *h)
+{
+	long size = get_size(f);
+	int ret;
+	if (size < 0) {
+		return -1;
+	}
+
+	ret = hio_close_internal(h);
+	if (ret < 0) {
+		return -1;
+	}
+
+	h->noclose = !close_after_use;
+	h->type = HIO_HANDLE_TYPE_FILE;
+	h->handle.file = f;
+	h->size = size;
+	return 0;
+}
+
+int hio_close(HIO_HANDLE *h)
+{
+	int ret = hio_close_internal(h);
 	free(h);
 	return ret;
 }
