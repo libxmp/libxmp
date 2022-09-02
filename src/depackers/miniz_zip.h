@@ -1,7 +1,7 @@
 #ifndef MINIZ_ZIP_H
 #define MINIZ_ZIP_H
 
-#include "miniz.h"
+#include "../miniz.h"
 
 #if 1 /* LIBXMP-SPECIFIC : */
 /* change namespace from mz_ to libxmp_ for public functions: */

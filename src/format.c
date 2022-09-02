@@ -46,6 +46,7 @@ const struct format_loader *const format_loaders[NUM_FORMATS + 2] = {
 	&libxmp_loader_liq,
 	&libxmp_loader_no,
 	&libxmp_loader_masi,
+	&libxmp_loader_muse,
 	&libxmp_loader_gal5,
 	&libxmp_loader_gal4,
 	&libxmp_loader_psm,
