@@ -12,13 +12,13 @@ TEST(test_fuzzer_depack_muse_truncated)
 	 * implementation due to indexing an array by EOF without a check.
 	 * It partly cover tinfl failure cases, too. */
 	ret = xmp_load_module(opaque, "data/f/depack_muse_truncated.j2b");
-	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking (truncated)");
+	fail_unless(ret == -XMP_ERROR_LOAD, "depacking (truncated)");   /* -XMP_ERROR_DEPACK */
 
 	/* This input caused an endless loop in the kunzip inflate
 	 * implementation due to missing EOF checks. It partly covers
 	 * tinfl failure cases, too. */
 	ret = xmp_load_module(opaque, "data/f/depack_muse_truncated2.j2b");
-	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking (truncated2)");
+	fail_unless(ret == -XMP_ERROR_LOAD, "depacking (truncated2)");  /* -XMP_ERROR_DEPACK */
 
 	xmp_free_context(opaque);
 }

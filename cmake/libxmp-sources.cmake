@@ -27,6 +27,7 @@ set(LIBXMP_SRC_LIST
     src/memio.c
     src/tempfile.c
     src/mix_paula.c
+    src/miniz_tinfl.c
     src/win32.c
     src/loaders/common.c
     src/loaders/iff.c
@@ -82,6 +83,7 @@ set(LIBXMP_SRC_LIST
     src/loaders/gal4_load.c
     src/loaders/mfp_load.c
     src/loaders/asylum_load.c
+    src/loaders/muse_load.c
     src/loaders/hmn_load.c
     src/loaders/mgt_load.c
     src/loaders/chip_load.c
@@ -143,8 +145,6 @@ set(LIBXMP_SRC_LIST_DEPACKERS
     src/depackers/arc_unpack.c
     src/depackers/lzx.c
     src/depackers/lzx_unpack.c
-    src/depackers/muse.c
-    src/depackers/miniz_tinfl.c
     src/depackers/miniz_zip.c
     src/depackers/unzip.c
     src/depackers/gunzip.c

@@ -23,7 +23,7 @@
 #include "../common.h"
 #include "depacker.h"
 #include "crc32.h"
-#include "miniz.h"
+#include "../miniz.h"
 
 /* See RFC1952 for further information */
 

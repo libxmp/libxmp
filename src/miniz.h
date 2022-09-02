@@ -281,8 +281,7 @@ typedef void *(*mz_realloc_func)(void *opaque, void *address, size_t items, size
 /* ------------------- Types and macros */
 
 #if 1 /* libxmp-specific typedefs: */
-#include "../common.h"
-#include "depacker.h"
+#include "common.h"
 typedef uint8 mz_uint8;
 typedef int16 mz_int16;
 typedef uint16 mz_uint16;
