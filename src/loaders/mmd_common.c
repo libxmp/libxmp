@@ -436,13 +436,17 @@ static void mmd_load_instrument_common(
 
 	info->sampletrans = 36 + sample->strans;
 	info->synthtrans = 12 + sample->strans;
-	if (ver >= 3) {
-		/* Mix mode transposes sample instruments down two octaves.
-		 * This does not apply to ExtSamples or Synths. */
-		info->sampletrans -= 24;
-	}
 
 	if (instr) {
+		int sample_type = instr->type & ~(S_16|MD16|STEREO);
+
+		if ((ver >= 3 && sample_type == 0) || sample_type == 7) {
+			/* Mix mode transposes samples down two octaves.
+			 * This does not apply to octave samples or synths.
+			 * ExtSamples (7) are transposed regardless. */
+			info->sampletrans -= 24;
+		}
+
 		info->length = instr->length;
 
 		if (ver >= 2 && expdata->s_ext_entrsz >= 18) {	/* MMD2+ long repeat */
@@ -880,9 +884,11 @@ int mmd_load_instrument(HIO_HANDLE *f, struct module_data *m, int i, int smp_idx
 {
 	struct InstrHdr instr;
 	struct SynthInstr synth;
+	int sample_type;
 
 	instr.length = hio_read32b(f);
 	instr.type = (int16)hio_read16b(f);
+	sample_type = instr.type & ~(S_16|MD16|STEREO);
 
 	D_(D_INFO "[%2x] %-40.40s %d", i, m->mod.xxi[i].name, instr.type);
 
@@ -931,7 +937,7 @@ int mmd_load_instrument(HIO_HANDLE *f, struct module_data *m, int i, int smp_idx
 
 		smp_idx += oct;
 
-	} else if ((instr.type & ~(S_16|MD16|STEREO)) == 0) {	/* Sample */
+	} else if (sample_type == 0 || sample_type == 7) {	/* Sample */
 		int ret;
 
 		ret = mmd_load_sampled_instrument(f, m, i, smp_idx,
