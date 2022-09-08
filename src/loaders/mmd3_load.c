@@ -244,6 +244,8 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (type == -1 || type == -2) {		/* type is synth? */
 			hio_seek(f, 14, SEEK_CUR);
 			mod->smp += hio_read16b(f);	/* wforms */
+		} else if (type >= 1 && type <= 6) {	/* octave samples */
+			mod->smp += mmd_num_oct[type - 1];
 		} else {
 			mod->smp++;
 		}
