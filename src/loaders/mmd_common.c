@@ -759,14 +759,16 @@ static int mmd_load_sampled_instrument(HIO_HANDLE *f, struct module_data *m, int
          */
 
 	if (ver < 3) {
+		/* ExtSamples have two extra octaves. */
+		int octaves = (instr->type & 7) == 7 ? 5 : 3;
 		for (j = 0; j < 9; j++) {
 			for (k = 0; k < 12; k++) {
 				int xpo = 0;
 
 				if (j < 1)
 					xpo = 12 * (1 - j);
-				else if (j > 3)
-					xpo = -12 * (j - 3);
+				else if (j > octaves)
+					xpo = -12 * (j - octaves);
 
 				xxi->map[12 * j + k].xpo = xpo;
 			}

@@ -508,7 +508,9 @@ test_player_scan
 test_player_period_amiga
 test_player_period_mod_range
 test_player_pan
+test_player_med_extsample
 test_player_med_hold
+test_player_med_instruments
 test_player_med_synth
 test_player_med_synth_2
 test_player_hmn_extras
