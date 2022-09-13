@@ -2,6 +2,10 @@
 #pragma error_messages (off,E_EMPTY_TRANSLATION_UNIT)
 #endif
 
+#include "common.h"
+
+#if !(defined(LIBXMP_NO_PROWIZARD) && defined(LIBXMP_NO_DEPACKERS))
+
 #ifndef HAVE_MKSTEMP
 
 /*
@@ -37,7 +41,6 @@
  * SUCH DAMAGE.
  */
 
-#include <string.h>
 #include <fcntl.h>
 #include <errno.h>
 
@@ -94,5 +97,7 @@ int mkstemp(char *pattern)
 		} while (1);
 	} while (1);
 }
+
+#endif
 
 #endif

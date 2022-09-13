@@ -24,7 +24,9 @@
 #pragma error_messages (off,E_EMPTY_TRANSLATION_UNIT)
 #endif
 
-#ifndef LIBXMP_CORE_PLAYER
+#include "common.h"
+
+#if !(defined(LIBXMP_NO_PROWIZARD) && defined(LIBXMP_NO_DEPACKERS))
 
 #if defined(_MSC_VER) || defined(__WATCOMC__)
 #include <io.h>
@@ -36,7 +38,6 @@
 #include <sys/stat.h>
 #endif
 
-#include "common.h"
 #include "tempfile.h"
 
 #ifdef _WIN32
