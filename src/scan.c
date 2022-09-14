@@ -74,6 +74,9 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
     int st26_speed;
     int far_tempo_coarse, far_tempo_fine, far_tempo_mode;
 #endif
+    /* was 255, but Global trash goes to 318.
+     * Higher limit for MEDs, defiance.crybaby.5 has blocks with 2048+ rows. */
+    const int row_limit = IS_PLAYER_MODE_MED() ? 3200 : 512;
 
     if (mod->len == 0)
 	return 0;
@@ -237,7 +240,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 	     * (...) it dies at the end of position 2F
 	     */
 
-	    if (row_count_total > 512) { /* was 255, but Global trash goes to 318. */
+	    if (row_count_total > row_limit) {
 		D_(D_CRIT "row_count_total = %d @ ord %d, pat %d, row %d; ending scan", row_count_total, ord, pat, row);
 		goto end_module;
 	    }

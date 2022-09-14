@@ -60,8 +60,6 @@ static int mmd3_test(HIO_HANDLE *f, char *t, const int start)
 	return 0;
 }
 
-/* Number of octaves in IFFOCT samples */
-static const int num_oct[6] = { 5, 3, 2, 4, 6, 7 };
 
 static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 {
@@ -70,8 +68,6 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	struct MMD0 header;
 	struct MMD2song song;
 	struct MMD1Block block;
-	struct InstrHdr instr;
-	struct SynthInstr synth;
 	struct InstrExt *exp_smp = NULL;
 	struct MMD0exp expdata;
 	struct xmp_event *event;
@@ -245,9 +241,11 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		hio_seek(f, start + smplarr[i], SEEK_SET);
 		hio_read32b(f);				/* length */
 		type = hio_read16b(f);
-		if (type == -1) {			/* type is synth? */
+		if (type == -1 || type == -2) {		/* type is synth? */
 			hio_seek(f, 14, SEEK_CUR);
 			mod->smp += hio_read16b(f);	/* wforms */
+		} else if (type >= 1 && type <= 6) {	/* octave samples */
+			mod->smp += mmd_num_oct[type - 1];
 		} else {
 			mod->smp++;
 		}
@@ -436,12 +434,8 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 				event = &EVENT(i, k, j);
 				event->note = pos[0] & 0x7f;
 				if (event->note) {
-					event->note += song.playtransp;
-					if (ver == 2)
-						event->note += 12;
-					else
-						event->note -= 12;
-				};
+					event->note += 12 + song.playtransp;
+				}
 
 				if (event->note >= XMP_MAX_KEYS)
 					event->note = 0;
@@ -499,10 +493,20 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			exp_smp[i].suppress_midi_off = hio_read8(f);
 			exp_smp[i].finetune = hio_read8(f);
 
-			if (expdata.s_ext_entrsz > 4) {	/* Octamed V5 */
+			if (expdata.s_ext_entrsz >= 8) {	/* Octamed V5 */
 				exp_smp[i].default_pitch = hio_read8(f);
 				exp_smp[i].instr_flags = hio_read8(f);
+				hio_read16b(f);
+				skip -= 4;
+			}
+			if (expdata.s_ext_entrsz >= 10) {	/* OctaMED V5.02 */
+				hio_read16b(f);
 				skip -= 2;
+			}
+			if (expdata.s_ext_entrsz >= 18) {	/* OctaMED V7 */
+				exp_smp[i].long_repeat = hio_read32b(f);
+				exp_smp[i].long_replen = hio_read32b(f);
+				skip -= 8;
 			}
 
 			if (hio_error(f)) {
@@ -551,82 +555,15 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			continue;
 		}
 
-		hio_seek(f, start + smplarr[i], SEEK_SET);
-		instr.length = hio_read32b(f);
-		instr.type = hio_read16b(f);
+		if (hio_seek(f, start + smplarr[i], SEEK_SET) < 0) {
+			D_(D_CRIT "seek error at instrument %d", i);
+			goto err_cleanup;
+		}
 
-		D_(D_INFO "[%2x] %-40.40s %d", i, mod->xxi[i].name, instr.type);
+		smp_idx = mmd_load_instrument(f, m, i, smp_idx, &expdata,
+			&exp_smp[i], &song.sample[i], ver);
 
-		if (instr.type == -2) {			/* Hybrid */
-			int ret = mmd_load_hybrid_instrument(f, m, i,
-				smp_idx, &synth, &exp_smp[i], &song.sample[i]);
-
-			if (ret < 0) {
-				D_(D_CRIT "error loading hybrid instrument %d", i);
-				goto err_cleanup;
-			}
-
-			smp_idx++;
-
-			if (mmd_alloc_tables(m, i, &synth) != 0)
-				goto err_cleanup;
-
-			continue;
-		} else if (instr.type == -1) {		/* Synthetic */
-			int ret = mmd_load_synth_instrument(f, m, i, smp_idx,
-				&synth, &exp_smp[i], &song.sample[i]);
-
-			if (ret > 0)
-				continue;
-
-			if (ret < 0) {
-				D_(D_CRIT "error loading synthetic instrument %d", i);
-				goto err_cleanup;
-			}
-
-			smp_idx += synth.wforms;
-
-			if (mmd_alloc_tables(m, i, &synth) != 0)
-				goto err_cleanup;
-
-			continue;
-		} else if (instr.type >= 1 && instr.type <= 6) { /* IFFOCT */
-			int ret;
-			const int oct = num_oct[instr.type - 1];
-
-			ret = mmd_load_iffoct_instrument(f, m, i, smp_idx,
-				&instr, oct, &exp_smp[i], &song.sample[i]);
-
-			if (ret < 0) {
-				D_(D_CRIT "error loading IFFOCT instrument %d", i);
-				goto err_cleanup;
-			}
-
-			smp_idx += oct;
-
-			continue;
-		} else if ((instr.type & STEREO) != 0) {
-			D_(D_WARN "stereo sample unsupported");
-			mod->xxi[i].nsm = 0;
-			continue;
-		} else if ((instr.type & S_16) == 0) {	/* Sample */
-			int ret;
-
-			ret = mmd_load_sampled_instrument(f, m, i, smp_idx,
-				&instr, &expdata, &exp_smp[i], &song.sample[i],
-				ver);
-
-			if (ret < 0) {
-				D_(D_CRIT "error loading sample %d", i);
-				goto err_cleanup;
-			}
-
-			smp_idx++;
-
-			continue;
-		} else {
-			/* Invalid instrument type */
-			D_(D_CRIT "invalid instrument type: %d", instr.type);
+		if (smp_idx < 0) {
 			goto err_cleanup;
 		}
 	}

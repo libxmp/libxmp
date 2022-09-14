@@ -396,6 +396,89 @@ void mmd_xlat_fx(struct xmp_event *event, int bpm_on, int bpmlen, int med_8ch,
 }
 
 
+struct mmd_instrument_info
+{
+	uint32 length;
+	uint32 rep;
+	uint32 replen;
+	int sampletrans;
+	int synthtrans;
+	int flg;
+	int enable;
+};
+
+/* Interpret loop/flag parameters for sampled instruments (sample, hybrid, IFF).
+ * This is common code to avoid replicating this mess in each loader. */
+static void mmd_load_instrument_common(
+			struct mmd_instrument_info *info, struct InstrHdr *instr,
+			struct MMD0exp *expdata, struct InstrExt *exp_smp,
+			struct MMD0sample *sample, int ver)
+{
+	info->enable = 1;
+	info->flg = 0;
+	if (ver >= 2 && expdata->s_ext_entrsz >= 8) {	/* MMD2+ instrument flags */
+		uint8 instr_flags = exp_smp->instr_flags;
+
+		if (instr_flags & SSFLG_LOOP) {
+			info->flg |= XMP_SAMPLE_LOOP;
+		}
+		if (instr_flags & SSFLG_PINGPONG) {
+			info->flg |= XMP_SAMPLE_LOOP_BIDIR;
+		}
+		if (instr_flags & SSFLG_DISABLED) {
+			info->enable = 0;
+		}
+	} else {
+		if (sample->replen > 1) {
+			info->flg |= XMP_SAMPLE_LOOP;
+		}
+	}
+
+	info->sampletrans = 36 + sample->strans;
+	info->synthtrans = 12 + sample->strans;
+
+	if (instr) {
+		int sample_type = instr->type & ~(S_16|MD16|STEREO);
+
+		if ((ver >= 3 && sample_type == 0) || sample_type == 7) {
+			/* Mix mode transposes samples down two octaves.
+			 * This does not apply to octave samples or synths.
+			 * ExtSamples (7) are transposed regardless. */
+			info->sampletrans -= 24;
+		}
+
+		info->length = instr->length;
+
+		if (ver >= 2 && expdata->s_ext_entrsz >= 18) {	/* MMD2+ long repeat */
+			info->rep = exp_smp->long_repeat;
+			info->replen = exp_smp->long_replen;
+		} else {
+			info->rep = sample->rep << 1;
+			info->replen = sample->replen << 1;
+		}
+
+		if (instr->type & S_16) {
+			info->flg |= XMP_SAMPLE_16BIT;
+			info->length >>= 1;
+			info->rep >>= 1;
+			info->replen >>= 1;
+		}
+
+		/* STEREO means that this is a stereo sample. The sample
+		* is not interleaved. The left channel comes first,
+		* followed by the right channel. Important: Length
+		* specifies the size of one channel only! The actual memory
+		* usage for both samples is length * 2 bytes.
+		*/
+		if (instr->type & STEREO) {
+			D_(D_WARN "stereo sample unsupported");
+			/* TODO: implement stereo sample support.
+			info.flg |= XMP_SAMPLE_STEREO;
+			*/
+		}
+	}
+}
+
 int mmd_alloc_tables(struct module_data *m, int i, struct SynthInstr *synth)
 {
 	struct med_module_extras *me = (struct med_module_extras *)m->extra;
@@ -418,17 +501,20 @@ int mmd_alloc_tables(struct module_data *m, int i, struct SynthInstr *synth)
 	return -1;
 }
 
-int mmd_load_hybrid_instrument(HIO_HANDLE *f, struct module_data *m, int i,
+static int mmd_load_hybrid_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 			int smp_idx, struct SynthInstr *synth,
-			struct InstrExt *exp_smp, struct MMD0sample *sample)
+			struct MMD0exp *expdata, struct InstrExt *exp_smp,
+			struct MMD0sample *sample, int ver)
 {
 	struct xmp_module *mod = &m->mod;
 	struct xmp_instrument *xxi = &mod->xxi[i];
 	struct xmp_subinstrument *sub;
 	struct xmp_sample *xxs;
 	struct med_instrument_extras *ie;
-	int length, type;
+	struct mmd_instrument_info info;
+	struct InstrHdr instr;
 	int pos = hio_tell(f);
+	int j;
 
 	/* Sanity check */
 	if (smp_idx >= mod->smp) {
@@ -446,30 +532,35 @@ int mmd_load_hybrid_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 	synth->wforms = hio_read16b(f);
 	hio_read(synth->voltbl, 1, 128, f);
 	hio_read(synth->wftbl, 1, 128, f);
-	if (hio_error(f))
-		return -1;
 
 	/* Sanity check */
 	if (synth->voltbllen > 128 || synth->wftbllen > 128) {
 		return -1;
 	}
 
-	hio_seek(f, pos - 6 + hio_read32b(f), SEEK_SET);
-	length = hio_read32b(f);
-	type = hio_read16b(f);
+	for (j = 0; j < synth->wforms; j++)
+		synth->wf[j] = hio_read32b(f);
+
+	if (hio_error(f))
+		return -1;
+
+	hio_seek(f, pos - 6 + synth->wf[0], SEEK_SET);
+	instr.length = hio_read32b(f);
+	instr.type = hio_read16b(f);
 
 	/* Hybrids using IFFOCT/ext samples as their sample don't seem to
-	 * exist. If one is found, this should be fixed. */
-	if (type != 0) {
-		D_(D_CRIT "unsupported sample type %d for hybrid", type);
+	 * exist. If one is found, this should be fixed. OctaMED SS 1.03
+	 * converts 16-bit samples to 8-bit when changed to hybrid. */
+	if (instr.type != 0) {
+		D_(D_CRIT "unsupported sample type %d for hybrid", instr.type);
 		return -1;
 	}
 
 	if (libxmp_med_new_instrument_extras(xxi) != 0)
 		return -1;
 
-	xxi->nsm = 1;
-	if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
+	xxi->nsm = synth->wforms;
+	if (libxmp_alloc_subinstrument(mod, i, synth->wforms) < 0)
 		return -1;
 
 	ie = MED_INSTRUMENT_EXTRAS(*xxi);
@@ -478,36 +569,69 @@ int mmd_load_hybrid_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 	ie->vtlen = synth->voltbllen;
 	ie->wtlen = synth->wftbllen;
 
+	mmd_load_instrument_common(&info, &instr, expdata, exp_smp, sample, ver);
 	sub = &xxi->sub[0];
 
 	sub->pan = 0x80;
-	sub->vol = sample->svol;
-	sub->xpo = sample->strans + 36;
+	sub->vol = info.enable ? sample->svol : 0;
+	sub->xpo = info.sampletrans;
 	sub->sid = smp_idx;
 	sub->fin = exp_smp->finetune;
 
 	xxs = &mod->xxs[smp_idx];
 
-	xxs->len = length;
-	xxs->lps = 2 * sample->rep;
-	xxs->lpe = xxs->lps + 2 * sample->replen;
-	xxs->flg = sample->replen > 1 ?  XMP_SAMPLE_LOOP : 0;
+	xxs->len = info.length;
+	xxs->lps = info.rep;
+	xxs->lpe = info.rep + info.replen;
+	xxs->flg = info.flg;
 
 	if (libxmp_load_sample(m, f, 0, xxs, NULL) < 0)
 		return -1;
 
+	smp_idx++;
+
+	for (j = 1; j < synth->wforms; j++) {
+		sub = &xxi->sub[j];
+		xxs = &mod->xxs[smp_idx];
+
+		/* Sanity check */
+		if (j >= xxi->nsm || smp_idx >= mod->smp)
+			return -1;
+
+		sub->pan = 0x80;
+		sub->vol = info.enable ? 64 : 0;
+		sub->xpo = info.synthtrans;
+		sub->sid = smp_idx;
+		sub->fin = exp_smp->finetune;
+
+		hio_seek(f, pos - 6 + synth->wf[j], SEEK_SET);
+
+		xxs->len = hio_read16b(f) * 2;
+		xxs->lps = 0;
+		xxs->lpe = xxs->len;
+		xxs->flg = XMP_SAMPLE_LOOP;
+
+		if (libxmp_load_sample(m, f, 0, xxs, NULL) < 0)
+			return -1;
+
+		smp_idx++;
+	}
 	return 0;
 }
 
-int mmd_load_synth_instrument(HIO_HANDLE *f, struct module_data *m, int i,
+static int mmd_load_synth_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 			int smp_idx, struct SynthInstr *synth,
-			struct InstrExt *exp_smp, struct MMD0sample *sample)
+			struct MMD0exp *expdata, struct InstrExt *exp_smp,
+			struct MMD0sample *sample, int ver)
 {
 	struct xmp_module *mod = &m->mod;
 	struct xmp_instrument *xxi = &mod->xxi[i];
 	struct med_instrument_extras *ie;
+	struct mmd_instrument_info info;
 	int pos = hio_tell(f);
 	int j;
+
+	mmd_load_instrument_common(&info, NULL, expdata, exp_smp, sample, ver);
 
 	synth->defaultdecay = hio_read8(f);
 	hio_seek(f, 3, SEEK_CUR);
@@ -547,7 +671,7 @@ int mmd_load_synth_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 	if (libxmp_med_new_instrument_extras(&mod->xxi[i]) != 0)
 		return -1;
 
-	mod->xxi[i].nsm = synth->wforms;
+	xxi->nsm = synth->wforms;
 	if (libxmp_alloc_subinstrument(mod, i, synth->wforms) < 0)
 		return -1;
 
@@ -566,8 +690,8 @@ int mmd_load_synth_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 			return -1;
 
 		sub->pan = 0x80;
-		sub->vol = 64;
-		sub->xpo = 12 + sample->strans;
+		sub->vol = info.enable ? 64 : 0;
+		sub->xpo = info.synthtrans;
 		sub->sid = smp_idx;
 		sub->fin = exp_smp->finetune;
 
@@ -575,7 +699,7 @@ int mmd_load_synth_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 
 		xxs->len = hio_read16b(f) * 2;
 		xxs->lps = 0;
-		xxs->lpe = mod->xxs[smp_idx].len;
+		xxs->lpe = xxs->len;
 		xxs->flg = XMP_SAMPLE_LOOP;
 
 		if (libxmp_load_sample(m, f, 0, xxs, NULL) < 0)
@@ -587,7 +711,7 @@ int mmd_load_synth_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 	return 0;
 }
 
-int mmd_load_sampled_instrument(HIO_HANDLE *f, struct module_data *m, int i,
+static int mmd_load_sampled_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 			int smp_idx, struct InstrHdr *instr,
 			struct MMD0exp *expdata, struct InstrExt *exp_smp,
 			struct MMD0sample *sample, int ver)
@@ -596,6 +720,7 @@ int mmd_load_sampled_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 	struct xmp_instrument *xxi = &mod->xxi[i];
 	struct xmp_subinstrument *sub;
 	struct xmp_sample *xxs;
+	struct mmd_instrument_info info;
 	int j, k;
 
 	/* Sanity check */
@@ -612,43 +737,21 @@ int mmd_load_sampled_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 	if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 		return -1;
 
+	mmd_load_instrument_common(&info, instr, expdata, exp_smp, sample, ver);
 	sub = &xxi->sub[0];
 
-	sub->vol = sample->svol;
+	sub->vol = info.enable ? sample->svol : 0;
 	sub->pan = 0x80;
-	sub->xpo = sample->strans + 36;
-	if (ver >= 2 && expdata->s_ext_entrsz > 4) {	/* MMD2+ */
-		if (exp_smp->default_pitch) {
-			sub->xpo += exp_smp->default_pitch - 25;
-		}
-	}
+	sub->xpo = info.sampletrans;
 	sub->sid = smp_idx;
 	sub->fin = exp_smp->finetune << 4;
 
 	xxs = &mod->xxs[smp_idx];
 
-	xxs->len = instr->length;
-	xxs->lps = 2 * sample->rep;
-	xxs->lpe = xxs->lps + 2 * sample->replen;
-	xxs->flg = 0;
-
-	if (sample->replen > 1) {
-		xxs->flg |= XMP_SAMPLE_LOOP;
-	}
-
-	if (instr->type & S_16) {
-		xxs->flg |= XMP_SAMPLE_16BIT;
-		xxs->len >>= 1;
-		xxs->lps >>= 1;
-		xxs->lpe >>= 1;
-	}
-
-	/* STEREO means that this is a stereo sample. The sample
-	 * is not interleaved. The left channel comes first,
-	 * followed by the right channel. Important: Length
-	 * specifies the size of one channel only! The actual memory
-	 * usage for both samples is length * 2 bytes.
-	 */
+	xxs->len = info.length;
+	xxs->lps = info.rep;
+	xxs->lpe = info.rep + info.replen;
+	xxs->flg = info.flg;
 
         /* Restrict sampled instruments to 3 octave range except for MMD3.
          * Checked in MMD0 with med.egypian/med.medieval from Lemmings 2
@@ -656,14 +759,16 @@ int mmd_load_sampled_instrument(HIO_HANDLE *f, struct module_data *m, int i,
          */
 
 	if (ver < 3) {
+		/* ExtSamples have two extra octaves. */
+		int octaves = (instr->type & 7) == 7 ? 5 : 3;
 		for (j = 0; j < 9; j++) {
 			for (k = 0; k < 12; k++) {
 				int xpo = 0;
 
 				if (j < 1)
 					xpo = 12 * (1 - j);
-				else if (j > 3)
-					xpo = -12 * (j - 3);
+				else if (j > octaves)
+					xpo = -12 * (j - octaves);
 
 				xxi->map[12 * j + k].xpo = xpo;
 			}
@@ -696,15 +801,17 @@ static const char iffoct_xpomap[6][9] = {
 	/* 7 */ { 12, 12, 12, 12,  0,-12,-24,-36,-48 },
 };
 
-int mmd_load_iffoct_instrument(HIO_HANDLE *f, struct module_data *m, int i,
+static int mmd_load_iffoct_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 			int smp_idx, struct InstrHdr *instr, int num_oct,
-			struct InstrExt *exp_smp, struct MMD0sample *sample)
+			struct MMD0exp *expdata, struct InstrExt *exp_smp,
+			struct MMD0sample *sample, int ver)
 {
 	struct xmp_module *mod = &m->mod;
 	struct xmp_instrument *xxi = &mod->xxi[i];
 	struct xmp_subinstrument *sub;
 	struct xmp_sample *xxs;
-	int size, rep, replen, j, k;
+	struct mmd_instrument_info info;
+	int size, j, k;
 
 	if (num_oct < 2 || num_oct > 7)
 		return -1;
@@ -730,28 +837,23 @@ int mmd_load_iffoct_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 
 	/* base octave size */
 	size = instr->length / ((1 << num_oct) - 1);
-	rep = 2 * sample->rep;
-	replen = 2 * sample->replen;
+	mmd_load_instrument_common(&info, instr, expdata, exp_smp, sample, ver);
 
 	for (j = 0; j < num_oct; j++) {
 		sub = &xxi->sub[j];
 
-		sub->vol = sample->svol;
+		sub->vol = info.enable ? sample->svol : 0;
 		sub->pan = 0x80;
-		sub->xpo = 24 + sample->strans;
+		sub->xpo = info.sampletrans - 12;
 		sub->sid = smp_idx;
 		sub->fin = exp_smp->finetune << 4;
 
 		xxs = &mod->xxs[smp_idx];
 
 		xxs->len = size;
-		xxs->lps = rep;
-		xxs->lpe = rep + replen;
-		xxs->flg = 0;
-
-		if (sample->replen > 1) {
-			xxs->flg |= XMP_SAMPLE_LOOP;
-		}
+		xxs->lps = info.rep;
+		xxs->lpe = info.rep + info.replen;
+		xxs->flg = info.flg;
 
 		if (libxmp_load_sample(m, f, SAMPLE_FLAG_BIGEND, xxs, NULL) < 0) {
 			return -1;
@@ -759,8 +861,8 @@ int mmd_load_iffoct_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 
 		smp_idx++;
 		size <<= 1;
-		rep <<= 1;
-		replen <<= 1;
+		info.rep <<= 1;
+		info.replen <<= 1;
 	}
 
 	/* instrument mapping */
@@ -773,6 +875,89 @@ int mmd_load_iffoct_instrument(HIO_HANDLE *f, struct module_data *m, int i,
 	}
 
 	return 0;
+}
+
+/* Number of octaves in IFFOCT samples */
+const int mmd_num_oct[6] = { 5, 3, 2, 4, 6, 7 };
+
+int mmd_load_instrument(HIO_HANDLE *f, struct module_data *m, int i, int smp_idx,
+			struct MMD0exp *expdata, struct InstrExt *exp_smp,
+			struct MMD0sample *sample, int ver)
+{
+	struct InstrHdr instr;
+	struct SynthInstr synth;
+	int sample_type;
+
+	instr.length = hio_read32b(f);
+	instr.type = (int16)hio_read16b(f);
+	sample_type = instr.type & ~(S_16|MD16|STEREO);
+
+	D_(D_INFO "[%2x] %-40.40s %d", i, m->mod.xxi[i].name, instr.type);
+
+	if (instr.type == -2) {					/* Hybrid */
+		int ret = mmd_load_hybrid_instrument(f, m, i, smp_idx,
+			&synth, expdata, exp_smp, sample, ver);
+
+		if (ret < 0) {
+			D_(D_CRIT "error loading hybrid instrument %d", i);
+			return -1;
+		}
+
+		smp_idx += synth.wforms;
+
+		if (mmd_alloc_tables(m, i, &synth) != 0)
+			return -1;
+
+	} else if (instr.type == -1) {				/* Synthetic */
+		int ret = mmd_load_synth_instrument(f, m, i, smp_idx,
+			&synth, expdata, exp_smp, sample, ver);
+
+		if (ret > 0)
+			return smp_idx;
+
+		if (ret < 0) {
+			D_(D_CRIT "error loading synthetic instrument %d", i);
+			return -1;
+		}
+
+		smp_idx += synth.wforms;
+
+		if (mmd_alloc_tables(m, i, &synth) != 0)
+			return -1;
+
+	} else if (instr.type >= 1 && instr.type <= 6) {	/* IFFOCT */
+		int ret;
+		const int oct = mmd_num_oct[instr.type - 1];
+
+		ret = mmd_load_iffoct_instrument(f, m, i, smp_idx,
+			&instr, oct, expdata, exp_smp, sample, ver);
+
+		if (ret < 0) {
+			D_(D_CRIT "error loading IFFOCT instrument %d", i);
+			return -1;
+		}
+
+		smp_idx += oct;
+
+	} else if (sample_type == 0 || sample_type == 7) {	/* Sample */
+		int ret;
+
+		ret = mmd_load_sampled_instrument(f, m, i, smp_idx,
+			&instr, expdata, exp_smp, sample, ver);
+
+		if (ret < 0) {
+			D_(D_CRIT "error loading sample %d", i);
+			return -1;
+		}
+
+		smp_idx++;
+
+	} else {
+		/* Invalid instrument type */
+		D_(D_CRIT "invalid instrument type: %d", instr.type);
+		return -1;
+	}
+	return smp_idx;
 }
 
 
