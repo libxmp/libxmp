@@ -211,8 +211,13 @@ static void __inline D_(const char *text, ...) {
 #undef USE_LIBXMP_SNPRINTF
 #endif
 #ifdef USE_LIBXMP_SNPRINTF
-int libxmp_vsnprintf(char *, size_t, const char *, va_list);
-int libxmp_snprintf (char *, size_t, const char *, ...);
+#if defined(__GNUC__) || defined(__clang__)
+#define LIBXMP_ATTRIB_PRINTF(x,y) __attribute__((__format__(__printf__,x,y)))
+#else
+#define LIBXMP_ATTRIB_PRINTF(x,y)
+#endif
+int libxmp_vsnprintf(char *, size_t, const char *, va_list) LIBXMP_ATTRIB_PRINTF(3,0);
+int libxmp_snprintf (char *, size_t, const char *, ...) LIBXMP_ATTRIB_PRINTF(3,4);
 #define snprintf  libxmp_snprintf
 #define vsnprintf libxmp_vsnprintf
 #endif
