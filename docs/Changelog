@@ -26,7 +26,10 @@ Stable versions
 	- Fix Digital Symphony effects and pattern loading issues.
 	- Fix support for most Farandole Composer effects.
 	- Implement Ultra Tracker tone portamento.
-	- Add support for MMDC packed OctaMED modules.
+	- Multiple OctaMED fixes and support for MMDC packed modules.
+	- Fix MTM tempo effect and FX_SPEED scan bugs.
+	- Add MTM module tempo mode detection and comments support.
+	- Multiple fixes and updates for ST modules.
 	- Move interpolation wraparound handling out of sample loader.
 	- Don't increment voice position by step value at loop/tick end.
 	- Several loading performance improvements.
@@ -37,13 +40,16 @@ Stable versions
 	- Fix heap corruption in Coconizer loader with invalid sequences.
 	- Fix MMCMP literal block unpacking.
 	- Fix bad seeking behavior in MMCMP compressed blocks.
-	- New permissive licensed Amiga LZX depacker.
-	- New permissive licensed ARC/ArcFS depackers.
+	- New permissive licensed Amiga LZX and ARC/ArcFS depackers.
 	- Update XZ depacker with an MIT reimplementation.
 	- Fixed numerous defects found by fuzzing.
 	Changes by Vitaly Novichkov:
 	- Cmake build system support.
+	Changes by Anonymous Maarten:
+	- Cmake and autotools build system updates.
 	Changes by Ozkan Sezer:
+	- Galaxy Music System loading no longer needs including depackers
+	  to inflate MUSE container.
 	- Cleanups and refactoring of platform-specific code.
 	- Multiple code cleanups.
 	- Build system fixes and clean-ups.
