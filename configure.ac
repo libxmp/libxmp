@@ -246,7 +246,7 @@ AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <dirent.h>]], [[
   struct dirent *d = readdir(dirp);
   (void)d; closedir(dirp);]])],
  [have_dirent=yes
-  AC_DEFINE(HAVE_DIRENT,1,[])],
+  AC_DEFINE(HAVE_DIRENT,1,[ ])],
  [have_dirent=no])
 AC_MSG_RESULT($have_dirent)
 
