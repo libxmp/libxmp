@@ -23,10 +23,11 @@
 #include "loader.h"
 #include "mod.h"
 #include "../period.h"
-#include "prowizard/prowiz.h"
-#include "../tempfile.h"
 
 #ifndef LIBXMP_NO_PROWIZARD
+
+#include "prowizard/prowiz.h"
+#include "../tempfile.h"
 
 extern struct list_head *checked_format;
 

@@ -25,10 +25,10 @@
 #include "format.h"
 #include "list.h"
 #include "hio.h"
-#include "tempfile.h"
 #include "loaders/loader.h"
 
 #ifndef LIBXMP_NO_DEPACKERS
+#include "tempfile.h"
 #include "depackers/depacker.h"
 #endif
 
@@ -44,9 +44,7 @@ int  libxmp_prepare_scan(struct context_data *);
 
 #ifndef LIBXMP_CORE_PLAYER
 #define BUFLEN 16384
-#endif
 
-#ifndef LIBXMP_CORE_PLAYER
 static void set_md5sum(HIO_HANDLE *f, unsigned char *digest)
 {
 	unsigned char buf[BUFLEN];
