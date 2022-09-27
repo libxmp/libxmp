@@ -317,12 +317,12 @@ static int arcfs_test(unsigned char *data)
   return arcfs_check_magic(data) == 0;
 }
 
-static int arcfs_decrunch(HIO_HANDLE *in, void **out, long inlen, long *outlen)
+static int arcfs_decrunch(HIO_HANDLE *in, void **out, long *outlen)
 {
   unsigned char *outbuf;
   size_t size;
 
-  int ret = arcfs_read(&outbuf, &size, in, inlen);
+  int ret = arcfs_read(&outbuf, &size, in, hio_size(in));
   if(ret < 0)
     return -1;
 

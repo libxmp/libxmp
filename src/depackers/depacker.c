@@ -251,7 +251,7 @@ static int decrunch_internal_tempfile(HIO_HANDLE *h, const struct depacker *depa
 
 	/* Depack file */
 	D_(D_INFO "Internal depacker");
-	if (depacker->depack(h, t, hio_size(h)) < 0) {
+	if (depacker->depack(h, t) < 0) {
 		D_(D_CRIT "failed");
 		goto err2;
 	}
@@ -283,7 +283,7 @@ static int decrunch_internal_memory(HIO_HANDLE *h, const struct depacker *depack
 
 	/* Depack file */
 	D_(D_INFO "Internal depacker");
-	if (depacker->depack_mem(h, &out, hio_size(h), &outlen) < 0) {
+	if (depacker->depack_mem(h, &out, &outlen) < 0) {
 		D_(D_CRIT "failed");
 		return -1;
 	}

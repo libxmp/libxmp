@@ -424,12 +424,12 @@ static int test_lzx(unsigned char *b)
   return !memcmp(b, "LZX", 3);
 }
 
-static int decrunch_lzx(HIO_HANDLE *in, void **out, long inlen, long *outlen)
+static int decrunch_lzx(HIO_HANDLE *in, void **out, long *outlen)
 {
   unsigned char *dest;
   size_t dest_len;
 
-  if(lzx_read(&dest, &dest_len, in, inlen) < 0)
+  if(lzx_read(&dest, &dest_len, in, hio_size(in)) < 0)
     return -1;
 
   *out = dest;
