@@ -113,7 +113,6 @@ static int decrunch_xfd(HIO_HANDLE *f, void **outbuf, long *outlen)
 
 const struct depacker libxmp_depacker_xfd = {
 	test_xfd,
-	NULL,
 	decrunch_xfd
 };
 

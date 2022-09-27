@@ -430,6 +430,5 @@ static int decrunch_sqsh(HIO_HANDLE * f, void ** outbuf, long * outlen)
 
 const struct depacker libxmp_depacker_sqsh = {
 	test_sqsh,
-	NULL,
 	decrunch_sqsh
 };
