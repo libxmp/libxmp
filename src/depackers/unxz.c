@@ -100,7 +100,7 @@ static int decrunch_xz(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 	return -1;
 }
 
-struct depacker libxmp_depacker_xz = {
+const struct depacker libxmp_depacker_xz = {
 	test_xz,
 	NULL,
 	decrunch_xz

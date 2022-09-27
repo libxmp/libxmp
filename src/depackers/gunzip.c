@@ -171,7 +171,7 @@ static int decrunch_gzip(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 	return 0;
 }
 
-struct depacker libxmp_depacker_gzip = {
+const struct depacker libxmp_depacker_gzip = {
 	test_gzip,
 	NULL,
 	decrunch_gzip

@@ -428,7 +428,7 @@ static int decrunch_sqsh(HIO_HANDLE * f, void ** outbuf, long inlen, long * outl
 	return -1;
 }
 
-struct depacker libxmp_depacker_sqsh = {
+const struct depacker libxmp_depacker_sqsh = {
 	test_sqsh,
 	NULL,
 	decrunch_sqsh

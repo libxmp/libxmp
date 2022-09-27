@@ -331,7 +331,7 @@ static int arcfs_decrunch(HIO_HANDLE *in, void **out, long inlen, long *outlen)
   return 0;
 }
 
-struct depacker libxmp_depacker_arcfs =
+const struct depacker libxmp_depacker_arcfs =
 {
   arcfs_test,
   NULL,

@@ -53,7 +53,7 @@
 
 #define BUFLEN 16384
 
-static struct depacker *depacker_list[] = {
+static const struct depacker *const depacker_list[] = {
 #if defined(LIBXMP_AMIGA) && defined(HAVE_PROTO_XFDMASTER_H)
 	&libxmp_depacker_xfd,
 #endif
@@ -239,7 +239,7 @@ static int decrunch_command(HIO_HANDLE *h, const char * const cmd[], char **temp
 #endif
 }
 
-static int decrunch_internal_tempfile(HIO_HANDLE *h, struct depacker *depacker, char **temp)
+static int decrunch_internal_tempfile(HIO_HANDLE *h, const struct depacker *depacker, char **temp)
 {
 	FILE *t;
 
@@ -274,7 +274,7 @@ static int decrunch_internal_tempfile(HIO_HANDLE *h, struct depacker *depacker, 
 	return -1;
 }
 
-static int decrunch_internal_memory(HIO_HANDLE *h, struct depacker *depacker)
+static int decrunch_internal_memory(HIO_HANDLE *h, const struct depacker *depacker)
 {
 	void *out;
 	long outlen;
@@ -303,7 +303,7 @@ int libxmp_decrunch(HIO_HANDLE *h, const char *filename, char **temp)
 	const char *cmd[32];
 	int headersize;
 	int i;
-	struct depacker *depacker = NULL;
+	const struct depacker *depacker = NULL;
 
 	cmd[0] = NULL;
 	*temp = NULL;

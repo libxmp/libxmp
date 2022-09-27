@@ -425,7 +425,7 @@ static int decrunch_s404(HIO_HANDLE *in, void **out, long inlen, long *outlen)
   return -1;
 }
 
-struct depacker libxmp_depacker_s404 = {
+const struct depacker libxmp_depacker_s404 = {
 	test_s404,
 	NULL,
 	decrunch_s404
