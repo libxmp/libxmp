@@ -41,7 +41,7 @@ static size_t mz_zip_file_read_func(void *pOpaque, mz_uint64 ofs, void *pBuf, si
 }
 #endif
 
-static int decrunch_zip(HIO_HANDLE *in, void **out, long inlen, long *outlen)
+static int decrunch_zip(HIO_HANDLE *in, void **out, long *outlen)
 {
 #ifndef MINIZ_NO_ARCHIVE_APIS
 	mz_zip_archive archive;
@@ -54,7 +54,7 @@ static int decrunch_zip(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 	archive.m_pRead = mz_zip_file_read_func;
 	archive.m_pIO_opaque = in;
 
-	if (!mz_zip_reader_init(&archive, inlen, 0)) {
+	if (!mz_zip_reader_init(&archive, hio_size(in), 0)) {
 		D_(D_CRIT "Failed to open archive: %s", mz_zip_get_error_string(archive.m_last_error));
 		return -1;
 	}
@@ -94,8 +94,7 @@ static int decrunch_zip(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 	return -1;
 }
 
-struct depacker libxmp_depacker_zip = {
+const struct depacker libxmp_depacker_zip = {
 	test_zip,
-	NULL,
 	decrunch_zip
 };

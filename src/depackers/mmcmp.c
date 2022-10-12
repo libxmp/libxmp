@@ -310,7 +310,7 @@ static int test_mmcmp(unsigned char *b)
 	return memcmp(b, "ziRCONia", 8) == 0;
 }
 
-static int decrunch_mmcmp(HIO_HANDLE *in, void **out, long inlen, long *outlen)
+static int decrunch_mmcmp(HIO_HANDLE *in, void **out, long *outlen)
 {
 	struct header h;
 	struct mem_buffer outbuf;
@@ -460,8 +460,7 @@ static int decrunch_mmcmp(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 	return -1;
 }
 
-struct depacker libxmp_depacker_mmcmp = {
+const struct depacker libxmp_depacker_mmcmp = {
 	test_mmcmp,
-	NULL,
 	decrunch_mmcmp
 };

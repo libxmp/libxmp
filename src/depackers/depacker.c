@@ -53,7 +53,7 @@
 
 #define BUFLEN 16384
 
-static struct depacker *depacker_list[] = {
+static const struct depacker *const depacker_list[] = {
 #if defined(LIBXMP_AMIGA) && defined(HAVE_PROTO_XFDMASTER_H)
 	&libxmp_depacker_xfd,
 #endif
@@ -239,42 +239,7 @@ static int decrunch_command(HIO_HANDLE *h, const char * const cmd[], char **temp
 #endif
 }
 
-static int decrunch_internal_tempfile(HIO_HANDLE *h, struct depacker *depacker, char **temp)
-{
-	FILE *t;
-
-	D_(D_WARN "Depacking file... ");
-
-	if ((t = make_temp_file(temp)) == NULL) {
-		goto err;
-	}
-
-	/* Depack file */
-	D_(D_INFO "Internal depacker");
-	if (depacker->depack(h, t, hio_size(h)) < 0) {
-		D_(D_CRIT "failed");
-		goto err2;
-	}
-
-	D_(D_INFO "done");
-
-	if (fseek(t, 0, SEEK_SET) < 0) {
-		D_(D_CRIT "fseek error");
-		goto err2;
-	}
-
-	if (hio_reopen_file(t, 1, h) < 0) {
-		goto err2;
-	}
-	return 0;
-
-    err2:
-	fclose(t);
-    err:
-	return -1;
-}
-
-static int decrunch_internal_memory(HIO_HANDLE *h, struct depacker *depacker)
+static int decrunch_internal(HIO_HANDLE *h, const struct depacker *depacker)
 {
 	void *out;
 	long outlen;
@@ -283,7 +248,7 @@ static int decrunch_internal_memory(HIO_HANDLE *h, struct depacker *depacker)
 
 	/* Depack file */
 	D_(D_INFO "Internal depacker");
-	if (depacker->depack_mem(h, &out, hio_size(h), &outlen) < 0) {
+	if (depacker->depack(h, &out, &outlen) < 0) {
 		D_(D_CRIT "failed");
 		return -1;
 	}
@@ -303,7 +268,7 @@ int libxmp_decrunch(HIO_HANDLE *h, const char *filename, char **temp)
 	const char *cmd[32];
 	int headersize;
 	int i;
-	struct depacker *depacker = NULL;
+	const struct depacker *depacker = NULL;
 
 	cmd[0] = NULL;
 	*temp = NULL;
@@ -366,9 +331,7 @@ int libxmp_decrunch(HIO_HANDLE *h, const char *filename, char **temp)
 
 		return decrunch_command(h, cmd, temp);
 	} else if (depacker && depacker->depack) {
-		return decrunch_internal_tempfile(h, depacker, temp);
-	} else if (depacker && depacker->depack_mem) {
-		return decrunch_internal_memory(h, depacker);
+		return decrunch_internal(h, depacker);
 	} else {
 		D_(D_INFO "Not packed");
 		return 0;

@@ -50,7 +50,7 @@ static int test_compress(unsigned char *b)
  * with those of the compress() routine.  See the definitions above.
  */
 
-static int decrunch_compress(HIO_HANDLE * in, void ** out, long inlen, long * outlen)
+static int decrunch_compress(HIO_HANDLE * in, void ** out, long * outlen)
 {
 	char_type *stackp;
 	code_int code;
@@ -282,8 +282,7 @@ static int decrunch_compress(HIO_HANDLE * in, void ** out, long inlen, long * ou
 	return 0;
 }
 
-struct depacker libxmp_depacker_compress = {
+const struct depacker libxmp_depacker_compress = {
 	test_compress,
-	NULL,
 	decrunch_compress
 };

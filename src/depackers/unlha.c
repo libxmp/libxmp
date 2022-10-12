@@ -1402,10 +1402,11 @@ static void decode_start_lz5(struct LhADecrData *dat)
 
 #endif
 
-static int32 LhA_Decrunch(HIO_HANDLE *in, FILE *out, int size, uint32 Method)
+static int32 LhA_Decrunch(HIO_HANDLE *in, uint8 *out, int size, uint32 Method)
 {
   struct LhADecrData *dd;
   int32 err = 0;
+  size_t outpos = 0;
 
   dd = (struct LhADecrData *) calloc(1, sizeof(struct LhADecrData));
   if(dd) {
@@ -1531,11 +1532,10 @@ static int32 LhA_Decrunch(HIO_HANDLE *in, FILE *out, int size, uint32 Method)
 
           if(c <= UCHAR_MAX)
           {
-            int res = fputc(c, out);
-            if (res < 0) {
+            if (outpos >= size) {
               goto error;
             }
-            text[dd->loc++] = res;
+            text[dd->loc++] = out[outpos++] = c;
             dd->loc &= dicsiz;
             dd->count++;
           }
@@ -1546,11 +1546,10 @@ static int32 LhA_Decrunch(HIO_HANDLE *in, FILE *out, int size, uint32 Method)
             dd->count += c;
             while(c--)
             {
-              int res = fputc(text[i++ & dicsiz], out);
-              if (res < 0) {
+              if (outpos >= size) {
                 goto error;
               }
-              text[dd->loc++] = res;
+              text[dd->loc++] = out[outpos++] = text[i++ & dicsiz];
               dd->loc &= dicsiz;
             }
           }
@@ -1833,9 +1832,10 @@ static int test_lha(unsigned char *b) {
 		b[20] <= 3;
 }
 
-static int decrunch_lha(HIO_HANDLE *in, FILE *out, long inlen)
+static int decrunch_lha(HIO_HANDLE *in, void **out, long *outlen)
 {
 	struct lha_data data;
+	unsigned char *outbuf = NULL;
 
 	while (1) {
 		if (get_header(in, &data) < 0)
@@ -1850,7 +1850,7 @@ static int decrunch_lha(HIO_HANDLE *in, FILE *out, long inlen)
 #endif
 
 		if (data.packed_size <= 0)
-			return -1;
+			break;
 
 		if (libxmp_exclude_match(data.name)) {
 			if (hio_seek(in, data.packed_size, SEEK_CUR) < 0) {
@@ -1858,14 +1858,25 @@ static int decrunch_lha(HIO_HANDLE *in, FILE *out, long inlen)
 			}
 			continue;
 		}
-		return LhA_Decrunch(in, out, data.original_size, data.method);
+
+		outbuf = (unsigned char *) malloc(data.original_size);
+		if (!outbuf)
+			break;
+
+		if (LhA_Decrunch(in, outbuf, data.original_size, data.method) < 0)
+			break;
+
+		*out = outbuf;
+		*outlen = data.original_size;
+		return 0;
 	}
 
+	if (outbuf)
+		free(outbuf);
 	return -1;
 }
 
-struct depacker libxmp_depacker_lha = {
+const struct depacker libxmp_depacker_lha = {
 	test_lha,
-	decrunch_lha,
-	NULL
+	decrunch_lha
 };

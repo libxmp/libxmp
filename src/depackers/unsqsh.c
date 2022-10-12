@@ -380,7 +380,7 @@ static int test_sqsh(unsigned char *b)
 	return memcmp(b, "XPKF", 4) == 0 && memcmp(b + 8, "SQSH", 4) == 0;
 }
 
-static int decrunch_sqsh(HIO_HANDLE * f, void ** outbuf, long inlen, long * outlen)
+static int decrunch_sqsh(HIO_HANDLE * f, void ** outbuf, long * outlen)
 {
 	unsigned char *src, *dest;
 	int srclen, destlen;
@@ -428,8 +428,7 @@ static int decrunch_sqsh(HIO_HANDLE * f, void ** outbuf, long inlen, long * outl
 	return -1;
 }
 
-struct depacker libxmp_depacker_sqsh = {
+const struct depacker libxmp_depacker_sqsh = {
 	test_sqsh,
-	NULL,
 	decrunch_sqsh
 };

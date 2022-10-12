@@ -4,25 +4,24 @@
 #include "../common.h"
 #include "../hio.h"
 
-extern struct depacker libxmp_depacker_zip;
-extern struct depacker libxmp_depacker_lha;
-extern struct depacker libxmp_depacker_gzip;
-extern struct depacker libxmp_depacker_bzip2;
-extern struct depacker libxmp_depacker_xz;
-extern struct depacker libxmp_depacker_compress;
-extern struct depacker libxmp_depacker_pp;
-extern struct depacker libxmp_depacker_sqsh;
-extern struct depacker libxmp_depacker_arc;
-extern struct depacker libxmp_depacker_arcfs;
-extern struct depacker libxmp_depacker_mmcmp;
-extern struct depacker libxmp_depacker_lzx;
-extern struct depacker libxmp_depacker_s404;
-extern struct depacker libxmp_depacker_xfd;
+extern const struct depacker libxmp_depacker_zip;
+extern const struct depacker libxmp_depacker_lha;
+extern const struct depacker libxmp_depacker_gzip;
+extern const struct depacker libxmp_depacker_bzip2;
+extern const struct depacker libxmp_depacker_xz;
+extern const struct depacker libxmp_depacker_compress;
+extern const struct depacker libxmp_depacker_pp;
+extern const struct depacker libxmp_depacker_sqsh;
+extern const struct depacker libxmp_depacker_arc;
+extern const struct depacker libxmp_depacker_arcfs;
+extern const struct depacker libxmp_depacker_mmcmp;
+extern const struct depacker libxmp_depacker_lzx;
+extern const struct depacker libxmp_depacker_s404;
+extern const struct depacker libxmp_depacker_xfd;
 
 struct depacker {
 	int (*test)(unsigned char *);
-	int (*depack)(HIO_HANDLE *, FILE *, long);
-	int (*depack_mem)(HIO_HANDLE *, void **, long, long *);
+	int (*depack)(HIO_HANDLE *, void **, long *);
 };
 
 int	libxmp_decrunch		(HIO_HANDLE *h, const char *filename, char **temp);

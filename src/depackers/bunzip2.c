@@ -694,7 +694,7 @@ static int test_bzip2(unsigned char *b)
 	return b[0] == 'B' && b[1] == 'Z' && b[2] == 'h';
 }
 
-static int decrunch_bzip2(HIO_HANDLE *in, void **out, long inlen, long *outlen)
+static int decrunch_bzip2(HIO_HANDLE *in, void **out, long *outlen)
 {
   struct bunzip_data *bd;
   struct bunzip_output output;
@@ -734,8 +734,7 @@ static int decrunch_bzip2(HIO_HANDLE *in, void **out, long inlen, long *outlen)
   return 0;
 }
 
-struct depacker libxmp_depacker_bzip2 = {
+const struct depacker libxmp_depacker_bzip2 = {
 	test_bzip2,
-	NULL,
 	decrunch_bzip2
 };

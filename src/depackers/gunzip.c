@@ -63,7 +63,7 @@ static int test_gzip(unsigned char *b)
 	return b[0] == 31 && b[1] == 139;
 }
 
-static int decrunch_gzip(HIO_HANDLE *in, void **out, long inlen, long *outlen)
+static int decrunch_gzip(HIO_HANDLE *in, void **out, long *outlen)
 {
 	struct member member;
 	int val, c;
@@ -71,7 +71,7 @@ static int decrunch_gzip(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 	void *pCmp_data, *pOut_buf;
 	size_t pOut_len;
 	uint32 crc_in, crc;
-	long start;
+	long start, inlen;
 
 	member.id1 = hio_read8(in);
 	member.id2 = hio_read8(in);
@@ -119,6 +119,7 @@ static int decrunch_gzip(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 	}
 
 	start = hio_tell(in);
+	inlen = hio_size(in);
 	if (hio_error(in) || start < 0 || inlen < start || inlen - start < 8) {
 		D_(D_CRIT "input file is truncated or is missing gzip footer");
 		return -1;
@@ -171,8 +172,7 @@ static int decrunch_gzip(HIO_HANDLE *in, void **out, long inlen, long *outlen)
 	return 0;
 }
 
-struct depacker libxmp_depacker_gzip = {
+const struct depacker libxmp_depacker_gzip = {
 	test_gzip,
-	NULL,
 	decrunch_gzip
 };

@@ -357,12 +357,12 @@ static int arc_test(unsigned char *data)
   return is_arc_archive(data);
 }
 
-static int arc_decrunch(HIO_HANDLE *in, void **out, long inlen, long *outlen)
+static int arc_decrunch(HIO_HANDLE *in, void **out, long *outlen)
 {
   unsigned char *outbuf;
   size_t size;
 
-  int ret = arc_read(&outbuf, &size, in, inlen);
+  int ret = arc_read(&outbuf, &size, in, hio_size(in));
   if(ret < 0)
     return -1;
 
@@ -371,9 +371,8 @@ static int arc_decrunch(HIO_HANDLE *in, void **out, long inlen, long *outlen)
   return 0;
 }
 
-struct depacker libxmp_depacker_arc =
+const struct depacker libxmp_depacker_arc =
 {
   arc_test,
-  NULL,
   arc_decrunch
 };

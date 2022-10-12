@@ -364,12 +364,14 @@ static int test_s404(unsigned char *b)
 	return memcmp(b, "S404", 4) == 0;
 }
 
-static int decrunch_s404(HIO_HANDLE *in, void **out, long inlen, long *outlen)
+static int decrunch_s404(HIO_HANDLE *in, void **out, long *outlen)
 {
   int32 oLen, sLen, pLen;
   uint8 *dst = NULL;
   uint8 *buf, *src;
+  long inlen;
 
+  inlen = hio_size(in);
   if (inlen <= 16)
     return -1;
   src = buf = (uint8 *) malloc(inlen);
@@ -425,8 +427,7 @@ static int decrunch_s404(HIO_HANDLE *in, void **out, long inlen, long *outlen)
   return -1;
 }
 
-struct depacker libxmp_depacker_s404 = {
+const struct depacker libxmp_depacker_s404 = {
 	test_s404,
-	NULL,
 	decrunch_s404
 };
