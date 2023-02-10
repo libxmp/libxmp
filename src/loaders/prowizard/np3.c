@@ -188,6 +188,7 @@ static int depack_np3(HIO_HANDLE *in, FILE *out)
 static int test_np3(const uint8 *data, char *t, int s)
 {
 	int num_ins, ssize, hdr_size, ptab_size, trk_size, max_pptr;
+	int errcount = 0;
 	int i;
 
 	PW_REQUEST_DATA(s, 10);
@@ -274,18 +275,23 @@ static int test_np3(const uint8 *data, char *t, int s)
 
 		/* si note trop grande et si effet = A */
 		if (d[0] > 0x49 || (d[1] & 0x0f) == 0x0a)
-			return -1;
+			errcount++;
 
 		/* si effet D et arg > 0x40 */
 		if ((d[1] & 0x0f) == 0x0d && d[2] > 0x40)
-			return -1;
+			errcount++;
 
 		/* sample nbr > ce qui est defini au debut ? */
 		if ((((d[0] << 4) & 0x10) | ((d[1] >> 4) & 0x0f)) > num_ins)
-			return -1;
+			errcount++;
 
 		/* all is empty ?!? ... cannot be ! */
 		if (d[0] == 0 && d[1] == 0 && d[2] == 0 && i < (trk_size - 3))
+			errcount++;
+
+		/* Shadow Fighter np3.title and np3.ingame_12 both have a
+		 * single wrong instrument value. */
+		if (errcount > 1)
 			return -1;
 
 		i += 2;
