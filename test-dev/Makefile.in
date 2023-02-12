@@ -766,8 +766,9 @@ fuzzerclean:
 	rm -rf $(FUZZLIB_PATH) libxmp_fuzz_asan libxmp_fuzz_msan libxmp_fuzz_ubsan
 
 $(FUZZLIB_PATH):
+	rm -rf $(FUZZLIB_PATH)
 	mkdir -p $(FUZZLIB_PATH)
-	cp -r ../configure.ac ../Makefile.in ../libxmp.pc.in ../cmake ../docs ../include ../m4 ../src ../test $(FUZZLIB_PATH)
+	(BASE=$$(pwd); cd .. && git checkout-index -a --prefix "$$BASE/$(FUZZLIB_PATH)/")
 
 $(FUZZLIB_PATH)/libxmp-asan.a: $(FUZZLIB_PATH)
 	(cd $(FUZZLIB_PATH) && \
