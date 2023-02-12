@@ -71,6 +71,8 @@ jobs:
         run: |
           (cd test-dev && autoconf && CC=clang CFLAGS="-fPIE" ./configure)
           (cd test-dev && make -j 3)
+      - name: Fuzzers
+        run: (cd test-dev && make fuzzers -j3)
 
   # Simulate Fedora RPM builds, usage of __symver__.
   linux-gcc-10-lto:
