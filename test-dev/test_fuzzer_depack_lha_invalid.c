@@ -29,6 +29,11 @@ TEST(test_fuzzer_depack_lha_invalid)
 	ret = xmp_load_module(opaque, "data/f/depack_lha_invalid_size2.lha");
 	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking (invalid_size2)");
 
+	/* Uncompressed sizes >2G would result in the depacker code
+	 * trying to allocate negative numbers. */
+	ret = xmp_load_module(opaque, "data/f/depack_lha_invalid_size3.lha");
+	fail_unless(ret == -XMP_ERROR_DEPACK, "depacking (invalid_size3)");
+
 	xmp_free_context(opaque);
 }
 END_TEST

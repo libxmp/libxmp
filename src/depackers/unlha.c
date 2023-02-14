@@ -1556,6 +1556,10 @@ static int32 LhA_Decrunch(HIO_HANDLE *in, uint8 *out, int size, uint32 Method)
         }
         err = dd->error;
         free(text);
+
+        /* If the stream did not contain a complete file, reject it */
+        if (outpos < size)
+          err = -1;
       }
       else
         err = -1;
@@ -1849,7 +1853,7 @@ static int decrunch_lha(HIO_HANDLE *in, void **out, long *outlen)
 		printf("position = %lx\n", hio_tell(in));
 #endif
 
-		if (data.packed_size <= 0)
+		if (data.packed_size <= 0 || data.original_size < 0)
 			break;
 
 		if (libxmp_exclude_match(data.name)) {
@@ -1863,7 +1867,7 @@ static int decrunch_lha(HIO_HANDLE *in, void **out, long *outlen)
 		if (!outbuf)
 			break;
 
-		if (LhA_Decrunch(in, outbuf, data.original_size, data.method) < 0)
+		if (LhA_Decrunch(in, outbuf, data.original_size, data.method) != 0)
 			break;
 
 		*out = outbuf;
