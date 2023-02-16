@@ -122,7 +122,7 @@ static int decompressS404(uint8 *src, uint8 *orgdst,
   eff = initGetb(&bs, src, src_length);
 
   /* Sanity check--prevent invalid shift exponents. */
-  if (eff < 6 || eff >= 32)
+  if (eff < 6 || eff >= 16)
     return -1;
 
   /*printf("_bl: %02X, _bb: %04X, eff: %d\n",_bl,_bb, eff);*/
