@@ -20,9 +20,8 @@ case "$COMMAND" in
 		[ -n "$1" ] && { NEW_CORPUS="$1"; }
 		[ -n "$2" ] && { OLD_CORPUS="$2"; }
 		mkdir -p "$NEW_CORPUS"
-		./libxmp_fuzz_asan -merge=1 "$NEW_CORPUS" "$OLD_CORPUS"
-		./libxmp_fuzz_msan -merge=1 "$NEW_CORPUS" "$OLD_CORPUS"
-		./libxmp_fuzz_ubsan -merge=1 "$NEW_CORPUS" "$OLD_CORPUS"
+		./libxmp_fuzz_asan -merge=1 -rss_limit_mb=4096 -timeout=2 "$NEW_CORPUS" "$OLD_CORPUS"
+		./libxmp_fuzz_msan -merge=1 -rss_limit_mb=4096 -timeout=2 "$NEW_CORPUS" "$OLD_CORPUS"
 		;;
 
 	#
@@ -33,9 +32,6 @@ case "$COMMAND" in
 		;;
 	msanx)
 		./libxmp_fuzz_msan -artifact_prefix="ARTIFACTS/" "$@"
-		;;
-	ubsanx)
-		./libxmp_fuzz_ubsan -artifact_prefix="ARTIFACTS/" "$@"
 		;;
 
 	#
@@ -48,9 +44,5 @@ case "$COMMAND" in
 	msan)
 		mkdir -p "CORPUS"
 		./libxmp_fuzz_msan $DEFAULT_PARAMETERS "$@"
-		;;
-	ubsan)
-		mkdir -p "CORPUS"
-		./libxmp_fuzz_ubsan $DEFAULT_PARAMETERS "$@"
 		;;
 esac

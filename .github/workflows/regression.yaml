@@ -344,7 +344,7 @@ jobs:
       - name: Create and run configure script
         run: |
           export CC=clang
-          export CFLAGS="-fsanitize=address -fno-omit-frame-pointer -g"
+          export CFLAGS="-fsanitize=address,undefined -fno-sanitize-recover=all -fno-sanitize=shift-base -fno-omit-frame-pointer -g"
           export LDFLAGS="$CFLAGS"
           autoconf; ./configure
           (cd test-dev; autoconf; ./configure)
@@ -376,23 +376,3 @@ jobs:
       - name: Build and run regression tests
         run: (cd test-dev && make -j 3)
 
-  UndefinedBehaviorSanitizer:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Install dependencies
-        run: sudo apt install unrar
-      - name: Create and run configure script
-        run: |
-          export CC=clang
-          export CFLAGS="-fsanitize=undefined -fno-sanitize-recover=all -fno-sanitize=shift-base -fno-omit-frame-pointer -g"
-          export LDFLAGS="$CFLAGS"
-          autoconf; ./configure
-          (cd test-dev; autoconf; ./configure)
-      - name: Build library
-        run: make -j 3
-      - name: Build and run test
-        run: make check
-      - name: Build and run regression tests
-        run: (cd test-dev && make -j 3)
