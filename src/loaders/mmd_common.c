@@ -534,7 +534,8 @@ static int mmd_load_hybrid_instrument(HIO_HANDLE *f, struct module_data *m, int 
 	hio_read(synth->wftbl, 1, 128, f);
 
 	/* Sanity check */
-	if (synth->voltbllen > 128 || synth->wftbllen > 128) {
+	if (synth->voltbllen > 128 || synth->wftbllen > 128 ||
+	    synth->wforms < 1 || synth->wforms > 64) {
 		return -1;
 	}
 
