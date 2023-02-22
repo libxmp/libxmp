@@ -381,8 +381,15 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		}
 		break;
 	case 5:
-		snprintf(tracker_name, 40, "OpenMPT %d.%02x",
-			 (sfh.version & 0x0f00) >> 8, sfh.version & 0xff);
+		if (sfh.version == 0x5447) {
+			strcpy(tracker_name, "Graoumf Tracker");
+		} else if (sfh.rsvd2[0] || sfh.rsvd2[1]) {
+			snprintf(tracker_name, 40, "OpenMPT %d.%02x.%02x.%02x",
+				 (sfh.version & 0x0f00) >> 8, sfh.version & 0xff, sfh.rsvd2[1], sfh.rsvd2[0]);
+		} else {
+			snprintf(tracker_name, 40, "OpenMPT %d.%02x",
+				 (sfh.version & 0x0f00) >> 8, sfh.version & 0xff);
+		}
 		m->quirk |= QUIRK_ST3BUGS;
 		break;
 	case 4:
