@@ -542,6 +542,7 @@ FUZZER		= misc \
 		  play_it_row_0_loop_row_delay \
 		  play_it_sustain_bidi \
 		  play_669_low_freq \
+		  play_abk_0_length_track \
 		  play_asylum_bad_effects \
 		  play_dbm_inst_no_samples \
 		  play_far_highbpm \
