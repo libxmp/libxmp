@@ -364,7 +364,7 @@ static int read_abk_pattern(HIO_HANDLE *f, struct xmp_event *events, uint32 patt
             break;
         }
     }
-    if (position < 64) {
+    if (position >= 1 && position < 64) {
 	events[position - 1].f2t = FX_BREAK;
     }
 

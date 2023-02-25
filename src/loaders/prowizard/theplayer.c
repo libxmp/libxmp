@@ -59,7 +59,8 @@ static uint8 set_event(uint8 *x, uint8 c1, uint8 c2, uint8 c3)
 	return b;
 }
 
-#define track(p,c,r) tdata[((int)(p) * 4 + (c)) * 512 + (r) * 4]
+/* #define track(p,c,r) tdata[((int)(p) * 4 + (c)) * 512 + (r) * 4] */
+#define track(p,c,r) tdata[(int)(p) * 1024 + (r) * 16 + (c) * 4]
 
 
 static int decode_pattern(HIO_HANDLE *in, int npat, uint8 *tdata, int taddr[128][4])
@@ -220,7 +221,7 @@ static int theplayer_depack(HIO_HANDLE *in, FILE *out, int version)
     int taddr[128][4];
     int sdata_addr = 0;
     /* int ssize = 0; */
-    int i, j, k;
+    int i, j;
     int smp_size[31];
     int saddr[31];
     /*int unpacked_ssize;*/
@@ -349,6 +350,8 @@ static int theplayer_depack(HIO_HANDLE *in, FILE *out, int version)
     }
 
     /* write pattern data */
+    fwrite(tdata, 1024, npat, out);
+    /*
     for (i = 0; i < npat; i++) {
 	memset(buf, 0, sizeof(buf));
 	for (j = 0; j < 64; j++) {
@@ -357,6 +360,7 @@ static int theplayer_depack(HIO_HANDLE *in, FILE *out, int version)
 	}
 	fwrite(buf, 1024, 1, out);
     }
+    */
 
     free(tdata);
 

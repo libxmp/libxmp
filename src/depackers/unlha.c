@@ -1402,11 +1402,17 @@ static void decode_start_lz5(struct LhADecrData *dat)
 
 #endif
 
-static int32 LhA_Decrunch(HIO_HANDLE *in, uint8 *out, int size, uint32 Method)
+static int32 LhA_Decrunch(HIO_HANDLE *in, uint8 **_out, int size, uint32 Method)
 {
   struct LhADecrData *dd;
   int32 err = 0;
   size_t outpos = 0;
+  uint8 *out, *tmp;
+  size_t out_sz = 256;
+
+  out = (uint8 *) malloc(out_sz);
+  if(!out)
+    return -1;
 
   dd = (struct LhADecrData *) calloc(1, sizeof(struct LhADecrData));
   if(dd) {
@@ -1532,9 +1538,17 @@ static int32 LhA_Decrunch(HIO_HANDLE *in, uint8 *out, int size, uint32 Method)
 
           if(c <= UCHAR_MAX)
           {
-            if (outpos >= size) {
+            if(outpos >= size) {
               goto error;
             }
+            if(outpos >= out_sz) {
+              out_sz <<= 1;
+              tmp = (uint8 *) realloc(out, out_sz);
+              if(!tmp)
+                goto error;
+              out = tmp;
+            }
+
             text[dd->loc++] = out[outpos++] = c;
             dd->loc &= dicsiz;
             dd->count++;
@@ -1544,11 +1558,23 @@ static int32 LhA_Decrunch(HIO_HANDLE *in, uint8 *out, int size, uint32 Method)
             c -= offset;
             i = dd->loc - DecodeP(dd) - 1;
             dd->count += c;
+
+            if(c > size || outpos >= size - c) {
+              goto error;
+            }
+            if(outpos + c >= out_sz) {
+              while(out_sz && out_sz < outpos + c)
+                out_sz <<= 1;
+              if(!out_sz)
+                goto error;
+              tmp = (uint8 *) realloc(out, out_sz);
+              if(!tmp)
+                goto error;
+              out = tmp;
+            }
+
             while(c--)
             {
-              if (outpos >= size) {
-                goto error;
-              }
               text[dd->loc++] = out[outpos++] = text[i++ & dicsiz];
               dd->loc &= dicsiz;
             }
@@ -1556,6 +1582,10 @@ static int32 LhA_Decrunch(HIO_HANDLE *in, uint8 *out, int size, uint32 Method)
         }
         err = dd->error;
         free(text);
+
+        /* If the stream did not contain a complete file, reject it */
+        if (outpos < size)
+          err = -1;
       }
       else
         err = -1;
@@ -1564,11 +1594,17 @@ static int32 LhA_Decrunch(HIO_HANDLE *in, uint8 *out, int size, uint32 Method)
   }
   else
     err = -1;
+
+  if(!err)
+    out = (uint8 *) realloc(out, size);
+
+  *_out = out;
   return err;
 
 error:
   free(dd->text);
   free(dd);
+  free(out);
   return -1;
 }
 
@@ -1849,7 +1885,7 @@ static int decrunch_lha(HIO_HANDLE *in, void **out, long *outlen)
 		printf("position = %lx\n", hio_tell(in));
 #endif
 
-		if (data.packed_size <= 0)
+		if (data.packed_size <= 0 || data.original_size <= 0)
 			break;
 
 		if (libxmp_exclude_match(data.name)) {
@@ -1859,11 +1895,7 @@ static int decrunch_lha(HIO_HANDLE *in, void **out, long *outlen)
 			continue;
 		}
 
-		outbuf = (unsigned char *) malloc(data.original_size);
-		if (!outbuf)
-			break;
-
-		if (LhA_Decrunch(in, outbuf, data.original_size, data.method) < 0)
+		if (LhA_Decrunch(in, &outbuf, data.original_size, data.method) != 0)
 			break;
 
 		*out = outbuf;

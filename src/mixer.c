@@ -577,7 +577,10 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 
 		step = C4_PERIOD * c5spd / s->freq / vi->period;
 
-		if (step < 0.001) {	/* otherwise m5v-nwlf.it crashes */
+		/* Don't allow <=0, otherwise m5v-nwlf.it crashes
+		 * Extremely high values that can cause undefined float/int
+		 * conversion are also possible for c5spd modules. */
+		if (step < 0.001 || step > (double)SHRT_MAX) {
 			continue;
 		}
 

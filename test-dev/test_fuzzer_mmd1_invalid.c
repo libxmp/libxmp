@@ -81,6 +81,12 @@ TEST(test_fuzzer_mmd1_invalid)
 	/* Truncated block (MMD1). */
 	mmd1_invalid_helper(opaque, "data/f/load_mmd1_invalid_block.med");
 
+	/* Invalid hybrid waveform count (>64). */
+	mmd1_invalid_helper(opaque, "data/f/load_mmd1_invalid_numwform.med");
+
+	/* Invalid hybrid waveform count (0). */
+	mmd1_invalid_helper(opaque, "data/f/load_mmd1_invalid_numwform2.med");
+
 	xmp_free_context(opaque);
 }
 END_TEST
