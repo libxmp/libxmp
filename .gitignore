@@ -20,6 +20,7 @@ test-dev/gen_module_data
 test-dev/libxmp-covertest
 test-dev/libxmp-tests
 test-dev/libxmp_fuzz_*
+test-dev/xmpchk
 
 # VC++ files
 /.vs
