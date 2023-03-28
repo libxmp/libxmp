@@ -95,13 +95,13 @@ ABK		AMOS Sound Bank		-
 AMF		Asylum Music Format	1.0
 -		Digital Illusions	-
 -		Game Music Creator	-
-PSM		Epic Megagames MASI	epic, sinaria
+PSM		Epic MegaGames MASI	epic, sinaria
+PSM/PS16	Epic MegaGames MASI 16	Epic Pinball (old), Silverball
 J2B		Galaxy Music System 5.0	-
 -		Galaxy Music System 4.0	-
 MFP/SMP		Magnetic Fields Packer  -
 MMDC		MED Packer		-
 -		Novotrade Packer	-
-PSM		Protracker Studio	0.01, 1.00
 STIM		Slamtilt		-
 UMX		Epic Games Unreal/UT	IT, S3M, MOD, XM
 

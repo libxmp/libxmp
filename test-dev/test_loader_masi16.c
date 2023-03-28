@@ -1,13 +1,13 @@
 #include "test.h"
 
-TEST(test_loader_psm)
+TEST(test_loader_masi16)
 {
 	xmp_context opaque;
 	struct xmp_module_info info;
 	FILE *f;
 	int ret;
 
-	f = fopen("data/format_psm.data", "r");
+	f = fopen("data/format_masi16.data", "r");
 
 	opaque = xmp_create_context();
 	ret = xmp_load_module(opaque, "data/m/silver-song0.psm");

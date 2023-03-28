@@ -141,6 +141,7 @@ test_loader_j2b
 test_loader_liq
 test_loader_liq_no
 test_loader_masi
+test_loader_masi16
 test_loader_mdl0
 test_loader_mdl
 test_loader_med2
@@ -157,7 +158,6 @@ test_loader_mfp
 test_loader_mgt
 test_loader_mtm
 test_loader_okt
-test_loader_psm
 test_loader_ptm
 test_loader_pt36
 test_loader_rtm
