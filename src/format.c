@@ -91,6 +91,7 @@ const struct format_loader *const format_loaders[NUM_FORMATS + 2] = {
 	/* &libxmp_loader_alm, */
 	/* &libxmp_loader_polly, */
 	/* &libxmp_loader_stc, */
+	&libxmp_loader_xmf,
 #ifndef LIBXMP_NO_PROWIZARD
 	&libxmp_loader_pw,
 #endif

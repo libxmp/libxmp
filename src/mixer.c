@@ -755,7 +755,7 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 		downmix_int_8bit(s->buffer, s->buf32, size, s->amplify,
 				s->format & XMP_FORMAT_UNSIGNED ? 0x80 : 0);
 	} else {
-		downmix_int_16bit((int16 *)s->buffer, s->buf32, size,s->amplify,
+		downmix_int_16bit((int16 *)s->buffer, s->buf32, size, s->amplify,
 				s->format & XMP_FORMAT_UNSIGNED ? 0x8000 : 0);
 	}
 
