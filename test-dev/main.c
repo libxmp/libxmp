@@ -54,7 +54,7 @@ void _add_test(const char *name, int (*func)(void))
 {
 	struct test *t;
 
-	t = malloc(sizeof (struct test));
+	t = (struct test *) malloc(sizeof(struct test));
 	if (t == NULL)
 		return;
 	t->name = name;
@@ -65,7 +65,7 @@ void _add_test(const char *name, int (*func)(void))
 
 #ifdef FORK_TEST
 
-void init_colors()
+void init_colors(void)
 {
 	if (isatty(STDOUT_FILENO)) {
 		color_fail = "\x1b[1;31m";
@@ -75,7 +75,7 @@ void init_colors()
 	}
 }
 
-int run_tests()
+int run_tests(void)
 {
 	struct list_head *tmp;
 	int total, fail;

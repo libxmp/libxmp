@@ -21,7 +21,7 @@ TEST(test_api_test_module_from_memory)
 	char* buf;
 
 	/* Sufficient to hold all file buffers */
-	buf = malloc(64 * 1024);
+	buf = (char *) malloc(64 * 1024);
 	fail_unless(buf != NULL, "allocation error");
 
 	/* unsupported format */

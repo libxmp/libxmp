@@ -14,7 +14,7 @@ TEST(test_api_play_buffer)
 	char *ref_buffer;
 
 	f = fopen("data/pcm_buffer.raw", "rb");
-	ref_buffer = calloc(1, REFBUF_SIZE);
+	ref_buffer = (char *) calloc(1, REFBUF_SIZE);
 	fail_unless(ref_buffer != NULL, "buffer allocation error");
 
 	ret = fread(ref_buffer, 1, REFBUF_SIZE, f);
