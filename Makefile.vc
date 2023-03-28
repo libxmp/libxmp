@@ -89,8 +89,8 @@ OBJS	= \
  src\loaders\liq_load.obj \
  src\loaders\ims_load.obj \
  src\loaders\masi_load.obj \
+ src\loaders\masi16_load.obj \
  src\loaders\amf_load.obj \
- src\loaders\psm_load.obj \
  src\loaders\stim_load.obj \
  src\loaders\mmd_common.obj \
  src\loaders\mmd1_load.obj \

@@ -26,16 +26,16 @@
 #define MAGIC_PSM_	MAGIC4('P','S','M',0xfe)
 
 
-static int psm_test (HIO_HANDLE *, char *, const int);
-static int psm_load (struct module_data *, HIO_HANDLE *, const int);
+static int masi16_test (HIO_HANDLE *, char *, const int);
+static int masi16_load (struct module_data *, HIO_HANDLE *, const int);
 
-const struct format_loader libxmp_loader_psm = {
-	"Protracker Studio",
-	psm_test,
-	psm_load
+const struct format_loader libxmp_loader_masi16 = {
+	"Epic MegaGames MASI 16",
+	masi16_test,
+	masi16_load
 };
 
-static int psm_test(HIO_HANDLE *f, char *t, const int start)
+static int masi16_test(HIO_HANDLE *f, char *t, const int start)
 {
 	if (hio_read32b(f) != MAGIC_PSM_)
 		return -1;
@@ -48,7 +48,7 @@ static int psm_test(HIO_HANDLE *f, char *t, const int start)
 
 /* FIXME: effects translation */
 
-static int psm_load(struct module_data *m, HIO_HANDLE *f, const int start)
+static int masi16_load(struct module_data *m, HIO_HANDLE *f, const int start)
 {
 	struct xmp_module *mod = &m->mod;
 	int c, r, i;
@@ -73,7 +73,7 @@ static int psm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	if (type & 0x01)		/* song mode not supported */
 		return -1;
 
-	libxmp_set_type(m, "Protracker Studio PSM %d.%02d", MSN(ver), LSN(ver));
+	libxmp_set_type(m, "Epic MegaGames MASI 16 PSM %d.%02d", MSN(ver), LSN(ver));
 
 	mod->spd = hio_read8(f);
 	mod->bpm = hio_read8(f);
