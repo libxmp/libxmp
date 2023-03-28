@@ -8,7 +8,7 @@ jobs:
   linux:
     strategy:
        matrix:
-         distro: [ubuntu-latest, ubuntu-18.04]
+         distro: [ubuntu-latest, ubuntu-20.04]
     runs-on: ${{ matrix.distro }}
     steps:
       - name: Checkout repository
