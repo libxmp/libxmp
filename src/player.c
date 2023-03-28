@@ -1185,9 +1185,9 @@ static void process_frequency(struct context_data *ctx, int chn, int act)
 	xc->info_period = MIN(final_period * 4096, INT_MAX);
 
 	if (IS_PERIOD_MODRNG()) {
-		CLAMP(xc->info_period,
-			libxmp_note_to_period(ctx, MAX_NOTE_MOD, xc->finetune, 0) * 4096,
-			libxmp_note_to_period(ctx, MIN_NOTE_MOD, xc->finetune, 0) * 4096);
+		const double min_period = libxmp_note_to_period(ctx, MAX_NOTE_MOD, xc->finetune, 0) * 4096;
+		const double max_period = libxmp_note_to_period(ctx, MIN_NOTE_MOD, xc->finetune, 0) * 4096;
+		CLAMP(xc->info_period, min_period, max_period);
 	} else if (xc->info_period < (1 << 12)) {
 		xc->info_period = (1 << 12);
 	}
@@ -1446,10 +1446,11 @@ static void update_frequency(struct context_data *ctx, int chn)
 	case PERIOD_LINEAR:
 		CLAMP(xc->period, MIN_PERIOD_L, MAX_PERIOD_L);
 		break;
-	case PERIOD_MODRNG:
-		CLAMP(xc->period,
-			libxmp_note_to_period(ctx, MAX_NOTE_MOD, xc->finetune, 0),
-			libxmp_note_to_period(ctx, MIN_NOTE_MOD, xc->finetune, 0));
+	case PERIOD_MODRNG: {
+		const double min_period = libxmp_note_to_period(ctx, MAX_NOTE_MOD, xc->finetune, 0);
+		const double max_period = libxmp_note_to_period(ctx, MIN_NOTE_MOD, xc->finetune, 0);
+		CLAMP(xc->period, min_period, max_period);
+		}
 		break;
 	}
 
