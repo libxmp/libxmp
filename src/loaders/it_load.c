@@ -1090,8 +1090,8 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	ifh.pwd = hio_read8(f);
 
 	/* Sanity check */
-	if (ifh.gv > 0x80 || ifh.mv > 0x80) {
-		D_(D_CRIT "invalid gv (%u) or mv (%u)", ifh.gv, ifh.mv);
+	if (ifh.gv > 0x80) {
+		D_(D_CRIT "invalid gv (%u)", ifh.gv);
 		goto err;
 	}
 
@@ -1425,6 +1425,8 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	m->gvolbase = 0x80;
 	m->gvol = ifh.gv;
+	m->mvolbase = 48;
+	m->mvol = ifh.mv;
 	m->read_event_type = READ_EVENT_IT;
 
 	return 0;
