@@ -219,6 +219,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	uint8 n, b;
 	uint16 *pp_ins;			/* Parapointers to instruments */
 	uint16 *pp_pat;			/* Parapointers to patterns */
+	int stereo;
 	int ret;
 	uint8 buf[96]
 
@@ -283,15 +284,49 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	mod->bpm = sfh.it;
 	mod->chn = 0;
 
+	/* Mix volume and stereo flag conversion (reported by Saga Musix).
+	 * 1) Old format uses mix volume 0-7, and the stereo flag is 0x10.
+	 * 2) Newer ST3s unconditionally convert MV 0x02 and 0x12 to 0x20.
+	 */
+	m->mvolbase = 48;
+
+	if (sfh.ffi == 1) {
+		m->mvol = ((sfh.mv & 0xf) + 1) * 0x10;
+		stereo = sfh.mv & 0x10;
+		CLAMP(m->mvol, 0x10, 0x7f);
+
+	} else if (sfh.mv == 0x02 || sfh.mv == 0x12) {
+		m->mvol = 0x20;
+		stereo = sfh.mv & 0x10;
+
+	} else {
+		m->mvol = sfh.mv & S3M_MV_VOLUME;
+		stereo = sfh.mv & S3M_MV_STEREO;
+
+		if (m->mvol == 0) {
+			m->mvol = 48;		/* Default is 48 */
+		} else if (m->mvol < 16) {
+			m->mvol = 16;		/* Minimum is 16 */
+		}
+	}
+
+	/* "Note that in stereo, the mastermul is internally multiplied by
+	 * 11/8 inside the player since there is generally more room in the
+	 * output stream." Do the inverse to affect fewer modules. */
+	if (!stereo) {
+		m->mvol = m->mvol * 8 / 11;
+	}
+
 	for (i = 0; i < 32; i++) {
+		int x;
 		if (sfh.chset[i] == S3M_CH_OFF)
 			continue;
 
 		mod->chn = i + 1;
 
-		if (sfh.mv & 0x80) {	/* stereo */
-			int x = sfh.chset[i] & S3M_CH_PAN;
-			mod->xxc[i].pan = (x & 0x0f) < 8 ? 0x30 : 0xc0;
+		x = sfh.chset[i] & S3M_CH_NUMBER;
+		if (stereo && x < S3M_CH_ADLIB) {
+			mod->xxc[i].pan = x < S3M_CH_RIGHT ? 0x30 : 0xc0;
 		} else {
 			mod->xxc[i].pan = 0x80;
 		}
@@ -346,9 +381,6 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		uint8 x = hio_read8(f);
 		if (x & S3M_PAN_SET) {
 			mod->xxc[i].pan = (x << 4) & 0xff;
-		} else {
-			mod->xxc[i].pan =
-			    sfh.mv % 0x80 ? 0x30 + 0xa0 * (i & 1) : 0x80;
 		}
 	}
 
@@ -479,7 +511,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		}
 	}
 
-	D_(D_INFO "Stereo enabled: %s", sfh.mv & 0x80 ? "yes" : "no");
+	D_(D_INFO "Stereo enabled: %s", stereo ? "yes" : "no");
 	D_(D_INFO "Pan settings: %s", sfh.dp ? "no" : "yes");
 
 	if (libxmp_init_instrument(m) < 0)
