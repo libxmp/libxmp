@@ -337,7 +337,7 @@ static int read_envelope(struct xmp_envelope *ei, struct it_envelope *env,
 	return 0;
 }
 
-static void identify_tracker(struct module_data *m, struct it_file_header *ifh)
+static void identify_tracker(struct module_data *m, struct it_file_header *ifh, int *is_mpt_116)
 {
 #ifndef LIBXMP_CORE_PLAYER
 	char tracker_name[40];
@@ -361,6 +361,7 @@ static void identify_tracker(struct module_data *m, struct it_file_header *ifh)
 			strcpy(tracker_name, "ModPlug Tracker 1.16");
 			/* ModPlug Tracker files aren't really IMPM 2.00 */
 			ifh->cmwt = sample_mode ? 0x100 : 0x214;
+			*is_mpt_116 = 1;
 		} else if (ifh->cwt == 0x0216) {
 			strcpy(tracker_name, "Impulse Tracker 2.14v3");
 		} else if (ifh->cwt == 0x0217) {
@@ -376,6 +377,7 @@ static void identify_tracker(struct module_data *m, struct it_file_header *ifh)
 	case 0x7f:
 		if (ifh->cwt == 0x0888) {
 			strcpy(tracker_name, "OpenMPT 1.17");
+			*is_mpt_116 = 1;
 		} else if (ifh->cwt == 0x7fff) {
 			strcpy(tracker_name, "munch.py");
 		} else {
@@ -1059,6 +1061,7 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	uint32 *pp_smp;		/* Pointers to samples */
 	uint32 *pp_pat;		/* Pointers to patterns */
 	int new_fx, sample_mode;
+	int is_mpt_116 = 0;
 
 	LOAD_INIT();
 
@@ -1199,7 +1202,7 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	m->c4rate = C4_NTSC_RATE;
 
-	identify_tracker(m, &ifh);
+	identify_tracker(m, &ifh, &is_mpt_116);
 
 	MODULE_INFO();
 
@@ -1428,6 +1431,11 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	m->mvolbase = 48;
 	m->mvol = ifh.mv;
 	m->read_event_type = READ_EVENT_IT;
+
+#ifndef LIBXMP_CORE_PLAYER
+	if (is_mpt_116)
+		libxmp_apply_mpt_preamp(m);
+#endif
 
 	return 0;
 

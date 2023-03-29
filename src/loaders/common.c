@@ -535,6 +535,52 @@ void libxmp_schism_tracker_string(char *buf, size_t size, int s_ver, int l_ver)
 		snprintf(buf, size, "Schism Tracker 0.%x", s_ver);
 	}
 }
+
+/* Old MPT modules (from MPT <=1.16, older versions of OpenMPT) rely on a
+ * pre-amp routine that scales mix volume down. This is based on the module's
+ * channel count and a tracker pre-amp setting that isn't saved in the module.
+ * This setting defaults to 128. When fixed to 128, it can be optimized out.
+ *
+ * In OpenMPT, this pre-amp routine is only available in the MPT and OpenMPT
+ * 1.17 RC1 and RC2 mix modes. Changing a module to the compatible or 1.17 RC3
+ * mix modes will permanently disable it for that module. OpenMPT applies the
+ * old mix modes to MPT <=1.16 modules, "IT 8.88", and in old OpenMPT-made
+ * modules that specify one of these mix modes in their extended properties.
+ *
+ * Set mod->chn and m->mvol first!
+ */
+void libxmp_apply_mpt_preamp(struct module_data *m)
+{
+	/* OpenMPT uses a slightly different table. */
+	static const uint8 preamp_table[16] =
+	{
+		0x60, 0x60, 0x60, 0x70,	/* 0-7 */
+		0x80, 0x88, 0x90, 0x98,	/* 8-15 */
+		0xA0, 0xA4, 0xA8, 0xB0,	/* 16-23 */
+		0xB4, 0xB8, 0xBC, 0xC0,	/* 24-31 */
+	};
+
+	int chn = m->mod.chn;
+	CLAMP(chn, 1, 31);
+
+	m->mvol = (m->mvol * 96) / preamp_table[chn >> 1];
+
+	/* Pre-amp is applied like this in the mixers of libmodplug/libopenmpt
+	 * (still vastly simplified).
+
+	int preamp = 128;
+
+	if (preamp > 128) {
+		preamp = 128 + ((preamp - 128) * (chn + 4)) / 16;
+	}
+	preamp = preamp * m->mvol / 64;
+	preamp = (preamp << 7) / preamp_table[chn >> 1];
+
+	...
+
+	channel_volume_16bit = (channel_volume_16bit * preamp) >> 7;
+	*/
+}
 #endif
 
 char *libxmp_strdup(const char *src)

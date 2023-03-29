@@ -773,6 +773,7 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	int i, j;
 	struct xm_file_header xfh;
 	char tracker_name[21];
+	int is_mpt_116 = 0;
 	int len;
 	uint8 buf[80];
 
@@ -891,6 +892,13 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	if (!strncmp(tracker_name, "FastTracker v 2.00", 18)) {
 		strcpy(tracker_name, "old ModPlug Tracker");
 		m->quirk &= ~QUIRK_FT2BUGS;
+		is_mpt_116 = 1;
+	}
+
+	if (is_mpt_116) {
+		m->mvolbase = 48;
+		m->mvol = 48;
+		libxmp_apply_mpt_preamp(m);
 	}
 
 	libxmp_set_type(m, "%s XM %d.%02d", tracker_name, xfh.version >> 8, xfh.version & 0xff);
