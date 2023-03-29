@@ -104,6 +104,7 @@ MMDC		MED Packer		-
 -		Novotrade Packer	-
 STIM		Slamtilt		-
 UMX		Epic Games Unreal/UT	IT, S3M, MOD, XM
+XMF		Imperium Galactica	-
 
 
 Formats marked with (*) are experimental and are known to have
