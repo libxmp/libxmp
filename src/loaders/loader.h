@@ -55,6 +55,7 @@ int	libxmp_load_sample		(struct module_data *, HIO_HANDLE *, int,
 void	libxmp_free_sample		(struct xmp_sample *);
 #ifndef LIBXMP_CORE_PLAYER
 void	libxmp_schism_tracker_string	(char *, size_t, int, int);
+void	libxmp_apply_mpt_preamp	(struct module_data *m);
 #endif
 
 extern uint8		libxmp_ord_xlat[];

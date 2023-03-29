@@ -235,7 +235,7 @@ MIXER		= interpolation_default interpolation_loop bidi_sync \
 		  stereo_8bit_spline stereo_16bit_spline \
 		  mono_8bit_spline_filter mono_16bit_spline_filter \
 		  stereo_8bit_spline_filter stereo_16bit_spline_filter \
-		  downmix_8bit downmix_16bit
+		  downmix_8bit downmix_16bit mpt116_preamp
 
 READ		= file_32bit_little_endian file_32bit_big_endian \
 		  file_24bit_little_endian file_24bit_big_endian \
