@@ -63,8 +63,36 @@ static int xmf_test(HIO_HANDLE *f, char *t, const int start)
 		uint32 loopend   = readmem24l(pos + 3);
 		uint32 datastart = readmem24l(pos + 6);
 		uint32 dataend   = readmem24l(pos + 9);
-		uint32 len;
+		uint8  flags     = pos[13];
+		uint16 srate     = readmem16l(pos + 14);
+
+		uint32 len = dataend - datastart;
 		pos += 16;
+
+		if (flags & ~(0x04 | 0x08 | 0x10)) {
+			D_(D_WARN "not XMF: smp %d: unknown flags", i);
+			return -1;
+		}
+		/* if ping-pong loop flag is enabled, normal loop flag should be enabled too */
+		if ((flags & (0x08 | 0x10)) == 0x10) {
+			D_(D_WARN "not XMF: smp %d: inconsistent loop flags", i);
+			return -1;
+		}
+		/* if loop flag is enabled, the loop should have a valid end point */
+		if ((flags & 0x08) && !loopend) {
+			D_(D_WARN "not XMF: smp %d: inconsistent loop data", i);
+			return -1;
+		}
+		/* a 16-bit sample should have an even number of bytes */
+		if ((flags & 0x04) && (len & 1)) {
+			D_(D_WARN "not XMF: smp %d: inconsistent 16-bit sample length", i);
+			return -1;
+		}
+		/* if this slot contains a valid sample, it should have a somewhat realistic middle-c frequency */
+		if (len && srate < 100) {
+			D_(D_WARN "not XMF: smp %d: low sample rate", i);
+			return -1;
+		}
 
 		/* Despite the data start and end values, samples are stored
 		 * sequentially after the pattern data. These fields are still
@@ -75,7 +103,6 @@ static int xmf_test(HIO_HANDLE *f, char *t, const int start)
 			return -1;
 		}
 
-		len = dataend - datastart;
 		samples_length += len;
 
 		/* All known XMFs have well-formed loops. */
