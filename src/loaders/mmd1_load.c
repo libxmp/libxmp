@@ -492,7 +492,7 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 					event = &EVENT(i, k, j);
 					event->note = pos[0] & 0x3f;
 					if (event->note)
-						event->note += 12;
+						event->note += 12 + song.playtransp;
 
 					if (event->note >= XMP_MAX_KEYS)
 						event->note = 0;
