@@ -16,7 +16,7 @@ extern "C" {
 #define XMP_VER_RELEASE 1
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
-# if defined(BUILDING_STATIC)
+# if defined(LIBXMP_STATIC)
 #  define LIBXMP_EXPORT
 # elif defined(BUILDING_DLL)
 #  define LIBXMP_EXPORT __declspec(dllexport)
