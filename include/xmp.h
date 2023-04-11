@@ -23,17 +23,19 @@ extern "C" {
 # else
 #  define LIBXMP_EXPORT __declspec(dllimport)
 # endif
-#elif defined(__OS2__) && defined(__WATCOMC__) && defined(__SW_BD)
+#elif defined(__OS2__) && defined(__WATCOMC__)
 # if defined(LIBXMP_STATIC)
 #  define LIBXMP_EXPORT
-# else
+# elif defined(BUILDING_DLL)
 #  define LIBXMP_EXPORT __declspec(dllexport)
+# else
+#  define LIBXMP_EXPORT
 # endif
 #elif (defined(__GNUC__) || defined(__clang__) || defined(__HP_cc)) && defined(XMP_SYM_VISIBILITY)
 # if defined(LIBXMP_STATIC)
 #  define LIBXMP_EXPORT
 # else
-#  define LIBXMP_EXPORT __attribute__((visibility ("default")))
+#  define LIBXMP_EXPORT __attribute__((visibility("default")))
 # endif
 #elif defined(__SUNPRO_C) && defined(XMP_LDSCOPE_GLOBAL)
 # if defined(LIBXMP_STATIC)
@@ -48,7 +50,7 @@ extern "C" {
 # define LIBXMP_EXPORT
 #endif
 
-#if !defined (LIBXMP_EXPORT_VAR)
+#if !defined(LIBXMP_EXPORT_VAR)
 # define LIBXMP_EXPORT_VAR LIBXMP_EXPORT
 #endif
 
