@@ -16,19 +16,33 @@ extern "C" {
 #define XMP_VER_RELEASE 1
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
-# if defined(BUILDING_STATIC)
+# if defined(LIBXMP_STATIC)
 #  define LIBXMP_EXPORT
 # elif defined(BUILDING_DLL)
 #  define LIBXMP_EXPORT __declspec(dllexport)
 # else
 #  define LIBXMP_EXPORT __declspec(dllimport)
 # endif
-#elif defined(__OS2__) && defined(__WATCOMC__) && defined(__SW_BD)
+#elif defined(__OS2__) && defined(__WATCOMC__)
+# if defined(LIBXMP_STATIC)
+#  define LIBXMP_EXPORT
+# elif defined(BUILDING_DLL)
 #  define LIBXMP_EXPORT __declspec(dllexport)
+# else
+#  define LIBXMP_EXPORT
+# endif
 #elif (defined(__GNUC__) || defined(__clang__) || defined(__HP_cc)) && defined(XMP_SYM_VISIBILITY)
-# define LIBXMP_EXPORT __attribute__((visibility ("default")))
+# if defined(LIBXMP_STATIC)
+#  define LIBXMP_EXPORT
+# else
+#  define LIBXMP_EXPORT __attribute__((visibility("default")))
+# endif
 #elif defined(__SUNPRO_C) && defined(XMP_LDSCOPE_GLOBAL)
-# define LIBXMP_EXPORT __global
+# if defined(LIBXMP_STATIC)
+#  define LIBXMP_EXPORT
+# else
+#  define LIBXMP_EXPORT __global
+# endif
 #elif defined(EMSCRIPTEN)
 # define LIBXMP_EXPORT EMSCRIPTEN_KEEPALIVE
 # define LIBXMP_EXPORT_VAR
@@ -36,7 +50,7 @@ extern "C" {
 # define LIBXMP_EXPORT
 #endif
 
-#if !defined (LIBXMP_EXPORT_VAR)
+#if !defined(LIBXMP_EXPORT_VAR)
 # define LIBXMP_EXPORT_VAR LIBXMP_EXPORT
 #endif
 

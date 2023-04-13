@@ -57,8 +57,8 @@ if(BUILD_STATIC)
     endif()
 
     target_compile_options(xmp_lite_static PRIVATE ${LIBXMP_CFLAGS})
-    target_compile_definitions(xmp_lite_static PRIVATE ${LIBXMP_DEFINES} -DBUILDING_STATIC)
-    target_compile_definitions(xmp_lite_static PUBLIC ${LIBXMP_DEFINES_PUBLIC})
+    target_compile_definitions(xmp_lite_static PRIVATE ${LIBXMP_DEFINES})
+    target_compile_definitions(xmp_lite_static PUBLIC ${LIBXMP_DEFINES_PUBLIC} -DLIBXMP_STATIC)
 
     if(LIBXMP_PIC)
         target_compile_options(xmp_lite_static PRIVATE -fPIC)
@@ -134,7 +134,6 @@ add_library(XMP_IF INTERFACE)
 
 if(NOT BUILD_SHARED)
     target_link_libraries(XMP_IF INTERFACE xmp_lite_static)
-    target_compile_definitions(XMP_IF INTERFACE -DBUILDING_STATIC)
 else()
     target_link_libraries(XMP_IF INTERFACE xmp_lite_shared)
 endif()
