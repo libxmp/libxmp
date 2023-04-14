@@ -96,6 +96,10 @@ typedef unsigned long long uint64;
 typedef signed long long int64;
 #endif
 
+#ifdef _MSC_VER
+#pragma warning(disable:4100) /* unreferenced formal parameter */
+#endif
+
 #ifndef LIBXMP_CORE_PLAYER
 #define LIBXMP_PAULA_SIMULATOR
 #endif
