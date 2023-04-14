@@ -384,8 +384,9 @@ static int has_active_sustain_loop(struct context_data *ctx, struct mixer_voice 
 #ifndef LIBXMP_CORE_DISABLE_IT
 	struct module_data *m = &ctx->m;
 	return vi->smp < m->mod.smp && (xxs->flg & XMP_SAMPLE_SLOOP) && (~vi->flags & VOICE_RELEASE);
-#endif
+#else
 	return 0;
+#endif
 }
 
 static int has_active_loop(struct context_data *ctx, struct mixer_voice *vi,
