@@ -394,8 +394,8 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 				continue;
 
 			snprintf(sn, XMP_MAXPATH, "%s%s", m->dirname, tmpname);
-
-			if ((s = hio_open(sn, "rb"))) {
+			s = hio_open(sn, "rb");
+			if (s != NULL) {
 				if (libxmp_load_sample(m, s, SAMPLE_FLAG_UNS, &mod->xxs[i], NULL) < 0) {
 					hio_close(s);
 					return -1;
