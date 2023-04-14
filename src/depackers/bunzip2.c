@@ -223,7 +223,8 @@ static int read_block_header(struct bunzip_data *bd, struct bwdata *bw)
   // Read in the group selector array, which is stored as MTF encoded
   // bit runs.  (MTF = Move To Front.  Every time a symbol occurs it's moved
   // to the front of the table, so it has a shorter encoding next time.)
-  if (!(bd->nSelectors = get_bits(bd, 15))) return RETVAL_DATA_ERROR;
+  bd->nSelectors = get_bits(bd, 15);
+  if (!bd->nSelectors) return RETVAL_DATA_ERROR;
   for (ii=0; ii<bd->groupCount; ii++) bd->mtfSymbol[ii] = ii;
   for (ii=0; ii<bd->nSelectors; ii++) {
 
@@ -704,7 +705,8 @@ static int decrunch_bzip2(HIO_HANDLE *in, void **out, long *outlen)
   output.buf_size = 0;
   output.buf_alloc = 0;
 
-  if (!(i = start_bunzip(&bd, in, 0, 0))) {
+  i = start_bunzip(&bd, in, 0, 0);
+  if (!i) {
     i = write_bunzip_data(bd, bd->bwdata, &output, 0, 0);
     if (i==RETVAL_LAST_BLOCK) {
       if (bd->bwdata[0].headerCRC==bd->totalCRC) i = 0;
