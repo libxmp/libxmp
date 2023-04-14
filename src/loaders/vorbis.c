@@ -70,6 +70,9 @@
 #define STB_VORBIS_C
 #include "vorbis.h"
 
+#ifdef _MSC_VER
+#pragma warning(disable:4457) /* shadowing */
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 //
