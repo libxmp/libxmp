@@ -60,6 +60,21 @@
 #define LIBXMP_AMIGA	1
 #endif
 
+#if defined(_MSC_VER) && defined(__has_include)
+#if __has_include(<winapifamily.h>)
+#define HAVE_WINAPIFAMILY_H 1
+#else
+#define HAVE_WINAPIFAMILY_H 0
+#endif
+#endif
+
+#if HAVE_WINAPIFAMILY_H
+#include <winapifamily.h>
+#define LIBXMP_UWP (!WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP))
+#else
+#define LIBXMP_UWP 0
+#endif
+
 #ifdef HAVE_EXTERNAL_VISIBILITY
 #define LIBXMP_EXPORT_VERSIONED __attribute__((visibility("default"),externally_visible))
 #else

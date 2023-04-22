@@ -28,7 +28,7 @@
 #include "../tempfile.h"
 #include "xfnmatch.h"
 
-#ifdef _WIN32
+#if defined(_WIN32 ) && !LIBXMP_UWP
 /* Note: The _popen function returns an invalid file opaque, if
  * used in a Windows program, that will cause the program to hang
  * indefinitely. _popen works properly in a Console application.

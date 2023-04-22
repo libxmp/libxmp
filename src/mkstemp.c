@@ -44,18 +44,21 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#ifdef _MSC_VER
-#include <process.h>
-#define getpid _getpid
-#define open _open
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
 #endif
-
+#include <windows.h>
+#endif
 #if defined(_MSC_VER) || defined(__WATCOMC__)
 #include <io.h>
 #else
 #include <unistd.h>
 #endif
-
+#ifdef _MSC_VER
+#include <process.h>
+#define open _open
+#endif
 #ifndef O_BINARY
 #define O_BINARY 0
 #endif
@@ -64,12 +67,11 @@ int mkstemp(char *pattern)
 {
 	int start, i;
 #ifdef _WIN32
-	int   val;
+	int val = GetCurrentProcessId();
 #else
-	pid_t val;
+	pid_t val = getpid();
 #endif
 
-	val = getpid();
 	start = strlen(pattern) - 1;
 
 	while (pattern[start] == 'X') {
