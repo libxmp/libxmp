@@ -337,7 +337,8 @@ static int read_envelope(struct xmp_envelope *ei, struct it_envelope *env,
 	return 0;
 }
 
-static void identify_tracker(struct module_data *m, struct it_file_header *ifh, int *is_mpt_116)
+static void identify_tracker(struct module_data *m, struct it_file_header *ifh,
+			     int pat_before_smp, int *is_mpt_116)
 {
 #ifndef LIBXMP_CORE_PLAYER
 	char tracker_name[40];
@@ -361,6 +362,15 @@ static void identify_tracker(struct module_data *m, struct it_file_header *ifh, 
 			strcpy(tracker_name, "ModPlug Tracker 1.16");
 			/* ModPlug Tracker files aren't really IMPM 2.00 */
 			ifh->cmwt = sample_mode ? 0x100 : 0x214;
+			*is_mpt_116 = 1;
+		} else if (ifh->cmwt == 0x0200 && ifh->cwt == 0x0202 && pat_before_smp) {
+			/* ModPlug Tracker ITs from pre-alpha 4 use tracker
+			 * 0x0202 and format 0x0200. Unfortunately, ITs from
+			 * Impulse Tracker may *also* use this. These MPT ITs
+			 * can be detected because they write patterns before
+			 * samples/instruments. */
+			strcpy(tracker_name, "ModPlug Tracker 1.0 pre-alpha");
+			ifh->cmwt = sample_mode ? 0x100 : 0x200;
 			*is_mpt_116 = 1;
 		} else if (ifh->cwt == 0x0216) {
 			strcpy(tracker_name, "Impulse Tracker 2.14v3");
@@ -1061,6 +1071,7 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	uint32 *pp_smp;		/* Pointers to samples */
 	uint32 *pp_pat;		/* Pointers to patterns */
 	int new_fx, sample_mode;
+	int pat_before_smp = 0;
 	int is_mpt_116 = 0;
 
 	LOAD_INIT();
@@ -1199,10 +1210,12 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (load_it_midi_config(m, f) < 0)
 			goto err4;
 	}
+	if (mod->smp && mod->pat && pp_pat[0] != 0 && pp_pat[0] < pp_smp[0])
+		pat_before_smp = 1;
 
 	m->c4rate = C4_NTSC_RATE;
 
-	identify_tracker(m, &ifh, &is_mpt_116);
+	identify_tracker(m, &ifh, pat_before_smp, &is_mpt_116);
 
 	MODULE_INFO();
 
