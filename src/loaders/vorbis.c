@@ -70,6 +70,10 @@
 #define STB_VORBIS_C
 #include "vorbis.h"
 
+#ifdef _MSC_VER
+#pragma warning(disable:4456) /* shadowing (hides previous local decl) */
+#pragma warning(disable:4457) /* shadowing (hides function parameter.) */
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 //

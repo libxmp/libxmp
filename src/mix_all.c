@@ -203,6 +203,10 @@
 
 #endif
 
+#ifdef _MSC_VER
+#pragma warning(disable:4457) /* shadowing */
+#endif
+
 
 /*
  * Nearest neighbor mixers

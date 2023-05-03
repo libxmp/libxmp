@@ -350,13 +350,13 @@ int libxmp_read_lzw(void *dest, size_t dest_len, size_t max_read_len,
 
 	if (flags & LZW_FLAG_SYMQUIRKS) {
 		/* Digital Symphony LZW compressed stream size is 4 aligned. */
-		size_t pos = bs.num_read;
-		while (pos & 3) {
+		size_t num_read = bs.num_read;
+		while (num_read & 3) {
 			#ifdef LZW_DEBUG
 			printf("A: align byte\n");
 			#endif
 			hio_read8(f);
-			pos++;
+			num_read++;
 		}
 	}
 	#ifdef LZW_DEBUG

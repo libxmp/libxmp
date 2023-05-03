@@ -16,7 +16,7 @@ TEST(test_effect_set_nna_cut)
 	ctx = (struct context_data *)opaque;
 	p = &ctx->p;
 
- 	create_simple_module(ctx, 2, 2);
+	create_simple_module(ctx, 2, 2);
 	set_instrument_volume(ctx, 0, 0, 22);
 	set_instrument_volume(ctx, 1, 0, 33);
 	new_event(ctx, 0, 0, 0, 60, 1, 44, 0x0f, 2, FX_IT_INSTFUNC, 0x03);
@@ -47,7 +47,7 @@ TEST(test_effect_set_nna_cut)
 	fail_unless(vi->pos0 ==  0, "sample didn't reset");
 
 	for (i = 0; i < p->virt.maxvoc; i++) {
-		struct mixer_voice *vi = &p->virt.voice_array[i];
+		vi = &p->virt.voice_array[i];
 		if (i != 0 && vi->root == 0) {
 			break;
 		}

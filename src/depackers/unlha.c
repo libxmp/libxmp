@@ -337,7 +337,8 @@ static int read_pt_len(struct LhADecrData *dat, int16 nn, int16 nbit, int16 i_sp
 {
   int16 i, c, n;
 
-  if(!(n = getbits(dat, nbit)))
+  n = getbits(dat, nbit);
+  if(!n)
   {
     c = getbits(dat, nbit);
     for(i = 0; i < nn; i++)
@@ -384,7 +385,8 @@ static int read_c_len(struct LhADecrData *dat)
 {
   int16 i, c, n;
 
-  if(!(n = getbits(dat, CBIT)))
+  n = getbits(dat, CBIT);
+  if(!n)
   {
     c = getbits(dat, CBIT);
     for(i = 0; i < NC; i++)
