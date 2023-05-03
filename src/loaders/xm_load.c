@@ -773,7 +773,10 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	int i, j;
 	struct xm_file_header xfh;
 	char tracker_name[21];
+#ifndef LIBXMP_CORE_PLAYER
+	int claims_ft2 = 0;
 	int is_mpt_116 = 0;
+#endif
 	int len;
 	uint8 buf[80];
 
@@ -868,8 +871,12 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	}
 
 	/* OpenMPT accurately emulates weird FT2 bugs */
-	if (!strncmp(tracker_name, "FastTracker v2.00", 17) ||
-	    !strncmp(tracker_name, "OpenMPT ", 8)) {
+	if (!strncmp(tracker_name, "FastTracker v2.00", 17)) {
+		m->quirk |= QUIRK_FT2BUGS;
+#ifndef LIBXMP_CORE_PLAYER
+		claims_ft2 = 1;
+#endif
+	} else if (!strncmp(tracker_name, "OpenMPT ", 8)) {
 		m->quirk |= QUIRK_FT2BUGS;
 	}
 #ifndef LIBXMP_CORE_PLAYER
@@ -893,12 +900,6 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		strcpy(tracker_name, "old ModPlug Tracker");
 		m->quirk &= ~QUIRK_FT2BUGS;
 		is_mpt_116 = 1;
-	}
-
-	if (is_mpt_116) {
-		m->mvolbase = 48;
-		m->mvol = 48;
-		libxmp_apply_mpt_preamp(m);
 	}
 
 	libxmp_set_type(m, "%s XM %d.%02d", tracker_name, xfh.version >> 8, xfh.version & 0xff);
@@ -943,6 +944,73 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			}
 		}
 	}
+
+#ifndef LIBXMP_CORE_PLAYER
+	/* Load MPT properties from the end of the file. */
+	while (1) {
+		uint32 ext = hio_read32b(f);
+		uint32 sz = hio_read32l(f);
+		int known = 0;
+
+		if (hio_error(f) || sz > LONG_MAX)
+			break;
+
+		switch (ext) {
+		case MAGIC4('t','e','x','t'):		/* Song comment */
+			known = 1;
+			if (m->comment != NULL)
+				break;
+
+			if ((m->comment = (char *)malloc(sz + 1)) == NULL)
+				break;
+
+			sz = hio_read(m->comment, 1, sz, f);
+			m->comment[sz] = '\0';
+
+			for (i = 0; i < (int)sz; i++) {
+				int b = m->comment[i];
+				if (b == '\r') {
+					m->comment[i] = '\n';
+				} else if ((b < 32 || b > 127) && b != '\n'
+					   && b != '\t') {
+					m->comment[i] = '.';
+				}
+			}
+			break;
+
+		case MAGIC4('M','I','D','I'):		/* MIDI config */
+		case MAGIC4('P','N','A','M'):		/* Pattern names */
+		case MAGIC4('C','N','A','M'):		/* Channel names */
+		case MAGIC4('C','H','F','X'):		/* Channel plugins */
+		case MAGIC4('X','T','P','M'):		/* Inst. extensions */
+			known = 1;
+			/* fall-through */
+
+		default:
+			/* Plugin definition */
+			if ((ext & MAGIC4('F','X', 0, 0)) == MAGIC4('F','X', 0, 0))
+				known = 1;
+
+			if (sz) hio_seek(f, sz, SEEK_CUR);
+			break;
+		}
+
+		if(known && claims_ft2)
+			is_mpt_116 = 1;
+
+		if (ext == MAGIC4('X','T','P','M'))
+			break;
+	}
+
+	if (is_mpt_116) {
+		libxmp_set_type(m, "ModPlug Tracker 1.16 XM %d.%02d",
+				xfh.version >> 8, xfh.version & 0xff);
+
+		m->mvolbase = 48;
+		m->mvol = 48;
+		libxmp_apply_mpt_preamp(m);
+	}
+#endif
 
 	for (i = 0; i < mod->chn; i++) {
 		mod->xxc[i].pan = 0x80;
