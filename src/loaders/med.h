@@ -182,6 +182,25 @@ struct SynthInstr {
 };
 
 
+/* OctaMED SoundStudio 1 and prior use the InstrExt default_pitch field as a
+ * default note value for the default note key 'F'. Pressing 'F' will insert a
+ * note event with this note value.
+ *
+ * MED Soundstudio 2 in mix mode treats note 0x01 as a default note event,
+ * which is emitted by the default note key instead of a regular note event.
+ * It also makes this more complicated, despite not having changed the file
+ * format: the user must enter a frequency in Hz instead of a note number,
+ * where 8363 Hz corresponds to the event C-2. This frequency is converted to a
+ * note number upon saving the module. Multi-octave instruments do not support
+ * this feature as they are not supported by MED Soundstudio 2.
+ *
+ * This editor-only behavior would be irrelevant, except when default_pitch
+ * is zero, the player uses the default frequency 22050 Hz instead. This
+ * results in a note between E-3 and F-3. Since this feature is currently
+ * implemented in the instrument map, use the mix mode note for F-3 instead.
+ */
+#define MMD3_DEFAULT_NOTE	53
+
 struct InstrExt {
     uint8 hold;
     uint8 decay;

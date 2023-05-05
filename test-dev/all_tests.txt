@@ -512,6 +512,7 @@ test_player_pan
 test_player_med_extsample
 test_player_med_hold
 test_player_med_instruments
+test_player_med_ss2defpitch
 test_player_med_synth
 test_player_med_synth_2
 test_player_hmn_extras
