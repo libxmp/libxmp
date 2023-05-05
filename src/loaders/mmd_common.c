@@ -479,6 +479,28 @@ static void mmd_load_instrument_common(
 	}
 }
 
+/* Compatibility for MED Soundstudio v2 default pitch events.
+ * For single-octave samples and synthetics, MED mix mode note 0x01
+ * plays the note number stored in the InstrExt default pitch field.
+ * Mix mode events are currently transposed up an octave and are offset
+ * down by 1 for the instrument map, hence index 12.
+ *
+ * See med.h for more info.
+ */
+static void mmd_set_default_pitch_note(struct xmp_instrument *xxi,
+					struct InstrExt *exp_smp, int ver)
+{
+	if (ver >= 3) {
+		int note = MMD3_DEFAULT_NOTE;
+
+		if (exp_smp->default_pitch)
+			note = exp_smp->default_pitch - 1;
+
+		if (note >= 0 && note < XMP_MAX_KEYS)
+			xxi->map[12].xpo = note;
+	}
+}
+
 int mmd_alloc_tables(struct module_data *m, int i, struct SynthInstr *synth)
 {
 	struct med_module_extras *me = (struct med_module_extras *)m->extra;
@@ -571,6 +593,7 @@ static int mmd_load_hybrid_instrument(HIO_HANDLE *f, struct module_data *m, int 
 	ie->wtlen = synth->wftbllen;
 
 	mmd_load_instrument_common(&info, &instr, expdata, exp_smp, sample, ver);
+	mmd_set_default_pitch_note(xxi, exp_smp, ver);
 	sub = &xxi->sub[0];
 
 	sub->pan = 0x80;
@@ -633,6 +656,7 @@ static int mmd_load_synth_instrument(HIO_HANDLE *f, struct module_data *m, int i
 	int j;
 
 	mmd_load_instrument_common(&info, NULL, expdata, exp_smp, sample, ver);
+	mmd_set_default_pitch_note(xxi, exp_smp, ver);
 
 	synth->defaultdecay = hio_read8(f);
 	hio_seek(f, 3, SEEK_CUR);
@@ -739,6 +763,7 @@ static int mmd_load_sampled_instrument(HIO_HANDLE *f, struct module_data *m, int
 		return -1;
 
 	mmd_load_instrument_common(&info, instr, expdata, exp_smp, sample, ver);
+	mmd_set_default_pitch_note(xxi, exp_smp, ver);
 	sub = &xxi->sub[0];
 
 	sub->vol = info.enable ? sample->svol : 0;
