@@ -250,7 +250,7 @@ AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <dirent.h>]], [[
  [have_dirent=no])
 AC_MSG_RESULT($have_dirent)
 
-AC_CHECK_FUNCS(popen mkstemp fnmatch umask)
+AC_CHECK_FUNCS(popen mkstemp fnmatch umask getauxval sysctlbyname)
 dnl fork, execv & co don't work with djgpp
 case "${host_os}" in
 *djgpp|mingw*|riscos*)
@@ -259,6 +259,7 @@ case "${host_os}" in
   ;;
 esac
 
+AC_CHECK_HEADERS(arm_acle.h asm/hwcap.h)
 case "${host_os}" in
 amigaos*|aros*|morphos*)
   AC_CHECK_HEADERS(proto/xfdmaster.h)

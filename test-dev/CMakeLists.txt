@@ -15,6 +15,7 @@ set(DEVTEST_SRC
     main.c
     simple_module.c
     compare_mixer_data.c
+    ../src/crc32c.c
     ../src/md5.c
     ../src/far_extras.c
     ../src/filetype.c

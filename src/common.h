@@ -410,6 +410,7 @@ struct module_data {
 	struct extra_sample_data *xtra;
 	struct midi_macro_data *midi;
 	int compare_vblank;
+	int hash_type;
 };
 
 

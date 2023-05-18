@@ -656,7 +656,7 @@ SRC_PATH	= ../src
 
 TEST_INTERNAL	= md5.o win32.o hio.o load_helpers.o loaders/itsex.o dataio.o scan.o \
 		  loaders/sample.o loaders/common.o filetype.o period.o memio.o \
-		  depackers/xfnmatch.o far_extras.o lfo.o
+		  depackers/xfnmatch.o far_extras.o lfo.o crc32c.o
 
 T_OBJS 		= $(addprefix $(TEST_PATH)/,$(TEST_OBJS)) \
 		  $(addprefix $(SRC_PATH)/,$(TEST_INTERNAL))
@@ -701,7 +701,7 @@ gen_module_data: gen_module_data.o util.o ${SRC_PATH}/hio.o ${SRC_PATH}/dataio.o
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
 	eval $$CMD
 
-xmpchk: libxmp_fuzz.o ${SRC_PATH}/loaders/vorbis.o
+xmpchk: libxmp_fuzz.o ${SRC_PATH}/loaders/vorbis.o ${SRC_PATH}/crc32c.o
 	@CMD='$(LD) $(LDFLAGS) -o $@ $^ -L../lib -lxmp $(LIBS)'; \
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
 	eval $$CMD
@@ -798,11 +798,11 @@ $(FUZZLIB_PATH)/libxmp-msan.a: $(FUZZLIB_PATH) | $(FUZZLIB_PATH)/libxmp-asan.a
 		$(MAKE) distclean)
 
 libxmp_fuzz_asan: libxmp_fuzz.c $(FUZZLIB_PATH)/libxmp-asan.a
-	@CMD='$(FUZZ_CC) $(FUZZ_ASAN_FLAGS) -o $@ $< -L$(FUZZLIB_PATH) -lxmp-asan'; \
+	@CMD='$(FUZZ_CC) $(FUZZ_ASAN_FLAGS) -I../include -o $@ $< -L$(FUZZLIB_PATH) -lxmp-asan'; \
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
 	eval $$CMD
 
 libxmp_fuzz_msan: libxmp_fuzz.c $(FUZZLIB_PATH)/libxmp-msan.a
-	@CMD='$(FUZZ_CC) $(FUZZ_MSAN_FLAGS) -o $@ $< -L$(FUZZLIB_PATH) -lxmp-msan'; \
+	@CMD='$(FUZZ_CC) $(FUZZ_MSAN_FLAGS) -I../include -o $@ $< -L$(FUZZLIB_PATH) -lxmp-msan'; \
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
 	eval $$CMD

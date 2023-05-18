@@ -73,3 +73,9 @@ XMP_4.5 {
     xmp_test_module_from_callbacks;
     xmp_syserrno;
 } XMP_4.4;
+
+XMP_4.6 {
+  global:
+    xmp_set_player;
+    xmp_get_player;
+} XMP_4.5;
