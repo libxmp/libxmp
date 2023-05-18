@@ -952,7 +952,7 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		uint32 sz = hio_read32l(f);
 		int known = 0;
 
-		if (hio_error(f) || sz > LONG_MAX)
+		if (hio_error(f) || sz > 0x7fffffff /* INT32_MAX */)
 			break;
 
 		switch (ext) {
