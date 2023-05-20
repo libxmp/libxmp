@@ -784,3 +784,6 @@ test_module_length_killvictor
 test_module_length_nebulos
 test_module_length_roadblast
 test_module_length_ode2ptk
+test_module_length_flowerpower
+test_module_length_space_traveller
+test_module_length_listen
