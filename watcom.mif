@@ -11,12 +11,49 @@ CFLAGS += -Iinclude
 DLLFLAGS=-bd -DBUILDING_DLL
 STATICFLAGS=-DLIBXMP_STATIC
 
-DLLNAME=libxmp.dll
-EXPNAME=libxmp.exp
+LIBROOTDIR=lib
+OBJROOTDIR=obj
+!ifeq __LINUX__
+PATHSEP=/
+!else
+# Under MS-DOS, Windows, and OS/2 we use the shell's mkdir and
+# rmdir, so we need a backslashes instead of forward slashes.
+PATHSEP=\
+!endif
+
+LIBDIR=$(LIBROOTDIR)$(PATHSEP)$(SYSTEM)
+OBJDIR=$(OBJROOTDIR)$(PATHSEP)$(SYSTEM)
+LOADERSOBJDIR=$(OBJDIR)$(PATHSEP)loaders
+PROWIZARDOBJDIR=$(OBJDIR)$(PATHSEP)loaders$(PATHSEP)prowizard
+DEPACKERSOBJDIR=$(OBJDIR)$(PATHSEP)depackers
+
+# CLEAN_DIRS is the same as ALL_DIRS but in reverse order. We use this when cleaning
+# because on OS/2 there's no way to recursively remove directories, so we have to
+# remove directories in a depth-first manner.
+CLEAN_DIRS=
+ALL_DIRS=$(LIBROOTDIR) $(OBJROOTDIR) $(LIBDIR) $(OBJDIR) $(LOADERSOBJDIR)
+!ifeq USE_PROWIZARD 1
+CLEAN_DIRS += $(PROWIZARDOBJDIR)
+ALL_DIRS += $(PROWIZARDOBJDIR)
+!endif
+!ifeq USE_DEPACKERS 1
+CLEAN_DIRS += $(DEPACKERSOBJDIR)
+ALL_DIRS += $(DEPACKERSOBJDIR)
+!endif
+CLEAN_DIRS += $(LOADERSOBJDIR) $(OBJDIR) $(LIBDIR)
+
+!ifdef __OS2__
+CLEAN_DIRS_ARGS=/N
+!else ifndef __LINUX__
+CLEAN_DIRS_ARGS=/Q
+!endif
+
+DLLNAME=$(LIBDIR)/libxmp.dll
+EXPNAME=$(LIBDIR)/libxmp.exp
 # Note: not libxmp.map...
-MAPNAME=xmp.map
-LIBNAME=libxmp.lib
-LIBSTATIC=xmp_static.lib
+MAPNAME=$(LIBDIR)/xmp.map
+LIBNAME=$(LIBDIR)/libxmp.lib
+LIBSTATIC=$(LIBDIR)/xmp_static.lib
 TESTNAME=libxmp-test.exe
 
 !ifeq target static
@@ -191,18 +228,27 @@ DEPACKER_OBJS= &
  src/depackers/xfd.obj &
  src/depackers/xfd_link.obj &
 
-ALL_OBJS=$(OBJS)
+
+ALL_OBJS_TEMP=$(OBJS)
 !ifeq USE_PROWIZARD 1
-ALL_OBJS+= $(PROWIZ_OBJS)
+ALL_OBJS_TEMP+= $(PROWIZ_OBJS)
 !endif
 !ifeq USE_DEPACKERS 1
-ALL_OBJS+= $(DEPACKER_OBJS)
+ALL_OBJS_TEMP+= $(DEPACKER_OBJS)
 !endif
+ALL_OBJS=$(ALL_OBJS_TEMP:src/=$(OBJDIR)/)
 TEST_OBJS=test/md5.obj test/test.obj
 
-all: $(BLD_TARGET)
+all: $(ALL_DIRS) $(BLD_TARGET)
 
 #.SUFFIXES: .obj .c
+
+$(ALL_DIRS):
+!ifeq __LINUX__
+	mkdir -p $(ALL_DIRS)
+!else
+	@!for %i in ($(ALL_DIRS)) do @if not exist %i echo mkdir %i && mkdir %i
+!endif
 
 .c: src;src/depackers;src/loaders;src/loaders/prowizard;test
 .c.obj:
@@ -234,10 +280,14 @@ check: check-build .symbolic
 	cd test & $(TESTNAME)
 
 clean: .symbolic
-	rm -f $(OBJS)
-	rm -f $(DEPACKER_OBJS)
-	rm -f $(PROWIZ_OBJS)
+	rm -f $(ALL_OBJS)
 	rm -f $(TEST_OBJS)
+!ifeq __LINUX__
+	rm -rf $(CLEAN_DIRS)
+!else
+	@!for %i in ($(CLEAN_DIRS)) do @if exist %i\*.* echo del $(CLEAN_DIRS_ARGS) %i\*.* && del $(CLEAN_DIRS_ARGS) %i\*.* 2> nul
+	@!for %i in ($(CLEAN_DIRS)) do @if exist %i echo rmdir %i && rmdir %i 2> nul
+!endif
 
 distclean: clean .symbolic
 	rm -f *.err
