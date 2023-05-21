@@ -11,12 +11,20 @@ CFLAGS += -Iinclude
 DLLFLAGS=-bd -DBUILDING_DLL
 STATICFLAGS=-DLIBXMP_STATIC
 
-DLLNAME=libxmp.dll
-EXPNAME=libxmp.exp
+LIBROOTDIR=lib
+LIBDIR=$(LIBROOTDIR)/$(SYSTEM)
+OBJROOTDIR=obj
+OBJDIR=$(OBJROOTDIR)/$(SYSTEM)
+LOADERSOBJDIR=$(OBJDIR)/loaders
+PROWIZARDOBJDIR=$(OBJDIR)/prowizard
+DEPACKERSOBJDIR=$(OBJDIR)/depackers
+
+DLLNAME=$(LIBDIR)/libxmp.dll
+EXPNAME=$(LIBDIR)/libxmp.exp
 # Note: not libxmp.map...
-MAPNAME=xmp.map
-LIBNAME=libxmp.lib
-LIBSTATIC=xmp_static.lib
+MAPNAME=$(LIBDIR)/xmp.map
+LIBNAME=$(LIBDIR)/libxmp.lib
+LIBSTATIC=$(LIBDIR)/xmp_static.lib
 TESTNAME=libxmp-test.exe
 
 !ifeq target static
@@ -31,165 +39,165 @@ BLD_LIB=$(LIBNAME)
 !endif
 
 OBJS= &
- src/virtual.obj &
- src/format.obj &
- src/period.obj &
- src/player.obj &
- src/read_event.obj &
- src/dataio.obj &
- src/misc.obj &
- src/mkstemp.obj &
- src/md5.obj &
- src/lfo.obj &
- src/scan.obj &
- src/control.obj &
- src/far_extras.obj &
- src/med_extras.obj &
- src/filter.obj &
- src/effects.obj &
- src/mixer.obj &
- src/mix_all.obj &
- src/load_helpers.obj &
- src/load.obj &
- src/hio.obj &
- src/hmn_extras.obj &
- src/extras.obj &
- src/smix.obj &
- src/filetype.obj &
- src/memio.obj &
- src/tempfile.obj &
- src/mix_paula.obj &
- src/miniz_tinfl.obj &
- src/win32.obj &
- src/loaders/common.obj &
- src/loaders/iff.obj &
- src/loaders/itsex.obj &
- src/loaders/lzw.obj &
- src/loaders/voltable.obj &
- src/loaders/sample.obj &
- src/loaders/vorbis.obj &
- src/loaders/xm_load.obj &
- src/loaders/mod_load.obj &
- src/loaders/s3m_load.obj &
- src/loaders/stm_load.obj &
- src/loaders/669_load.obj &
- src/loaders/far_load.obj &
- src/loaders/mtm_load.obj &
- src/loaders/ptm_load.obj &
- src/loaders/okt_load.obj &
- src/loaders/ult_load.obj &
- src/loaders/mdl_load.obj &
- src/loaders/it_load.obj &
- src/loaders/stx_load.obj &
- src/loaders/pt3_load.obj &
- src/loaders/sfx_load.obj &
- src/loaders/flt_load.obj &
- src/loaders/st_load.obj &
- src/loaders/emod_load.obj &
- src/loaders/imf_load.obj &
- src/loaders/digi_load.obj &
- src/loaders/fnk_load.obj &
- src/loaders/ice_load.obj &
- src/loaders/liq_load.obj &
- src/loaders/ims_load.obj &
- src/loaders/masi_load.obj &
- src/loaders/masi16_load.obj &
- src/loaders/amf_load.obj &
- src/loaders/stim_load.obj &
- src/loaders/mmd_common.obj &
- src/loaders/mmd1_load.obj &
- src/loaders/mmd3_load.obj &
- src/loaders/rtm_load.obj &
- src/loaders/dt_load.obj &
- src/loaders/no_load.obj &
- src/loaders/arch_load.obj &
- src/loaders/sym_load.obj &
- src/loaders/med2_load.obj &
- src/loaders/med3_load.obj &
- src/loaders/med4_load.obj &
- src/loaders/dbm_load.obj &
- src/loaders/umx_load.obj &
- src/loaders/gdm_load.obj &
- src/loaders/pw_load.obj &
- src/loaders/gal5_load.obj &
- src/loaders/gal4_load.obj &
- src/loaders/mfp_load.obj &
- src/loaders/asylum_load.obj &
- src/loaders/muse_load.obj &
- src/loaders/hmn_load.obj &
- src/loaders/mgt_load.obj &
- src/loaders/chip_load.obj &
- src/loaders/abk_load.obj &
- src/loaders/coco_load.obj &
- src/loaders/xmf_load.obj &
+ $(OBJDIR)/virtual.obj &
+ $(OBJDIR)/format.obj &
+ $(OBJDIR)/period.obj &
+ $(OBJDIR)/player.obj &
+ $(OBJDIR)/read_event.obj &
+ $(OBJDIR)/dataio.obj &
+ $(OBJDIR)/misc.obj &
+ $(OBJDIR)/mkstemp.obj &
+ $(OBJDIR)/md5.obj &
+ $(OBJDIR)/lfo.obj &
+ $(OBJDIR)/scan.obj &
+ $(OBJDIR)/control.obj &
+ $(OBJDIR)/far_extras.obj &
+ $(OBJDIR)/med_extras.obj &
+ $(OBJDIR)/filter.obj &
+ $(OBJDIR)/effects.obj &
+ $(OBJDIR)/mixer.obj &
+ $(OBJDIR)/mix_all.obj &
+ $(OBJDIR)/load_helpers.obj &
+ $(OBJDIR)/load.obj &
+ $(OBJDIR)/hio.obj &
+ $(OBJDIR)/hmn_extras.obj &
+ $(OBJDIR)/extras.obj &
+ $(OBJDIR)/smix.obj &
+ $(OBJDIR)/filetype.obj &
+ $(OBJDIR)/memio.obj &
+ $(OBJDIR)/tempfile.obj &
+ $(OBJDIR)/mix_paula.obj &
+ $(OBJDIR)/miniz_tinfl.obj &
+ $(OBJDIR)/win32.obj &
+ $(LOADERSOBJDIR)/common.obj &
+ $(LOADERSOBJDIR)/iff.obj &
+ $(LOADERSOBJDIR)/itsex.obj &
+ $(LOADERSOBJDIR)/lzw.obj &
+ $(LOADERSOBJDIR)/voltable.obj &
+ $(LOADERSOBJDIR)/sample.obj &
+ $(LOADERSOBJDIR)/vorbis.obj &
+ $(LOADERSOBJDIR)/xm_load.obj &
+ $(LOADERSOBJDIR)/mod_load.obj &
+ $(LOADERSOBJDIR)/s3m_load.obj &
+ $(LOADERSOBJDIR)/stm_load.obj &
+ $(LOADERSOBJDIR)/669_load.obj &
+ $(LOADERSOBJDIR)/far_load.obj &
+ $(LOADERSOBJDIR)/mtm_load.obj &
+ $(LOADERSOBJDIR)/ptm_load.obj &
+ $(LOADERSOBJDIR)/okt_load.obj &
+ $(LOADERSOBJDIR)/ult_load.obj &
+ $(LOADERSOBJDIR)/mdl_load.obj &
+ $(LOADERSOBJDIR)/it_load.obj &
+ $(LOADERSOBJDIR)/stx_load.obj &
+ $(LOADERSOBJDIR)/pt3_load.obj &
+ $(LOADERSOBJDIR)/sfx_load.obj &
+ $(LOADERSOBJDIR)/flt_load.obj &
+ $(LOADERSOBJDIR)/st_load.obj &
+ $(LOADERSOBJDIR)/emod_load.obj &
+ $(LOADERSOBJDIR)/imf_load.obj &
+ $(LOADERSOBJDIR)/digi_load.obj &
+ $(LOADERSOBJDIR)/fnk_load.obj &
+ $(LOADERSOBJDIR)/ice_load.obj &
+ $(LOADERSOBJDIR)/liq_load.obj &
+ $(LOADERSOBJDIR)/ims_load.obj &
+ $(LOADERSOBJDIR)/masi_load.obj &
+ $(LOADERSOBJDIR)/masi16_load.obj &
+ $(LOADERSOBJDIR)/amf_load.obj &
+ $(LOADERSOBJDIR)/stim_load.obj &
+ $(LOADERSOBJDIR)/mmd_common.obj &
+ $(LOADERSOBJDIR)/mmd1_load.obj &
+ $(LOADERSOBJDIR)/mmd3_load.obj &
+ $(LOADERSOBJDIR)/rtm_load.obj &
+ $(LOADERSOBJDIR)/dt_load.obj &
+ $(LOADERSOBJDIR)/no_load.obj &
+ $(LOADERSOBJDIR)/arch_load.obj &
+ $(LOADERSOBJDIR)/sym_load.obj &
+ $(LOADERSOBJDIR)/med2_load.obj &
+ $(LOADERSOBJDIR)/med3_load.obj &
+ $(LOADERSOBJDIR)/med4_load.obj &
+ $(LOADERSOBJDIR)/dbm_load.obj &
+ $(LOADERSOBJDIR)/umx_load.obj &
+ $(LOADERSOBJDIR)/gdm_load.obj &
+ $(LOADERSOBJDIR)/pw_load.obj &
+ $(LOADERSOBJDIR)/gal5_load.obj &
+ $(LOADERSOBJDIR)/gal4_load.obj &
+ $(LOADERSOBJDIR)/mfp_load.obj &
+ $(LOADERSOBJDIR)/asylum_load.obj &
+ $(LOADERSOBJDIR)/muse_load.obj &
+ $(LOADERSOBJDIR)/hmn_load.obj &
+ $(LOADERSOBJDIR)/mgt_load.obj &
+ $(LOADERSOBJDIR)/chip_load.obj &
+ $(LOADERSOBJDIR)/abk_load.obj &
+ $(LOADERSOBJDIR)/coco_load.obj &
+ $(LOADERSOBJDIR)/xmf_load.obj &
 
 PROWIZ_OBJS= &
- src/loaders/prowizard/prowiz.obj &
- src/loaders/prowizard/ptktable.obj &
- src/loaders/prowizard/tuning.obj &
- src/loaders/prowizard/ac1d.obj &
- src/loaders/prowizard/di.obj &
- src/loaders/prowizard/eureka.obj &
- src/loaders/prowizard/fc-m.obj &
- src/loaders/prowizard/fuchs.obj &
- src/loaders/prowizard/fuzzac.obj &
- src/loaders/prowizard/gmc.obj &
- src/loaders/prowizard/heatseek.obj &
- src/loaders/prowizard/ksm.obj &
- src/loaders/prowizard/mp.obj &
- src/loaders/prowizard/np1.obj &
- src/loaders/prowizard/np2.obj &
- src/loaders/prowizard/np3.obj &
- src/loaders/prowizard/p61a.obj &
- src/loaders/prowizard/pm10c.obj &
- src/loaders/prowizard/pm18a.obj &
- src/loaders/prowizard/pha.obj &
- src/loaders/prowizard/prun1.obj &
- src/loaders/prowizard/prun2.obj &
- src/loaders/prowizard/tdd.obj &
- src/loaders/prowizard/unic.obj &
- src/loaders/prowizard/unic2.obj &
- src/loaders/prowizard/wn.obj &
- src/loaders/prowizard/zen.obj &
- src/loaders/prowizard/tp1.obj &
- src/loaders/prowizard/tp3.obj &
- src/loaders/prowizard/p40.obj &
- src/loaders/prowizard/xann.obj &
- src/loaders/prowizard/theplayer.obj &
- src/loaders/prowizard/pp10.obj &
- src/loaders/prowizard/pp21.obj &
- src/loaders/prowizard/starpack.obj &
- src/loaders/prowizard/titanics.obj &
- src/loaders/prowizard/skyt.obj &
- src/loaders/prowizard/novotrade.obj &
- src/loaders/prowizard/hrt.obj &
- src/loaders/prowizard/noiserun.obj &
+ $(PROWIZARDOBJDIR)/prowiz.obj &
+ $(PROWIZARDOBJDIR)/ptktable.obj &
+ $(PROWIZARDOBJDIR)/tuning.obj &
+ $(PROWIZARDOBJDIR)/ac1d.obj &
+ $(PROWIZARDOBJDIR)/di.obj &
+ $(PROWIZARDOBJDIR)/eureka.obj &
+ $(PROWIZARDOBJDIR)/fc-m.obj &
+ $(PROWIZARDOBJDIR)/fuchs.obj &
+ $(PROWIZARDOBJDIR)/fuzzac.obj &
+ $(PROWIZARDOBJDIR)/gmc.obj &
+ $(PROWIZARDOBJDIR)/heatseek.obj &
+ $(PROWIZARDOBJDIR)/ksm.obj &
+ $(PROWIZARDOBJDIR)/mp.obj &
+ $(PROWIZARDOBJDIR)/np1.obj &
+ $(PROWIZARDOBJDIR)/np2.obj &
+ $(PROWIZARDOBJDIR)/np3.obj &
+ $(PROWIZARDOBJDIR)/p61a.obj &
+ $(PROWIZARDOBJDIR)/pm10c.obj &
+ $(PROWIZARDOBJDIR)/pm18a.obj &
+ $(PROWIZARDOBJDIR)/pha.obj &
+ $(PROWIZARDOBJDIR)/prun1.obj &
+ $(PROWIZARDOBJDIR)/prun2.obj &
+ $(PROWIZARDOBJDIR)/tdd.obj &
+ $(PROWIZARDOBJDIR)/unic.obj &
+ $(PROWIZARDOBJDIR)/unic2.obj &
+ $(PROWIZARDOBJDIR)/wn.obj &
+ $(PROWIZARDOBJDIR)/zen.obj &
+ $(PROWIZARDOBJDIR)/tp1.obj &
+ $(PROWIZARDOBJDIR)/tp3.obj &
+ $(PROWIZARDOBJDIR)/p40.obj &
+ $(PROWIZARDOBJDIR)/xann.obj &
+ $(PROWIZARDOBJDIR)/theplayer.obj &
+ $(PROWIZARDOBJDIR)/pp10.obj &
+ $(PROWIZARDOBJDIR)/pp21.obj &
+ $(PROWIZARDOBJDIR)/starpack.obj &
+ $(PROWIZARDOBJDIR)/titanics.obj &
+ $(PROWIZARDOBJDIR)/skyt.obj &
+ $(PROWIZARDOBJDIR)/novotrade.obj &
+ $(PROWIZARDOBJDIR)/hrt.obj &
+ $(PROWIZARDOBJDIR)/noiserun.obj &
 
 DEPACKER_OBJS= &
- src/depackers/depacker.obj &
- src/depackers/ppdepack.obj &
- src/depackers/unsqsh.obj &
- src/depackers/mmcmp.obj &
- src/depackers/s404_dec.obj &
- src/depackers/arc.obj &
- src/depackers/arcfs.obj &
- src/depackers/arc_unpack.obj &
- src/depackers/lzx.obj &
- src/depackers/lzx_unpack.obj &
- src/depackers/miniz_zip.obj &
- src/depackers/unzip.obj &
- src/depackers/gunzip.obj &
- src/depackers/uncompress.obj &
- src/depackers/bunzip2.obj &
- src/depackers/unlha.obj &
- src/depackers/unxz.obj &
- src/depackers/xz_dec_lzma2.obj &
- src/depackers/xz_dec_stream.obj &
- src/depackers/crc32.obj &
- src/depackers/xfnmatch.obj &
- src/depackers/ptpopen.obj &
- src/depackers/xfd.obj &
- src/depackers/xfd_link.obj &
+ $(DEPACKERSOBJDIR)/depacker.obj &
+ $(DEPACKERSOBJDIR)/ppdepack.obj &
+ $(DEPACKERSOBJDIR)/unsqsh.obj &
+ $(DEPACKERSOBJDIR)/mmcmp.obj &
+ $(DEPACKERSOBJDIR)/s404_dec.obj &
+ $(DEPACKERSOBJDIR)/arc.obj &
+ $(DEPACKERSOBJDIR)/arcfs.obj &
+ $(DEPACKERSOBJDIR)/arc_unpack.obj &
+ $(DEPACKERSOBJDIR)/lzx.obj &
+ $(DEPACKERSOBJDIR)/lzx_unpack.obj &
+ $(DEPACKERSOBJDIR)/miniz_zip.obj &
+ $(DEPACKERSOBJDIR)/unzip.obj &
+ $(DEPACKERSOBJDIR)/gunzip.obj &
+ $(DEPACKERSOBJDIR)/uncompress.obj &
+ $(DEPACKERSOBJDIR)/bunzip2.obj &
+ $(DEPACKERSOBJDIR)/unlha.obj &
+ $(DEPACKERSOBJDIR)/unxz.obj &
+ $(DEPACKERSOBJDIR)/xz_dec_lzma2.obj &
+ $(DEPACKERSOBJDIR)/xz_dec_stream.obj &
+ $(DEPACKERSOBJDIR)/crc32.obj &
+ $(DEPACKERSOBJDIR)/xfnmatch.obj &
+ $(DEPACKERSOBJDIR)/ptpopen.obj &
+ $(DEPACKERSOBJDIR)/xfd.obj &
+ $(DEPACKERSOBJDIR)/xfd_link.obj &
 
 ALL_OBJS=$(OBJS)
 !ifeq USE_PROWIZARD 1
@@ -206,6 +214,7 @@ all: $(BLD_TARGET)
 
 .c: src;src/depackers;src/loaders;src/loaders/prowizard;test
 .c.obj:
+	@mkdir -p $^:
 	$(CC) $(LIBFLAGS) -fo=$^@ $<
 
 test/md5.obj: src/md5.c
@@ -216,10 +225,12 @@ test/test.obj: test/test.c
 
 # rely on symbol name, not ordinal: -irn switch of wlib is default, but -inn is not.
 $(DLLNAME) $(LIBNAME) $(EXPNAME): $(ALL_OBJS)
+	@mkdir -p $^:
 	wlink NAM $(DLLNAME) SYSTEM $(SYSTEM_DLL) INITINSTANCE TERMINSTANCE OP QUIET FIL {$(ALL_OBJS)} OP IMPF=$(EXPNAME) OP MAP=$(MAPNAME)
 	wlib -q -b -n -c -pa -s -t -zld -ii -io -inn $(LIBNAME) +$(DLLNAME)
 
 $(LIBSTATIC): $(ALL_OBJS)
+	@mkdir -p $^:
 	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(ALL_OBJS)
 
 test/$(TESTNAME): $(BLD_LIB) $(TEST_OBJS)
@@ -234,10 +245,10 @@ check: check-build .symbolic
 	cd test & $(TESTNAME)
 
 clean: .symbolic
-	rm -f $(OBJS)
-	rm -f $(DEPACKER_OBJS)
-	rm -f $(PROWIZ_OBJS)
+	rm -f $(ALL_OBJS)
 	rm -f $(TEST_OBJS)
+	rm -rf $(LIBDIR)
+	rm -rf $(OBJDIR)
 
 distclean: clean .symbolic
 	rm -f *.err
