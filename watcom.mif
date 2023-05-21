@@ -12,9 +12,12 @@ DLLFLAGS=-bd -DBUILDING_DLL
 STATICFLAGS=-DLIBXMP_STATIC
 
 LIBROOTDIR=lib
-LIBDIR=$(LIBROOTDIR)/$(SYSTEM)
 OBJROOTDIR=obj
-OBJDIR=$(OBJROOTDIR)/$(SYSTEM)
+
+# We use the shell's rmdir so we need a backslashes here instead of forward slashes.
+LIBDIR=$(LIBROOTDIR)\$(SYSTEM)
+OBJDIR=$(OBJROOTDIR)\$(SYSTEM)
+
 LOADERSOBJDIR=$(OBJDIR)/loaders
 PROWIZARDOBJDIR=$(OBJDIR)/prowizard
 DEPACKERSOBJDIR=$(OBJDIR)/depackers
@@ -214,7 +217,7 @@ all: $(BLD_TARGET)
 
 .c: src;src/depackers;src/loaders;src/loaders/prowizard;test
 .c.obj:
-	@mkdir -p $^:
+	@!if not exist $^: mkdir $^:
 	$(CC) $(LIBFLAGS) -fo=$^@ $<
 
 test/md5.obj: src/md5.c
@@ -225,12 +228,12 @@ test/test.obj: test/test.c
 
 # rely on symbol name, not ordinal: -irn switch of wlib is default, but -inn is not.
 $(DLLNAME) $(LIBNAME) $(EXPNAME): $(ALL_OBJS)
-	@mkdir -p $^:
+	@!if not exist $^: mkdir $^:
 	wlink NAM $(DLLNAME) SYSTEM $(SYSTEM_DLL) INITINSTANCE TERMINSTANCE OP QUIET FIL {$(ALL_OBJS)} OP IMPF=$(EXPNAME) OP MAP=$(MAPNAME)
 	wlib -q -b -n -c -pa -s -t -zld -ii -io -inn $(LIBNAME) +$(DLLNAME)
 
 $(LIBSTATIC): $(ALL_OBJS)
-	@mkdir -p $^:
+	@!if not exist $^: mkdir $^:
 	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(ALL_OBJS)
 
 test/$(TESTNAME): $(BLD_LIB) $(TEST_OBJS)
@@ -247,8 +250,8 @@ check: check-build .symbolic
 clean: .symbolic
 	rm -f $(ALL_OBJS)
 	rm -f $(TEST_OBJS)
-	rm -rf $(LIBDIR)
-	rm -rf $(OBJDIR)
+	!if exist $(LIBDIR) rmdir /s /q $(LIBDIR)
+	!if exist $(OBJDIR) rmdir /s /q $(OBJDIR)
 
 distclean: clean .symbolic
 	rm -f *.err
