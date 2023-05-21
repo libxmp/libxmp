@@ -236,6 +236,8 @@ ALL_OBJS_TEMP+= $(PROWIZ_OBJS)
 !ifeq USE_DEPACKERS 1
 ALL_OBJS_TEMP+= $(DEPACKER_OBJS)
 !endif
+
+# Now replace src/ directory prefix with obj/
 ALL_OBJS=$(ALL_OBJS_TEMP:src/=$(OBJDIR)/)
 TEST_OBJS=test/md5.obj test/test.obj
 
