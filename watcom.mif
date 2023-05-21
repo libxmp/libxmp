@@ -14,13 +14,14 @@ STATICFLAGS=-DLIBXMP_STATIC
 LIBROOTDIR=lib
 OBJROOTDIR=obj
 
-# We use the shell's rmdir so we need a backslashes here instead of forward slashes.
+# We use the shell's mkdir and rmdir so we need a backslashes here instead of forward slashes.
 LIBDIR=$(LIBROOTDIR)\$(SYSTEM)
 OBJDIR=$(OBJROOTDIR)\$(SYSTEM)
 
-LOADERSOBJDIR=$(OBJDIR)/loaders
-PROWIZARDOBJDIR=$(OBJDIR)/prowizard
-DEPACKERSOBJDIR=$(OBJDIR)/depackers
+LOADERSOBJDIR=$(OBJDIR)\loaders
+PROWIZARDOBJDIR=$(OBJDIR)\loaders\prowizard
+DEPACKERSOBJDIR=$(OBJDIR)\depackers
+ALL_DIRS=$(LIBDIR) $(OBJDIR) $(LOADERSOBJDIR) $(PROWIZARDOBJDIR) $(DEPACKERSOBJDIR)
 
 DLLNAME=$(LIBDIR)/libxmp.dll
 EXPNAME=$(LIBDIR)/libxmp.exp
@@ -211,13 +212,15 @@ ALL_OBJS+= $(DEPACKER_OBJS)
 !endif
 TEST_OBJS=test/md5.obj test/test.obj
 
-all: $(BLD_TARGET)
+all: $(ALL_DIRS) $(BLD_TARGET)
 
 #.SUFFIXES: .obj .c
 
+$(ALL_DIRS):
+	@!for %i in ($(ALL_DIRS)) do @if not exist %i echo mkdir %i && mkdir %i
+
 .c: src;src/depackers;src/loaders;src/loaders/prowizard;test
 .c.obj:
-	@!if not exist $^: mkdir $^:
 	$(CC) $(LIBFLAGS) -fo=$^@ $<
 
 test/md5.obj: src/md5.c
@@ -228,12 +231,10 @@ test/test.obj: test/test.c
 
 # rely on symbol name, not ordinal: -irn switch of wlib is default, but -inn is not.
 $(DLLNAME) $(LIBNAME) $(EXPNAME): $(ALL_OBJS)
-	@!if not exist $^: mkdir $^:
 	wlink NAM $(DLLNAME) SYSTEM $(SYSTEM_DLL) INITINSTANCE TERMINSTANCE OP QUIET FIL {$(ALL_OBJS)} OP IMPF=$(EXPNAME) OP MAP=$(MAPNAME)
 	wlib -q -b -n -c -pa -s -t -zld -ii -io -inn $(LIBNAME) +$(DLLNAME)
 
 $(LIBSTATIC): $(ALL_OBJS)
-	@!if not exist $^: mkdir $^:
 	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(ALL_OBJS)
 
 test/$(TESTNAME): $(BLD_LIB) $(TEST_OBJS)
