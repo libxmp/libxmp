@@ -610,7 +610,7 @@ static void compare_vblank_scan(struct context_data *ctx)
 	struct scan_data scan_backup;
 	unsigned char ctrl_backup[256];
 
-	if ((info_backup = malloc(sizeof(m->xxo_info))) != NULL) {
+	if ((info_backup = (struct ord_data *)malloc(sizeof(m->xxo_info))) != NULL) {
 		/* Back up the current info to avoid a third scan. */
 		scan_backup = p->scan[0];
 		memcpy(info_backup, m->xxo_info, sizeof(m->xxo_info));
