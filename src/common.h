@@ -409,6 +409,7 @@ struct module_data {
 	uint8 **scan_cnt;		/* scan counters */
 	struct extra_sample_data *xtra;
 	struct midi_macro_data *midi;
+	int compare_vblank;
 };
 
 

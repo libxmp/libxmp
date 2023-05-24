@@ -46,6 +46,8 @@
 #include "far_extras.h"
 #endif
 
+#define VBLANK_TIME_THRESHOLD	480000 /* 8 minutes */
+
 #define S3M_END		0xff
 #define S3M_SKIP	0xfe
 
@@ -586,6 +588,56 @@ end_module:
     return (time + m->time_factor * frame_count * base_time / bpm);
 }
 
+static void reset_scan_data(struct context_data *ctx)
+{
+	int i;
+	for (i = 0; i < XMP_MAX_MOD_LENGTH; i++) {
+		ctx->m.xxo_info[i].time = -1;
+	}
+	memset(ctx->p.sequence_control, 0xff, XMP_MAX_MOD_LENGTH);
+}
+
+#ifndef LIBXMP_CORE_PLAYER
+static void compare_vblank_scan(struct context_data *ctx)
+{
+	/* Calculate both CIA and VBlank time for certain long MODs
+	 * and pick the more likely (i.e. shorter) one. The same logic
+	 * works regardless of the initial mode selected--either way,
+	 * the wrong timing mode usually makes modules MUCH longer. */
+	struct player_data *p = &ctx->p;
+	struct module_data *m = &ctx->m;
+	struct ord_data *info_backup;
+	struct scan_data scan_backup;
+	unsigned char ctrl_backup[256];
+
+	if ((info_backup = (struct ord_data *)malloc(sizeof(m->xxo_info))) != NULL) {
+		/* Back up the current info to avoid a third scan. */
+		scan_backup = p->scan[0];
+		memcpy(info_backup, m->xxo_info, sizeof(m->xxo_info));
+		memcpy(ctrl_backup, p->sequence_control,
+			sizeof(p->sequence_control));
+
+		reset_scan_data(ctx);
+
+		m->quirk ^= QUIRK_NOBPM;
+		p->scan[0].time = scan_module(ctx, 0, 0);
+
+		D_(D_INFO "%-6s %dms", !HAS_QUIRK(QUIRK_NOBPM)?"VBlank":"CIA", scan_backup.time);
+		D_(D_INFO "%-6s %dms",  HAS_QUIRK(QUIRK_NOBPM)?"VBlank":"CIA", p->scan[0].time);
+
+		if (p->scan[0].time >= scan_backup.time) {
+			m->quirk ^= QUIRK_NOBPM;
+			p->scan[0] = scan_backup;
+			memcpy(m->xxo_info, info_backup, sizeof(m->xxo_info));
+			memcpy(p->sequence_control, ctrl_backup,
+				sizeof(p->sequence_control));
+		}
+
+		free(info_backup);
+	}
+}
+#endif
+
 int libxmp_get_sequence(struct context_data *ctx, int ord)
 {
 	struct player_data *p = &ctx->p;
@@ -612,15 +664,19 @@ int libxmp_scan_sequences(struct context_data *ctx)
 	/* Initialize order data to prevent overwrite when a position is used
 	 * multiple times at different starting points (see janosik.xm).
 	 */
-	for (i = 0; i < XMP_MAX_MOD_LENGTH; i++) {
-		m->xxo_info[i].time = -1;
-	}
+	reset_scan_data(ctx);
 
 	ep = 0;
-	memset(p->sequence_control, 0xff, XMP_MAX_MOD_LENGTH);
 	temp_ep[0] = 0;
 	p->scan[0].time = scan_module(ctx, ep, 0);
 	seq = 1;
+
+#ifndef LIBXMP_CORE_PLAYER
+	if (m->compare_vblank && !(p->flags & XMP_FLAGS_VBLANK) &&
+	    p->scan[0].time >= VBLANK_TIME_THRESHOLD) {
+		compare_vblank_scan(ctx);
+	}
+#endif
 
 	if (p->scan[0].time < 0) {
 		D_(D_CRIT "scan was not able to find any valid orders");

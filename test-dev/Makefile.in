@@ -360,7 +360,10 @@ PROBLEMATIC	= length_data_jack \
 		  length_killvictor \
 		  length_nebulos \
 		  length_roadblast \
-		  length_ode2ptk
+		  length_ode2ptk \
+		  length_flowerpower \
+		  length_space_traveller \
+		  length_listen \
 
 FUZZER		= misc \
 		  mod_no_null_terminator \
