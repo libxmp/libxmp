@@ -14,6 +14,8 @@ TEST(test_openmpt_it_randompan)
 	struct xmp_channel_info *ci;
 	int values[64];
 
+	memset(values, 0, sizeof(values));
+
 	opaque = xmp_create_context();
 	xmp_load_module(opaque, "openmpt/it/RandomPan.it");
 	xmp_start_player(opaque, 8000, 0);
