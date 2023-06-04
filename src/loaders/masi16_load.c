@@ -283,6 +283,8 @@ static int masi16_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	if (libxmp_init_instrument(m) < 0)
 		return -1;
 
+	memset(p_smp, 0, sizeof(p_smp));
+
 	hio_seek(f, start + p_ins, SEEK_SET);
 	for (i = 0; i < stored_ins; i++) {
 		struct xmp_instrument *xxi;

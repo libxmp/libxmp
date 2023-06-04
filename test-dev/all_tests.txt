@@ -655,6 +655,7 @@ test_fuzzer_liq_truncated
 test_fuzzer_masi_invalid_length
 test_fuzzer_masi_seek_loop
 test_fuzzer_masi_truncated
+test_fuzzer_masi16_invalid
 test_fuzzer_mdl_duplicate_chunk
 test_fuzzer_mdl_duplicate_is_chunk
 test_fuzzer_mdl_duplicate_pa_chunk
@@ -682,7 +683,6 @@ test_fuzzer_mtm_channels_bound
 test_fuzzer_okt_duplicate_chunk
 test_fuzzer_okt_invalid_chunk_order
 test_fuzzer_okt_sbod_leak
-test_fuzzer_psm_samples_bound
 test_fuzzer_pt3_ptdt_leak
 test_fuzzer_pt3_truncated
 test_fuzzer_ptm_truncated

@@ -437,6 +437,7 @@ FUZZER		= misc \
 		  masi_invalid_length \
 		  masi_seek_loop \
 		  masi_truncated \
+		  masi16_invalid \
 		  mdl_duplicate_chunk \
 		  mdl_duplicate_is_chunk \
 		  mdl_duplicate_pa_chunk \
@@ -464,7 +465,6 @@ FUZZER		= misc \
 		  okt_duplicate_chunk \
 		  okt_invalid_chunk_order \
 		  okt_sbod_leak \
-		  psm_samples_bound \
 		  pt3_ptdt_leak \
 		  pt3_truncated \
 		  ptm_truncated \
