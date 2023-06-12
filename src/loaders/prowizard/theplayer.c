@@ -135,7 +135,7 @@ static int decode_pattern(HIO_HANDLE *in, int npat, uint8 *tdata, int taddr[128]
 		    lines = c2;
 		    hio_seek(in, -(((int)c3 << 8) + c4), SEEK_CUR);
 
-		    for (l = 0; l <= lines; l++, k++) {
+		    for (l = 0; l <= lines && k < 64; l++, k++) {
 			x = &track(i, j, k);
 
 			c1 = hio_read8(in);
@@ -175,6 +175,9 @@ static int decode_pattern(HIO_HANDLE *in, int npat, uint8 *tdata, int taddr[128]
 				set_event(x, c1, c2, c3);
 			    }
 			}
+
+			if (k >= 64)
+			    break;
 
 			x = &track(i, j, k);
 			set_event(x, c1, c2, c3);
