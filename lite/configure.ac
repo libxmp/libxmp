@@ -1,6 +1,6 @@
 m4_define([libxmplite_VERSION_MAJOR_m4], 4)
-m4_define([libxmplite_VERSION_MINOR_m4], 5)
-m4_define([libxmplite_VERSION_PATCH_m4], 1)
+m4_define([libxmplite_VERSION_MINOR_m4], 6)
+m4_define([libxmplite_VERSION_PATCH_m4], 0)
 m4_define([libxmplite_VERSION_m4], libxmplite_VERSION_MAJOR_m4[.]libxmplite_VERSION_MINOR_m4[.]libxmplite_VERSION_PATCH_m4)
 
 AC_PREREQ(2.60)
