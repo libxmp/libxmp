@@ -1,8 +1,9 @@
 Stable versions
 ---------------
 
-4.5.1 ():
+4.6.0 ():
 	Changes by Alice Rowan:
+	- Implement S3M and IT mix volume.
 	- Add IT MIDI macro filter effects support.
 	- Fix for IT filter cutoff 127 on new note behavior.
 	- Add missing IT filter clamp to mixer loops.

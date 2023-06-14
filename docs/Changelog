@@ -1,8 +1,10 @@
 Stable versions
 ---------------
 
-4.5.1 ():
+4.6.0 ():
 	Changes by Alice Rowan:
+	- Add Astroidea XMF format loader.
+	- Implement S3M and IT mix volume.
 	- Add IT MIDI macro filter effects support.
 	- Fix for IT filter cutoff 127 on new note behavior.
 	- Add missing IT filter clamp to mixer loops.
@@ -17,6 +19,9 @@ Stable versions
 	- Replace bidirectional loop unrolling with reverse sample rendering.
 	- Fix crash when xmp_set_row() is used on an IT end marker.
 	- Fix NNA and tone portamento interaction with sample changes.
+	- Add compatibility for Modplug Tracker preamp scaling.
+	- Add tracker detection for ModPlug Tracker XMs, pre-alpha ITs.
+	- New Protracker CIA and VBlank timing detection routine.
 	- Fix detection for TakeTracker TDZx MODs.
 	- Fix loading of Digital Tracker FA0x MODs.
 	- Fix ASYLUM Music Format restart byte.
@@ -27,6 +32,7 @@ Stable versions
 	- Fix support for most Farandole Composer effects.
 	- Implement Ultra Tracker tone portamento.
 	- Multiple OctaMED fixes and support for MMDC packed modules.
+	- Fix MED Soundstudio 2 default note events.
 	- Fix MTM tempo effect and FX_SPEED scan bugs.
 	- Add MTM module tempo mode detection and comments support.
 	- Multiple fixes and updates for ST modules.
@@ -35,14 +41,16 @@ Stable versions
 	- Several loading performance improvements.
 	- Allow up to 255 sequences to be scanned.
 	- Allow xmp_smix_play functions to play key off, cut and fade events.
-	- Integrate the OXM depacker with the XM loader.
 	- Allow loading MED2 samples from the module directory.
+	- Fix misc. bugs in the MASI 16 loader.
 	- Fix heap corruption in Coconizer loader with invalid sequences.
 	- Fix MMCMP literal block unpacking.
 	- Fix bad seeking behavior in MMCMP compressed blocks.
 	- New permissive licensed Amiga LZX and ARC/ArcFS depackers.
 	- Update XZ depacker with an MIT reimplementation.
 	- Fixed numerous defects found by fuzzing.
+	Changes by Saga Musix:
+	- Fix MMD0 pattern loader to honor play transpose setting.
 	Changes by Vitaly Novichkov:
 	- Cmake build system support.
 	Changes by Anonymous Maarten:
@@ -56,6 +64,7 @@ Stable versions
 	Changes by Claudio Matsuoka:
 	- Fix linkage with gcc when versioned symbols and LTO are enabled.
 	Changes by Cameron Cawley:
+	- Integrate the OXM depacker with the XM loader.
 	- Change several depackers to work without using a temporary file.
 	- Replace inflate code with permissive licensed miniz.
 	- Update the bzip2 depacker code to a newer 0BSD-licensed version.
@@ -65,6 +74,8 @@ Stable versions
 	- Fixes and cleanups for C++ compatibility.
 	Changes by Chris Young:
 	- Relicense XFD decruncher under MIT.
+	Changes by Denis Barkar:
+	- Fix compilation for UWP platform.
 
 4.5.0 (20210606):
 	Changes by Alice Rowan:

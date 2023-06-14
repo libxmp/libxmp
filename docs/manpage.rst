@@ -6,8 +6,8 @@ A tracker module player library
 -------------------------------
 
 :Author: Claudio Matsuoka and Hipolito Carraro Jr.
-:Date: Nov 2020
-:Version: 4.5
+:Date: June 2023
+:Version: 4.6
 :Manual section: 3
 :Manual group: Extended Module Player
 
