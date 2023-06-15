@@ -1,7 +1,7 @@
 Stable versions
 ---------------
 
-4.6.0 ():
+4.6.0 (20230615):
 	Changes by Alice Rowan:
 	- Add Astroidea XMF format loader.
 	- Implement S3M and IT mix volume.
@@ -10,7 +10,7 @@ Stable versions
 	- Add missing IT filter clamp to mixer loops.
 	- Fix IT duplicate note check to use the key prior to transpose.
 	- Fix multiple IT playback bugs affecting, e.g. Atomic Playboy.
-	- Fix IT tone portamento + offset.
+	- Fix IT tone portamento and offset.
 	- Fix reverse sustain loop release bug, add IT effect S9F support.
 	- Add Modplug ADPCM4 support for Impulse Tracker modules.
 	- Improve anticlick performance and fix anticlick filter volume bug.
