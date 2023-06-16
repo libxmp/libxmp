@@ -20,6 +20,11 @@ TEST(test_fuzzer_xm_vorbis_crash)
 	ret = xmp_load_module(opaque, "data/f/load_xm_vorbis_crash2.oxm");
 	fail_unless(ret == -XMP_ERROR_LOAD, "module load (2)");
 
+	/* This input OXM caused heap corruption in stb_vorbis due to
+	 * the bounding of f->temp_memory_required being slightly off. */
+	ret = xmp_load_module(opaque, "data/f/load_xm_vorbis_crash3.oxm");
+	fail_unless(ret == -XMP_ERROR_LOAD, "module load (3)");
+
 	xmp_free_context(opaque);
 }
 END_TEST
