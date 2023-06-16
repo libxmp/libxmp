@@ -553,6 +553,7 @@ FUZZER		= misc \
 		  play_dbm_inst_no_samples \
 		  play_far_highbpm \
 		  play_gdm_bad_loop \
+		  play_hmn_bad_loop_index \
 		  play_hmn_bad_megaarp \
 		  play_mdl_high_c5spd \
 		  play_mdl_zero_samples \

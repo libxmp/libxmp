@@ -65,7 +65,7 @@ void libxmp_hmn_play_extras(struct context_data *ctx, struct channel_data *xc, i
 	}
 
 	xxi = &m->mod.xxi[xc->ins];
-	pos = ce->datapos;
+	pos = ce->datapos & 63; /* TODO: how are out of bounds values handled? */
 	waveform = HMN_INSTRUMENT_EXTRAS(m->mod.xxi[xc->ins])->data[pos];
 	volume = HMN_INSTRUMENT_EXTRAS(m->mod.xxi[xc->ins])->progvolume[pos] & 0x7f;
 
