@@ -489,6 +489,7 @@ FUZZER		= misc \
 		  prowizard_di_truncated \
 		  prowizard_eureka_truncated \
 		  prowizard_fuchs_invalid \
+		  prowizard_heatseek_128_patterns \
 		  prowizard_heatseek_truncated \
 		  prowizard_ksm_truncated \
 		  prowizard_noiserun_invalid \
@@ -498,6 +499,7 @@ FUZZER		= misc \
 		  prowizard_np3_invalid \
 		  prowizard_p40_invalid \
 		  prowizard_p50_127_patterns \
+		  prowizard_p50_truncated \
 		  prowizard_p61a_invalid \
 		  prowizard_p61a_truncated \
 		  prowizard_pha_invalid \
@@ -509,6 +511,7 @@ FUZZER		= misc \
 		  prowizard_pp21_truncated \
 		  prowizard_pp30_invalid \
 		  prowizard_starpack_invalid \
+		  prowizard_starpack_truncated \
 		  prowizard_theplayer_invalid \
 		  prowizard_titanics_truncated \
 		  prowizard_tp1_invalid \
