@@ -277,7 +277,7 @@ static int test_starpack(const uint8 *data, char *t, int s)
 			return -1;
 	}
 
-	PW_REQUEST_DATA(s, sdata_ofs + 4);
+	PW_REQUEST_DATA(s, sdata_ofs + 8);
 
 	/* test pattern data */
 	pdata_ofs = 788;

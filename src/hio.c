@@ -542,3 +542,19 @@ long hio_size(HIO_HANDLE *h)
 {
 	return h->size;
 }
+
+/* Returns a pointer to the underlying continuous memory buffer the entire
+ * contents of HIO_HANDLE `h` are stored at if applicable, otherwise NULL.
+ * Do not reallocate this pointer or modify its underlying data!
+ */
+const unsigned char *hio_get_underlying_memory(HIO_HANDLE *h)
+{
+	switch (HIO_HANDLE_TYPE(h)) {
+	case HIO_HANDLE_TYPE_FILE:
+	case HIO_HANDLE_TYPE_CBFILE:
+		return NULL;
+	case HIO_HANDLE_TYPE_MEMORY:
+		return h->handle.mem->start;
+	}
+	return NULL;
+}

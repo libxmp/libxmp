@@ -457,10 +457,10 @@ static int theplayer_test(const uint8 *data, char *t, int s, int version)
 
 	/* test pattern table */
 	len = 0;
-	while (1) {
+	while (len < 128) {
 		int pat = data[num_ins * 6 + 4 + num_pat * 8 + len];
 
-		if (pat == 0xff || len >= 128)
+		if (pat == 0xff)
 			break;
 
 		if (version >= 0x60) {

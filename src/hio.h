@@ -46,5 +46,6 @@ int	hio_reopen_mem	(const void *, long, int, HIO_HANDLE *);
 int	hio_reopen_file	(FILE *, int, HIO_HANDLE *);
 int	hio_close	(HIO_HANDLE *);
 long	hio_size	(HIO_HANDLE *);
+const unsigned char *hio_get_underlying_memory(HIO_HANDLE *);
 
 #endif
