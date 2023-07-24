@@ -160,4 +160,22 @@ set(LIBXMP_SRC_LIST_DEPACKERS
     src/depackers/ptpopen.c
     src/depackers/xfd.c
     src/depackers/xfd_link.c
+    src/depackers/lhasa/ext_header.c
+    src/depackers/lhasa/lha_file_header.c
+    src/depackers/lhasa/lha_input_stream.c
+    src/depackers/lhasa/lha_decoder.c
+    src/depackers/lhasa/lha_reader.c
+    src/depackers/lhasa/lha_basic_reader.c
+    src/depackers/lhasa/lh1_decoder.c
+    src/depackers/lhasa/lh5_decoder.c
+    src/depackers/lhasa/lh6_decoder.c
+    src/depackers/lhasa/lh7_decoder.c
+    src/depackers/lhasa/lhx_decoder.c
+    src/depackers/lhasa/lk7_decoder.c
+    src/depackers/lhasa/lz5_decoder.c
+    src/depackers/lhasa/lzs_decoder.c
+    src/depackers/lhasa/null_decoder.c
+    src/depackers/lhasa/pm1_decoder.c
+    src/depackers/lhasa/pm2_decoder.c
+    src/depackers/lhasa/macbinary.c
 )

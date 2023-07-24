@@ -190,6 +190,24 @@ DEPACKER_OBJS= &
  src/depackers/ptpopen.obj &
  src/depackers/xfd.obj &
  src/depackers/xfd_link.obj &
+ src/depackers/lhasa/ext_header.obj &
+ src/depackers/lhasa/lha_file_header.obj &
+ src/depackers/lhasa/lha_input_stream.obj &
+ src/depackers/lhasa/lha_decoder.obj &
+ src/depackers/lhasa/lha_reader.obj &
+ src/depackers/lhasa/lha_basic_reader.obj &
+ src/depackers/lhasa/lh1_decoder.obj &
+ src/depackers/lhasa/lh5_decoder.obj &
+ src/depackers/lhasa/lh6_decoder.obj &
+ src/depackers/lhasa/lh7_decoder.obj &
+ src/depackers/lhasa/lhx_decoder.obj &
+ src/depackers/lhasa/lk7_decoder.obj &
+ src/depackers/lhasa/lz5_decoder.obj &
+ src/depackers/lhasa/lzs_decoder.obj &
+ src/depackers/lhasa/null_decoder.obj &
+ src/depackers/lhasa/pm1_decoder.obj &
+ src/depackers/lhasa/pm2_decoder.obj &
+ src/depackers/lhasa/macbinary.obj &
 
 ALL_OBJS=$(OBJS)
 !ifeq USE_PROWIZARD 1
@@ -204,7 +222,7 @@ all: $(BLD_TARGET)
 
 #.SUFFIXES: .obj .c
 
-.c: src;src/depackers;src/loaders;src/loaders/prowizard;test
+.c: src;src/depackers;src/depackers/lhasa;src/loaders;src/loaders/prowizard;test
 .c.obj:
 	$(CC) $(LIBFLAGS) -fo=$^@ $<
 
