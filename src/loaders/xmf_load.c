@@ -136,8 +136,8 @@ static int xmf_test(HIO_HANDLE *f, char *t, const int start)
 	samples_start = 0x1103 + num_channels + num_patterns * num_channels * 64 * 6;
 	length = hio_size(f);
 	if (length < samples_start || (size_t)length - samples_start < samples_length) {
-		D_(D_WARN "not XMF: file length %ld is shorter than required %zu",
-		 length, (size_t)samples_start + samples_length);
+		D_(D_WARN "not XMF: file length %ld is shorter than required %lu",
+		 length, (unsigned long)samples_start + samples_length);
 		return -1;
 	}
 
