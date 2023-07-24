@@ -101,15 +101,20 @@ typedef signed int int32;
 typedef unsigned char uint8;
 typedef unsigned short int uint16;
 typedef unsigned int uint32;
-#endif
-
 #ifdef _MSC_VER /* MSVC6 has no long long */
 typedef signed __int64 int64;
 typedef unsigned __int64 uint64;
-#elif !(defined(B_BEOS_VERSION) || defined(__amigaos4__))
+#elif defined(_LP64) || defined(__LP64__)
+typedef unsigned long uint64;
+typedef signed long int64;
+#else
 typedef unsigned long long uint64;
 typedef signed long long int64;
+#endif /* [u]int64 */
 #endif
+/* just in case :  */
+typedef int tst_uint32[2 * (4 == sizeof(uint32)) - 1];
+typedef int tst_uint64[2 * (8 == sizeof(uint64)) - 1];
 
 #ifdef _MSC_VER
 #pragma warning(disable:4100) /* unreferenced formal parameter */
