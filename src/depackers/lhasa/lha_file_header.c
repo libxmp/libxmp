@@ -72,7 +72,7 @@ static int split_header_filename(LHAFileHeader *header)
 	sep = strrchr(header->filename, '/');
 
 	if (sep != NULL) {
-		new_filename = strdup(sep + 1);
+		new_filename = libxmp_strdup(sep + 1);
 
 		if (new_filename == NULL) {
 			return 0;
