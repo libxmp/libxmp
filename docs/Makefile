@@ -1,6 +1,6 @@
 
 DOCS_DFILES	= Makefile CMakeLists.txt           \
-		  COPYING.LIB CREDITS Changelog     \
+		  COPYING CREDITS Changelog         \
 		  formats.txt fixloop.txt           \
 		  libxmp.rst manpage.rst pdfdoc.rst \
 		  custom.style style.css $(DOCS_FILES)
