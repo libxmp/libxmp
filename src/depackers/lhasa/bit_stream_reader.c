@@ -60,7 +60,6 @@ static int peek_bits(BitStreamReader *reader,
                      unsigned int n)
 {
 	uint8 buf[4];
-	unsigned int fill_bytes;
 	size_t bytes, i;
 
 	if (n == 0) {
@@ -74,11 +73,10 @@ static int peek_bits(BitStreamReader *reader,
 
 		// Maximum number of bytes we can fill?
 
-		fill_bytes = (32 - reader->bits) / 8;
+		const unsigned int fill_bytes = (32 - reader->bits) / 8;
 
 		// Read from input and fill bit_buffer.
 
-		memset(buf, 0, sizeof(buf));
 		bytes = reader->callback(buf, fill_bytes,
 		                         reader->callback_data);
 
