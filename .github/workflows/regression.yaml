@@ -6,13 +6,10 @@ on:
 
 jobs:
   linux:
-    strategy:
-       matrix:
-         distro: [ubuntu-latest, ubuntu-20.04]
-    runs-on: ${{ matrix.distro }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: CMake configure
         run: |
           mkdir build
@@ -43,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install dependencies
         run: sudo apt update -qq && sudo apt install -y lld
       - name: CMake configure
@@ -75,16 +72,13 @@ jobs:
         run: (cd test-dev && make fuzzers -j3)
 
   # Simulate Fedora RPM builds, usage of __symver__.
-  linux-gcc-10-lto:
+  linux-lto:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Install dependencies
-        run: sudo apt update && sudo apt install gcc-10
+        uses: actions/checkout@v3
       - name: CMake configure
         run: |
-          export CC=gcc-10
           export CFLAGS="-flto"
           export LDFLAGS="-flto"
           cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
@@ -97,7 +91,6 @@ jobs:
           ctest --output-on-failure
       - name: Create and run configure script
         run: |
-          export CC=gcc-10
           export CFLAGS="-flto"
           export LDFLAGS="-flto"
           autoconf
@@ -117,7 +110,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install dependencies
         run: sudo apt update && sudo apt install autoconf
       - name: Install emscripten
@@ -162,7 +155,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: CMake configure for Intel
         run: |
           cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
@@ -204,7 +197,7 @@ jobs:
         ]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: CMake configure
         run: |
           cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build ${{ matrix.cmakeflags }}
@@ -249,7 +242,7 @@ jobs:
           update: true
           install: base-devel git autoconf ${{ matrix.pkg }}
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Create and run Autotools configure script
         run: |
           autoconf
@@ -281,7 +274,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup OpenWatcom
         uses: open-watcom/setup-watcom@v0
         with:
@@ -325,7 +318,7 @@ jobs:
     container: amigadev/crosstools:${{ matrix.host }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Create and run Autotools configure script
         run: |
           autoconf
@@ -338,7 +331,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install dependencies
         run: sudo apt install unrar
       - name: Create and run configure script
@@ -359,7 +352,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install dependencies
         run: sudo apt install unrar
       - name: Create and run configure script
