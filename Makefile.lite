@@ -1,4 +1,4 @@
-
+AUTOCONF	= autoconf
 DIST		= libxmp-lite-stagedir
 DFILES		= INSTALL install-sh config.sub config.guess aclocal.m4 autogen.sh libxmp.map \
 		  lite/README lite/configure.ac lite/Makefile.in lite/libxmp-lite.pc.in \
@@ -44,10 +44,10 @@ dist-subdirs: $(addprefix dist-,$(DDIRS))
 	cp lite/CMakeLists.txt $(DIST)/CMakeLists.txt
 
 dist-dist:
-	(cd  $(DIST); autoconf; ./configure)
+	(cd  $(DIST); $(AUTOCONF); ./configure)
 	$(MAKE) -C $(DIST) dist distcheck || false
 
 check-no-it:
-	(cd  $(DIST); autoconf; ./configure --disable-it)
+	(cd  $(DIST); $(AUTOCONF); ./configure --disable-it)
 	$(MAKE) -C $(DIST) || false
 
