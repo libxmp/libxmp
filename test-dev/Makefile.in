@@ -1,3 +1,4 @@
+AUTOCONF	= autoconf
 CC		= @CC@
 CFLAGS		= -c @CFLAGS@ @DEFS@ -I../include -I../src
 LD		= @CC@
@@ -787,7 +788,7 @@ $(FUZZLIB_PATH):
 
 $(FUZZLIB_PATH)/libxmp-asan.a: $(FUZZLIB_PATH)
 	(cd $(FUZZLIB_PATH) && \
-		autoconf && \
+		$(AUTOCONF) && \
 		CC="$(FUZZ_CC)" CFLAGS="$(FUZZLIB_ASAN_FLAGS)" LDFLAGS="$(FUZZLIB_ASAN_FLAGS)" ./configure && \
 		$(MAKE) static && \
 		cp lib/libxmp.a libxmp-asan.a && \
@@ -795,7 +796,7 @@ $(FUZZLIB_PATH)/libxmp-asan.a: $(FUZZLIB_PATH)
 
 $(FUZZLIB_PATH)/libxmp-msan.a: $(FUZZLIB_PATH) | $(FUZZLIB_PATH)/libxmp-asan.a
 	(cd $(FUZZLIB_PATH) && \
-		autoconf && \
+		$(AUTOCONF) && \
 		CC="$(FUZZ_CC)" CFLAGS="$(FUZZLIB_MSAN_FLAGS)" LDFLAGS="$(FUZZLIB_MSAN_FLAGS)" ./configure && \
 		$(MAKE) static && \
 		cp lib/libxmp.a libxmp-msan.a && \
