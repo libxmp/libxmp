@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.2...3.5)
 project(libxmp VERSION 4.6.0 LANGUAGES C)
 
 set(LIBXMP_DEFINES)
