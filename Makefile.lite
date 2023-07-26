@@ -1,9 +1,8 @@
 
 DIST		= libxmp-lite-stagedir
-DFILES		= lite/README INSTALL install-sh configure configure.ac \
-		  config.sub config.guess Makefile.in lite/libxmp-lite.pc.in \
-		  libxmp.map lite/Makefile.vc.in lite/Makefile.os2 lite/Makefile.w32 \
-		  lite/watcom.mif.in aclocal.m4 autogen.sh
+DFILES		= INSTALL install-sh config.sub config.guess aclocal.m4 autogen.sh libxmp.map \
+		  lite/README lite/configure.ac lite/Makefile.in lite/libxmp-lite.pc.in \
+		  lite/Makefile.vc.in lite/Makefile.os2 lite/Makefile.w32 lite/watcom.mif.in
 DDIRS		= src loaders test cmake m4
 
 all: dist
