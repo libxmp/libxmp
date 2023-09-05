@@ -135,6 +135,12 @@ XMP_TRY_COMPILE(whether compiler understands -Wwrite-strings,
   int main(void){return 0;}],
   CFLAGS="${CFLAGS} -Wwrite-strings")
 
+XMP_TRY_COMPILE(whether compiler understands -Wundef,
+  ac_cv_c_flag_w_undef,
+  -Wundef,[
+  int main(void){return 0;}],
+  CFLAGS="${CFLAGS} -Wundef")
+
 old_CFLAGS="${CFLAGS}"
 XMP_TRY_COMPILE(whether compiler understands -Werror,
   ac_cv_c_flag_w_error,
