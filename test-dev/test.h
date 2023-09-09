@@ -81,6 +81,7 @@ void set_order(struct context_data *, int, int);
 void set_instrument_volume(struct context_data *, int, int, int);
 void set_instrument_nna(struct context_data *, int, int, int, int, int);
 void set_instrument_envelope(struct context_data *, int, int, int, int);
+void set_instrument_envelope_loop(struct context_data *, int, int, int);
 void set_instrument_envelope_sus(struct context_data *, int, int);
 void set_instrument_fadeout(struct context_data *, int, int);
 void set_period_type(struct context_data *, int);

@@ -294,6 +294,7 @@ int libxmp_snprintf (char *, size_t, const char *, ...) LIBXMP_ATTRIB_PRINTF(3,4
 #define QUIRK_NOBPM	(1 << 28)	/* Adjust speed only, no BPM */
 #define QUIRK_ARPMEM	(1 << 29)	/* Arpeggio has memory (S3M_ARPEGGIO) */
 #define QUIRK_RSTCHN	(1 << 30)	/* Reset channel on sample end */
+#define QUIRK_FT2ENV	(1 << 31)	/* Use FT2-style envelope handling */
 
 #define HAS_QUIRK(x)	(m->quirk & (x))
 

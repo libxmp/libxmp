@@ -118,6 +118,16 @@ void set_instrument_envelope(struct context_data *ctx, int ins, int node,
 	mod->xxi[ins].aei.flg |= XMP_ENVELOPE_ON;
 }
 
+void set_instrument_envelope_loop(struct context_data *ctx, int ins, int lps, int lpe)
+{
+	struct module_data *m = &ctx->m;
+	struct xmp_module *mod = &m->mod;
+
+	mod->xxi[ins].aei.lps = lps;
+	mod->xxi[ins].aei.lpe = lpe;
+	mod->xxi[ins].aei.flg |= XMP_ENVELOPE_LOOP;
+}
+
 void set_instrument_envelope_sus(struct context_data *ctx, int ins, int sus)
 {
 	struct module_data *m = &ctx->m;

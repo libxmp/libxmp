@@ -1016,7 +1016,7 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		mod->xxc[i].pan = 0x80;
 	}
 
-	m->quirk |= QUIRKS_FT2;
+	m->quirk |= QUIRKS_FT2 | QUIRK_FT2ENV;
 	m->read_event_type = READ_EVENT_FT2;
 
 	return 0;
