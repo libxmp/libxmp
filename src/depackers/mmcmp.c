@@ -157,8 +157,8 @@ static int block_unpack_16bit(struct block *block, struct sub_block *sub,
 {
 	struct bit_buffer bb;
 	uint32 pos = 0;
-	uint32 numbits = block->num_bits;
 	uint32 j, oldval = 0;
+	uint8 numbits = block->num_bits;
 
 	bb.count = 0;
 	bb.buffer = 0;
@@ -232,10 +232,10 @@ static int block_unpack_8bit(struct block *block, struct sub_block *sub,
 {
 	struct bit_buffer bb;
 	uint32 pos = 0;
-	uint32 numbits = block->num_bits;
 	uint32 j, oldval = 0;
-	uint8 ptable[0x100];
 	long seekpos = hio_tell(in) + block->tt_entries;
+	uint8 ptable[0x100];
+	uint8 numbits = block->num_bits;
 
 	/* The way the original libmodplug depacker is written allows values
 	 * to be read from the compressed data. It's impossible to tell if this
