@@ -10,12 +10,11 @@ TEST(test_player_xm_envpos)
 	xmp_context opaque;
 	struct xmp_frame_info fi;
 	struct context_data *ctx;
-	int i;
 
 	opaque = xmp_create_context();
 	ctx = (struct context_data *)opaque;
 
- 	create_simple_module(ctx, 2, 2);
+	create_simple_module(ctx, 2, 2);
 
 	/* Envelope from Ebony Owl Netsuke.xm, first instrument */
 	set_instrument_envelope(ctx, 0, 0, 0, 59);

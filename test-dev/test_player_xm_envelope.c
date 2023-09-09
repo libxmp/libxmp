@@ -15,11 +15,11 @@ TEST(test_player_xm_envelope)
 	opaque = xmp_create_context();
 	ctx = (struct context_data *)opaque;
 
- 	create_simple_module(ctx, 2, 2);
+	create_simple_module(ctx, 2, 2);
 
 	set_instrument_envelope(ctx, 0, 0, 0, 64);
 	set_instrument_envelope(ctx, 0, 1, 16, 0);
-	set_instrument_envelope_loop(ctx, 0, 0, 0, 0);
+	set_instrument_envelope_loop(ctx, 0, 0, 0);
 
 	new_event(ctx, 0, 0, 0, 60, 1, 0, 0, 0, 0, 0);
 	set_quirk(ctx, QUIRKS_FT2 | QUIRK_FT2ENV, READ_EVENT_FT2);
