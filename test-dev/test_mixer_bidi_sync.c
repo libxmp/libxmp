@@ -23,8 +23,8 @@ static void bidi_sync_test_mode(xmp_context opaque, int rate, int interp, const 
 	struct xmp_frame_info info;
 	int i, j;
 
-	xmp_start_player(opaque, 8000, XMP_FORMAT_MONO);
-	xmp_set_player(opaque, XMP_PLAYER_INTERP, XMP_INTERP_SPLINE);
+	xmp_start_player(opaque, rate, XMP_FORMAT_MONO);
+	xmp_set_player(opaque, interp, XMP_INTERP_SPLINE);
 
 	for (i = 0; i < RENDER_FRAMES; i++) {
 		xmp_play_frame(opaque);
