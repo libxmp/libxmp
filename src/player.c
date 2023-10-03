@@ -1634,10 +1634,12 @@ static void next_order(struct context_data *ctx)
 			if (mod->rst > mod->len ||
 			    mod->xxo[mod->rst] >= mod->pat ||
 			    p->ord < m->seq_data[p->sequence].entry_point) {
-				p->ord = m->seq_data[p->sequence].entry_point;
 				/* Increment to loop count. This will make the player to quit like other modules when
 				   playing sequence 8 of "alien incident - leohou2.s3m" by Purple Motion */
-				p->loop_count++;
+				if (p->ord < m->seq_data[p->sequence].entry_point) {
+					p->loop_count++;
+				}
+				p->ord = m->seq_data[p->sequence].entry_point;
 			} else {
 				if (libxmp_get_sequence(ctx, mod->rst) == p->sequence) {
 					p->ord = mod->rst;
