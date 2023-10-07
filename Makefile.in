@@ -170,7 +170,7 @@ install: all
 	fi
 	@if [ -f lib/$(SHLIB) ]; then \
 		echo "Installing $(SHLIB)..."; \
-		$(INSTALL) -m644 lib/$(SHLIB) $(DESTDIR)$(LIBDIR); \
+		$(INSTALL) -m755 lib/$(SHLIB) $(DESTDIR)$(LIBDIR); \
 		ln -sf $(SHLIB) $(DESTDIR)$(LIBDIR)/$(SONAME); \
 		ln -sf $(SONAME) $(DESTDIR)$(LIBDIR)/$(SOLIB); \
 	fi
