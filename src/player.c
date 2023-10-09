@@ -1634,7 +1634,7 @@ static void next_order(struct context_data *ctx)
 			if (mod->rst > mod->len ||
 			    mod->xxo[mod->rst] >= mod->pat ||
 			    p->ord < m->seq_data[p->sequence].entry_point) {
-				/* Increment to loop count. This will make the player to quit like other modules when
+				/* Increment loop count. This will make the player to quit like other modules when
 				   playing sequence 8 of "alien incident - leohou2.s3m" by Purple Motion */
 				if (p->ord < m->seq_data[p->sequence].entry_point) {
 					p->loop_count++;
@@ -1646,6 +1646,9 @@ static void next_order(struct context_data *ctx)
 				} else {
 					p->ord = m->seq_data[p->sequence].entry_point;
 				}
+
+				/* Increment loop count here too. This will fix e.g. "amazonas-dynomite mix.it" by Skaven */
+				p->loop_count++;
 			}
 			/* This might be a marker, so delay updating global
 			 * volume until an actual pattern is found */
