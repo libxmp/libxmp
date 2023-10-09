@@ -1645,10 +1645,9 @@ static void next_order(struct context_data *ctx)
 					p->ord = mod->rst;
 				} else {
 					p->ord = m->seq_data[p->sequence].entry_point;
+					/* Increment loop count here too. This will fix e.g. "amazonas-dynomite mix.it" by Skaven */
+					p->loop_count++;
 				}
-
-				/* Increment loop count here too. This will fix e.g. "amazonas-dynomite mix.it" by Skaven */
-				p->loop_count++;
 			}
 			/* This might be a marker, so delay updating global
 			 * volume until an actual pattern is found */
