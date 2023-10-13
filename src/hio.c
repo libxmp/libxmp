@@ -371,11 +371,12 @@ size_t hio_read(void *buf, size_t size, size_t num, HIO_HANDLE *h)
 	/* memcpy the current HIO buffer, then read directly into buf, then copy back to the HIO buffer and finish it */
 	size_t should_read = size * num;
 	int buffer_left = h->buffer_end - HIO_BUFFER_CURSOR(h);
-	size_t did_read;
+	uint8 *buf_use = (uint8 *)buf;
+	size_t did_read = 0;
 
 	if(should_read <= buffer_left) {
 		/* easy case */
-		memcpy(buf, h->buffer + HIO_BUFFER_CURSOR(h), size * num);
+		memcpy(buf_use, h->buffer + HIO_BUFFER_CURSOR(h), size * num);
 
 		h->cursor += size * num;
 		if(HIO_BUFFER_CURSOR(h) < should_read) {
@@ -386,17 +387,17 @@ size_t hio_read(void *buf, size_t size, size_t num, HIO_HANDLE *h)
 	}
 
 	/* memcpy the current buffer */
-	memcpy(buf, h->buffer + HIO_BUFFER_CURSOR(h), buffer_left);
-	buf += buffer_left;
+	memcpy(buf_use, h->buffer + HIO_BUFFER_CURSOR(h), buffer_left);
+	buf_use += buffer_left;
 	should_read -= buffer_left;
 	h->cursor += buffer_left;
 
 	/* read the rest directly, may set h->error */
-	did_read = hio_read_internal(buf, 1, should_read, h);
+	did_read = hio_read_internal(buf_use, 1, should_read, h);
 	h->cursor += did_read;
 
 	/* copy back to the HIO buffer */
-	memcpy(h->buffer, buf + did_read - HIO_BUFFER_CURSOR(h), HIO_BUFFER_CURSOR(h));
+	memcpy(h->buffer, buf_use + did_read - HIO_BUFFER_CURSOR(h), HIO_BUFFER_CURSOR(h));
 	h->buffer_end = HIO_BUFFER_CURSOR(h);
 
 	/* finish the HIO buffer */
