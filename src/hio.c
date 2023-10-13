@@ -156,13 +156,6 @@ static int hio_eof_internal(HIO_HANDLE *h)
 	return EOF;
 }
 
-static int hio_error_internal(HIO_HANDLE *h)
-{
-	int error = h->error;
-	h->error = 0;
-	return error;
-}
-
 static void hio_fill_buffer_internal(HIO_HANDLE *h)
 {
 	if (h->buffer_end == HIO_FULL_BUFFER) {
@@ -178,6 +171,11 @@ static void hio_fill_buffer_internal(HIO_HANDLE *h)
 		/* read a full buffer from file */
 		h->buffer_end = hio_read_internal(h->buffer, 1, HIO_FULL_BUFFER, h);
 	}
+
+	/* don't set EOF error yet */
+	if(h->error == EOF) {
+		h->error = 0;
+	}
 }
 
 int8 hio_read8s(HIO_HANDLE *h)
@@ -185,6 +183,7 @@ int8 hio_read8s(HIO_HANDLE *h)
 	int8 ret;
 
 	if (HIO_BUFFER_CURSOR(h) >= h->buffer_end) {
+		h->error = EOF;
 		return ret;
 	}
 
@@ -203,6 +202,7 @@ uint8 hio_read8(HIO_HANDLE *h)
 	uint8 ret;
 
 	if (HIO_BUFFER_CURSOR(h) >= h->buffer_end) {
+		h->error = EOF;
 		return ret;
 	}
 
@@ -223,6 +223,7 @@ uint16 hio_read16l(HIO_HANDLE *h)
 
 	if (HIO_BUFFER_CURSOR(h) + 1 >= h->buffer_end) {
 		h->cursor += h->buffer_end - HIO_BUFFER_CURSOR(h);
+		h->error = EOF;
 		return ret;
 	}
 
@@ -246,6 +247,7 @@ uint16 hio_read16b(HIO_HANDLE *h)
 
 	if (HIO_BUFFER_CURSOR(h) + 1 >= h->buffer_end) {
 		h->cursor += h->buffer_end - HIO_BUFFER_CURSOR(h);
+		h->error = EOF;
 		return ret;
 	}
 
@@ -269,6 +271,7 @@ uint32 hio_read24l(HIO_HANDLE *h)
 
 	if (HIO_BUFFER_CURSOR(h) + 2 >= h->buffer_end) {
 		h->cursor += h->buffer_end - HIO_BUFFER_CURSOR(h);
+		h->error = EOF;
 		return ret;
 	}
 
@@ -293,6 +296,7 @@ uint32 hio_read24b(HIO_HANDLE *h)
 
 	if (HIO_BUFFER_CURSOR(h) + 2 >= h->buffer_end) {
 		h->cursor += h->buffer_end - HIO_BUFFER_CURSOR(h);
+		h->error = EOF;
 		return ret;
 	}
 
@@ -317,6 +321,7 @@ uint32 hio_read32l(HIO_HANDLE *h)
 
 	if (HIO_BUFFER_CURSOR(h) + 3 >= h->buffer_end) {
 		h->cursor += h->buffer_end - HIO_BUFFER_CURSOR(h);
+		h->error = EOF;
 		return ret;
 	}
 
@@ -342,6 +347,7 @@ uint32 hio_read32b(HIO_HANDLE *h)
 
 	if (HIO_BUFFER_CURSOR(h) + 3 >= h->buffer_end) {
 		h->cursor += h->buffer_end - HIO_BUFFER_CURSOR(h);
+		h->error = EOF;
 		return ret;
 	}
 
@@ -385,7 +391,7 @@ size_t hio_read(void *buf, size_t size, size_t num, HIO_HANDLE *h)
 	should_read -= buffer_left;
 	h->cursor += buffer_left;
 
-	/* read the rest directly */
+	/* read the rest directly, may set h->error */
 	did_read = hio_read_internal(buf, 1, should_read, h);
 	h->cursor += did_read;
 
@@ -404,6 +410,7 @@ size_t hio_read(void *buf, size_t size, size_t num, HIO_HANDLE *h)
 int hio_seek(HIO_HANDLE *h, long offset, int whence)
 {
 	int ret;
+	int seek_error;
 	ptrdiff_t ofs = offset;
 
 	/* special case for SEEK_END, will need to rewind to fill buffer */
@@ -434,8 +441,14 @@ int hio_seek(HIO_HANDLE *h, long offset, int whence)
 	ofs = (ofs / HIO_BUFFER_SIZE) * HIO_BUFFER_SIZE;
 
 	ret = hio_seek_internal(h, ofs, SEEK_SET);
+	seek_error = h->error;
 
 	h->buffer_end = hio_read_internal(h->buffer, 1, HIO_FULL_BUFFER, h);
+
+	/* don't set EOF error yet */
+	if(h->error == EOF) {
+		h->error = seek_error;
+	}
 
 	return ret;
 }
@@ -455,10 +468,9 @@ int hio_eof(HIO_HANDLE *h)
 
 int hio_error(HIO_HANDLE *h)
 {
-	if (HIO_BUFFER_CURSOR(h) < h->buffer_end)
-		return 0;
-
-	return hio_error_internal(h);
+	int error = h->error;
+	h->error = 0;
+	return error;
 }
 
 HIO_HANDLE *hio_open(const char *path, const char *mode)
