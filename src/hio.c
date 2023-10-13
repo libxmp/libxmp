@@ -180,7 +180,7 @@ static void hio_fill_buffer_internal(HIO_HANDLE *h)
 
 int8 hio_read8s(HIO_HANDLE *h)
 {
-	int8 ret;
+	int8 ret = 0;
 
 	if (HIO_BUFFER_CURSOR(h) >= h->buffer_end) {
 		h->error = EOF;
@@ -199,7 +199,7 @@ int8 hio_read8s(HIO_HANDLE *h)
 
 uint8 hio_read8(HIO_HANDLE *h)
 {
-	uint8 ret;
+	uint8 ret = 0;
 
 	if (HIO_BUFFER_CURSOR(h) >= h->buffer_end) {
 		h->error = EOF;
@@ -218,7 +218,7 @@ uint8 hio_read8(HIO_HANDLE *h)
 
 uint16 hio_read16l(HIO_HANDLE *h)
 {
-	uint16 ret;
+	uint16 ret = 0;
 	uint8 buf[2];
 
 	if (HIO_BUFFER_CURSOR(h) + 1 >= h->buffer_end) {
@@ -242,7 +242,7 @@ uint16 hio_read16l(HIO_HANDLE *h)
 
 uint16 hio_read16b(HIO_HANDLE *h)
 {
-	uint16 ret;
+	uint16 ret = 0;
 	uint8 buf[2];
 
 	if (HIO_BUFFER_CURSOR(h) + 1 >= h->buffer_end) {
@@ -266,7 +266,7 @@ uint16 hio_read16b(HIO_HANDLE *h)
 
 uint32 hio_read24l(HIO_HANDLE *h)
 {
-	uint32 ret;
+	uint32 ret = 0;
 	uint8 buf[3];
 
 	if (HIO_BUFFER_CURSOR(h) + 2 >= h->buffer_end) {
@@ -291,7 +291,7 @@ uint32 hio_read24l(HIO_HANDLE *h)
 
 uint32 hio_read24b(HIO_HANDLE *h)
 {
-	uint32 ret;
+	uint32 ret = 0;
 	uint8 buf[3];
 
 	if (HIO_BUFFER_CURSOR(h) + 2 >= h->buffer_end) {
@@ -316,7 +316,7 @@ uint32 hio_read24b(HIO_HANDLE *h)
 
 uint32 hio_read32l(HIO_HANDLE *h)
 {
-	uint32 ret;
+	uint32 ret = 0;
 	uint8 buf[4];
 
 	if (HIO_BUFFER_CURSOR(h) + 3 >= h->buffer_end) {
@@ -342,7 +342,7 @@ uint32 hio_read32l(HIO_HANDLE *h)
 
 uint32 hio_read32b(HIO_HANDLE *h)
 {
-	uint32 ret;
+	uint32 ret = 0;
 	uint8 buf[4];
 
 	if (HIO_BUFFER_CURSOR(h) + 3 >= h->buffer_end) {
