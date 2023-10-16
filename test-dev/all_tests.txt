@@ -506,6 +506,7 @@ test_openmpt_mod_ptoffset
 test_openmpt_mod_vibratoreset
 test_player_read_event
 test_player_scan
+test_player_loop
 test_player_period_amiga
 test_player_period_mod_range
 test_player_pan
