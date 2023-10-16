@@ -1,6 +1,10 @@
 Stable versions
 ---------------
 
+4.6.1 (?):
+	Changes by Alice Rowan:
+	- Fix loop detection edge cases broken by S3M/IT marker scan bugs.
+
 4.6.0 (20230615):
 	Changes by Alice Rowan:
 	- Add Astroidea XMF format loader.
