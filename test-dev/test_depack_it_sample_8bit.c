@@ -8,6 +8,7 @@ TEST(test_depack_it_sample_8bit)
 	HIO_HANDLE *f;
 	FILE *fo;
 	int ret;
+	uint8 tmp[10000];
 	uint8 dest[10000];
 
 	f = hio_open("data/it-sample-8bit.raw", "rb");
@@ -16,7 +17,7 @@ TEST(test_depack_it_sample_8bit)
 	fo = fopen(TMP_FILE, "wb");
 	fail_unless(fo != NULL, "can't open output file");
 
-	ret = itsex_decompress8(f, dest, 4879, 0);
+	ret = itsex_decompress8(f, dest, 4879, tmp, sizeof(tmp), 0);
 	fail_unless(ret == 0, "decompression fail");
 	fwrite(dest, 1, 4879, fo);
 

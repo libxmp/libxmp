@@ -8,6 +8,7 @@ TEST(test_depack_it_sample_16bit)
 	HIO_HANDLE *f;
 	FILE *fo;
 	int ret;
+	uint8 tmp[10000];
 	char dest[10000];
 
 	f = hio_open("data/it-sample-16bit.raw", "rb");
@@ -16,7 +17,7 @@ TEST(test_depack_it_sample_16bit)
 	fo = fopen(TMP_FILE, "wb");
 	fail_unless(fo != NULL, "can't open output file");
 
-	ret = itsex_decompress16(f, (int16 *)dest, 4646, 0);
+	ret = itsex_decompress16(f, (int16 *)dest, 4646, tmp, sizeof(tmp), 0);
 	fail_unless(ret == 0, "decompression fail");
 
 	if (is_big_endian()) {
