@@ -119,6 +119,8 @@ test_loader_dsmi_08
 test_loader_dsmi_09
 test_loader_dsmi_10
 test_loader_dsmi_10_trunc
+test_loader_dsmi_11
+test_loader_dsmi_13
 test_loader_dsmi_track0
 test_loader_dsmi_note7f
 test_loader_dsmi_pan
