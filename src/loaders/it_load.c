@@ -1003,17 +1003,21 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 			event = &(event_base[c][r]);
 		}
 
+		if ((mask[c] & 0x0f) == 0) {
+			goto second_nybble;
+		}
+
 		if (mask[c] & 0x01) {
 			if (pat_len < 1) break;
 			b = *(pos++);
 
-				/* From ittech.txt:
-				 * Note ranges from 0->119 (C-0 -> B-9)
-				 * 255 = note off, 254 = notecut
-				 * Others = note fade (already programmed into IT's player
-				 *                     but not available in the editor)
-				 */
-				switch (b) {
+			/* From ittech.txt:
+			 * Note ranges from 0->119 (C-0 -> B-9)
+			 * 255 = note off, 254 = notecut
+			 * Others = note fade (already programmed into IT's player
+			 *                     but not available in the editor)
+			 */
+			switch (b) {
 				case 0xff:	/* key off */
 					b = XMP_KEY_OFF;
 					break;
@@ -1059,6 +1063,11 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 				lastevent[c].fxp = event->fxp;
 			}
 			pat_len -= 2;
+		}
+
+second_nybble:
+		if ((mask[c] & 0xf0) == 0) {
+			continue;
 		}
 		if (mask[c] & 0x10) {
 			event->note = lastevent[c].note;
