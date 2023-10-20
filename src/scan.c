@@ -277,13 +277,17 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 		if (row >= tracks[chn]->rows)
 		    continue;
 
-		//event = &EVENT(mod->xxo[ord], chn, row);
+		/* event = &EVENT(mod->xxo[ord], chn, row); */
 		event = &tracks[chn]->event[row];
 
 		f1 = event->fxt;
 		p1 = event->fxp;
 		f2 = event->f2t;
 		p2 = event->f2p;
+
+		if (f1 == 0 && f2 == 0) {
+			continue;
+		}
 
 		if (f1 == FX_GLOBALVOL || f2 == FX_GLOBALVOL) {
 		    gvl = (f1 == FX_GLOBALVOL) ? p1 : p2;
