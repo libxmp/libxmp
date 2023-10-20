@@ -289,8 +289,6 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 			continue;
 		}
 
-		/* note: could use #include hackery to duplicate the below block based on whether f2 is zero (likely) */
-
 		if (f1 == FX_GLOBALVOL || f2 == FX_GLOBALVOL) {
 		    gvl = (f1 == FX_GLOBALVOL) ? p1 : p2;
 		    gvl = gvl > m->gvolbase ? m->gvolbase : gvl < 0 ? 0 : gvl;
