@@ -942,7 +942,7 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 			   uint8 *patbuf, HIO_HANDLE *f)
 {
 	struct xmp_module *mod = &m->mod;
-	struct xmp_event *event, dummy, lastevent[L_CHANNELS];
+	struct xmp_event *event, dummy, lastevent[L_CHANNELS], *event_base[L_CHANNELS];
 	uint8 mask[L_CHANNELS];
 	uint8 last_fxp[64];
 	uint8 *pos;
@@ -961,6 +961,11 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 
 	if (libxmp_alloc_tracks_in_pattern(mod, i) < 0) {
 		return -1;
+	}
+
+	/* fill event bases for this pattern */
+	for (c = 0; c < L_CHANNELS && c < m->mod.chn; c++) {
+		event_base[c] = m->mod.xxt[TRACK_NUM((i),(c))]->event;
 	}
 
 	memset(mask, 0, L_CHANNELS);
@@ -995,31 +1000,31 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 		if (c >= mod->chn) {
 			event = &dummy;
 		} else {
-			event = &EVENT(i, c, r);
+			event = &(event_base[c][r]);
 		}
 
 		if (mask[c] & 0x01) {
 			if (pat_len < 1) break;
 			b = *(pos++);
 
-			/* From ittech.txt:
-			 * Note ranges from 0->119 (C-0 -> B-9)
-			 * 255 = note off, 254 = notecut
-			 * Others = note fade (already programmed into IT's player
-			 *                     but not available in the editor)
-			 */
-			switch (b) {
-			case 0xff:	/* key off */
-				b = XMP_KEY_OFF;
-				break;
-			case 0xfe:	/* cut */
-				b = XMP_KEY_CUT;
-				break;
-			default:
-				if (b > 119) {	/* fade */
-					b = XMP_KEY_FADE;
-				} else {
-					b++;	/* note */
+				/* From ittech.txt:
+				 * Note ranges from 0->119 (C-0 -> B-9)
+				 * 255 = note off, 254 = notecut
+				 * Others = note fade (already programmed into IT's player
+				 *                     but not available in the editor)
+				 */
+				switch (b) {
+				case 0xff:	/* key off */
+					b = XMP_KEY_OFF;
+					break;
+				case 0xfe:	/* cut */
+					b = XMP_KEY_CUT;
+					break;
+				default:
+					if (b > 119) {	/* fade */
+						b = XMP_KEY_FADE;
+					} else {
+						b++;	/* note */
 				}
 			}
 			lastevent[c].note = event->note = b;
