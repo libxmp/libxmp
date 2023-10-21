@@ -16,7 +16,7 @@ TEST(test_player_loop)
 	struct context_data *ctx;
 	struct xmp_frame_info info;
 	int ret, i, j, pat, pos, seq;
-	int remote_end;
+	int remote_end, jump_skip_end;
 	struct test_seq test_seq[16];
 
 	opaque = xmp_create_context();
@@ -62,6 +62,22 @@ TEST(test_player_loop)
 	set_order(ctx, (pos++), (pat++));
 	set_order(ctx, (pos++), IT_END);
 	seq++;
+
+	/* Sequence: jump into skip into end. This should be last. */
+	jump_skip_end = pat;
+	test_seq[seq].entry = pos;
+	test_seq[seq].ticks = 6;
+	set_order(ctx, (pos++), (pat++));
+	seq++;
+	/* Sequence: do it again, because the reuse is what caused a bug. */
+	test_seq[seq].entry = pos;
+	test_seq[seq].ticks = 6;
+	set_order(ctx, (pos++), jump_skip_end);
+	seq++;
+	/* Target */
+	new_event(ctx, jump_skip_end, 0, 0, 0, 0, 0, FX_JUMP, pos, 0, 0);
+	set_order(ctx, (pos++), IT_SKIP);
+	/* intentionally no terminating IT_END. */
 
 	ctx->m.mod.len = pos;
 	libxmp_prepare_scan(ctx);
