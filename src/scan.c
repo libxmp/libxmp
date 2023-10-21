@@ -171,12 +171,19 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 
 	/* Allow more complex order reuse only in main sequence */
 	if (ep != 0 && p->sequence_control[ord] != 0xff) {
-	    /* ...unless it's an end marker. Two sequences (7 and 8) in
-	     * "alien incident - leohou2.s3m" by Purple Motion share the
-	     * same S3M_END due to an off-by-one pattern jump.
+	    /* Currently to detect the end of the sequence, the player needs the
+	     * end to be a real position and row, so skip invalid and S3M_SKIP.
+	     * "amazonas-dynomite mix.it" by Skaven has a sequence (9) where an
+	     * S3M_END repeats into an S3M_SKIP.
+	     *
+	     * Two sequences (7 and 8) in "alien incident - leohou2.s3m" by
+	     * Purple Motion share the same S3M_END due to an off-by-one jump,
+	     * so check S3M_END here too.
 	     */
-	    if (has_marker && pat == S3M_END) {
-		ord = mod->len;
+	    if (pat >= mod->pat) {
+		if (has_marker && pat == S3M_END) {
+			ord = mod->len;
+		}
 		continue;
 	    }
 	    break;
@@ -588,15 +595,6 @@ end_module:
         if (pat >= mod->pat || row >= mod->xxp[pat]->rows) {
             row = 0;
         }
-
-	/* Currently to detect the end of the sequence, the player needs the
-	 * end to be a real position and row, so skip invalid and S3M_SKIP.
-	 * "amazonas-dynomite mix.it" by Skaven has a sequence (9) where an
-	 * S3M_END repeats into an S3M_SKIP.
-	 */
-	while (ord < mod->len && mod->xxo[ord] >= mod->pat) {
-	    ord++;
-	}
     }
 
     p->scan[chain].num = m->scan_cnt[ord][row];
