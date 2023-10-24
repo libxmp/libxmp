@@ -3,6 +3,7 @@ Stable versions
 
 4.6.1 (?):
 	Changes by Alice Rowan:
+	- Faster IT loading by buffering pattern, sample, and comment reads.
 	- Fix loop detection edge cases broken by S3M/IT marker scan bugs.
 
 4.6.0 (20230615):
