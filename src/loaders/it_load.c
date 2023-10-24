@@ -1353,6 +1353,9 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		}
 		pos = patbuf;
 
+		/* How do bits of mask[c] advance the file pointer? Bits 1, 2, and 4 advance 1 byte; bit 8 advances 2. */
+		static const uint8 adv[16] = {0, 1, 1, 2, 1, 2, 2, 3, 2, 3, 3, 4, 3, 4, 4, 5};
+
 		row = 0;
 		while (row < num_rows && --pat_len >= 0) {
 			int b = *(pos++);
@@ -1372,22 +1375,8 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 				pat_len--;
 			}
 
-			if (mask[c] & 0x01) {
-				pos++;
-				pat_len--;
-			}
-			if (mask[c] & 0x02) {
-				pos++;
-				pat_len--;
-			}
-			if (mask[c] & 0x04) {
-				pos++;
-				pat_len--;
-			}
-			if (mask[c] & 0x08) {
-				pos += 2;
-				pat_len -= 2;
-			}
+			pos += adv[mask[c] & 0x0f];
+			pat_len -= adv[mask[c] & 0x0f];
 		}
 	}
 
