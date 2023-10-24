@@ -10,7 +10,7 @@ TEST(test_loader_dsmi_11)
 	f = fopen("data/format_dsmi_11.data", "r");
 
 	opaque = xmp_create_context();
-	ret = xmp_load_module(opaque, "data/m/Revelution.amf");
+	ret = xmp_load_module(opaque, "data/m/Beat_it_up.amf");
 	fail_unless(ret == 0, "module load");
 
 	xmp_get_module_info(opaque, &info);
