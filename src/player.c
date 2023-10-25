@@ -286,6 +286,8 @@ static int update_envelope(struct context_data *ctx, struct xmp_envelope *env, i
 		return x;
 	}
 
+	(void) m; /* unused in xmp-lite with IT disabled */
+
 	return
 #ifndef LIBXMP_CORE_DISABLE_IT
 		IS_PLAYER_MODE_IT() ?
