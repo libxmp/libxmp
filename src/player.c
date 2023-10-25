@@ -117,6 +117,66 @@ static int get_envelope(struct xmp_envelope *env, int x, int def)
 	return x2 == x1 ? y2 : ((y2 - y1) * (x - x1) / (x2 - x1)) + y1;
 }
 
+#ifndef LIBXMP_CORE_PLAYER
+
+static int update_envelope_generic(struct xmp_envelope *env, int x, int release)
+{
+	int16 *data = env->data;
+	int has_loop, has_sus;
+	int lpe, lps, sus;
+
+	has_loop = env->flg & XMP_ENVELOPE_LOOP;
+	has_sus = env->flg & XMP_ENVELOPE_SUS;
+
+	lps = env->lps << 1;
+	lpe = env->lpe << 1;
+	sus = env->sus << 1;
+
+	/* FT2 and IT envelopes behave in a different way regarding loops,
+	 * sustain and release. When the sustain point is at the end of the
+	 * envelope loop end and the key is released, FT2 escapes the loop
+	 * while IT runs another iteration. (See EnvLoops.xm in the OpenMPT
+	 * test cases.)
+	 */
+	if (has_loop && has_sus && sus == lpe) {
+		if (!release)
+			has_sus = 0;
+	}
+
+	/* If the envelope point is set to somewhere after the sustain point
+	 * or sustain loop, enable release to prevent the envelope point from
+	 * returning to the sustain point or loop start. (See Filip Skutela's
+	 * farewell_tear.xm.)
+	 */
+	if (has_loop && x > data[lpe] + 1) {
+		release = 1;
+	} else if (has_sus && x > data[sus] + 1) {
+		release = 1;
+	}
+
+	/* If enabled, stay at the sustain point */
+	if (has_sus && !release) {
+		if (x >= data[sus]) {
+			x = data[sus];
+		}
+	}
+
+	/* XM-like formats and players assume that an envelope position past the
+	 * end of the loop or sustain point should return to the loop/sustain point.
+	 * While there are some differences with sustain points, this general loop
+	 * behavior is used by DigiBooster Pro, Digitrakker, Imago Orpheus, and
+	 * Real Tracker 2.
+	 */
+	if (has_loop && x >= data[lpe]) {
+		if (!(release && has_sus && sus == lpe))
+			x = data[lps];
+	}
+
+	return x;
+}
+
+#endif
+
 static int update_envelope_xm(struct xmp_envelope *env, int x, int release)
 {
 	int16 *data = env->data;
@@ -142,13 +202,11 @@ static int update_envelope_xm(struct xmp_envelope *env, int x, int release)
 	}
 
 	/* If the envelope point is set to somewhere after the sustain point
-	 * or sustain loop, enable release to prevent the envelope point to
-	 * return to the sustain point or loop start. (See Filip Skutela's
+	 * or sustain loop, enable release to prevent the envelope point from
+	 * returning to the sustain point or loop start. (See Filip Skutela's
 	 * farewell_tear.xm.)
 	 */
-	if (has_loop && x > data[lpe] + 1) {
-		release = 1;
-	} else if (has_sus && x > data[sus] + 1) {
+	if (has_sus && x > data[sus] + 1) {
 		release = 1;
 	}
 
@@ -159,8 +217,14 @@ static int update_envelope_xm(struct xmp_envelope *env, int x, int release)
 		}
 	}
 
-	/* Envelope loops */
-	if (has_loop && x >= data[lpe]) {
+	/* Envelope loops
+	 *
+	 * If the envelope point is set to somewhere after the sustain point
+	 * or sustain loop, the loop point is ignored to prevent the envelope
+	 * point to return to the sustain point or loop start. (See Filip Skutela's
+	 * farewell_tear.xm or Ebony Owl Netsuke.xm.)
+	*/
+	if (has_loop && x == data[lpe]) {
 		if (!(release && has_sus && sus == lpe))
 			x = data[lps];
 	}
@@ -206,8 +270,10 @@ static int update_envelope_it(struct xmp_envelope *env, int x, int release, int 
 
 #endif
 
-static int update_envelope(struct xmp_envelope *env, int x, int release, int key_off, int it_env)
+static int update_envelope(struct context_data *ctx, struct xmp_envelope *env, int x, int release, int key_off)
 {
+	struct module_data *m = &ctx->m;
+
 	if (x < 0xffff)	{	/* increment tick */
 		x++;
 	}
@@ -220,13 +286,18 @@ static int update_envelope(struct xmp_envelope *env, int x, int release, int key
 		return x;
 	}
 
+	(void) m; /* unused in xmp-lite with IT disabled */
+
+	return
 #ifndef LIBXMP_CORE_DISABLE_IT
-	return it_env ?
+		IS_PLAYER_MODE_IT() ?
 		update_envelope_it(env, x, release, key_off) :
-		update_envelope_xm(env, x, release);
-#else
-	return update_envelope_xm(env, x, release);
 #endif
+#ifndef LIBXMP_CORE_PLAYER
+		!HAS_QUIRK(QUIRK_FT2ENV) ?
+		update_envelope_generic(env, x, release) :
+#endif
+		update_envelope_xm(env, x, release);
 }
 
 
@@ -897,8 +968,8 @@ static void process_volume(struct context_data *ctx, int chn, int act)
 	}
 
 	if (!TEST_PER(VENV_PAUSE)) {
-		xc->v_idx = update_envelope(&instrument->aei, xc->v_idx,
-			DOENV_RELEASE, TEST(KEY_OFF), IS_PLAYER_MODE_IT());
+		xc->v_idx = update_envelope(ctx, &instrument->aei, xc->v_idx,
+			DOENV_RELEASE, TEST(KEY_OFF));
 	}
 
 	vol_envelope = get_envelope(&instrument->aei, xc->v_idx, 64);
@@ -1036,8 +1107,8 @@ static void process_frequency(struct context_data *ctx, int chn, int act)
 	instrument = libxmp_get_instrument(ctx, xc->ins);
 
 	if (!TEST_PER(FENV_PAUSE)) {
-		xc->f_idx = update_envelope(&instrument->fei, xc->f_idx,
-			DOENV_RELEASE, TEST(KEY_OFF), IS_PLAYER_MODE_IT());
+		xc->f_idx = update_envelope(ctx, &instrument->fei, xc->f_idx,
+			DOENV_RELEASE, TEST(KEY_OFF));
 	}
 	frq_envelope = get_envelope(&instrument->fei, xc->f_idx, 0);
 
@@ -1246,8 +1317,8 @@ static void process_pan(struct context_data *ctx, int chn, int act)
 	instrument = libxmp_get_instrument(ctx, xc->ins);
 
 	if (!TEST_PER(PENV_PAUSE)) {
-		xc->p_idx = update_envelope(&instrument->pei, xc->p_idx,
-			DOENV_RELEASE, TEST(KEY_OFF), IS_PLAYER_MODE_IT());
+		xc->p_idx = update_envelope(ctx, &instrument->pei, xc->p_idx,
+			DOENV_RELEASE, TEST(KEY_OFF));
 	}
 	pan_envelope = get_envelope(&instrument->pei, xc->p_idx, 32);
 
