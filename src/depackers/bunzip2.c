@@ -45,10 +45,9 @@
 #define RETVAL_NOT_BZIP_DATA     (-1)
 #define RETVAL_DATA_ERROR        (-2)
 #define RETVAL_OBSOLETE_INPUT    (-3)
-// libxmp additions:
-#define RETVAL_OUT_OF_MEMORY         (-4)
-#define RETVAL_UNEXPECTED_INPUT_EOF  (-5)
-#define RETVAL_UNEXPECTED_OUTPUT_EOF (-6)
+#define RETVAL_EOF_IN            (-4)
+#define RETVAL_EOF_OUT           (-5)
+#define RETVAL_OUT_OF_MEMORY     (-6)   /* libxmp addition */
 
 // This is what we know about each huffman coding group
 struct group_data {
@@ -101,7 +100,7 @@ struct bunzip_data {
   jmp_buf jmpbuf;
 };
 
-// libxmp addition
+/* libxmp addition */
 struct bunzip_output {
   unsigned char *buf;
   size_t buf_size;
@@ -135,7 +134,7 @@ static unsigned int get_bits(struct bunzip_data *bd, char bits_wanted)
     // If we need to read more data from file into byte buffer, do so
     if (bd->inbufPos == bd->inbufCount) {
       if (0 >= (bd->inbufCount = hio_read(bd->inbuf, 1, IOBUF_SIZE, bd->in_fd))) /* libxmp: read -> hio_read */
-        longjmp(bd->jmpbuf, RETVAL_UNEXPECTED_INPUT_EOF); /* libxmp: error_exit -> longjmp */
+        longjmp(bd->jmpbuf, RETVAL_EOF_IN);
       bd->inbufPos = 0;
     }
 
@@ -469,11 +468,11 @@ static int flush_bunzip_outbuf(struct bunzip_data *bd, struct bunzip_output *out
     if (bd->outbufPos > out_fd->buf_alloc - out_fd->buf_size) {
       size_t new_size = next_power_of_two_32(out_fd->buf_size + bd->outbufPos);
       if (new_size <= out_fd->buf_alloc || new_size > LIBXMP_DEPACK_LIMIT)
-        return RETVAL_UNEXPECTED_OUTPUT_EOF;
+        return RETVAL_EOF_OUT;
 
       buf = (unsigned char *)realloc(buf, new_size);
       if (!buf)
-        return RETVAL_UNEXPECTED_OUTPUT_EOF;
+        return RETVAL_EOF_OUT;
 
       out_fd->buf = buf;
       out_fd->buf_alloc = new_size;
@@ -485,7 +484,7 @@ static int flush_bunzip_outbuf(struct bunzip_data *bd, struct bunzip_output *out
   return 0;
 }
 
-static void burrows_wheeler_prep(struct bunzip_data *bd, struct bwdata *bw)
+static void burrows_wheeler_prep(struct bwdata *bw)
 {
   int ii, jj;
   unsigned int *dbuf = bw->dbuf;
@@ -532,7 +531,7 @@ static int read_bunzip_data(struct bunzip_data *bd)
   if (!rc) rc=read_huffman_data(bd, bd->bwdata);
 
   // First thing that can be done by a background thread.
-  burrows_wheeler_prep(bd, bd->bwdata);
+  burrows_wheeler_prep(bd->bwdata);
 
   return rc;
 }
@@ -547,14 +546,17 @@ static int read_bunzip_data(struct bunzip_data *bd)
 
 /* libxmp: int -> struct bunzip_output * */
 static int write_bunzip_data(struct bunzip_data *bd, struct bwdata *bw,
-  struct bunzip_output *out_fd, char *outbuf, int len)
+  struct bunzip_output *out_fd, char *outbuf, const int len_)
 {
   unsigned int *dbuf = bw->dbuf;
-  int count, pos, current, run, copies, outbyte, previous, gotcount = 0;
+  int count, pos, current, run, copies, outbyte, previous, gotcount, len;
 
   /* libxmp: Reset longjmp I/O error handling */
   int ret = setjmp(bd->jmpbuf);
   if (ret) return ret;
+
+  gotcount = 0;
+  len = len_;
 
   for (;;) {
     // If last read was short due to end of file, return last block now
