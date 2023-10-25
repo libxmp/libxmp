@@ -117,7 +117,9 @@ static int get_envelope(struct xmp_envelope *env, int x, int def)
 	return x2 == x1 ? y2 : ((y2 - y1) * (x - x1) / (x2 - x1)) + y1;
 }
 
-static int update_envelope_default(struct xmp_envelope *env, int x, int release)
+#ifndef LIBXMP_CORE_PLAYER
+
+static int update_envelope_generic(struct xmp_envelope *env, int x, int release)
 {
 	int16 *data = env->data;
 	int has_loop, has_sus;
@@ -142,8 +144,8 @@ static int update_envelope_default(struct xmp_envelope *env, int x, int release)
 	}
 
 	/* If the envelope point is set to somewhere after the sustain point
-	 * or sustain loop, enable release to prevent the envelope point to
-	 * return to the sustain point or loop start. (See Filip Skutela's
+	 * or sustain loop, enable release to prevent the envelope point from
+	 * returning to the sustain point or loop start. (See Filip Skutela's
 	 * farewell_tear.xm.)
 	 */
 	if (has_loop && x > data[lpe] + 1) {
@@ -159,7 +161,12 @@ static int update_envelope_default(struct xmp_envelope *env, int x, int release)
 		}
 	}
 
-	/* Envelope loops */
+	/* XM-like formats and players assume that an envelope position past the
+	 * end of the loop or sustain point should return to the loop/sustain point.
+	 * While there are some differences with sustain points, this general loop
+	 * behavior is used by DigiBooster Pro, Digitrakker, Imago Orpheus, and
+	 * Real Tracker 2.
+	 */
 	if (has_loop && x >= data[lpe]) {
 		if (!(release && has_sus && sus == lpe))
 			x = data[lps];
@@ -167,6 +174,8 @@ static int update_envelope_default(struct xmp_envelope *env, int x, int release)
 
 	return x;
 }
+
+#endif
 
 static int update_envelope_xm(struct xmp_envelope *env, int x, int release)
 {
@@ -192,6 +201,11 @@ static int update_envelope_xm(struct xmp_envelope *env, int x, int release)
 			has_sus = 0;
 	}
 
+	/* If the envelope point is set to somewhere after the sustain point
+	 * or sustain loop, enable release to prevent the envelope point from
+	 * returning to the sustain point or loop start. (See Filip Skutela's
+	 * farewell_tear.xm.)
+	 */
 	if (has_sus && x > data[sus] + 1) {
 		release = 1;
 	}
@@ -259,7 +273,7 @@ static int update_envelope_it(struct xmp_envelope *env, int x, int release, int 
 static int update_envelope(struct context_data *ctx, struct xmp_envelope *env, int x, int release, int key_off)
 {
 	struct module_data *m = &ctx->m;
-	
+
 	if (x < 0xffff)	{	/* increment tick */
 		x++;
 	}
@@ -272,17 +286,16 @@ static int update_envelope(struct context_data *ctx, struct xmp_envelope *env, i
 		return x;
 	}
 
+	return
 #ifndef LIBXMP_CORE_DISABLE_IT
-	return IS_PLAYER_MODE_IT() ?
+		IS_PLAYER_MODE_IT() ?
 		update_envelope_it(env, x, release, key_off) :
-		HAS_QUIRK(QUIRK_FT2ENV) ?
-		update_envelope_xm(env, x, release) :
-		update_envelope_default(env, x, release);
-#else
-	return HAS_QUIRK(QUIRK_FT2ENV) ?
-		update_envelope_xm(env, x, release) :
-		update_envelope_default(env, x, release);
 #endif
+#ifndef LIBXMP_CORE_PLAYER
+		!HAS_QUIRK(QUIRK_FT2ENV) ?
+		update_envelope_generic(env, x, release) :
+#endif
+		update_envelope_xm(env, x, release);
 }
 
 

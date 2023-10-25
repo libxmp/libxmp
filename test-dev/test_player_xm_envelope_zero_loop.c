@@ -1,11 +1,11 @@
 #include "test.h"
 
-/*
-Fasttracker 2 process the first point before it checks for
-sustain/looping. This test will check if the loop on the first
-point is ignored.
-*/
-TEST(test_player_xm_envelope)
+/* Fasttracker 2 increments the envelope position before checking for
+ * the end of the envelope loop, and only loops if the envelope position
+ * is exactly at the envelope end. This causes it to entirely skip loops
+ * where the start and end points are the same.
+ */
+TEST(test_player_xm_envelope_zero_loop)
 {
 	xmp_context opaque;
 	struct xmp_frame_info fi;

@@ -75,4 +75,6 @@ int main(int argc, char **argv)
 
 	xmp_end_player(opaque);
 	xmp_release_module(opaque);
+	xmp_free_context(opaque);
+	return 0;
 }
