@@ -126,7 +126,7 @@ static int iff_chunk(iff_handle opaque, struct module_data *m, HIO_HANDLE *f, vo
 	return iff_process(opaque, m, id, size, f, parm);
 }
 
-iff_handle libxmp_iff_new()
+iff_handle libxmp_iff_new(void)
 {
 	struct iff_data *data;
 
