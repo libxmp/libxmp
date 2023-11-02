@@ -95,7 +95,9 @@ static int stm_test(HIO_HANDLE * f, char *t, const int start)
 	if (libxmp_test_name(buf, 8, 0))	/* Tracker name should be ASCII */
 		return -1;
 
-	if (hio_read8(f) != 0x1a)
+	/* EOF should be 0x1a. putup10.stm and putup11.stm have 2 instead. */
+	buf[0] = hio_read8(f);
+	if (buf[0] != 0x1a && buf[0] != 0x02)
 		return -1;
 
 	if (hio_read8(f) > STM_TYPE_MODULE)
