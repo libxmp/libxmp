@@ -171,7 +171,7 @@ static int mtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		}
 
 		sub->vol = mih.volume;
-		sub->fin = mih.finetune;
+		sub->fin = (int8)(mih.finetune << 4);
 		sub->pan = 0x80;
 		sub->sid = i;
 
