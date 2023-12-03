@@ -163,7 +163,7 @@ static int mtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		xxs->lps = mih.loop_start;
 		xxs->lpe = mih.loopend;
 		xxs->flg = (xxs->lpe > 2) ? XMP_SAMPLE_LOOP : 0;	/* 1 == Forward loop */
-		if (mfh.attr & 1) {
+		if (mih.attr & 1) {
 			xxs->flg |= XMP_SAMPLE_16BIT;
 			xxs->len >>= 1;
 			xxs->lps >>= 1;
