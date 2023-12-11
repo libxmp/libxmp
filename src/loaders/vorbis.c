@@ -34,6 +34,7 @@
 //    github:audinowho   Dougall Johnson     David Reid
 //    github:Clownacy    Pedro J. Estebanez  Remi Verschelde
 //    AnthoFoxo          github:morlat       Gabriel Ravier
+//    Alice Rowan
 //
 // Partial history:
 //    1.22    - 2021-07-11 - various small fixes
@@ -560,7 +561,7 @@ enum STBVorbisError
 // #define STB_VORBIS_NO_DEFER_FLOOR
 
 // STB_VORBIS_NO_COMMENTS
-//     disables reading and storing user comments
+//     Disables reading and storing user comments.
 // #define STB_VORBIS_NO_COMMENTS
 
 
@@ -770,7 +771,6 @@ typedef struct
 
 typedef struct
 {
-  // libxmp hack: https://github.com/nothings/stb/pull/1312
    MappingChannel *chan;
    uint16 coupling_steps;
    uint8  submaps;
@@ -920,7 +920,7 @@ struct stb_vorbis
    int channel_buffer_start;
    int channel_buffer_end;
 
-  // libxmp hack: decode work buffer (used in inverse_mdct and decode_residues)
+  // hack: decode work buffer (used in inverse_mdct and decode_residues)
    void *work_buffer;
 
   // temporary buffers
@@ -1276,8 +1276,8 @@ static int vorbis_validate(uint8 *data)
 // called from setup only, once per code book
 // (formula implied by specification)
 //
-// libxmp hack: suppress UBSan error caused by invalid input data.
-// Reported upstream: https://github.com/nothings/stb/issues/1168.
+// suppress an UBSan error caused by invalid input data.
+// upstream:  https://github.com/nothings/stb/issues/1168.
 STB_NO_SANITIZE("float-cast-overflow")
 static int lookup1_values(int entries, int dim)
 {
@@ -1742,7 +1742,7 @@ static int codebook_decode_scalar_raw(vorb *f, Codebook *c)
    assert(!c->sparse);
    for (i=0; i < c->entries; ++i) {
       if (c->codeword_lengths[i] == NO_CODE) continue;
-      /* libxmp hack: unsigned left shift for 32-bit codewords.
+      /* unsigned left shift for 32-bit codewords.
        * https://github.com/nothings/stb/issues/1168 */
       if (c->codewords[i] == (f->acc & ((1U << c->codeword_lengths[i])-1))) {
          if (f->valid_bits >= c->codeword_lengths[i]) {
@@ -3799,8 +3799,7 @@ static int start_decoder(vorb *f)
       if (c->sparse) {
          lengths = (uint8 *) setup_temp_malloc(f, c->entries);
          f->temp_lengths = lengths;
-      }
-      else
+      } else
          lengths = c->codeword_lengths = (uint8 *) setup_malloc(f, c->entries);
 
       if (!lengths) return error(f, VORBIS_outofmem);
@@ -3921,7 +3920,7 @@ static int start_decoder(vorb *f)
             if (values < 0) return error(f, VORBIS_invalid_setup);
             c->lookup_values = (uint32) values;
          } else {
-            /* libxmp hack: unsigned multiply to suppress (legitimate) warning.
+            /* unsigned multiply to suppress (legitimate) warning.
              * https://github.com/nothings/stb/issues/1168 */
             c->lookup_values = (unsigned)c->entries * (unsigned)c->dimensions;
          }
@@ -4236,7 +4235,6 @@ static int start_decoder(vorb *f)
       int i,max_part_read=0;
       for (i=0; i < f->residue_count; ++i) {
          Residue *r = f->residue_config + i;
-         /* libxmp hack: https://github.com/nothings/stb/pull/1487 */
          unsigned int rtype = f->residue_types[i];
          unsigned int actual_size = rtype == 2 ? f->blocksize_1 : f->blocksize_1 / 2;
          unsigned int limit_r_begin = r->begin < actual_size ? r->begin : actual_size;
@@ -5245,8 +5243,8 @@ static int8 channel_position[7][6] =
 #ifndef STB_VORBIS_NO_FAST_SCALED_FLOAT
    typedef union {
       float f;
-      // libxmp hack: changed this to unsigned to suppress a UBSan error.
-      // Reported upstream: https://github.com/nothings/stb/issues/1168.
+      // changed this to unsigned to suppress an UBSan error.
+      // upstream: https://github.com/nothings/stb/issues/1168.
       unsigned int i;
    } float_conv;
    typedef char stb_vorbis_float_size_test[sizeof(float)==4 && sizeof(int) == 4];
@@ -5261,9 +5259,6 @@ static int8 channel_position[7][6] =
    #define check_endianness()
    #define FASTDEF(x)
 #endif
-
-// libxmp hack: replaced signed overflow clamps with unsigned overflow (UBSan).
-// Reported upstream: https://github.com/nothings/stb/issues/1168.
 
 static void copy_samples(short *dest, float *src, int len)
 {
