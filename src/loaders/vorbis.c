@@ -967,6 +967,8 @@ static int error(vorb *f, enum STBVorbisError e)
 // given a sufficiently large block of memory, make an array of pointers to subblocks of it
 static void *make_block_array(void *mem, int count, int size)
 {
+  if (!mem) return NULL;
+  else {
    int i;
    void ** p = (void **) mem;
    char *q = (char *) (p + count);
@@ -975,6 +977,7 @@ static void *make_block_array(void *mem, int count, int size)
       q += size;
    }
    return p;
+  }
 }
 
 static void *setup_malloc(vorb *f, int sz)
@@ -999,7 +1002,7 @@ static void setup_free(vorb *f, void *p)
 
 static void *setup_temp_malloc(vorb *f, int sz)
 {
-   if (sz <= 0) return NULL; /* libxmp hack: https://github.com/nothings/stb/issues/1248 */
+   if (sz <= 0 || INT_MAX - 7 < sz) return NULL;
    sz = (sz+7) & ~7; // round up to nearest 8 for alignment of future allocs.
    if (f->alloc.alloc_buffer) {
       if (f->temp_offset - sz < f->setup_offset) return NULL;
