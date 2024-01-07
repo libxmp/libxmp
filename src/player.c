@@ -1999,6 +1999,10 @@ int xmp_play_frame(xmp_context opaque)
 		return -XMP_END;
 	}
 
+#ifndef LIBXMP_CORE_PLAYER
+	f->loop_set = 0;
+#endif
+
 	/* check reposition */
 	if (p->ord != p->pos) {
 		int start = m->seq_data[p->sequence].entry_point;

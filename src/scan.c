@@ -75,7 +75,10 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 #ifndef LIBXMP_CORE_PLAYER
     int st26_speed;
     int far_tempo_coarse, far_tempo_fine, far_tempo_mode;
+	int loop_set, is_octalyser;
 #endif
+	int chn_to_use;
+
     /* was 255, but Global trash goes to 318.
      * Higher limit for MEDs, defiance.crybaby.5 has blocks with 2048+ rows. */
     const int row_limit = IS_PLAYER_MODE_MED() ? 3200 : 512;
@@ -239,6 +242,9 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 
 	last_row = mod->xxp[pat]->rows;
 	for (row = break_row, break_row = 0; row < last_row; row++, row_count++, row_count_total++) {
+#ifndef LIBXMP_CORE_PLAYER
+		loop_set = 0;
+#endif
 	    /* Prevent crashes caused by large softmixer frames */
 	    if (bpm < XMP_MIN_BPM) {
 	        bpm = XMP_MIN_BPM;
@@ -521,27 +527,48 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 		    }
 
 		    if ((parm >> 4) == EX_PATTERN_LOOP) {
+#ifndef LIBXMP_CORE_PLAYER
+			is_octalyser = HAS_QUIRK(QUIRK_OCTALYSERLOOP);
+			chn_to_use = is_octalyser ? 0 : chn;
+#else
+			chn_to_use = chn;
+#endif
+
 			if (parm &= 0x0f) {
 			    /* Loop end */
-			    if (loop_count[chn]) {
-				if (--loop_count[chn]) {
+			    if (loop_count[chn_to_use]) {
+#ifndef LIBXMP_CORE_PLAYER
+				if (!is_octalyser || !loop_set) {
+					loop_set = 1;
+#endif
+				if (--loop_count[chn_to_use]) {
 				    /* next iteraction */
-				    loop_chn = chn;
+				    loop_chn = chn_to_use;
 				} else {
 				    /* finish looping */
 				    loop_num--;
 				    inside_loop = 0;
 				    if (m->quirk & QUIRK_S3MLOOP)
-					loop_row[chn] = row;
+					loop_row[chn_to_use] = row;
 				}
+#ifndef LIBXMP_CORE_PLAYER
+				}
+#endif
 			    } else {
-				loop_count[chn] = parm;
-				loop_chn = chn;
+#ifndef LIBXMP_CORE_PLAYER
+				if (!is_octalyser || !loop_set) {
+					loop_set = 1;
+#endif
+				loop_count[chn_to_use] = parm;
+				loop_chn = chn_to_use;
 				loop_num++;
+#ifndef LIBXMP_CORE_PLAYER
+				}
+#endif
 			    }
 			} else {
 			    /* Loop start */
-			    loop_row[chn] = row - 1;
+			    loop_row[chn_to_use] = row - 1;
 			    inside_loop = 1;
 			    if (HAS_QUIRK(QUIRK_FT2BUGS))
 				break_row = row;

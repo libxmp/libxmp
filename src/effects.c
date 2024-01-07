@@ -416,6 +416,22 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 			}
 			break;
 		case EX_PATTERN_LOOP:	/* Loop pattern */
+#ifndef LIBXMP_CORE_PLAYER
+			int is_octalyser = HAS_QUIRK(QUIRK_OCTALYSERLOOP);
+
+			/* Atari Octalyser seems to have the loop arguments as global instead
+			 * of channel separated. At least what I can see from 8er-mod.
+			 *
+			 * The replay sources that I got my hands on, does not support E6x, so
+			 * I can not verify it. However, Dammed Illusion have the same E6x on
+			 * multiple channels, so that's why the "loop_set" has been introduced
+			 * so the loop count isn't decremented too many times.
+			*/
+			if (is_octalyser) {
+				chn = 0;
+			}
+#endif
+			
 			if (fxp == 0) {
 				/* mark start of loop */
 				f->loop[chn].start = p->row;
@@ -424,17 +440,31 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 			} else {
 				/* end of loop */
 				if (f->loop[chn].count) {
-					if (--f->loop[chn].count) {
-						/* **** H:FIXME **** */
-						f->loop_chn = ++chn;
-					} else {
-						if (HAS_QUIRK(QUIRK_S3MLOOP))
-							f->loop[chn].start =
-							    p->row + 1;
+#ifndef LIBXMP_CORE_PLAYER
+					if (!is_octalyser || !f->loop_set) {
+						f->loop_set = 1;
+#endif
+						if (--f->loop[chn].count) {
+							/* **** H:FIXME **** */
+							f->loop_chn = ++chn;
+						} else {
+							if (HAS_QUIRK(QUIRK_S3MLOOP))
+								f->loop[chn].start =
+									p->row + 1;
+						}
+#ifndef LIBXMP_CORE_PLAYER
 					}
+#endif
 				} else {
-					f->loop[chn].count = fxp;
-					f->loop_chn = ++chn;
+#ifndef LIBXMP_CORE_PLAYER
+					if (!is_octalyser || !f->loop_set) {
+						f->loop_set = 1;
+#endif
+						f->loop[chn].count = fxp;
+						f->loop_chn = ++chn;
+#ifndef LIBXMP_CORE_PLAYER
+					}
+#endif
 				}
 			}
 			break;
