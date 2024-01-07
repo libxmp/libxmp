@@ -106,6 +106,9 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 	struct flow_control *f = &p->flow;
 	uint8 note, fxp, fxt;
 	int h, l;
+#ifndef LIBXMP_CORE_PLAYER
+	int is_octalyser;
+#endif
 
 	/* key_porta is IT only */
 	if (m->read_event_type != READ_EVENT_IT) {
@@ -417,7 +420,7 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 			break;
 		case EX_PATTERN_LOOP:	/* Loop pattern */
 #ifndef LIBXMP_CORE_PLAYER
-			int is_octalyser = HAS_QUIRK(QUIRK_OCTALYSERLOOP);
+			is_octalyser = HAS_QUIRK(QUIRK_OCTALYSERLOOP);
 
 			/* Atari Octalyser seems to have the loop arguments as global instead
 			 * of channel separated. At least what I can see from 8er-mod.
