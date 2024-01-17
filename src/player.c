@@ -2200,6 +2200,7 @@ void xmp_get_module_info(xmp_context opaque, struct xmp_module_info *info)
 	info->num_sequences = m->num_sequences;
 	info->seq_data = m->seq_data;
 	info->vol_base = m->volbase;
+	info->size = m->size;
 }
 
 void xmp_get_frame_info(xmp_context opaque, struct xmp_frame_info *info)

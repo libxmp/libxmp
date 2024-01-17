@@ -300,6 +300,7 @@ struct xmp_module_info {
 	char *comment;			/* Comment text, if any */
 	int num_sequences;		/* Number of valid sequences */
 	struct xmp_sequence *seq_data;	/* Pointer to sequence data */
+	int size;			/* Module size */
 };
 
 struct xmp_channel_info {

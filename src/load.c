@@ -394,6 +394,7 @@ int xmp_load_module(xmp_context opaque, const char *path)
 	ctx->m.filename = NULL;
 	ctx->m.dirname = NULL;
 	ctx->m.basename = NULL;
+	ctx->m.size = hio_size(h);
 #endif
 
 	ret = load_module(opaque, h);
