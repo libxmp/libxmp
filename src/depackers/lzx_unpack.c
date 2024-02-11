@@ -205,7 +205,7 @@ struct lzx_data
   lzx_uint8 code_widths[LZX_MAX_CODES];
 };
 
-static struct lzx_data *lzx_unpack_init()
+static struct lzx_data *lzx_unpack_init(void)
 {
   struct lzx_data *lzx = (struct lzx_data *)calloc(1, sizeof(struct lzx_data));
   if(!lzx)

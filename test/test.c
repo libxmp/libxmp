@@ -10,7 +10,7 @@
 #define TEST_IT_FILE "test.itz"
 #endif
 
-static inline int is_big_endian() {
+static inline int is_big_endian(void) {
 	unsigned short w = 0x00ff;
 	return (*(char *)&w == 0x00);
 }
