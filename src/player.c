@@ -137,6 +137,9 @@ static int update_envelope_generic(struct xmp_envelope *env, int x, int release)
 	 * envelope loop end and the key is released, FT2 escapes the loop
 	 * while IT runs another iteration. (See EnvLoops.xm in the OpenMPT
 	 * test cases.)
+	 * TODO: this is a bit suspicious, has little relation to the above
+	 * description, and had to be removed from the XM handler because it
+	 * broke a module (fade_2_grey_visage.xm). Retesting is required.
 	 */
 	if (has_loop && has_sus && sus == lpe) {
 		if (!release)
@@ -168,6 +171,12 @@ static int update_envelope_generic(struct xmp_envelope *env, int x, int release)
 	 * Real Tracker 2.
 	 */
 	if (has_loop && x >= data[lpe]) {
+		/* FT2 and IT envelopes behave in a different way regarding
+		 * loops, sustain and release. When the sustain point is at the
+		 * end of the envelope loop end and the key is released, FT2
+		 * escapes the loop while IT runs another iteration.
+		 * (See OpenMPT EnvLoops.xm)
+		 */
 		if (!(release && has_sus && sus == lpe))
 			x = data[lps];
 	}
@@ -190,17 +199,6 @@ static int update_envelope_xm(struct xmp_envelope *env, int x, int release)
 	lpe = env->lpe << 1;
 	sus = env->sus << 1;
 
-	/* FT2 and IT envelopes behave in a different way regarding loops,
-	 * sustain and release. When the sustain point is at the end of the
-	 * envelope loop end and the key is released, FT2 escapes the loop
-	 * while IT runs another iteration. (See EnvLoops.xm in the OpenMPT
-	 * test cases.)
-	 */
-	if (has_loop && has_sus && sus == lpe) {
-		if (!release)
-			has_sus = 0;
-	}
-
 	/* If the envelope point is set to somewhere after the sustain point
 	 * or sustain loop, enable release to prevent the envelope point from
 	 * returning to the sustain point or loop start. (See Filip Skutela's
@@ -221,10 +219,16 @@ static int update_envelope_xm(struct xmp_envelope *env, int x, int release)
 	 *
 	 * If the envelope point is set to somewhere after the sustain point
 	 * or sustain loop, the loop point is ignored to prevent the envelope
-	 * point to return to the sustain point or loop start. (See Filip Skutela's
-	 * farewell_tear.xm or Ebony Owl Netsuke.xm.)
+	 * point from returning to the sustain point or loop start.
+	 * (See Filip Skutela's farewell_tear.xm or Ebony Owl Netsuke.xm.)
 	*/
 	if (has_loop && x == data[lpe]) {
+		/* FT2 and IT envelopes behave in a different way regarding
+		 * loops, sustain and release. When the sustain point is at the
+		 * end of the envelope loop end and the key is released, FT2
+		 * escapes the loop while IT runs another iteration.
+		 * (See OpenMPT EnvLoops.xm)
+		 */
 		if (!(release && has_sus && sus == lpe))
 			x = data[lps];
 	}
