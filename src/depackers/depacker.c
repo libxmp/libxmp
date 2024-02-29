@@ -357,6 +357,8 @@ int libxmp_exclude_match(const char *name)
 		"*.EXE", "*.exe",
 		"*.COM", "*.com",
 		"*.README", "*.readme", "*.Readme", "*.ReadMe",
+		"*.HTM", "*.htm",
+		"*.HTML", "*.html",
 		/* Found in Spark archives. */
 		"\\?From", "From\\?", "InfoText",
 		NULL
