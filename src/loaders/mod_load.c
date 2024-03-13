@@ -876,6 +876,7 @@ skip_test:
 	break;
     case TRACKER_OCTALYSER:
 	tracker = "Octalyser";
+	m->quirk |= QUIRK_OCTALYSERLOOP;
 	break;
     case TRACKER_DIGITALTRACKER:
 	tracker = "Digital Tracker";

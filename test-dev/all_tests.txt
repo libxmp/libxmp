@@ -350,6 +350,8 @@ test_effect_far_vibrato_per
 test_effect_far_volslide
 test_effect_far_tempo
 test_effect_ult_toneporta
+test_effect_oct_pattern_loop1
+test_effect_oct_pattern_loop2
 test_prev_order_start
 test_prev_order_skip
 test_prev_order_start_seq
