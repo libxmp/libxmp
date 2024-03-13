@@ -38,6 +38,7 @@ xmp_context xmp_create_context(void)
 
 	ctx->state = XMP_STATE_UNLOADED;
 	ctx->m.defpan = 100;
+	ctx->m.hash_type = XMP_HASH_MD5;
 	ctx->s.numvoc = SMIX_NUMVOC;
 
 	return (xmp_context)ctx;
@@ -313,13 +314,16 @@ LIBXMP_EXPORT_VERSIONED extern int xmp_set_player_v41__(xmp_context, int, int)
 LIBXMP_EXPORT_VERSIONED extern int xmp_set_player_v43__(xmp_context, int, int)
 			__attribute__((alias("xmp_set_player_v40__"))) LIBXMP_ATTRIB_SYMVER("xmp_set_player@XMP_4.3");
 LIBXMP_EXPORT_VERSIONED extern int xmp_set_player_v44__(xmp_context, int, int)
-			__attribute__((alias("xmp_set_player_v40__"))) LIBXMP_ATTRIB_SYMVER("xmp_set_player@@XMP_4.4");
+			__attribute__((alias("xmp_set_player_v40__"))) LIBXMP_ATTRIB_SYMVER("xmp_set_player@XMP_4.4");
+LIBXMP_EXPORT_VERSIONED extern int xmp_set_player_v46__(xmp_context, int, int)
+			__attribute__((alias("xmp_set_player_v40__"))) LIBXMP_ATTRIB_SYMVER("xmp_set_player@@XMP_4.6");
 
 #ifndef HAVE_ATTRIBUTE_SYMVER
 asm(".symver xmp_set_player_v40__, xmp_set_player@XMP_4.0");
 asm(".symver xmp_set_player_v41__, xmp_set_player@XMP_4.1");
 asm(".symver xmp_set_player_v43__, xmp_set_player@XMP_4.3");
-asm(".symver xmp_set_player_v44__, xmp_set_player@@XMP_4.4");
+asm(".symver xmp_set_player_v44__, xmp_set_player@XMP_4.4");
+asm(".symver xmp_set_player_v46__, xmp_set_player@@XMP_4.6");
 #endif
 LIBXMP_END_DECLS
 
@@ -337,7 +341,8 @@ int xmp_set_player__(xmp_context opaque, int parm, int val)
 	int ret = -XMP_ERROR_INVALID;
 
 
-	if (parm == XMP_PLAYER_SMPCTL || parm == XMP_PLAYER_DEFPAN) {
+	if (parm == XMP_PLAYER_SMPCTL || parm == XMP_PLAYER_DEFPAN ||
+	    parm == XMP_PLAYER_HASH_TYPE) {
 		/* these should be set before loading the module */
 		if (ctx->state >= XMP_STATE_LOADED) {
 			return -XMP_ERROR_STATE;
@@ -422,6 +427,14 @@ int xmp_set_player__(xmp_context opaque, int parm, int val)
 	case XMP_PLAYER_VOICES:
 		s->numvoc = val;
 		break;
+
+	/* FIXME: 4.6? */
+	case XMP_PLAYER_HASH_TYPE:
+		if (val >= XMP_HASH_FASTEST && val <= XMP_HASH_MD5) {
+			m->hash_type = val;
+			ret = 0;
+		}
+		break;
 	}
 
 	return ret;
@@ -437,14 +450,17 @@ LIBXMP_EXPORT_VERSIONED extern int xmp_get_player_v42__(xmp_context, int)
 LIBXMP_EXPORT_VERSIONED extern int xmp_get_player_v43__(xmp_context, int)
 		__attribute__((alias("xmp_get_player_v40__"))) LIBXMP_ATTRIB_SYMVER("xmp_get_player@XMP_4.3");
 LIBXMP_EXPORT_VERSIONED extern int xmp_get_player_v44__(xmp_context, int)
-		__attribute__((alias("xmp_get_player_v40__"))) LIBXMP_ATTRIB_SYMVER("xmp_get_player@@XMP_4.4");
+		__attribute__((alias("xmp_get_player_v40__"))) LIBXMP_ATTRIB_SYMVER("xmp_get_player@XMP_4.4");
+LIBXMP_EXPORT_VERSIONED extern int xmp_get_player_v46__(xmp_context, int)
+		__attribute__((alias("xmp_get_player_v40__"))) LIBXMP_ATTRIB_SYMVER("xmp_get_player@@XMP_4.6");
 
 #ifndef HAVE_ATTRIBUTE_SYMVER
 asm(".symver xmp_get_player_v40__, xmp_get_player@XMP_4.0");
 asm(".symver xmp_get_player_v41__, xmp_get_player@XMP_4.1");
 asm(".symver xmp_get_player_v42__, xmp_get_player@XMP_4.2");
 asm(".symver xmp_get_player_v43__, xmp_get_player@XMP_4.3");
-asm(".symver xmp_get_player_v44__, xmp_get_player@@XMP_4.4");
+asm(".symver xmp_get_player_v44__, xmp_get_player@XMP_4.4");
+asm(".symver xmp_get_player_v46__, xmp_get_player@@XMP_4.6");
 #endif
 LIBXMP_END_DECLS
 
@@ -528,6 +544,11 @@ int xmp_get_player__(xmp_context opaque, int parm)
 		break;
 	case XMP_PLAYER_VOICES:
 		ret = s->numvoc;
+		break;
+
+	/* FIXME: 4.6? */
+	case XMP_PLAYER_HASH_TYPE:
+		ret = m->hash_type;
 		break;
 	}
 

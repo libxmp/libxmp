@@ -33,33 +33,14 @@
 #endif
 
 #ifndef LIBXMP_CORE_PLAYER
-#include "md5.h"
 #include "extras.h"
 #endif
 
-
 void libxmp_load_prologue(struct context_data *);
-void libxmp_load_epilogue(struct context_data *);
+void libxmp_load_epilogue(struct context_data *, HIO_HANDLE *);
 int  libxmp_prepare_scan(struct context_data *);
 
 #ifndef LIBXMP_CORE_PLAYER
-#define BUFLEN 16384
-
-static void set_md5sum(HIO_HANDLE *f, unsigned char *digest)
-{
-	unsigned char buf[BUFLEN];
-	MD5_CTX ctx;
-	int bytes_read;
-
-	hio_seek(f, 0, SEEK_SET);
-
-	MD5Init(&ctx);
-	while ((bytes_read = hio_read(buf, 1, BUFLEN, f)) > 0) {
-		MD5Update(&ctx, buf, bytes_read);
-	}
-	MD5Final(digest, &ctx);
-}
-
 static char *get_dirname(const char *name)
 {
 	char *dirname;
@@ -308,12 +289,7 @@ static int load_module(xmp_context opaque, HIO_HANDLE *h)
 		libxmp_adjust_string(mod->xxs[i].name);
 	}
 
-#ifndef LIBXMP_CORE_PLAYER
-	if (test_result == 0 && load_result == 0)
-		set_md5sum(h, m->md5);
-#endif
-
-	libxmp_load_epilogue(ctx);
+	libxmp_load_epilogue(ctx, h);
 
 	ret = libxmp_prepare_scan(ctx);
 	if (ret < 0) {

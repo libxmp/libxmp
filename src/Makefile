@@ -1,12 +1,13 @@
 
 SRC_OBJS	= virtual.o format.o period.o player.o read_event.o dataio.o \
-		  misc.o mkstemp.o md5.o lfo.o scan.o control.o far_extras.o \
-		  med_extras.o filter.o effects.o mixer.o mix_all.o \
+		  misc.o mkstemp.o crc32c.o md5.o lfo.o scan.o control.o \
+		  far_extras.o med_extras.o filter.o effects.o mixer.o mix_all.o \
 		  load_helpers.o load.o hio.o hmn_extras.o extras.o smix.o \
 		  filetype.o memio.o tempfile.o mix_paula.o miniz_tinfl.o win32.o
 
 SRC_DFILES	= Makefile $(SRC_OBJS:.o=.c) common.h effects.h \
 		  format.h lfo.h list.h mixer.h period.h player.h virtual.h \
+		  crc32c.h crc32c_arm.h crc32c_rv64.h crc32c_x86.h \
 		  md5.h precomp_lut.h tempfile.h med_extras.h hio.h \
 		  hmn_extras.h extras.h callbackio.h memio.h mdataio.h \
 		  far_extras.h paula.h precomp_blep.h miniz.h

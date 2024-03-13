@@ -27,6 +27,50 @@
 
 #ifndef LIBXMP_CORE_PLAYER
 
+#include "md5.h"
+#include "crc32c.h"
+
+#define BUFLEN 16384
+
+static uint32 get_crc32c(HIO_HANDLE *f)
+{
+	unsigned char buf[BUFLEN];
+	int bytes_read;
+	uint32 crc = 0;
+
+	// FIXME: hack, add hio function
+	if (f->type == HIO_HANDLE_TYPE_MEMORY)
+		return libxmp_crc32c(crc, f->handle.mem->start, hio_size(f));
+
+	hio_seek(f, 0, SEEK_SET);
+
+	while ((bytes_read = hio_read(buf, 1, BUFLEN, f)) > 0) {
+		crc = libxmp_crc32c(crc, buf, bytes_read);
+	}
+	return crc;
+}
+
+static void set_md5sum(HIO_HANDLE *f, unsigned char *digest)
+{
+	unsigned char buf[BUFLEN];
+	MD5_CTX ctx;
+	int bytes_read;
+
+	MD5Init(&ctx);
+
+	// FIXME: hack, add hio function
+	if (f->type == HIO_HANDLE_TYPE_MEMORY) {
+		MD5Update(&ctx, f->handle.mem->start, hio_size(f));
+	} else {
+		hio_seek(f, 0, SEEK_SET);
+
+		while ((bytes_read = hio_read(buf, 1, BUFLEN, f)) > 0) {
+			MD5Update(&ctx, buf, bytes_read);
+		}
+	}
+	MD5Final(digest, &ctx);
+}
+
 /*
  * Handle special "module quirks" that can't be detected automatically
  * such as Protracker 2.x compatibility, vblank timing, etc.
@@ -34,6 +78,8 @@
 
 struct module_quirk {
 	uint8 md5[16];
+	long length;
+	uint32 crc32c;
 	int flags;
 	int mode;
 };
@@ -42,7 +88,8 @@ const struct module_quirk mq[] = {
 	/* "No Mercy" by Alf/VTL (added by Martin Willers) */
 	{
 		{ 0x36, 0x6e, 0xc0, 0xfa, 0x96, 0x2a, 0xeb, 0xee,
-	  	  0x03, 0x4a, 0xa2, 0xdb, 0xaa, 0x49, 0xaa, 0xea },
+		  0x03, 0x4a, 0xa2, 0xdb, 0xaa, 0x49, 0xaa, 0xea },
+		494270, 0UL, /*unknown for this MD5*/
 		0, XMP_MODE_PROTRACKER
 	},
 
@@ -50,6 +97,7 @@ const struct module_quirk mq[] = {
 	{
 		{ 0x93, 0xf1, 0x46, 0xae, 0xb7, 0x58, 0xc3, 0x9d,
 		  0x8b, 0x5f, 0xbc, 0x98, 0xbf, 0x23, 0x7a, 0x43 },
+		126470, 0x7fd6093dUL,
 		XMP_FLAGS_FIXLOOP, XMP_MODE_AUTO
 	},
 
@@ -59,6 +107,7 @@ const struct module_quirk mq[] = {
 	{
 		{ 0x70, 0xaa, 0x03, 0x4d, 0xfb, 0x2f, 0x1f, 0x73,
 		  0xd9, 0xfd, 0xba, 0xfe, 0x13, 0x1b, 0xb7, 0x01 },
+		314126, 0x7837d9beUL,
 		XMP_FLAGS_VBLANK, XMP_MODE_AUTO
 	},
 #endif
@@ -67,6 +116,7 @@ const struct module_quirk mq[] = {
 	{
 		{ 0xe9, 0x98, 0x01, 0x2c, 0x70, 0x0e, 0xb4, 0x3a,
 		  0xf0, 0x32, 0x17, 0x11, 0x30, 0x58, 0x29, 0xb2 },
+		224288, 0x20b37029UL,
 		0, XMP_MODE_NOISETRACKER
 	},
 
@@ -79,7 +129,8 @@ const struct module_quirk mq[] = {
 		  0xb7, 0xe6, 0xb3, 0x94, 0x8b, 0x21, 0x07, 0x63 },
 		XMP_FLAGS_VBLANK
 	},
-#endif
+
+	/* -- Missing file, all known copies are fixed by scan compare. -- */
 
 	/* "((((( nebulos )))))" sent by Tero Auvinen (AMP version) */
 	{
@@ -87,11 +138,13 @@ const struct module_quirk mq[] = {
 		  0xa9, 0x85, 0xbe, 0xbf, 0x90, 0x2e, 0x42, 0xdc },
 		0, XMP_MODE_NOISETRACKER
 	},
+#endif
 
 	/* Purple Motion's Sundance.mod, Music Channel BBS edit */
 	{
 		{ 0x5d, 0x3e, 0x1e, 0x08, 0x28, 0x52, 0x12, 0xc7,
 		  0x17, 0x64, 0x95, 0x75, 0x98, 0xe6, 0x95, 0xc1 },
+		295708, 0x79340d3aUL,
 		0, XMP_MODE_ST3
 	},
 
@@ -99,146 +152,170 @@ const struct module_quirk mq[] = {
 	{
 		{ 0x97, 0xa3, 0x7d, 0x30, 0xd7, 0xae, 0x6d, 0x50,
 		  0xc9, 0x62, 0xe9, 0xd8, 0x87, 0x1b, 0x7e, 0x8a },
+		23966, 0x20429daaUL,
 		0, XMP_MODE_PROTRACKER
 	},
 
 	/* grooving3.mod */
-	/* length 150778 crc32c 0xfdcf9aadU */
 	{
 		{ 0xdb, 0x61, 0x22, 0x44, 0x39, 0x85, 0x74, 0xe9,
 		  0xfa, 0x11, 0xb8, 0xfb, 0x87, 0xe8, 0xde, 0xc5, },
+		150778, 0xfdcf9aadU,
 		XMP_FLAGS_VBLANK, XMP_MODE_AUTO
 	},
 	/* mod.Rundgren */
-	/* length 195078 crc32c 0x8fa827a4U */
 	{
 		{ 0x9a, 0xdb, 0xb2, 0x09, 0x07, 0x1c, 0x44, 0x82,
 		  0xc5, 0xdf, 0x83, 0x52, 0xcc, 0x73, 0x9f, 0x20, },
+		195078, 0x8fa827a4U,
 		XMP_FLAGS_VBLANK, XMP_MODE_AUTO
 	},
 	/* dance feeling by Audiomonster */
-	/* length 169734 crc32c 0x79fa2c9bU */
 	{
 		{ 0x31, 0x2c, 0x3d, 0xaa, 0x5f, 0x1a, 0x54, 0x44,
 		  0x9d, 0xf7, 0xc4, 0x41, 0x8a, 0xc5, 0x01, 0x02, },
+		169734, 0x79fa2c9bU,
 		XMP_FLAGS_VBLANK, XMP_MODE_AUTO
 	},
 	/* knights melody by Audiomonster */
-	/* length 77798 crc32c 0x7bf19c5bU */
 	{
 		{ 0x31, 0xc3, 0x0e, 0x32, 0xfc, 0x99, 0x95, 0xd2,
 		  0x97, 0x20, 0xb3, 0x77, 0x50, 0x05, 0xfe, 0xa5, },
+		77798, 0x7bf19c5bU,
 		XMP_FLAGS_VBLANK, XMP_MODE_AUTO
 	},
 	/* hcomme by Bouffon */
-	/* length 71346 crc32c 0x4ad49cb3U */
 	{
 		{ 0x6e, 0xf9, 0x78, 0xc1, 0x80, 0xae, 0x51, 0x06,
 		  0x05, 0x7c, 0x6e, 0xd0, 0x26, 0x7e, 0xfe, 0x3d, },
+		71346, 0x4ad49cb3U,
 		XMP_FLAGS_VBLANK, XMP_MODE_AUTO
 	},
 	/* ((((aquapool)))) by Dolphin */
-	/* length 62932 crc32c 0x05b103fcU */
 	{
 		{ 0xff, 0x0b, 0xe0, 0x26, 0xc6, 0x31, 0xb5, 0x9b,
 		  0x94, 0x83, 0x94, 0x99, 0x7e, 0x24, 0x7c, 0xdd, },
+		62932, 0x05b103fcU,
 		XMP_FLAGS_VBLANK, XMP_MODE_AUTO
 	},
 	/* 100yarddash by Dr. Awesome */
-	/* length 104666 crc32c 0xd2b0e4a6U */
 	{
 		{ 0x5b, 0xff, 0x2f, 0xb8, 0xef, 0x3c, 0xbe, 0x55,
 		  0xa8, 0xe2, 0xa7, 0xcf, 0x5c, 0xbd, 0xdd, 0xb2, },
+		104666, 0xd2b0e4a6U,
 		XMP_FLAGS_VBLANK, XMP_MODE_AUTO
 	},
 	/* jazz-reggae-funk by Droid */
-	/* length 115564 crc32c 0x41ff635fU */
 	{
 		{ 0xe5, 0x6e, 0x31, 0x2f, 0x62, 0x80, 0xc1, 0x9d,
 		  0x2f, 0x24, 0x54, 0xf3, 0x89, 0x3f, 0x94, 0x6c, },
+		115564, 0x41ff635fU,
 		XMP_FLAGS_VBLANK, XMP_MODE_AUTO
 	},
 	/* hard and heavy by Fish */
-	/* length 69814 crc32c 0x1f09d3d5U */
 	{
 		{ 0x6b, 0xce, 0x39, 0x94, 0x75, 0x42, 0x06, 0x74,
 		  0xd2, 0x83, 0xbc, 0x5e, 0x7b, 0x42, 0x1f, 0xa0, },
+		69814, 0x1f09d3d5U,
 		XMP_FLAGS_VBLANK, XMP_MODE_AUTO
 	},
 	/* crazy valley by Julius and Droid */
-	/* length 97496 crc32c 0xb8eec40eU */
 	{
 		{ 0x23, 0x77, 0x18, 0x1d, 0x21, 0x9b, 0x41, 0x8f,
 		  0xc1, 0xb4, 0xf4, 0xf8, 0x22, 0xdd, 0xd8, 0xb6, },
+		97496, 0xb8eec40eU,
 		XMP_FLAGS_VBLANK, XMP_MODE_AUTO
 	},
 	/* THE ILLOGICAL ONE by Rhino */
-	/* length 173432 crc32c 0xcb4e2987U */
 	{
 		{ 0xd8, 0xc2, 0xbb, 0xe6, 0x11, 0xd0, 0x5c, 0x02,
 		  0x8e, 0x3b, 0xcb, 0x7c, 0x4a, 0x7d, 0x43, 0xa0, },
+		173432, 0xcb4e2987U,
 		XMP_FLAGS_VBLANK, XMP_MODE_AUTO
 	},
 	/* sounds of holiday by Spacebrain */
-	/* length 309520 crc32c 0x28804a57U */
 	{
 		{ 0x36, 0x18, 0x19, 0xa4, 0x9d, 0xa2, 0xa2, 0x6f,
 		  0x58, 0x60, 0xc4, 0xd9, 0x0d, 0xa2, 0x9f, 0x49, },
+		309520, 0x28804a57U,
 		XMP_FLAGS_VBLANK, XMP_MODE_AUTO
 	},
 	/* sunisinus by Speed-Head */
-	/* length 175706 crc32c 0x2e56451bU */
 	{
 		{ 0x7e, 0x69, 0x44, 0xb6, 0x38, 0x0d, 0x27, 0x14,
 		  0x70, 0x5d, 0x44, 0xce, 0xce, 0xdd, 0x37, 0x31, },
+		175706, 0x2e56451bU,
 		XMP_FLAGS_VBLANK, XMP_MODE_AUTO
 	},
 	/* eat the fulcrum bop by The Assassin */
-	/* length 160286 crc32c 0x583a4683U */
 	{
 		{ 0x11, 0xe9, 0x6f, 0x62, 0xe1, 0xc3, 0xc5, 0xcc,
 		  0x3b, 0xaf, 0xea, 0x69, 0x4b, 0xce, 0x5f, 0xec, },
+		160286, 0x583a4683U,
 		XMP_FLAGS_VBLANK, XMP_MODE_AUTO
 	},
 	/* obvious disaster by Tip */
-	/* length 221086 crc32c 0x51c6d489U */
 	{
 		{ 0x06, 0x8e, 0x69, 0x01, 0x49, 0x8f, 0xbd, 0x0f,
 		  0xfc, 0xb7, 0x8f, 0x2a, 0x91, 0xe1, 0x8b, 0xe8, },
+		221086, 0x51c6d489U,
 		XMP_FLAGS_VBLANK, XMP_MODE_AUTO
 	},
 	/* alien nation by Turtle */
-	/* length 167548 crc32c 0xc9ec1674U */
 	{
 		{ 0x71, 0xdf, 0x11, 0xac, 0x5d, 0xec, 0x07, 0xf8,
 		  0x10, 0x6f, 0x28, 0x8d, 0x47, 0x59, 0x54, 0x9b, },
+		167548, 0xc9ec1674U,
 		XMP_FLAGS_VBLANK, XMP_MODE_AUTO
 	},
 	/* illusions!2 by Zuhl */
-	/* length 289770 crc32c 0x6bf5fbcfU */
 	{
 		{ 0xca, 0x37, 0x8c, 0x0e, 0x87, 0x4f, 0x1e, 0xcd,
 		  0xa3, 0xe9, 0x8b, 0xdd, 0x11, 0x46, 0x8d, 0x69, },
+		289770, 0x6bf5fbcfU,
 		XMP_FLAGS_VBLANK, XMP_MODE_AUTO
 	},
 
 	{
 		{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
+		0, 0UL,
 		0, 0
 	}
 };
 
-static void module_quirks(struct context_data *ctx)
+static void module_quirks(struct context_data *ctx, HIO_HANDLE *f)
 {
 	struct player_data *p = &ctx->p;
 	struct module_data *m = &ctx->m;
+	long len = hio_size(f);
+	int has_md5 = (ctx->m.hash_type == XMP_HASH_MD5);
+	int has_crc = 0;
+	uint32 crc;
 	int i;
 
 	for (i = 0; mq[i].flags != 0 || mq[i].mode != 0; i++) {
+		if (len != mq[i].length)
+			continue;
+
+		if (ctx->m.hash_type == XMP_HASH_FASTEST) {
+			/* Filter mismatches using the much faster CRC-32C. */
+			if (!has_crc) {
+				crc = get_crc32c(f);
+				has_crc = 1;
+			}
+			if (crc != mq[i].crc32c && mq[i].crc32c != 0)
+				continue;
+		}
+
+		if (!has_md5) {
+			set_md5sum(f, m->md5);
+			has_md5 = 1;
+		}
 		if (!memcmp(m->md5, mq[i].md5, 16)) {
 			p->flags |= mq[i].flags;
 			p->mode = mq[i].mode;
+			break;
 		}
 	}
 }
@@ -336,7 +413,7 @@ void libxmp_load_prologue(struct context_data *ctx)
 	}
 }
 
-void libxmp_load_epilogue(struct context_data *ctx)
+void libxmp_load_epilogue(struct context_data *ctx, HIO_HANDLE *f)
 {
 	struct player_data *p = &ctx->p;
 	struct module_data *m = &ctx->m;
@@ -414,7 +491,14 @@ void libxmp_load_epilogue(struct context_data *ctx)
 	p->mode = XMP_MODE_AUTO;
 	p->flags = p->player_flags;
 #ifndef LIBXMP_CORE_PLAYER
-	module_quirks(ctx);
+	memset(m->md5, 0, sizeof(m->md5));
+
+	if (f != NULL) {
+		if (ctx->m.hash_type == XMP_HASH_MD5) {
+			set_md5sum(f, m->md5);
+		}
+		module_quirks(ctx, f);
+	}
 #endif
 	libxmp_set_player_mode(ctx);
 }

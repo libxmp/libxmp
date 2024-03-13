@@ -28,6 +28,7 @@
 #include <sys/stat.h>
 
 #include "../include/xmp.h"
+#include "../src/crc32c.h"
 
 #define DEFAULT_FRAMES_TO_PLAY	64
 
@@ -69,13 +70,11 @@ static inline int libxmp_test_function(xmp_context opaque, const uint8_t *data,
 	if (load_error == 0)
 	{
 		/* Fuzz playback. */
-		struct xmp_module_info info;
 		int interp, mono, i;
 
-		/* Derive config from the MD5 for now... :( */
-		xmp_get_module_info(opaque, &info);
-		interp = info.md5[7] * 3U / 256;
-		mono = (info.md5[3] & 1) ^ (info.md5[14] >> 7);
+		uint32 checksum = libxmp_crc32c(0, data, size);
+		interp = (checksum >> 15) & 3;
+		mono = (checksum >> 29) & 1;
 
 		switch (interp) {
 		case 0:
@@ -145,6 +144,7 @@ extern "C"
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
 	xmp_context opaque = xmp_create_context();
+	xmp_set_player(opaque, XMP_PLAYER_HASH_TYPE, XMP_HASH_FASTEST);
 
 	libxmp_test_function(opaque, data, size, DEFAULT_FRAMES_TO_PLAY);
 
@@ -234,6 +234,8 @@ int main(int argc, char **argv)
 	opaque = xmp_create_context();
 	if (!opaque)
 		return -1;
+
+	xmp_set_player(opaque, XMP_PLAYER_HASH_TYPE, XMP_HASH_FASTEST);
 
 	/* stat instrumentation is broken for some versions of MSan */
 	memset(&st, 0, sizeof(struct stat));

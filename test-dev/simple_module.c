@@ -4,7 +4,7 @@
 #include "../src/loaders/loader.h"
 
 void libxmp_load_prologue(struct context_data *);
-void libxmp_load_epilogue(struct context_data *);
+void libxmp_load_epilogue(struct context_data *, HIO_HANDLE *f);
 
 void create_simple_module(struct context_data *ctx, int ins, int pat)
 {
@@ -51,7 +51,7 @@ void create_simple_module(struct context_data *ctx, int ins, int pat)
 
 	/* End of module creation */
 
-	libxmp_load_epilogue(ctx);
+	libxmp_load_epilogue(ctx, NULL);
 	libxmp_prepare_scan(ctx);
 	libxmp_scan_sequences(ctx);
 

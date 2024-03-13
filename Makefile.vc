@@ -35,6 +35,7 @@ OBJS	= \
  src\dataio.obj \
  src\misc.obj \
  src\mkstemp.obj \
+ src\crc32c.obj \
  src\md5.obj \
  src\lfo.obj \
  src\scan.obj \

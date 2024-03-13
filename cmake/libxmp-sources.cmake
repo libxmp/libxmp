@@ -7,6 +7,7 @@ set(LIBXMP_SRC_LIST
     src/dataio.c
     src/misc.c
     src/mkstemp.c
+    src/crc32c.c
     src/md5.c
     src/lfo.c
     src/scan.c
