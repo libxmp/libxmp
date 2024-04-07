@@ -82,6 +82,7 @@ extern "C" {
 #define XMP_PLAYER_MODE 	11	/* Player personality */
 #define XMP_PLAYER_MIXER_TYPE	12	/* Current mixer (read only) */
 #define XMP_PLAYER_VOICES	13	/* Maximum number of mixer voices */
+#define XMP_PLAYER_HASH_TYPE	14	/* Enable/disable MD5 */
 
 /* interpolation types */
 #define XMP_INTERP_NEAREST	0	/* Nearest neighbor */
@@ -123,6 +124,10 @@ extern "C" {
 
 /* sample flags */
 #define XMP_SMPCTL_SKIP		(1 << 0) /* Don't load samples */
+
+/* module hash types */
+#define XMP_HASH_FASTEST	0	/* Don't compute MD5 unless necessary */
+#define XMP_HASH_MD5		1	/* Hash module using MD5 */
 
 /* limits */
 #define XMP_MAX_KEYS		121	/* Number of valid keys */

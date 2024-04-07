@@ -30,6 +30,20 @@ TEST(test_module_length_ode2ptk)
 	fail_unless(time / 1000 == fi.total_time, "elapsed time");
 
 	xmp_release_module(opaque);
+
+	/* Should also work */
+	ret = xmp_set_player(opaque, XMP_PLAYER_HASH_TYPE, XMP_HASH_FASTEST);
+	fail_unless(ret == 0, "set fast hash");
+	ret = xmp_load_module(opaque, "data/p/ode2ptk.mod");
+	fail_unless(ret == 0, "module load");
+
+	xmp_get_module_info(opaque, &mi);
+	xmp_get_frame_info(opaque, &fi);
+
+	fail_unless(mi.mod->len == 18, "module length");
+	fail_unless(fi.total_time == 85472, "estimated time");
+
+	xmp_release_module(opaque);
 	xmp_free_context(opaque);
 }
 END_TEST

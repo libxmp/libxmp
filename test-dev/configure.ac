@@ -43,6 +43,7 @@ XMP_TRY_COMPILE(whether compiler understands -Wwrite-strings,
   CFLAGS="${CFLAGS} -Wwrite-strings")
 
 AC_CHECK_LIB(m,pow)
-AC_CHECK_FUNCS(pipe popen mkstemp fnmatch fmemopen)
+AC_CHECK_FUNCS(pipe popen mkstemp fnmatch fmemopen getauxval sysctlbyname)
+AC_CHECK_HEADERS(asm/hwcap.h)
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
