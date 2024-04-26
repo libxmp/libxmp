@@ -385,10 +385,10 @@ int libxmp_med_new_module_extras(struct module_data *m)
 
 	me = (struct med_module_extras *)m->extra;
 
-	me->vol_table = (uint8 **) calloc(sizeof(uint8 *), mod->ins);
+	me->vol_table = (uint8 **) calloc(mod->ins, sizeof(uint8 *));
 	if (me->vol_table == NULL)
 		return -1;
-	me->wav_table = (uint8 **) calloc(sizeof(uint8 *), mod->ins);
+	me->wav_table = (uint8 **) calloc(mod->ins, sizeof(uint8 *));
 	if (me->wav_table == NULL)
 		return -1;
 
