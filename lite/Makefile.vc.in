@@ -12,6 +12,7 @@ LD	= link
 LDFLAGS	= /DLL /RELEASE /OUT:$(DLL)
 DLL	= libxmp-lite.dll
 
+DISABLE_IT	= 0
 !if $(DISABLE_IT)==1
 CFLAGS	= $(CFLAGS) /DLIBXMP_CORE_DISABLE_IT
 !endif
@@ -29,9 +30,9 @@ $(DLL): $(OBJS)
 	$(LD) $(LDFLAGS) $(OBJS)
 
 clean:
-	del $(OBJS) $(DLL) *.lib *.exp
-	del $(TEST)
-	del test\*.dll test\*.exe
+	-del $(OBJS) $(DLL) *.lib *.exp
+	-del $(TEST)
+	-del test\*.dll test\*.exe
 
 check: $(TEST)
 	$(LD) /RELEASE /OUT:test\libxmp-lite-test.exe $(TEST) libxmp-lite.lib
