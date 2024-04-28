@@ -1,3 +1,5 @@
+#include "../common.h"
+
 #ifndef LIBXMP_CORE_DISABLE_IT
 
 /* Public domain IT sample decompressor by Olivier Lapicque */

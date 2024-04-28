@@ -23,12 +23,12 @@
  * THE SOFTWARE.
  */
 
+#include "common.h"
+
 #ifndef LIBXMP_CORE_DISABLE_IT
 #include <math.h>
 #include "xmp.h"
-#include "common.h"
 #include "mixer.h"
-
 
 /* LUT for 2 * damping factor */
 static const float resonance_table[128] = {

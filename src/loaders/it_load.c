@@ -20,6 +20,8 @@
  * THE SOFTWARE.
  */
 
+#include "../common.h"
+
 #ifndef LIBXMP_CORE_DISABLE_IT
 
 #include "loader.h"
@@ -911,7 +913,7 @@ static int load_it_sample(struct module_data *m, int i, int start,
 
 #ifdef WORDS_BIGENDIAN
 				/* decompression generates native-endian
-				 * samples, but we want little-endian
+				 * samples, but we want little-endian.
 				 */
 				cvt |= SAMPLE_FLAG_BIGEND;
 #endif
