@@ -9,6 +9,9 @@
 # To disable ProWizard functionality:
 #	wmake -f Makefile.dos USE_PROWIZARD=0
 #
+# To build the lite version of the library:
+#	wmake -f Makefile.dos lite
+
 target = static
 
 USE_PROWIZARD	= 1

@@ -179,3 +179,34 @@ set(LIBXMP_SRC_LIST_DEPACKERS
     src/depackers/lhasa/pm2_decoder.c
     src/depackers/lhasa/macbinary.c
 )
+
+set(LIBXMP_SRC_LIST_LITE 
+    src/lite/lite-virtual.c
+    src/lite/lite-format.c
+    src/lite/lite-period.c
+    src/lite/lite-player.c
+    src/lite/lite-read_event.c
+    src/lite/lite-misc.c
+    src/lite/lite-dataio.c
+    src/lite/lite-lfo.c
+    src/lite/lite-scan.c
+    src/lite/lite-control.c
+    src/lite/lite-filter.c
+    src/lite/lite-effects.c
+    src/lite/lite-mixer.c
+    src/lite/lite-mix_all.c
+    src/lite/lite-load_helpers.c
+    src/lite/lite-load.c
+    src/lite/lite-filetype.c
+    src/lite/lite-hio.c
+    src/lite/lite-smix.c
+    src/lite/lite-memio.c
+    src/lite/lite-win32.c
+    src/lite/lite-common.c
+    src/lite/lite-itsex.c
+    src/lite/lite-sample.c
+    src/lite/lite-xm_load.c
+    src/lite/lite-mod_load.c
+    src/lite/lite-s3m_load.c
+    src/lite/lite-it_load.c
+)

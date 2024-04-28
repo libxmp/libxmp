@@ -12,6 +12,9 @@
 # To disable ProWizard functionality:
 #	wmake -f Makefile.os2 USE_PROWIZARD=0
 #
+# To build the lite version of the library:
+#	wmake -f Makefile.os2 lite
+
 !ifndef target
 target = dll
 !endif
@@ -31,4 +34,5 @@ CFLAGS += -wcd=303
 CFLAGS += -5s
 CFLAGS += -I"$(%WATCOM)/h/os2" -I"$(%WATCOM)/h"
 
+TARGET_OS2=yes
 !include watcom.mif

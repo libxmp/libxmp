@@ -1,0 +1,2 @@
+These are here in order to workaround limitations of our autoconf-based
+build system and standalone makefiles.

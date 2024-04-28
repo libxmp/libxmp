@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.2...3.5)
 project(libxmplite VERSION 4.6.0 LANGUAGES C)
 
 set(LIBXMP_DEFINES)
-set(LIBXMP_DEFINES_PUBLIC)
 set(LIBXMP_CFLAGS)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/libxmp-checks.cmake)
@@ -31,14 +30,13 @@ option(LIBXMP_DISABLE_IT            "Disable IT format support in libXMP-lite" O
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/libxmp-sources.cmake)
 
-list(APPEND LIBXMP_DEFINES_PUBLIC -DLIBXMP_CORE_PLAYER)
+list(APPEND LIBXMP_DEFINES LIBXMP_CORE_PLAYER)
 if(LIBXMP_DISABLE_IT)
-    list(APPEND LIBXMP_DEFINES_PUBLIC -DLIBXMP_CORE_DISABLE_IT)
+    list(APPEND LIBXMP_DEFINES LIBXMP_CORE_DISABLE_IT)
 endif()
 
 if(MSVC)
-    set(LIBXMP_MSVC_DEFINES -D_USE_MATH_DEFINES)
-    list(APPEND LIBXMP_DEFINES ${LIBXMP_MSVC_DEFINES})
+    list(APPEND LIBXMP_DEFINES _USE_MATH_DEFINES)
 endif()
 
 
@@ -57,8 +55,7 @@ if(BUILD_STATIC)
 
     target_compile_options(xmp_lite_static PRIVATE ${LIBXMP_CFLAGS})
     target_compile_definitions(xmp_lite_static PRIVATE ${LIBXMP_DEFINES})
-    target_compile_definitions(xmp_lite_static PUBLIC ${LIBXMP_DEFINES_PUBLIC} -DLIBXMP_STATIC)
-
+    target_compile_definitions(xmp_lite_static PUBLIC LIBXMP_STATIC)
     if(LIBXMP_PIC)
         target_compile_options(xmp_lite_static PRIVATE -fPIC)
     endif()
@@ -99,7 +96,7 @@ if(BUILD_SHARED)
     endif()
 
     if(HAVE_VISIBILITY AND HAVE_GNU_LD AND UNIX)
-        target_compile_definitions(xmp_lite_shared PRIVATE -DUSE_VERSIONED_SYMBOLS=1)
+        target_compile_definitions(xmp_lite_shared PRIVATE USE_VERSIONED_SYMBOLS=1)
         set_property(TARGET xmp_lite_shared APPEND_STRING PROPERTY
                      LINK_FLAGS " -Wl,--version-script,${CMAKE_CURRENT_SOURCE_DIR}/libxmp.map")
         message(STATUS "Versioned symbols: ENABLED.")
@@ -107,13 +104,11 @@ if(BUILD_SHARED)
         message(STATUS "Versioned symbols: DISABLED")
     endif()
 
+    target_compile_options(xmp_lite_shared PRIVATE ${LIBXMP_CFLAGS})
     target_compile_definitions(xmp_lite_shared PRIVATE ${LIBXMP_DEFINES})
     if(WIN32)
-        target_compile_definitions(xmp_lite_shared PRIVATE -DBUILDING_DLL)
+        target_compile_definitions(xmp_lite_shared PRIVATE BUILDING_DLL)
     endif()
-
-    target_compile_options(xmp_lite_shared PRIVATE ${LIBXMP_CFLAGS})
-    target_compile_definitions(xmp_lite_shared PUBLIC ${LIBXMP_DEFINES_PUBLIC})
 
     target_include_directories(xmp_lite_shared PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/libxmp-lite>")
     target_include_directories(xmp_lite_shared PUBLIC "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/libxmp-lite>")

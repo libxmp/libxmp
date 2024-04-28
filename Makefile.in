@@ -34,7 +34,7 @@ DFILES		= README INSTALL install-sh configure configure.ac config.sub config.gue
 		  Makefile.in Makefile.vc Makefile.dos Makefile.os2 Makefile.w32 watcom.mif \
 		  CMakeLists.txt aclocal.m4 autogen.sh libxmp.map libxmp.pc.in libxmp-config.cmake \
 		  libxmp-config.cmake.autotools libxmp-config-version.cmake.autotools.in
-DDIRS		= docs include src loaders prowiz depackers lhasa test cmake m4
+DDIRS		= docs include src loaders prowiz depackers lhasa lite test cmake m4
 V		= 0
 LIB		= libxmp.a
 SOLIB		= libxmp.so
@@ -44,6 +44,16 @@ DLL		= libxmp.dll
 IMPLIB		= libxmp.dll.a
 DYLIB		= libxmp.$(VERSION_MAJOR).dylib
 GCLIB		= libxmp-gc.a
+
+LIB_LITE	= libxmp-lite.a
+SOLIB_LITE	= libxmp-lite.so
+SHLIB_LITE	= $(SOLIB_LITE).$(VERSION)
+SONAME_LITE	= $(SOLIB_LITE).$(VERSION_MAJOR)
+DLL_LITE	= libxmp-lite.dll
+IMPLIB_LITE	= libxmp-lite.dll.a
+DYLIB_LITE	= libxmp-lite.$(VERSION_MAJOR).dylib
+GCLIB_LITE	= libxmp-lite-gc.a
+
 DYLIB_COMPAT	= -compatibility_version,$(COMPAT_VERSION),
 
 DARWIN_VERSION	= @DARWIN_VERSION@
@@ -65,6 +75,7 @@ include src/loaders/Makefile
 include src/loaders/prowizard/Makefile
 include src/depackers/Makefile
 include src/depackers/lhasa/Makefile
+include src/lite/Makefile
 include test/Makefile
 include docs/Makefile
 
@@ -73,6 +84,10 @@ ALL_OBJS=$(OBJS) @PROWIZARD_OBJS@ @DEPACKER_OBJS@
 LOBJS = $(ALL_OBJS:.o=.lo)
 
 GCOBJS = $(ALL_OBJS:.o=.gco)
+
+LOBJS_LITE = $(LITE_OBJS:.o=.lo)
+
+GCOBJS_LITE = $(LITE_OBJS:.o=.gco)
 
 CFLAGS += -Iinclude
 
@@ -103,6 +118,16 @@ dll: lib/$(DLL)
 
 dylib: lib/$(DYLIB)
 
+static-lite: lib/$(LIB_LITE)
+
+shared-lite: lib/$(SHLIB_LITE)
+
+coverage-lite: lib/$(GCLIB_LITE)
+
+dll-lite: lib/$(DLL_LITE)
+
+dylib-lite: lib/$(DYLIB_LITE)
+
 lib/$(LIB): $(ALL_OBJS)
 	@mkdir -p lib
 	@CMD='$(AR) r $@ $(ALL_OBJS)'; \
@@ -121,6 +146,27 @@ lib/$(SHLIB): $(LOBJS)
 lib/$(DLL): $(LOBJS)
 	@mkdir -p lib
 	@CMD='$(LD) $(LDFLAGS) -shared -Wl,--output-def,lib/libxmp.def,--out-implib,lib/$(IMPLIB) -o $@ $(LOBJS) $(LIBS)'; \
+	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
+	eval $$CMD
+
+lib/$(LIB_LITE): $(LITE_OBJS)
+	@mkdir -p lib
+	@CMD='$(AR) r $@ $(LITE_OBJS)'; \
+	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo AR $@ ; fi; \
+	eval $$CMD
+	$(RANLIB) $@
+
+lib/$(SHLIB_LITE): $(LOBJS_LITE)
+	@mkdir -p lib
+	@CMD='$(LD) $(LDFLAGS) -shared -Wl,-soname,$(SONAME_LITE) $(LD_VERSCRIPT) -o $@ $(LOBJS_LITE) $(LIBS)'; \
+	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
+	eval $$CMD
+	ln -sf $(SHLIB_LITE) lib/$(SONAME_LITE)
+	ln -sf $(SONAME_LITE) lib/$(SOLIB_LITE)
+
+lib/$(DLL_LITE): $(LOBJS_LITE)
+	@mkdir -p lib
+	@CMD='$(LD) $(LDFLAGS) -shared -Wl,--output-def,lib/libxmp-lite.def,--out-implib,lib/$(IMPLIB_LITE) -o $@ $(LOBJS_LITE) $(LIBS)'; \
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
 	eval $$CMD
 
@@ -143,14 +189,30 @@ lib/$(GCLIB): $(GCOBJS)
 	eval $$CMD
 	$(RANLIB) $@
 
+lib/$(DYLIB_LITE): $(LOBJS_LITE)
+	@mkdir -p lib
+	@CMD='$(LD) $(LDFLAGS) -dynamiclib -Wl,-headerpad_max_install_names,$(DYLIB_COMPAT)-current_version,$(VERSION),-install_name,$(prefix)/lib/$(DYLIB_LITE) -o $@ $(LOBJS_LITE) $(LIBS)'; \
+	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
+	eval $$CMD
+	ln -sf $(DYLIB) lib/libxmp-lite.dylib
+
+lib/$(GCLIB_LITE): $(GCOBJS_LITE)
+	@mkdir -p lib
+	@CMD='$(AR) r $@ $(GCOBJS_LITE)'; \
+	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo AR $@ ; fi; \
+	eval $$CMD
+	$(RANLIB) $@
+
 docs: all-docs
 
 clean:
 	@rm -f $(ALL_OBJS) $(LOBJS) $(T_OBJS)
 	@rm -f $(GCOBJS) $(ALL_OBJS:.o=.gcno) $(ALL_OBJS:.o=.gcda)
+	@rm -f $(LITE_OBJS) $(LOBJS_LITE)
+	@rm -f $(GCOBJS_LITE) $(LITE_OBJS:.o=.gcno) $(LITE_OBJS:.o=.gcda)
 
 distclean: clean
-	@rm -f config.log config.cache config.status libxmp.pc depend Makefile lib/* test/libxmp-test*
+	@rm -f config.log config.cache config.status *.pc *-version.cmake.autotools depend Makefile lib/* test/libxmp-test*
 
 install: all
 	@mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(LIBDIR) $(DESTDIR)$(INCLUDEDIR)
@@ -174,6 +236,26 @@ install: all
 		ln -sf $(SHLIB) $(DESTDIR)$(LIBDIR)/$(SONAME); \
 		ln -sf $(SONAME) $(DESTDIR)$(LIBDIR)/$(SOLIB); \
 	fi
+	@if [ -f lib/$(LIB_LITE) ]; then \
+		echo "Installing $(LIB_LITE)..."; \
+		$(INSTALL) -m644 lib/$(LIB_LITE) $(DESTDIR)$(LIBDIR); \
+	fi
+	@if [ -f lib/$(DYLIB_LITE) ]; then \
+		echo "Installing $(DYLIB_LITE)..."; \
+		$(INSTALL) -m755 lib/$(DYLIB_LITE) $(DESTDIR)$(LIBDIR); \
+		ln -sf $(DYLIB_LITE) $(DESTDIR)$(LIBDIR_LITE)/libxmp-lite.dylib; \
+	fi
+	@if [ -f lib/$(DLL_LITE) ]; then \
+		echo "Installing $(DLL_LITE)..."; \
+		$(INSTALL) -m644 lib/$(DLL_LITE) $(DESTDIR)$(BINDIR); \
+		$(INSTALL) -m644 lib/$(IMPLIB_LITE) $(DESTDIR)$(LIBDIR); \
+	fi
+	@if [ -f lib/$(SHLIB_LITE) ]; then \
+		echo "Installing $(SHLIB_LITE)..."; \
+		$(INSTALL) -m755 lib/$(SHLIB_LITE) $(DESTDIR)$(LIBDIR); \
+		ln -sf $(SHLIB_LITE) $(DESTDIR)$(LIBDIR)/$(SONAME_LITE); \
+		ln -sf $(SONAME_LITE) $(DESTDIR)$(LIBDIR)/$(SOLIB_LITE); \
+	fi
 	@echo "Installing xmp.h..."
 	@$(INSTALL) -m644 include/xmp.h $(DESTDIR)$(INCLUDEDIR)
 	@echo "Installing libxmp.pc..."
@@ -183,12 +265,24 @@ install: all
 	@mkdir -p $(DESTDIR)$(LIBDIR)/cmake/libxmp
 	@$(INSTALL) -m644 libxmp-config.cmake.autotools $(DESTDIR)$(LIBDIR)/cmake/libxmp/libxmp-config.cmake
 	@$(INSTALL) -m644 libxmp-config-version.cmake.autotools $(DESTDIR)$(LIBDIR)/cmake/libxmp/libxmp-config-version.cmake
+	@if [ -f libxmp-lite.pc ]; then \
+		echo "Installing libxmp-lite/xmp.h..."; \
+		mkdir -p $(DESTDIR)$(INCLUDEDIR)/libxmp-lite; \
+		$(INSTALL) -m644 include/xmp.h $(DESTDIR)$(INCLUDEDIR)/libxmp-lite; \
+		echo "Installing libxmp-lite.pc..."; \
+		mkdir -p $(DESTDIR)$(LIBDIR)/pkgconfig; \
+		$(INSTALL) -m644 libxmp-lite.pc $(DESTDIR)$(LIBDIR)/pkgconfig/; \
+		echo "Installing libxmp-lite-config.cmake..."; \
+		mkdir -p $(DESTDIR)$(LIBDIR)/cmake/libxmp-lite; \
+		$(INSTALL) -m644 src/lite/libxmp-lite-config.cmake.autotools $(DESTDIR)$(LIBDIR)/cmake/libxmp-lite/libxmp-lite-config.cmake; \
+		$(INSTALL) -m644 libxmp-lite-config-version.cmake.autotools $(DESTDIR)$(LIBDIR)/cmake/libxmp-lite/libxmp-lite-config-version.cmake; \
+	fi
 
 #FIXME: do better?
 depend:
 	@echo Building dependencies...
 	@echo > $@
-	@for i in $(ALL_OBJS) $(T_OBJS); do \
+	@for i in $(ALL_OBJS) $(LITE_OBJS) $(T_OBJS); do \
 	    c="$${i%.o}.c"; l="$${i%.o}.lo"; \
 	    $(CC) $(CFLAGS) -MM $$c | \
 		sed "s!^.*\.o:!$$i $$l:!" >> $@ ; \
@@ -212,6 +306,7 @@ cmake-prepare:
 	@sed -e 's!@SRCS@!\n$(subst $(space),    , $(OBJS:.o=.c\n))!' \
 	     -e 's!@PSRCS@!\n$(subst $(space),    , $(PROWIZARD_OBJS:.o=.c\n))!' \
 	     -e 's!@DSRCS@!\n$(subst $(space),    , $(DEPACKER_OBJS:.o=.c\n))!' \
+	     -e 's!@LITE_SRCS@!\n$(subst $(space),    , $(LITE_OBJS:.o=.c\n))!' \
 	     cmake/libxmp-sources.cmake.in > cmake/libxmp-sources.cmake
 
 vc-prepare:
@@ -219,6 +314,7 @@ vc-prepare:
 	@sed -e 's!@OBJS@!\\\r\n $(subst /,\\,$(OBJS:.o=.obj \\\r\n))!' \
 	     -e 's!@POBJS@!\\\r\n $(subst /,\\,$(PROWIZARD_OBJS:.o=.obj \\\r\n))!' \
 	     -e 's!@DOBJS@!\\\r\n $(subst /,\\,$(DEPACKER_OBJS:.o=.obj \\\r\n))!' \
+	     -e 's!@LITE_OBJS@!\\\r\n $(subst /,\\,$(LITE_OBJS:.o=.obj \\\r\n))!' \
 	     Makefile.vc.in > Makefile.vc
 
 watcom-prepare:
@@ -226,6 +322,7 @@ watcom-prepare:
 	@sed -e 's!@OBJS@! \&\n $(OBJS:.o=.obj \&\n)!' \
 	     -e 's!@POBJS@! \&\n $(PROWIZARD_OBJS:.o=.obj \&\n)!' \
 	     -e 's!@DOBJS@! \&\n $(DEPACKER_OBJS:.o=.obj \&\n)!' \
+	     -e 's!@LITE_OBJS@! \&\n $(LITE_OBJS:.o=.obj \&\n)!' \
 	     watcom.mif.in > watcom.mif
 
 dist-subdirs: $(addprefix dist-,$(DDIRS))
@@ -237,7 +334,7 @@ dist-subdirs: $(addprefix dist-,$(DDIRS))
 distcheck:
 	rm -Rf $(DIST)
 	tar xf $(DIST).tar.gz
-	(cd $(DIST); ./configure --enable-static --prefix=`pwd`/test-install; make; make check; make install; find test-install)
+	(cd $(DIST); ./configure --enable-lite --enable-static --prefix=`pwd`/test-install; make; make check; make install; find test-install)
 
 devcheck:
 	$(MAKE) -C test-dev
@@ -251,7 +348,11 @@ coverclean:
 
 $(ALL_OBJS): Makefile
 
+$(LITE_OBJS): Makefile
+
 $(LOBJS): Makefile
+
+$(LOBJS_LITE): Makefile
 
 version-prepare:
 	vercode=`printf "0x%02x%02x%02x" $(VERSION_MAJOR) $(VERSION_MINOR) $(VERSION_RELEASE)`; \

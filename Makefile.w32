@@ -12,6 +12,9 @@
 # To disable ProWizard functionality:
 #	wmake -f Makefile.w32 USE_PROWIZARD=0
 #
+# To build the lite version of the library:
+#	wmake -f Makefile.w32 lite
+
 !ifndef target
 target = dll
 !endif
