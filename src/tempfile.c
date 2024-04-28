@@ -28,7 +28,7 @@
 
 #if !(defined(LIBXMP_NO_PROWIZARD) && defined(LIBXMP_NO_DEPACKERS))
 
-#if defined(_MSC_VER) || defined(__WATCOMC__)
+#if defined(_WIN32) || defined(__WATCOMC__)
 #include <io.h>
 #else
 #include <unistd.h>
@@ -42,6 +42,10 @@
 
 #ifdef _WIN32
 
+#define fdopen _fdopen
+#define close _close
+#define unlink _unlink
+#define umask _umask
 int mkstemp(char *);
 
 static int get_temp_dir(char *buf, size_t size)

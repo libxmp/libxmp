@@ -1,7 +1,7 @@
 #include <xmp.h>
 #include <math.h>
 
-#if defined(_MSC_VER) || defined(__WATCOMC__)
+#if defined(_WIN32) || defined(__WATCOMC__)
 #include <io.h>
 #else
 #include <unistd.h>
@@ -9,6 +9,10 @@
 
 #include "../src/common.h"
 #include "../src/md5.h"
+
+#ifdef _WIN32
+#define unlink _unlink
+#endif
 
 #define TMP_FILE ".test"
 

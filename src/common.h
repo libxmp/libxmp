@@ -159,6 +159,7 @@ typedef int tst_uint64[2 * (8 == sizeof(uint64)) - 1];
 #define EVENT(a,c,r)	m->mod.xxt[TRACK_NUM((a),(c))]->event[r]
 
 #ifdef _MSC_VER
+
 #define D_CRIT "  Error: "
 #define D_WARN "Warning: "
 #define D_INFO "   Info: "
@@ -212,16 +213,6 @@ static void __inline D_(const char *text, ...) {
 
 #endif	/* !_MSC_VER */
 
-#ifdef _MSC_VER
-#define dup _dup
-#define fileno _fileno
-#define strnicmp _strnicmp
-#define fdopen _fdopen
-#define open _open
-#define close _close
-#define unlink _unlink
-#define S_ISDIR(x) (((x)&_S_IFDIR) != 0)
-#endif
 #if defined(_WIN32) || defined(__WATCOMC__) /* in win32.c */
 #define USE_LIBXMP_SNPRINTF
 /* MSVC 2015+ has C99 compliant snprintf and vsnprintf implementations.
@@ -230,6 +221,9 @@ static void __inline D_(const char *text, ...) {
  * functions. Additionally, GCC may optimize some calls to those functions. */
 #if defined(_MSC_VER) && _MSC_VER >= 1900
 #undef USE_LIBXMP_SNPRINTF
+#endif
+#if defined(__MINGW32__) && !defined(__MINGW_FEATURES__)
+#define __MINGW_FEATURES__ 0 /* to avoid -Wundef from old mingw.org headers */
 #endif
 #if defined(__MINGW32__) && defined(__USE_MINGW_ANSI_STDIO) && (__USE_MINGW_ANSI_STDIO != 0)
 #undef USE_LIBXMP_SNPRINTF
