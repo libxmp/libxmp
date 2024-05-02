@@ -662,7 +662,7 @@ SRC_PATH	= ../src
 
 TEST_INTERNAL	= md5.o win32.o hio.o load_helpers.o loaders/itsex.o dataio.o scan.o \
 		  loaders/sample.o loaders/common.o filetype.o period.o memio.o \
-		  depackers/xfnmatch.o far_extras.o lfo.o
+		  depackers/xfnmatch.o far_extras.o lfo.o rng.o
 
 T_OBJS 		= $(addprefix $(TEST_PATH)/,$(TEST_OBJS)) \
 		  $(addprefix $(SRC_PATH)/,$(TEST_INTERNAL))
@@ -769,8 +769,8 @@ $(addprefix $(SRC_PATH)/,$(TEST_INTERNAL)): $(SRC_PATH)/player.h
 #
 
 FUZZLIB_PATH		= .fuzzer
-FUZZ_ASAN_FLAGS		= -O3 -fsanitize=fuzzer,address,undefined -fno-sanitize-recover=all -fno-sanitize=shift-base -fno-omit-frame-pointer -g -DLIBXMP_LIBFUZZER
-FUZZ_MSAN_FLAGS		= -O3 -fsanitize=fuzzer,memory -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -g -DLIBXMP_LIBFUZZER
+FUZZ_ASAN_FLAGS		= -O3 -fsanitize=fuzzer,address,undefined -fno-sanitize-recover=all -fno-sanitize=shift-base -fno-omit-frame-pointer -g -DLIBXMP_LIBFUZZER -I../include -I../src
+FUZZ_MSAN_FLAGS		= -O3 -fsanitize=fuzzer,memory -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -g -DLIBXMP_LIBFUZZER -I../include -I../src
 FUZZLIB_ASAN_FLAGS	= $(subst fuzzer,fuzzer-no-link,$(FUZZ_ASAN_FLAGS))
 FUZZLIB_MSAN_FLAGS	= $(subst fuzzer,fuzzer-no-link,$(FUZZ_MSAN_FLAGS))
 FUZZ_CC			?= clang

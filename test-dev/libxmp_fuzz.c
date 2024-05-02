@@ -28,7 +28,10 @@
 #include <sys/stat.h>
 
 #include "../include/xmp.h"
+#include "../src/common.h"
+#include "../src/rng.h"
 
+#define FIXED_SEED		0xbaadcafeUL
 #define DEFAULT_FRAMES_TO_PLAY	64
 
 #ifndef LIBXMP_LIBFUZZER
@@ -63,6 +66,8 @@ static inline int libxmp_test_function(xmp_context opaque, const uint8_t *data,
 	int test_error = 0;
 	int test_print = 0;
 	int load_error;
+
+	libxmp_set_random(&((struct context_data *)opaque)->rng, FIXED_SEED);
 
 	/* Fuzz loaders. */
 	load_error = xmp_load_module_from_memory(opaque, data, size);

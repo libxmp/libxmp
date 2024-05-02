@@ -17,6 +17,7 @@ set(LIBXMP_SRC_LIST
     src/effects.c
     src/mixer.c
     src/mix_all.c
+    src/rng.c
     src/load_helpers.c
     src/load.c
     src/hio.c
@@ -201,6 +202,7 @@ set(LIBXMP_SRC_LIST_LITE
     src/lite/lite-hio.c
     src/lite/lite-smix.c
     src/lite/lite-memio.c
+    src/lite/lite-rng.c
     src/lite/lite-win32.c
     src/lite/lite-common.c
     src/lite/lite-itsex.c

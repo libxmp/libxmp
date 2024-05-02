@@ -64,6 +64,7 @@ OBJS= &
  src/effects.obj &
  src/mixer.obj &
  src/mix_all.obj &
+ src/rng.obj &
  src/load_helpers.obj &
  src/load.obj &
  src/hio.obj &
@@ -245,6 +246,7 @@ LITE_OBJS= &
  src/lite/lite-hio.obj &
  src/lite/lite-smix.obj &
  src/lite/lite-memio.obj &
+ src/lite/lite-rng.obj &
  src/lite/lite-win32.obj &
  src/lite/lite-common.obj &
  src/lite/lite-itsex.obj &
