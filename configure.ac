@@ -60,7 +60,7 @@ darwin*)
     CFLAGS="${CFLAGS} -fno-common"
   fi
   ;;
-cygwin* | *djgpp | mint* | amigaos* |aros* | morphos*)
+cygwin* | *djgpp | emx* | mint* | amigaos* | aros* | morphos*)
   enable_static=yes
   enable_shared=no
   ;;
