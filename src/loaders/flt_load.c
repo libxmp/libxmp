@@ -23,6 +23,7 @@
 #include "loader.h"
 #include "mod.h"
 #include "../period.h"
+#include "../rng.h"
 
 static int flt_test(HIO_HANDLE *, char *, const int);
 static int flt_load(struct module_data *, HIO_HANDLE *, const int);
@@ -118,6 +119,7 @@ static int read_am_instrument(struct module_data *m, HIO_HANDLE *nt, int i)
 	struct xmp_envelope *vol_env = &xxi->aei;
 	struct xmp_envelope *freq_env = &xxi->fei;
 	struct am_instrument am;
+	struct rng_state rng;
 	char *wave;
 	int a, b;
 	int8 am_noise[1024];
@@ -162,8 +164,9 @@ static int read_am_instrument(struct module_data *m, HIO_HANDLE *nt, int i)
 		xxs->lps = 0;
 		xxs->lpe = 1024;
 
+		libxmp_init_random(&rng);
 		for (j = 0; j < 1024; j++)
-			am_noise[j] = rand() % 256;
+			am_noise[j] = libxmp_get_random(&rng, 256);
 
 		wave = (char *)&am_noise[0];
 	}

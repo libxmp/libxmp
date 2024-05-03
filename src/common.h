@@ -523,11 +523,16 @@ struct mixer_data {
 	double pbase;		/* period base */
 };
 
+struct rng_state {
+	unsigned state;
+};
+
 struct context_data {
 	struct player_data p;
 	struct mixer_data s;
 	struct module_data m;
 	struct smix_data smix;
+	struct rng_state rng;
 	int state;
 };
 

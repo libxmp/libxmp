@@ -3,7 +3,7 @@
 LITE		= lite-virtual.o lite-format.o lite-period.o lite-player.o lite-read_event.o \
 		  lite-misc.o lite-dataio.o lite-lfo.o lite-scan.o lite-control.o lite-filter.o \
 		  lite-effects.o lite-mixer.o lite-mix_all.o lite-load_helpers.o lite-load.o \
-		  lite-filetype.o lite-hio.o lite-smix.o lite-memio.o lite-win32.o \
+		  lite-filetype.o lite-hio.o lite-smix.o lite-memio.o lite-rng.o lite-win32.o \
 		  \
 		  lite-common.o lite-itsex.o lite-sample.o \
 		  lite-xm_load.o lite-mod_load.o lite-s3m_load.o lite-it_load.o

@@ -18,9 +18,94 @@
  with no swing Completely random values
 */
 
+#include "../src/rng.h"
+
+#define FIXED_SEED 0x00006a36U
+
+#ifndef FIXED_SEED
+#include <limits.h>
+
+#define PAN_SWING_RANGE 64
+
+static inline unsigned brute_force_seed(void)
+{
+	struct rng_state rng;
+	unsigned state = 0;
+	unsigned val;
+	int ok;
+	int i;
+
+	do {
+		if (!(state & 0xffffff)) fprintf(stderr, "checking 0x%8xU...\n", state);
+		libxmp_set_random(&rng, state);
+		ok = 0;
+		/* Discard - forced left pan */
+		for (i = 0; i < 4; i++) {
+			libxmp_get_random(&rng, 0);
+		}
+		/* Left pan - want highest possible value. */
+		for (i = 0; i < 4; i++) {
+			val = libxmp_get_random(&rng, PAN_SWING_RANGE + 1);
+			if (val == PAN_SWING_RANGE)
+				ok |= 1;
+			if (val >= PAN_SWING_RANGE / 2 + 8 && val < PAN_SWING_RANGE)
+				ok |= 2;
+			if (val <= PAN_SWING_RANGE / 2)
+				ok |= 4;
+		}
+		if (ok < 7) continue;
+
+		ok = 0;
+		/* Discard - forced right pan */
+		for (i = 0; i < 4; i++) {
+			libxmp_get_random(&rng, 0);
+		}
+		/* Right pan - want lowest possible value. */
+		for (i = 0; i < 4; i++) {
+			val = libxmp_get_random(&rng, PAN_SWING_RANGE + 1);
+			if (val == 0)
+				ok |= 1;
+			if (val >= 1 && val <= PAN_SWING_RANGE / 2 - 8)
+				ok |= 2;
+			if (val >= PAN_SWING_RANGE / 2)
+				ok |= 4;
+		}
+		if (ok < 7) continue;
+
+		ok = 0;
+		/* Discard - forced center pan */
+		for (i = 0; i < 8; i++) {
+			libxmp_get_random(&rng, 0);
+		}
+		/* Center pan - want highest and lowest possible value. */
+		for (i = 0; i < 8; i++) {
+			val = libxmp_get_random(&rng, PAN_SWING_RANGE + 1);
+			if (val == 0)
+				ok |= 1;
+			if (val == PAN_SWING_RANGE)
+				ok |= 2;
+		}
+		if (ok < 3) continue;
+
+		libxmp_set_random(&rng, state);
+		for (i = 0; i < 32; i++) {
+			fprintf(stderr, "%2d: %d\n", i, libxmp_get_random(&rng, PAN_SWING_RANGE + 1));
+		}
+
+		return state;
+
+	} while ((state++) < UINT_MAX);
+
+	fprintf(stderr, "couldn't find seed!\n");
+	exit(1);
+}
+#endif
+
 TEST(test_storlek_20_pan_swing_and_set_pan)
 {
 	xmp_context opaque;
+	struct context_data *ctx;
+	struct rng_state *rng;
 	struct xmp_frame_info info;
 	struct xmp_channel_info *ci;
 	int values[64];
@@ -30,6 +115,18 @@ TEST(test_storlek_20_pan_swing_and_set_pan)
 	xmp_load_module(opaque, "data/storlek_20.it");
 	xmp_start_player(opaque, 44100, 0);
 	xmp_set_player(opaque, XMP_PLAYER_MIX, 100);
+
+	/* This test has some broken statistical testing that
+	 * isn't worth replacing right now--just preset a seed that
+	 * produces extremes and a nice spread of values. -Lachesis */
+	ctx = (struct context_data *)opaque;
+	rng = &ctx->rng;
+#ifdef FIXED_SEED
+	libxmp_set_random(rng, FIXED_SEED);
+#else
+	libxmp_set_random(rng, brute_force_seed());
+	fprintf(stderr, "\n#define FIXED_SEED 0x%08xU\n", rng->state);
+#endif
 
 	while (1) {
 		xmp_play_frame(opaque);
@@ -54,7 +151,7 @@ TEST(test_storlek_20_pan_swing_and_set_pan)
 	}
 	/* Check if left-biased pan values are used */
 	for (i = 0; i < 8; i++) {
-		fail_unless(values[8 + i] < 128, "pan not left-biased");
+		fail_unless(values[8 + i] <= 128, "pan not left-biased");
 	}
 	/* Check if right pan values are used */
 	for (i = 0; i < 8; i++) {
@@ -62,7 +159,7 @@ TEST(test_storlek_20_pan_swing_and_set_pan)
 	}
 	/* Check if right-biased pan values are used */
 	for (i = 0; i < 8; i++) {
-		fail_unless(values[24 + i] >= 124, "pan not right-biased");
+		fail_unless(values[24 + i] >= 127, "pan not right-biased");
 	}
 	/* Check if center pan values are used */
 	for (i = 0; i < 16; i++) {

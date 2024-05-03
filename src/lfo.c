@@ -21,6 +21,7 @@
  */
 
 #include "lfo.h"
+#include "rng.h"
 
 #define WAVEFORM_SIZE 64
 
@@ -35,7 +36,7 @@ static const int sine_wave[WAVEFORM_SIZE] = {
 
 /* LFO */
 
-static int get_lfo_mod(struct lfo *lfo)
+static int get_lfo_mod(struct context_data *ctx, struct lfo *lfo)
 {
 	int val;
 
@@ -53,7 +54,7 @@ static int get_lfo_mod(struct lfo *lfo)
 		val = lfo->phase < WAVEFORM_SIZE / 2 ? 255 : -255;
 		break;
 	case 3: /* random */
-		val = ((rand() & 0x1ff) - 256);
+		val = libxmp_get_random(&ctx->rng, 512) - 256;
 		break;
 #ifndef LIBXMP_CORE_PLAYER
 	case 669: /* 669 vibrato */
@@ -67,7 +68,7 @@ static int get_lfo_mod(struct lfo *lfo)
 	return val * lfo->depth;
 }
 
-static int get_lfo_st3(struct lfo *lfo)
+static int get_lfo_st3(struct context_data *ctx, struct lfo *lfo)
 {
 	if (lfo->rate == 0) {
 		return 0;
@@ -79,14 +80,14 @@ static int get_lfo_st3(struct lfo *lfo)
 		return val * lfo->depth;
 	}
 
-	return get_lfo_mod(lfo);
+	return get_lfo_mod(ctx, lfo);
 }
 
 /* From OpenMPT VibratoWaveforms.xm:
  * "Generally the vibrato and tremolo tables are identical to those that
  *  ProTracker uses, but the vibrato’s “ramp down” table is upside down."
  */
-static int get_lfo_ft2(struct lfo *lfo)
+static int get_lfo_ft2(struct context_data *ctx, struct lfo *lfo)
 {
 	if (lfo->rate == 0)
 		return 0;
@@ -98,17 +99,17 @@ static int get_lfo_ft2(struct lfo *lfo)
 		return val * lfo->depth;
 	}
 
-	return get_lfo_mod(lfo);
+	return get_lfo_mod(ctx, lfo);
 }
 
 #ifndef LIBXMP_CORE_DISABLE_IT
 
-static int get_lfo_it(struct lfo *lfo)
+static int get_lfo_it(struct context_data *ctx, struct lfo *lfo)
 {
 	if (lfo->rate == 0)
 		return 0;
 
-	return get_lfo_st3(lfo);
+	return get_lfo_st3(ctx, lfo);
 }
 
 #endif
@@ -119,19 +120,19 @@ int libxmp_lfo_get(struct context_data *ctx, struct lfo *lfo, int is_vibrato)
 
 	switch (m->read_event_type) {
 	case READ_EVENT_ST3:
-		return get_lfo_st3(lfo);
+		return get_lfo_st3(ctx, lfo);
 	case READ_EVENT_FT2:
 		if (is_vibrato) {
-			return get_lfo_ft2(lfo);
+			return get_lfo_ft2(ctx, lfo);
 		} else {
-			return get_lfo_mod(lfo);
+			return get_lfo_mod(ctx, lfo);
 		}
 #ifndef LIBXMP_CORE_DISABLE_IT
 	case READ_EVENT_IT:
-		return get_lfo_it(lfo);
+		return get_lfo_it(ctx, lfo);
 #endif
 	default:
-		return get_lfo_mod(lfo);
+		return get_lfo_mod(ctx, lfo);
 	}
 }
 

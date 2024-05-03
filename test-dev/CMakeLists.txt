@@ -24,6 +24,7 @@ set(DEVTEST_SRC
     ../src/period.c
     ../src/memio.c
     ../src/dataio.c
+    ../src/rng.c
     ../src/scan.c
     ../src/loaders/itsex.c
     ../src/loaders/sample.c
