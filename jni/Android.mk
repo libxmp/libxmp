@@ -2,6 +2,8 @@ LOCAL_PATH	:= $(call my-dir)/..
 
 include $(CLEAR_VARS)
 
+# full library:
+
 include $(LOCAL_PATH)/src/Makefile
 include $(LOCAL_PATH)/src/loaders/Makefile
 include $(LOCAL_PATH)/src/loaders/prowizard/Makefile
@@ -21,5 +23,17 @@ LOCAL_SRC_FILES := $(SRC_SOURCES:.o=.c) \
 		   $(PROWIZ_SOURCES:.o=.c) \
 		   $(LHASA_SOURCES:.o=.c) \
 		   $(DEPACKERS_SOURCES:.o=.c)
+
+include $(BUILD_STATIC_LIBRARY)
+
+
+# lite library:
+include $(CLEAR_VARS)
+
+include $(LOCAL_PATH)/src/lite/Makefile
+LITE_SOURCES	:= $(addprefix src/lite/,$(LITE))
+LOCAL_MODULE    := xmp-lite
+LOCAL_CFLAGS	:= -O3 -DLIBXMP_CORE_PLAYER -DHAVE_MKSTEMP -DHAVE_FNMATCH -DHAVE_POWF -I$(LOCAL_PATH)/include
+LOCAL_SRC_FILES := $(LITE_SOURCES:.o=.c)
 
 include $(BUILD_STATIC_LIBRARY)
