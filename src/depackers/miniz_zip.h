@@ -203,9 +203,8 @@ MINIZ_EXPORT mz_bool mz_zip_reader_end(mz_zip_archive *pZip);
 
 /* -------- ZIP reading or writing */
 
-#ifdef DEBUG /* libxmp uses this only in debug mode */
+/* libxmp uses this only in debug mode in _D(...) calls. */
 MINIZ_EXPORT const char *mz_zip_get_error_string(mz_zip_error mz_err);
-#endif
 
 /* MZ_TRUE if the archive file entry is a directory entry. */
 MINIZ_EXPORT mz_bool mz_zip_reader_is_file_a_directory(mz_zip_archive *pZip, mz_uint file_index);

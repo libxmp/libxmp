@@ -337,8 +337,10 @@ typedef int mz_bool;
 
 #define MZ_READ_LE64(p) (((mz_uint64)MZ_READ_LE32(p)) | (((mz_uint64)MZ_READ_LE32((const mz_uint8 *)(p) + sizeof(mz_uint32))) << 32U))
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && (_MSC_VER >= 1200)
 #define MZ_FORCEINLINE __forceinline
+#elif defined(_MSC_VER)
+#define MZ_FORCEINLINE __inline
 #elif (defined(__GNUC__) && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 2))) || defined(__clang__)
 #define MZ_FORCEINLINE __inline__ __attribute__((__always_inline__))
 #else
