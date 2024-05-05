@@ -7,7 +7,7 @@
 */
 
 /* Claudio's note -- I didn't implement the envelope retrigger thing, but
- * the test works nontheless. Maybe I'm doing something wrong?
+ * the test works nonetheless. Maybe I'm doing something wrong?
  */
 
 TEST(test_openmpt_xm_offdelay)

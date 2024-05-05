@@ -2,7 +2,7 @@
 
 /*
    This test uses a custom macro configuration that uses the
-   instrument volume to control the filter cutoff. A correclty implemented
+   instrument volume to control the filter cutoff. A correctly implemented
    MIDI Macro system should pass this test.
 */
 

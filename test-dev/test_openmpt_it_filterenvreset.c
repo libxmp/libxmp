@@ -3,7 +3,7 @@
 /*
  A cutoff value of 0 should not be reset to full cutoff when triggering a
  note just because the filter envelope is enabled. This bug is probably very
- specific to OpenMPT, because it gets rid of some unneccessary code.
+ specific to OpenMPT, because it gets rid of some unnecessary code.
 */
 
 TEST(test_openmpt_it_filterenvreset)

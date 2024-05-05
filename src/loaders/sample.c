@@ -231,7 +231,7 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 	bytelen = xxs->len;
 	extralen = 4;
 
-	/* Disable birectional loop flag if sample is not looped
+	/* Disable bidirectional loop flag if sample is not looped
 	 */
 	if (xxs->flg & XMP_SAMPLE_LOOP_BIDIR) {
 		if (~xxs->flg & XMP_SAMPLE_LOOP)

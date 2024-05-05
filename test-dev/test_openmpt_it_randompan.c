@@ -1,8 +1,8 @@
 #include "test.h"
 
 /*
- Pan swing should not be overriden by effects such as instrument panning or
- panning envelopes. Previously, pan swing was overriden in OpenMPT if the
+ Pan swing should not be overridden by effects such as instrument panning or
+ panning envelopes. Previously, pan swing was overridden in OpenMPT if the
  instrument also had a panning envelope. In this file, pan swing should be
  applied to every note.
 */

@@ -54,11 +54,11 @@ static int stim_test(HIO_HANDLE *f, char *t, const int start)
 }
 
 struct stim_instrument {
-	uint16 size;		/* Lenght of the sample (/2) */
+	uint16 size;		/* Length of the sample (/2) */
 	uint8 finetune;		/* Finetune (as ptk) */
 	uint8 volume;		/* Volume (as ptk) */
 	uint16 loop_start;	/* Loop start (/2) */
-	uint16 loop_size;	/* Loop lenght (/2) */
+	uint16 loop_size;	/* Loop length (/2) */
 };
 
 struct stim_header {

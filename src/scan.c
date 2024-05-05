@@ -525,7 +525,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 			    /* Loop end */
 			    if (loop_count[chn]) {
 				if (--loop_count[chn]) {
-				    /* next iteraction */
+				    /* next iteration */
 				    loop_chn = chn;
 				} else {
 				    /* finish looping */

@@ -96,7 +96,7 @@ struct channel_data {
 	double per_adj;		/* MED period/pitch adjustment factor hack */
 	int finetune;		/* Guess what */
 	int ins;		/* Instrument number */
-	int old_ins;		/* Last instruemnt */
+	int old_ins;		/* Last instrument */
 	int smp;		/* Sample number */
 	int mastervol;		/* Master vol -- for IT track vol effect */
 	int delay;		/* Note delay in frames */
@@ -205,7 +205,7 @@ struct channel_data {
 
 	struct {
 		double target;	/* Target period for tone portamento */
-		int dir;	/* Tone portamento up/down directionh */
+		int dir;	/* Tone portamento up/down direction */
 		int slide;	/* Delta for tone portamento */
 		int memory;	/* Tone portamento effect memory */
 		int note_memory;/* Tone portamento note memory (ULT) */
