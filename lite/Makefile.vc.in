@@ -26,13 +26,18 @@ TEST	= src\md5.obj test\test.obj
 
 all: $(DLL)
 
+# use a temporary response file
 $(DLL): $(OBJS)
-	$(LD) $(LDFLAGS) $(OBJS)
+	$(LD) $(LDFLAGS) @<<libxmp-lite.rsp
+		$(OBJS)
+<<
 
 clean:
-	-del $(OBJS) $(DLL) *.lib *.exp
-	-del $(TEST)
+	-del src\*.obj
+	-del src\loaders\*.obj
+	-del test\*.obj
 	-del test\*.dll test\*.exe
+	-del *.dll *.lib *.exp
 
 check: $(TEST)
 	$(LD) /RELEASE /OUT:test\libxmp-lite-test.exe $(TEST) libxmp-lite.lib
