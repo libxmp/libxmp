@@ -256,20 +256,26 @@ TEST	= src\md5.obj test\test.obj
 all: $(DLL)
 lite: $(DLL_LITE)
 
+# use a temporary response file
 $(DLL): $(ALL_OBJS)
-	$(LD) $(LDFLAGS) /OUT:$(DLL) $(ALL_OBJS)
-
+	$(LD) $(LDFLAGS) /OUT:$(DLL) @<<libxmp.rsp
+		$(ALL_OBJS)
+<<
 $(DLL_LITE): $(LITE_OBJS)
-	$(LD) $(LDFLAGS) /OUT:$(DLL_LITE) $(LITE_OBJS)
+	$(LD) $(LDFLAGS) /OUT:$(DLL_LITE) @<<libxmplt.rsp
+		$(LITE_OBJS)
+<<
 
 clean:
-	-del $(OBJS)
-	-del $(DEPACKER_OBJS)
-	-del $(PROWIZ_OBJS)
-	-del $(LITE_OBJS)
-	-del $(TEST)
+	-del src\*.obj
+	-del src\loaders\*.obj
+	-del src\loaders\prowizard\*.obj
+	-del src\depackers\*.obj
+	-del src\depackers\lhasa\*.obj
+	-del src\lite\*.obj
+	-del test\*.obj
 	-del test\*.dll test\*.exe
-	-del $(DLL) $(DLL_LITE) *.lib *.exp
+	-del *.dll *.lib *.exp
 
 check: $(TEST)
 	$(LD) /RELEASE /OUT:test\libxmp-test.exe $(TEST) libxmp.lib

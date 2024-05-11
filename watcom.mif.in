@@ -15,8 +15,11 @@ DLLNAME=libxmp.dll
 EXPNAME=libxmp.exp
 # Note: not libxmp.map...
 MAPNAME=xmp.map
+LNKFILE=libxmp.lnk
 LIBNAME=libxmp.lib
 LIBSTATIC=xmp_static.lib
+LBCFILE=libxmp.lbc
+
 TESTNAME=libxmp-test.exe
 
 # the lite version:
@@ -27,10 +30,12 @@ LIBNAME_LITE=libxmplt.lib
 DLLNAME_LITE=libxmp-lite.dll
 LIBNAME_LITE=libxmp-lite.lib
 !endif
+LNKLITE=libxmplt.lnk
 EXPNAME_LITE=xmp-lite.exp
 # Note: not libxmp.map...
 MAPNAME_LITE=xmp-lite.map
 LIBSTATIC_LITE=xmplite_static.lib
+LBCLITE=libxmplt.lbc
 
 !ifeq target static
 CFLAGS += $(STATICFLAGS)
@@ -78,17 +83,17 @@ test/test.obj: test/test.c
 	$(CC) $(CFLAGS) -fo=$^@ $<
 
 # rely on symbol name, not ordinal: -irn switch of wlib is default, but -inn is not.
-$(DLLNAME) $(LIBNAME) $(EXPNAME): $(ALL_OBJS)
-	wlink NAM $(DLLNAME) SYSTEM $(SYSTEM_DLL) INITINSTANCE TERMINSTANCE OP QUIET FIL {$(ALL_OBJS)} OP IMPF=$(EXPNAME) OP MAP=$(MAPNAME)
+$(DLLNAME) $(LIBNAME) $(EXPNAME): $(ALL_OBJS) $(LNKFILE)
+	wlink @$(LNKFILE)
 	wlib -q -b -n -c -pa -s -t -zld -ii -io -inn $(LIBNAME) +$(DLLNAME)
-$(DLLNAME_LITE) $(LIBNAME_LITE) $(EXPNAME_LITE): $(LITE_OBJS)
-	wlink NAM $(DLLNAME_LITE) SYSTEM $(SYSTEM_DLL) INITINSTANCE TERMINSTANCE OP QUIET FIL {$(LITE_OBJS)} OP IMPF=$(EXPNAME_LITE) OP MAP=$(MAPNAME_LITE)
+$(DLLNAME_LITE) $(LIBNAME_LITE) $(EXPNAME_LITE): $(LITE_OBJS) $(LNKLITE)
+	wlink @$(LNKLITE)
 	wlib -q -b -n -c -pa -s -t -zld -ii -io -inn $(LIBNAME_LITE) +$(DLLNAME_LITE)
 
-$(LIBSTATIC): $(ALL_OBJS)
-	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(ALL_OBJS)
-$(LIBSTATIC_LITE): $(LITE_OBJS)
-	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(LITE_OBJS)
+$(LIBSTATIC): $(ALL_OBJS) $(LBCFILE)
+	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ @$(LBCFILE)
+$(LIBSTATIC_LITE): $(LITE_OBJS) $(LBCLITE)
+	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ @$(LBCLITE)
 
 test/$(TESTNAME): $(BLD_LIB) $(TEST_OBJS)
 	wlink NAM test/$(TESTNAME) SYSTEM $(SYSTEM) OP QUIET LIBR {$(BLD_LIB)} FIL {$(TEST_OBJS)}
@@ -109,7 +114,7 @@ clean: .symbolic
 	rm -f test/*.obj
 
 distclean: clean .symbolic
-	rm -f *.err
+	rm -f *.err *.lnk *.lbc
 	rm -f $(DLLNAME) $(EXPNAME) $(MAPNAME) $(LIBNAME) $(LIBSTATIC) test/$(DLLNAME) test/$(TESTNAME)
 	rm -f $(DLLNAME_LITE) $(EXPNAME_LITE) $(MAPNAME_LITE) $(LIBNAME_LITE) $(LIBSTATIC_LITE)
 
@@ -118,3 +123,14 @@ CMD_CP=cp
 !else
 CMD_CP=copy
 !endif
+
+$(LBCFILE):
+	@echo Creating wlib commands file: $@
+	@%create $@
+	@for %i in ($(ALL_OBJS)) do @%append $@ +%i
+
+$(LBCLITE):
+	@echo Creating wlib commands file: $@
+	@%create $@
+	@for %i in ($(LITE_OBJS)) do @%append $@ +%i
+

@@ -15,7 +15,7 @@ target = dll
 
 CC = wcc386
 SYSTEM = os2v2
-SYSTEM_DLL = os2v2_dll
+TARGET_OS2=yes
 
 CFLAGS = -zq -bt=os2 -bm -fp5 -fpi87 -mf -oeatxh -w4 -ei -zp8
 # newer OpenWatcom versions enable W303 by default.
@@ -25,5 +25,16 @@ CFLAGS += -wcd=303
 CFLAGS += -5s
 CFLAGS += -I"$(%WATCOM)/h/os2" -I"$(%WATCOM)/h"
 
-TARGET_OS2=yes
 !include watcom.mif
+
+$(LNKFILE):
+	@echo Creating linker file: $@
+	@%create $@
+	@%append $@ SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE
+	@%append $@ NAME $(DLLNAME)
+	@for %i in ($(OBJS)) do @%append $@ FILE %i
+	@%append $@ OPTION QUIET
+	@%append $@ OPTION MANYAUTODATA
+	@%append $@ OPTION IMPF=$(EXPNAME)
+	@%append $@ OPTION MAP=$(MAPNAME)
+	@%append $@ OPTION SHOWDEAD

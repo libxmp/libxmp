@@ -15,10 +15,13 @@ LIBNAME=libxmplt.lib
 DLLNAME=libxmp-lite.dll
 LIBNAME=libxmp-lite.lib
 !endif
+LNKFILE=libxmplt.lnk
 EXPNAME=xmp-lite.exp
 # Note: not libxmp.map...
 MAPNAME=xmp-lite.map
 LIBSTATIC=xmplite_static.lib
+LBCFILE=libxmplt.lbc
+
 TESTNAME=libxmp-test.exe
 
 !ifeq target static
@@ -50,12 +53,12 @@ test/test.obj: test/test.c
 	$(CC) $(CFLAGS) -fo=$^@ $<
 
 # rely on symbol name, not ordinal: -irn switch of wlib is default, but -inn is not.
-$(DLLNAME) $(LIBNAME) $(EXPNAME): $(OBJS)
-	wlink NAM $(DLLNAME) SYSTEM $(SYSTEM_DLL) INITINSTANCE TERMINSTANCE OP QUIET FIL {$(OBJS)} OP IMPF=$(EXPNAME) OP MAP=$(MAPNAME)
+$(DLLNAME) $(LIBNAME) $(EXPNAME): $(OBJS) $(LNKFILE)
+	wlink @$(LNKFILE)
 	wlib -q -b -n -c -pa -s -t -zld -ii -io -inn $(LIBNAME) +$(DLLNAME)
 
-$(LIBSTATIC): $(OBJS)
-	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(OBJS)
+$(LIBSTATIC): $(OBJS) $(LBCFILE)
+	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ @$(LBCFILE)
 
 test/$(TESTNAME): $(BLD_LIB) $(TEST_OBJS)
 	wlink NAM test/$(TESTNAME) SYSTEM $(SYSTEM) OP QUIET LIBR {$(BLD_LIB)} FIL {$(TEST_OBJS)}
@@ -73,7 +76,7 @@ clean: .symbolic
 	rm -f $(TEST_OBJS)
 
 distclean: clean .symbolic
-	rm -f *.err
+	rm -f *.err *.lnk *.lbc
 	rm -f $(DLLNAME) $(EXPNAME) $(MAPNAME) $(LIBNAME) $(LIBSTATIC) test/$(DLLNAME) test/$(TESTNAME)
 
 !ifdef __UNIX__
@@ -81,3 +84,9 @@ CMD_CP=cp
 !else
 CMD_CP=copy
 !endif
+
+$(LBCFILE):
+	@echo Creating wlib commands file: $@
+	@%create $@
+	@for %i in ($(OBJS)) do @%append $@ +%i
+
