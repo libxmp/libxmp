@@ -63,7 +63,7 @@ AC_ARG_WITH([gnu-ld],
 ac_prog=ld
 if test yes = "$GCC"; then
   # Check if gcc -print-prog-name=ld gives a path.
-  # lose posssible carriage return from output.
+  # lose possible carriage return from output.
   AC_MSG_CHECKING([for ld used by $CC])
   ac_prog=`($CC -print-prog-name=ld) 2>&5 | tr -d '\015'`
   case $ac_prog in

@@ -1,7 +1,7 @@
 #include "test.h"
 
 /*
- If “Force Amiga Limits” is enabled, the limits should also be enfored on the
+ If “Force Amiga Limits” is enabled, the limits should also be enforced on the
  stored period, not only on the computed period.
 */
 

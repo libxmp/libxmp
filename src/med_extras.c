@@ -147,7 +147,7 @@ void libxmp_med_play_extras(struct context_data *ctx, struct channel_data *xc, i
 	 * FX_MED_HOLD effect and ce->hold set to 1. On the last row, see
 	 * if ce->hold_count is set (meaning that a note was held) and
 	 * ce->hold is 0 (meaning that it's not held anymore). Then
-	 * procceed with normal frame counting until decay.
+	 * proceed with normal frame counting until decay.
 	 */
 
 	if (ce->hold_count) {		/* was held in the past */

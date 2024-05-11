@@ -24,7 +24,7 @@ TEST(test_fuzzer_mmd3_invalid)
 
 	opaque = xmp_create_context();
 
-	/* This input caused uninititalized reads in the MMD2/3 loader due to
+	/* This input caused uninitialized reads in the MMD2/3 loader due to
 	 * not checking for an EOF after reading instrument names.
 	 */
 	mmd3_invalid_helper(opaque, "data/f/load_mmd3_truncated.med");

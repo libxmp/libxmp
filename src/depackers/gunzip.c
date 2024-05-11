@@ -82,7 +82,7 @@ static int decrunch_gzip(HIO_HANDLE *in, void **out, long *outlen)
 	member.os  = hio_read8(in);
 
 	if (member.cm != 0x08) {
-		D_(D_CRIT "Unsuported compression method: %x", member.cm);
+		D_(D_CRIT "Unsupported compression method: %x", member.cm);
 		return -1;
 	}
 

@@ -96,7 +96,7 @@ const struct format_loader *const format_loaders[NUM_FORMATS + 2] = {
 	&libxmp_loader_pw,
 #endif
 #endif /* LIBXMP_CORE_PLAYER */
-	NULL /* list teminator */
+	NULL /* list terminator */
 };
 
 static const char *_farray[NUM_FORMATS + NUM_PW_FORMATS + 1] = { NULL };
