@@ -1,6 +1,19 @@
 Stable versions
 ---------------
 
+4.6.1 (?):
+	Changes by Alice Rowan:
+	- Fix XM envelope sustain points that exist on a zero-length loop.
+	- Faster IT loading by buffering pattern, sample, and comment reads.
+	- Fix loop detection edge cases broken by S3M/IT marker scan bugs.
+	- Replace rand() with a built-in reentrant alternative.
+	Changes by ds-sloth:
+	- Optimize scan code for common case of no effects
+	Changes by Thomas Neumann:
+	- Fix XM envelope handling
+	Changes by Ozkan Sezer:
+	- Build system fixes and clean-ups. Misc code clean-ups.
+
 4.6.0 (20230615):
 	Changes by Alice Rowan:
 	- Implement S3M and IT mix volume.
