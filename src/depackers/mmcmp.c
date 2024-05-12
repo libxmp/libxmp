@@ -2,7 +2,7 @@
  * Based on the public domain version by Olivier Lapicque
  * Rewritten for libxmp by Claudio Matsuoka
  *
- * Copyright (C) 2012 Claudio Matsuoka
+ * Copyright (C) 2012-2024 Claudio Matsuoka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),

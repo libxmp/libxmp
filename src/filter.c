@@ -2,7 +2,7 @@
  * Based on the public domain version by Olivier Lapicque
  * Rewritten for libxmp by Claudio Matsuoka
  *
- * Copyright (C) 2012 Claudio Matsuoka
+ * Copyright (C) 2012-2024 Claudio Matsuoka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -72,7 +72,6 @@ static const float resonance_table[128] = {
 #undef powf
 #define powf(f1_,f2_) (float)pow((f1_),(f2_))
 #endif
-
 
 /*
  * Simple 2-poles resonant filter

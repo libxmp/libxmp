@@ -2,12 +2,32 @@ Stable versions
 ---------------
 
 4.6.1 (?):
+	Changes by Claudio Matsuoka:
+	- The full library is now under MIT license
 	Changes by Alice Rowan:
+	- Fix XM envelope sustain points that exist on a zero-length loop.
 	- Fix loading edge case STMs with an EOF byte of 2.
 	- Fix loading Imago Orpheus modules with null instrument magic
 	  strings, bidirectional samples, and disabled default panning.
 	- Faster IT loading by buffering pattern, sample, and comment reads.
 	- Fix loop detection edge cases broken by S3M/IT marker scan bugs.
+	- Fix out-of-bounds reads in His Master's Noise Mupp instruments.
+	- Fix slow ProWizard testing.
+	- Replace rand() with a built-in reentrant alternative.
+	Changes by Thomas Neumann:
+	- Fix XM envelope handling
+	- Bug fixes to DSMI loader
+	- Fix 16-bit sample check in MultiTracker loader
+	- Fix finetune in MultiTracker loader
+	Changes by ds-sloth:
+	- Optimize scan code for common case of no effects
+	Changes by Misty De Méo:
+	- Filter off html files when reading archives.
+	Changes by Ozkan Sezer:
+	- Change lha depacker to use a stripped down version of lhasa.
+	- Merge several CVE fixes to depackers stb_vorbis backend.
+	- Make the lite version buildable from git or full distribution.
+	- Build system fixes and clean-ups. Misc code clean-ups.
 
 4.6.0 (20230615):
 	Changes by Alice Rowan:

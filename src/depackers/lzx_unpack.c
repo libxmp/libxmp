@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 2022 Alice Rowan <petrifiedrowan@gmail.com>
+ * Copyright (C) 2022-2024 Alice Rowan <petrifiedrowan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -159,7 +159,7 @@ enum lzx_block_type
 {
   LZX_B_VERBATIM_NO_TREE = 1,
   LZX_B_VERBATIM         = 2,
-  LZX_B_ALIGNED          = 3,
+  LZX_B_ALIGNED          = 3
 };
 
 struct lzx_lookup

@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 2021-2023 Lachesis
+ * Copyright (C) 2021-2024 Lachesis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),

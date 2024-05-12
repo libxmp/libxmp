@@ -1,7 +1,7 @@
 /* ProWizard
  * Copyright (C) 1997-1999 Sylvain "Asle" Chipaux
  * Copyright (C) 2006-2007 Claudio Matsuoka
- * Copyright (C) 2021 Alice Rowan
+ * Copyright (C) 2021-2024 Alice Rowan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -27,9 +27,7 @@
  */
 
 #include "xmp.h"
-
 #include "prowiz.h"
-
 
 const struct pw_format *const pw_formats[NUM_PW_FORMATS + 1] = {
 	/* With signature */
