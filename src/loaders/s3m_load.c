@@ -377,10 +377,12 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 
 	/* Default pan positions */
 
-	for (i = 0, sfh.dp -= 0xfc; !sfh.dp /* && n */  && (i < 32); i++) {
-		uint8 x = hio_read8(f);
-		if (x & S3M_PAN_SET) {
-			mod->xxc[i].pan = (x << 4) & 0xff;
+	if (sfh.dp == 0xfc) {
+		for (i = 0; i < 32; i++) {
+			uint8 x = hio_read8(f);
+			if (x & S3M_PAN_SET) {
+				mod->xxc[i].pan = (x << 4) & 0xff;
+			}
 		}
 	}
 
@@ -393,13 +395,32 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 #ifndef LIBXMP_CORE_PLAYER
 	switch (sfh.version >> 12) {
 	case 1:
-		snprintf(tracker_name, 40, "Scream Tracker %d.%02x",
-			 (sfh.version & 0x0f00) >> 8, sfh.version & 0xff);
-		m->quirk |= QUIRK_ST3BUGS;
+		if (sfh.version == 0x1320 && sfh.special == 0 && (sfh.ordnum & 0x0f) == 0 && sfh.uc == 0 && (sfh.flags & ~0x50) == 0 && sfh.dp == 0xfc) {
+			if ((sfh.mv & 0x80) != 0) {
+				strcpy(tracker_name, "ModPlug Tracker / OpenMPT 1.17");
+			} else {
+				/* MPT 1.0 alpha5 doesn't set the stereo flag, but MPT 1.0 alpha6 does. */
+				strcpy(tracker_name, "ModPlug Tracker 1.0 alpha");
+			}
+		} else if(sfh.version == 0x1320 && sfh.special == 0 && sfh.uc == 0 && sfh.flags == 0 && sfh.dp == 0) {
+			if (sfh.gv == 64 && sfh.mv == 48) {
+				strcpy(tracker_name, "PlayerPRO");
+			} else { // Always stereo
+				strcpy(tracker_name, "Velvet Studio");
+			}
+		} else {
+			snprintf(tracker_name, 40, "Scream Tracker %d.%02x",
+				 (sfh.version & 0x0f00) >> 8, sfh.version & 0xff);
+			m->quirk |= QUIRK_ST3BUGS;
+		}
 		break;
 	case 2:
-		snprintf(tracker_name, 40, "Imago Orpheus %d.%02x",
-			 (sfh.version & 0x0f00) >> 8, sfh.version & 0xff);
+		if (sfh.version == 0x2013) {
+			strcpy(tracker_name, "PlayerPRO"); /* PlayerPRO on Intel doesn't byte-swap the tracker ID bytes */
+		} else {
+			snprintf(tracker_name, 40, "Imago Orpheus %d.%02x",
+				 (sfh.version & 0x0f00) >> 8, sfh.version & 0xff);
+		}
 		break;
 	case 3:
 		if (sfh.version == 0x3216) {
@@ -512,7 +533,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	}
 
 	D_(D_INFO "Stereo enabled: %s", stereo ? "yes" : "no");
-	D_(D_INFO "Pan settings: %s", sfh.dp ? "no" : "yes");
+	D_(D_INFO "Pan settings: %s", (sfh.dp == 0xfc) ? "yes" : "no");
 
 	if (libxmp_init_instrument(m) < 0)
 		goto err3;
