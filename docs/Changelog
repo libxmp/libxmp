@@ -19,6 +19,8 @@ Stable versions
 	- Bug fixes to DSMI loader
 	- Fix 16-bit sample check in MultiTracker loader
 	- Fix finetune in MultiTracker loader
+	Changes by Saga Musix:
+	- S3M: Detect PlayerPRO, Velvet Studio and old MPT versions
 	Changes by ds-sloth:
 	- Optimize scan code for common case of no effects
 	Changes by Misty De Méo:
