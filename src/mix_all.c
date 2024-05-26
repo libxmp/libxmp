@@ -91,6 +91,17 @@
     frac &= SMIX_MASK; \
 } while (0)
 
+/* Sample pre-amplification is required to fix filter rounding errors
+ * at high sample rates. The non-filtered mixers do not need this. */
+#define PREAMP_BITS 15
+
+/* IT's WAV output driver uses a clamp that seems to roughly match this:
+ * compare the WAV output of OpenMPT env-flt-max.it and filter-reset.it */
+#define FILTER_MIN (-65536 * (1 << PREAMP_BITS))
+#define FILTER_MAX (65535 * (1 << PREAMP_BITS))
+#define MIX_FILTER_CLAMP(a) \
+ ((a) < FILTER_MIN ? FILTER_MIN : (a) > FILTER_MAX ? FILTER_MAX : (a))
+
 #define MIX_MONO() do { \
     *(buffer++) += smp_in * vl; \
 } while (0)
@@ -99,15 +110,11 @@
     *(buffer++) += smp_in * (old_vl >> 8); old_vl += delta_l; \
 } while (0)
 
-/* IT's WAV output driver uses a clamp that seems to roughly match this:
- * compare the WAV output of OpenMPT env-flt-max.it and filter-reset.it */
-#define MIX_FILTER_CLAMP(a) CLAMP((a), -65536, 65535)
-
 #define MIX_MONO_FILTER() do { \
-    sl = (a0 * smp_in + b0 * fl1 + b1 * fl2) >> FILTER_SHIFT; \
-    MIX_FILTER_CLAMP(sl); \
+    sl64 = (a0 * (smp_in << PREAMP_BITS) + b0 * fl1 + b1 * fl2) >> FILTER_SHIFT; \
+    sl = MIX_FILTER_CLAMP(sl64); \
     fl2 = fl1; fl1 = sl; \
-    *(buffer++) += sl * vl; \
+    *(buffer++) += (sl >> PREAMP_BITS) * vl; \
 } while (0)
 
 #define MIX_MONO_FILTER_AC() do { \
@@ -127,14 +134,14 @@
 } while (0)
 
 #define MIX_STEREO_FILTER() do { \
-    sr = (a0 * smp_in + b0 * fr1 + b1 * fr2) >> FILTER_SHIFT; \
-    MIX_FILTER_CLAMP(sr); \
+    sr64 = (a0 * (smp_in << PREAMP_BITS) + b0 * fr1 + b1 * fr2) >> FILTER_SHIFT; \
+    sr = MIX_FILTER_CLAMP(sr64); \
     fr2 = fr1; fr1 = sr; \
-    sl = (a0 * smp_in + b0 * fl1 + b1 * fl2) >> FILTER_SHIFT; \
-    MIX_FILTER_CLAMP(sl); \
+    sl64 = (a0 * (smp_in << PREAMP_BITS) + b0 * fl1 + b1 * fl2) >> FILTER_SHIFT; \
+    sl = MIX_FILTER_CLAMP(sl64); \
     fl2 = fl1; fl1 = sl; \
-    *(buffer++) += sr * vr; \
-    *(buffer++) += sl * vl; \
+    *(buffer++) += (sr >> PREAMP_BITS) * vr; \
+    *(buffer++) += (sl >> PREAMP_BITS) * vl; \
 } while (0)
 
 #define MIX_STEREO_FILTER_AC() do { \
@@ -183,11 +190,13 @@
 #define VAR_FILTER_MONO \
     int fl1 = vi->filter.l1, fl2 = vi->filter.l2; \
     int64 a0 = vi->filter.a0, b0 = vi->filter.b0, b1 = vi->filter.b1; \
+    int64 sl64; \
     int sl
 
 #define VAR_FILTER_STEREO \
     VAR_FILTER_MONO; \
     int fr1 = vi->filter.r1, fr2 = vi->filter.r2; \
+    int64 sr64; \
     int sr
 
 #define SAVE_FILTER_MONO() do { \
