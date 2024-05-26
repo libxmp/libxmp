@@ -427,8 +427,8 @@ static void libxmp_mixer_prepare(struct context_data *ctx)
 	s->ticksize = libxmp_mixer_get_ticksize(s->freq, m->time_factor, m->rrate, p->bpm);
 
 	/* Protect the mixer from broken values caused by xmp_set_tempo_factor. */
-	if (s->ticksize < 0 || s->ticksize > (XMP_MAX_FRAMESIZE / 2)) {
-		s->ticksize = XMP_MAX_FRAMESIZE / 2;
+	if (s->ticksize < 0 || s->ticksize > (s->total_size / 2)) {
+		s->ticksize = s->total_size / 2;
 	}
 
 	bytelen = s->ticksize * sizeof(int32);
@@ -738,8 +738,8 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 		size *= 2;
 	}
 
-	if (size > XMP_MAX_FRAMESIZE) {
-		size = XMP_MAX_FRAMESIZE;
+	if (size > s->total_size) {
+		size = s->total_size;
 	}
 
 	if (s->format & XMP_FORMAT_8BIT) {
@@ -1012,15 +1012,26 @@ int libxmp_mixer_numvoices(struct context_data *ctx, int num)
 int libxmp_mixer_on(struct context_data *ctx, int rate, int format, int c4rate)
 {
 	struct mixer_data *s = &ctx->s;
+	/* This should be equivalent to the XMP_MAX_FRAMESIZE calculation. */
+	int total_size = 2 * libxmp_mixer_get_ticksize(rate,
+				DEFAULT_TIME_FACTOR * 2, PAL_RATE, XMP_MIN_BPM);
 
-	s->buffer = (char *) calloc(XMP_MAX_FRAMESIZE, sizeof(int16));
+	if (total_size < 0)
+		goto err;
+
+	/* These allocations were made with a fixed framesize based on the rate
+	 * 49170 for a long time, so make that the minimum size for now. */
+	CLAMP(total_size, 5 * 49170 * 2 / 20, XMP_MAX_FRAMESIZE);
+
+	s->buffer = (char *) calloc(total_size, sizeof(int16));
 	if (s->buffer == NULL)
 		goto err;
 
-	s->buf32 = (int32 *) calloc(XMP_MAX_FRAMESIZE, sizeof(int32));
+	s->buf32 = (int32 *) calloc(total_size, sizeof(int32));
 	if (s->buf32 == NULL)
 		goto err1;
 
+	s->total_size = total_size;
 	s->freq = rate;
 	s->format = format;
 	s->amplify = DEFAULT_AMPLIFY;

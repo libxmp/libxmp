@@ -115,7 +115,7 @@ error. Error codes are::
 If a system error occurs, the specific error is set in ``errno``.
 
 Parameters to `xmp_start_player()`_ are the sampling
-rate (up to 48kHz) and a bitmapped integer holding one or more of the
+rate (up to 768kHz) and a bitmapped integer holding one or more of the
 following mixer flags::
 
   XMP_MIX_8BIT          /* Mix to 8-bit instead of 16 */
@@ -600,7 +600,7 @@ int xmp_start_player(xmp_context c, int rate, int format)
     :c: the player context handle.
 
     :rate: the sampling rate to use, in Hz (typically 44100). Valid values
-       range from 8kHz to 48kHz.
+       range from 8kHz to 768kHz.
 
     :flags: bitmapped configurable player flags, one or more of the
       following::
@@ -710,7 +710,9 @@ void xmp_get_frame_info(xmp_context c, struct xmp_frame_info \*info)
       This function should be used to retrieve sound buffer data after
       `xmp_play_frame()`_ is called. Fields ``buffer`` and ``buffer_size``
       contain the pointer to the sound buffer PCM data and its size. The
-      buffer size will be no larger than ``XMP_MAX_FRAMESIZE``.
+      buffer size will be no larger than ``XMP_MAX_FRAMESIZE``; typically,
+      it will be much smaller than ``XMP_MAX_FRAMESIZE`` unless very large
+      sampling rates are used.
       Fields ``time``, ``total_time``, and ``frame_time`` are based on the
       base tempo factor set when the module was last scanned (see
       `xmp_set_tempo_factor()`_ and `xmp_scan_module()`_).
