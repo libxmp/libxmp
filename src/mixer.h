@@ -7,7 +7,7 @@
 #define SMIX_SHIFT	16
 #define SMIX_MASK	0xffff
 
-#define FILTER_SHIFT	16
+#define FILTER_SHIFT	22
 #define ANTICLICK_SHIFT	3
 
 #ifdef LIBXMP_PAULA_SIMULATOR
