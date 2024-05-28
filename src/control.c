@@ -583,7 +583,7 @@ int xmp_set_tempo_factor(xmp_context opaque, double val)
 
 	val *= 10;
 	ticksize = s->freq * val * m->rrate / p->bpm / 1000 * sizeof(int);
-	if (ticksize > XMP_MAX_FRAMESIZE) {
+	if (ticksize > s->total_size) {
 		return -1;
 	}
 	m->time_factor = val;
