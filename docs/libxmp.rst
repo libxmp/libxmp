@@ -801,7 +801,8 @@ int xmp_set_tempo_factor(xmp_context c, double val)
     :val: the new multiplier.
 
   **Returns:**
-    0 on success, or -1 if value is invalid.
+    0 on success, -1 if value is invalid, or ``-XMP_ERROR_STATE`` if
+    the player is not in the playing state.
 
 .. _xmp_stop_module():
 

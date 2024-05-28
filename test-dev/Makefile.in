@@ -63,7 +63,8 @@ API		= get_format_list create_context free_context \
 		  start_player play_buffer \
 		  set_position prev_position set_position_midfx set_row \
 		  set_player stop_module restart_module seek_time \
-		  channel_mute channel_vol inject_event scan_module
+		  channel_mute channel_vol inject_event scan_module \
+		  set_tempo_factor
 
 API_SMIX	= smix_play_instrument smix_load_sample smix_play_sample \
 		  smix_channel_pan
@@ -707,7 +708,7 @@ gen_module_data: gen_module_data.o util.o ${SRC_PATH}/hio.o ${SRC_PATH}/dataio.o
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
 	eval $$CMD
 
-xmpchk: libxmp_fuzz.o ${SRC_PATH}/loaders/vorbis.o
+xmpchk: libxmp_fuzz.o ${SRC_PATH}/rng.o ${SRC_PATH}/loaders/vorbis.o
 	@CMD='$(LD) $(LDFLAGS) -o $@ $^ -L../lib -lxmp $(LIBS)'; \
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
 	eval $$CMD
