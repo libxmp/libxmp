@@ -453,6 +453,29 @@ static int loop_reposition(struct context_data *ctx, struct mixer_voice *vi,
 	return loop_changed;
 }
 
+/* Calculate the required number of sample frames to render a tick.
+ * Returns -1 if any of the parameters are invalid. */
+int libxmp_mixer_get_ticksize(int freq, double time_factor, double rrate, int bpm)
+{
+	double calc;
+	int ticksize;
+
+	if (freq <= 0 || bpm <= 0 || time_factor <= 0.0 || rrate <= 0.0) {
+		return -1;
+	}
+
+	calc = freq * time_factor * rrate / bpm / 1000;
+	if (calc > INT_MAX || calc != calc /* NaN */) {
+		return -1;
+	}
+
+	ticksize = (int)calc;
+
+	if (ticksize < (1 << ANTICLICK_SHIFT))
+		ticksize = 1 << ANTICLICK_SHIFT;
+
+	return ticksize;
+}
 
 /* Prepare the mixer for the next tick */
 void libxmp_mixer_prepare(struct context_data *ctx)
@@ -462,10 +485,12 @@ void libxmp_mixer_prepare(struct context_data *ctx)
 	struct mixer_data *s = &ctx->s;
 	int bytelen;
 
-	s->ticksize = s->freq * m->time_factor * m->rrate / p->bpm / 1000;
+	s->ticksize = libxmp_mixer_get_ticksize(s->freq, m->time_factor, m->rrate, p->bpm);
 
-	if (s->ticksize < (1 << ANTICLICK_SHIFT))
-		s->ticksize = 1 << ANTICLICK_SHIFT;
+	/* Protect the mixer from broken values caused by xmp_set_tempo_factor. */
+	if (s->ticksize < 0 || s->ticksize > (XMP_MAX_FRAMESIZE / 2)) {
+		s->ticksize = XMP_MAX_FRAMESIZE / 2;
+	}
 
 	bytelen = s->ticksize * sizeof(int32);
 	if (~s->format & XMP_FORMAT_MONO) {
@@ -473,6 +498,7 @@ void libxmp_mixer_prepare(struct context_data *ctx)
 	}
 	memset(s->buf32, 0, bytelen);
 }
+
 /* Fill the output buffer calling one of the handlers. The buffer contains
  * sound for one tick (a PAL frame or 1/50s for standard vblank-timed mods)
  */

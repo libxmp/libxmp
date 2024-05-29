@@ -577,13 +577,24 @@ int xmp_set_tempo_factor(xmp_context opaque, double val)
 	struct mixer_data *s = &ctx->s;
 	int ticksize;
 
-	if (val <= 0.0) {
+	/* This function relies on values initialized by xmp_start_player
+	 * and will behave in an undefined manner if called prior. */
+	if (ctx->state < XMP_STATE_PLAYING) {
+		return -XMP_ERROR_STATE;
+	}
+
+	if (val <= 0.0 || val != val /* NaN */) {
 		return -1;
 	}
 
 	val *= 10;
-	ticksize = s->freq * val * m->rrate / p->bpm / 1000 * sizeof(int);
-	if (ticksize > XMP_MAX_FRAMESIZE) {
+
+	/* s->freq can change between xmp_start_player calls and p->bpm can
+	 * change during playback, so repeat these checks in the mixer. */
+	ticksize = libxmp_mixer_get_ticksize(s->freq, val, m->rrate, p->bpm);
+
+	/* ticksize is in frames, XMP_MAX_FRAMESIZE is in frames * 2. */
+	if (ticksize < 0 || ticksize > (XMP_MAX_FRAMESIZE / 2)) {
 		return -1;
 	}
 	m->time_factor = val;
