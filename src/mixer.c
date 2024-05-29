@@ -59,7 +59,8 @@ struct loop_data
 	uint32 epilogue[LOOP_EPILOGUE];
 };
 
-#define MIX_FN(x) void libxmp_mix_##x(struct mixer_voice *, int32 *, int, int, int, int, int, int, int)
+#define MIX_FN(x) void libxmp_mix_##x(struct mixer_voice * LIBXMP_RESTRICT, \
+	int32 * LIBXMP_RESTRICT, int, int, int, int, int, int, int)
 
 #define ANTICLICK_FPSHIFT	24
 
