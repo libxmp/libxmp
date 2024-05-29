@@ -226,16 +226,16 @@ OPENMPT_MOD	= amigalimitsfinetune \
 		  vibratoreset
 
 MIXER		= interpolation_default interpolation_loop bidi_sync \
-		  mono_8bit_nearest mono_16bit_nearest \
-		  stereo_8bit_nearest stereo_16bit_nearest \
-		  mono_8bit_linear mono_16bit_linear \
-		  stereo_8bit_linear stereo_16bit_linear \
-		  mono_8bit_linear_filter mono_16bit_linear_filter \
-		  stereo_8bit_linear_filter stereo_16bit_linear_filter \
-		  mono_8bit_spline mono_16bit_spline \
-		  stereo_8bit_spline stereo_16bit_spline \
-		  mono_8bit_spline_filter mono_16bit_spline_filter \
-		  stereo_8bit_spline_filter stereo_16bit_spline_filter \
+		  monoout_mono_8bit_nearest monoout_mono_16bit_nearest \
+		  stereoout_mono_8bit_nearest stereoout_mono_16bit_nearest \
+		  monoout_mono_8bit_linear monoout_mono_16bit_linear \
+		  stereoout_mono_8bit_linear stereoout_mono_16bit_linear \
+		  monoout_mono_8bit_linear_filter monoout_mono_16bit_linear_filter \
+		  stereoout_mono_8bit_linear_filter stereoout_mono_16bit_linear_filter \
+		  monoout_mono_8bit_spline monoout_mono_16bit_spline \
+		  stereoout_mono_8bit_spline stereoout_mono_16bit_spline \
+		  monoout_mono_8bit_spline_filter monoout_mono_16bit_spline_filter \
+		  stereoout_mono_8bit_spline_filter stereoout_mono_16bit_spline_filter \
 		  downmix_8bit downmix_16bit mpt116_preamp
 
 READ		= file_32bit_little_endian file_32bit_big_endian \

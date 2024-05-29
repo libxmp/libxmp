@@ -1,6 +1,7 @@
 #include "test.h"
+#include "../src/effects.h"
 
-TEST(test_mixer_mono_8bit_nearest)
+TEST(test_mixer_monoout_mono_16bit_linear_filter)
 {
 	xmp_context opaque;
 	struct context_data *ctx;
@@ -10,32 +11,30 @@ TEST(test_mixer_mono_8bit_nearest)
 	int i, j, val;
 
 #ifndef MIXER_GENERATE
-	f = fopen("data/mixer_8bit_nearest.data", "r");
+	f = fopen("data/mixer_16bit_linear_filter.data", "r");
 #else
-	f = fopen("mixer_8bit_nearest.data", "w");
+	f = fopen("mixer_16bit_linear_filter.data", "w");
 #endif
 
 	opaque = xmp_create_context();
 	ctx = (struct context_data *)opaque;
 	s = &ctx->s;
 
-	xmp_load_module(opaque, "data/test.xm");
+	xmp_load_module(opaque, "data/test.it");
 
-	for (i = 0; i < 5; i++) {
-		new_event(ctx, 0, i, 0, 20 + i * 20, 1, 0, 0x0f, 2, 0, 0);
-	}
+	new_event(ctx, 0, 0, 0, 30, 2, 0, 0x0f, 2, FX_FLT_CUTOFF, 50);
+	new_event(ctx, 0, 1, 0, 30, 2, 0, 0x0f, 2, FX_FLT_CUTOFF, 120);
 
-	xmp_start_player(opaque, 8000, XMP_FORMAT_MONO);
-	xmp_set_player(opaque, XMP_PLAYER_INTERP, XMP_INTERP_NEAREST);
+	xmp_start_player(opaque, 22050, XMP_FORMAT_MONO);
 
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < 4; i++) {
 		xmp_play_frame(opaque);
 		xmp_get_frame_info(opaque, &info);
 		for (j = 0; j < info.buffer_size / 2; j++) {
 #ifndef MIXER_GENERATE
 			int ret = fscanf(f, "%d", &val);
 			fail_unless(ret == 1, "read error");
-			fail_unless(s->buf32[j] == val, "mixing error");
+			fail_unless(abs(s->buf32[j] - val) <= 1, "mixing error");
 #else
 			fprintf(f, "%d\n", s->buf32[j]);
 #endif

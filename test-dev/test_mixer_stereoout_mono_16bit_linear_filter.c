@@ -1,6 +1,7 @@
 #include "test.h"
+#include "../src/effects.h"
 
-TEST(test_mixer_stereo_16bit_linear)
+TEST(test_mixer_stereoout_mono_16bit_linear_filter)
 {
 	xmp_context opaque;
 	struct context_data *ctx;
@@ -9,29 +10,27 @@ TEST(test_mixer_stereo_16bit_linear)
 	FILE *f;
 	int i, j, k, val;
 
-	f = fopen("data/mixer_16bit_linear.data", "r");
+	f = fopen("data/mixer_16bit_linear_filter.data", "r");
 
 	opaque = xmp_create_context();
 	ctx = (struct context_data *)opaque;
 	s = &ctx->s;
 
-	xmp_load_module(opaque, "data/test.xm");
+	xmp_load_module(opaque, "data/test.it");
 
-	for (i = 0; i < 5; i++) {
-		new_event(ctx, 0, i, 0, 20 + i * 20, 2, 0, 0x0f, 2, 0, 0);
-	}
+	new_event(ctx, 0, 0, 0, 30, 2, 0, 0x0f, 2, FX_FLT_CUTOFF, 50);
+	new_event(ctx, 0, 1, 0, 30, 2, 0, 0x0f, 2, FX_FLT_CUTOFF, 120);
 
-	xmp_start_player(opaque, 8000, 0);
-	xmp_set_player(opaque, XMP_PLAYER_INTERP, XMP_INTERP_LINEAR);
+	xmp_start_player(opaque, 22050, 0);
 
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < 4; i++) {
 		xmp_play_frame(opaque);
 		xmp_get_frame_info(opaque, &info);
 		for (k = j = 0; j < info.buffer_size / 4; j++) {
 			int ret = fscanf(f, "%d", &val);
 			fail_unless(ret == 1, "read error");
-			fail_unless(s->buf32[k++] == val, "mixing error L");
-			fail_unless(s->buf32[k++] == val, "mixing error R");
+			fail_unless(abs(s->buf32[k++] - val) <= 1, "mixing error L");
+			fail_unless(abs(s->buf32[k++] - val) <= 1, "mixing error R");
 		}
 	}
 
