@@ -1,6 +1,6 @@
 #include "test.h"
 
-TEST(test_mixer_stereo_16bit_nearest)
+TEST(test_mixer_stereoout_mono_16bit_linear)
 {
 	xmp_context opaque;
 	struct context_data *ctx;
@@ -9,7 +9,7 @@ TEST(test_mixer_stereo_16bit_nearest)
 	FILE *f;
 	int i, j, k, val;
 
-	f = fopen("data/mixer_16bit_nearest.data", "r");
+	f = fopen("data/mixer_16bit_linear.data", "r");
 
 	opaque = xmp_create_context();
 	ctx = (struct context_data *)opaque;
@@ -22,7 +22,7 @@ TEST(test_mixer_stereo_16bit_nearest)
 	}
 
 	xmp_start_player(opaque, 8000, 0);
-	xmp_set_player(opaque, XMP_PLAYER_INTERP, XMP_INTERP_NEAREST);
+	xmp_set_player(opaque, XMP_PLAYER_INTERP, XMP_INTERP_LINEAR);
 
 	for (i = 0; i < 10; i++) {
 		xmp_play_frame(opaque);
@@ -30,8 +30,8 @@ TEST(test_mixer_stereo_16bit_nearest)
 		for (k = j = 0; j < info.buffer_size / 4; j++) {
 			int ret = fscanf(f, "%d", &val);
 			fail_unless(ret == 1, "read error");
-			fail_unless(s->buf32[k++] == val, "mixing error");
-			fail_unless(s->buf32[k++] == val, "mixing error");
+			fail_unless(s->buf32[k++] == val, "mixing error L");
+			fail_unless(s->buf32[k++] == val, "mixing error R");
 		}
 	}
 

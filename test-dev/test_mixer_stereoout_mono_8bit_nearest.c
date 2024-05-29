@@ -1,6 +1,6 @@
 #include "test.h"
 
-TEST(test_mixer_stereo_16bit_spline)
+TEST(test_mixer_stereoout_mono_8bit_nearest)
 {
 	xmp_context opaque;
 	struct context_data *ctx;
@@ -9,7 +9,7 @@ TEST(test_mixer_stereo_16bit_spline)
 	FILE *f;
 	int i, j, k, val;
 
-	f = fopen("data/mixer_16bit_spline.data", "r");
+	f = fopen("data/mixer_8bit_nearest.data", "r");
 
 	opaque = xmp_create_context();
 	ctx = (struct context_data *)opaque;
@@ -18,11 +18,11 @@ TEST(test_mixer_stereo_16bit_spline)
 	xmp_load_module(opaque, "data/test.xm");
 
 	for (i = 0; i < 5; i++) {
-		new_event(ctx, 0, i, 0, 20 + i * 20, 2, 0, 0x0f, 2, 0, 0);
+		new_event(ctx, 0, i, 0, 20 + i * 20, 1, 0, 0x0f, 2, 0, 0);
 	}
 
 	xmp_start_player(opaque, 8000, 0);
-	xmp_set_player(opaque, XMP_PLAYER_INTERP, XMP_INTERP_SPLINE);
+	xmp_set_player(opaque, XMP_PLAYER_INTERP, XMP_INTERP_NEAREST);
 
 	for (i = 0; i < 10; i++) {
 		xmp_play_frame(opaque);
