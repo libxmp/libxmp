@@ -730,6 +730,48 @@ static void force_sample_length(struct xmp_sample *xxs, struct extra_sample_data
 	}
 }
 
+static void *unpack_it_sample(struct xmp_sample *xxs,
+	const struct it_sample_header *ish, uint8 *tmpbuf, HIO_HANDLE *f)
+{
+	void *decbuf;
+	int bytes = xxs->len;
+	int channels = 1;
+	int i;
+
+	if (ish->flags & IT_SMP_16BIT)
+		bytes <<= 1;
+
+	if (ish->flags & IT_SMP_STEREO) {
+		bytes <<= 1;
+		channels = 2;
+	}
+
+	decbuf = calloc(1, bytes);
+	if (decbuf == NULL)
+		return NULL;
+
+	if (ish->flags & IT_SMP_16BIT) {
+		int16 *pos = (int16 *)decbuf;
+
+		for (i = 0; i < channels; i++) {
+			itsex_decompress16(f, pos, xxs->len,
+					   tmpbuf, TEMP_BUFFER_LEN,
+					   ish->convert & IT_CVT_DIFF);
+			pos += xxs->len;
+		}
+	} else {
+		uint8 *pos = (uint8 *)decbuf;
+
+		for(i = 0; i < channels; i++) {
+			itsex_decompress8(f, pos, xxs->len,
+					  tmpbuf, TEMP_BUFFER_LEN,
+					  ish->convert & IT_CVT_DIFF);
+			pos += xxs->len;
+		}
+	}
+	return decbuf;
+}
+
 static int load_it_sample(struct module_data *m, int i, int start,
 			  int sample_mode, uint8 *tmpbuf, HIO_HANDLE *f)
 {
@@ -788,6 +830,9 @@ static int load_it_sample(struct module_data *m, int i, int start,
 	if (ish.flags & IT_SMP_16BIT) {
 		xxs->flg = XMP_SAMPLE_16BIT;
 	}
+	if (ish.flags & IT_SMP_STEREO) {
+		xxs->flg |= XMP_SAMPLE_STEREO;
+	}
 	xxs->len = ish.length;
 
 	xxs->lps = ish.loopbeg;
@@ -814,11 +859,12 @@ static int load_it_sample(struct module_data *m, int i, int start,
 		libxmp_copy_adjust(xxs->name, ish.name, 25);
 	}
 
-	D_(D_INFO "\n[%2X] %-26.26s %05x%c%05x %05x %05x %05x "
+	D_(D_INFO "\n[%2X] %-26.26s %05x%c%c %05x %05x %05x %05x "
 	   "%02x%02x %02x%02x %5d ",
 	   i, sample_mode ? xxs->name : mod->xxs[i].name,
 	   xxs->len,
 	   ish.flags & IT_SMP_16BIT ? '+' : ' ',
+	   ish.flags & IT_SMP_STEREO ? 's' : ' ',
 	   MIN(xxs->lps, 0xfffff), MIN(xxs->lpe, 0xfffff),
 	   MIN(ish.sloopbeg, 0xfffff), MIN(ish.sloopend, 0xfffff),
 	   ish.flags, ish.convert, ish.vol, ish.gvl, ish.c5spd);
@@ -880,14 +926,18 @@ static int load_it_sample(struct module_data *m, int i, int start,
 		if (ish.flags & IT_SMP_COMP) {
 			long min_size, file_len, left;
 			void *decbuf;
+			int samples = xxs->len;
 			int ret;
+
+			if (ish.flags & IT_SMP_STEREO)
+				samples <<= 1;
 
 			/* Sanity check - the lower bound on IT compressed
 			 * sample size (in bytes) is a little over 1/8th of the
 			 * number of SAMPLES in the sample.
 			 */
 			file_len = hio_size(f);
-			min_size = xxs->len >> 3;
+			min_size = samples >> 3;
 			left = file_len - (long)ish.sample_ptr;
 			/* No data to read at all? Just skip it... */
 			if (left <= 0)
@@ -902,26 +952,18 @@ static int load_it_sample(struct module_data *m, int i, int start,
 				force_sample_length(xxs, xtra, left << 3);
 			}
 
-			decbuf = (uint8 *) calloc(1, xxs->len * 2);
+			decbuf = unpack_it_sample(xxs, &ish, tmpbuf, f);
 			if (decbuf == NULL)
 				return -1;
 
-			if (ish.flags & IT_SMP_16BIT) {
-				itsex_decompress16(f, (int16 *)decbuf, xxs->len,
-						   tmpbuf, TEMP_BUFFER_LEN,
-						   ish.convert & IT_CVT_DIFF);
-
 #ifdef WORDS_BIGENDIAN
+			if (ish.flags & IT_SMP_16BIT) {
 				/* decompression generates native-endian
 				 * samples, but we want little-endian.
 				 */
 				cvt |= SAMPLE_FLAG_BIGEND;
-#endif
-			} else {
-				itsex_decompress8(f, (uint8 *)decbuf, xxs->len,
-						  tmpbuf, TEMP_BUFFER_LEN,
-						  ish.convert & IT_CVT_DIFF);
 			}
+#endif
 
 			ret = libxmp_load_sample(m, NULL, SAMPLE_FLAG_NOLOAD | cvt,
 					  &mod->xxs[i], decbuf);

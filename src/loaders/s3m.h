@@ -64,6 +64,11 @@
 #define S3M_INST_ACYM	0x06
 #define S3M_INST_AHIHAT	0x07
 
+/* S3M sample flags */
+#define S3M_SAMP_LOOP	0x01
+#define S3M_SAMP_STEREO	0x02
+#define S3M_SAMP_16BIT	0x04
+
 struct s3m_file_header {
 	uint8 name[28];		/* Song name */
 	uint8 doseof;		/* 0x1a */
