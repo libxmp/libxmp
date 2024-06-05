@@ -1,0 +1,126 @@
+******************************************************************************
+*                          Fichier de sauvegarde de                          *
+*            DIGITAL TRACKER V2.04 Shareware et V1.00 Commercial             *
+*                                                                            *
+* Le 12/10/94 , Version FALCON030 @1994                                      *
+******************************************************************************
+
+Le format de sauvegarde de Digital Tracker se compose de chunks (blocs)
+independant les uns des autres, voici la signification des divers chunks
+et de leur champ :
+
+
+Chunk d'info generale :
+
+Offset    | Longueur             | Signification|       
+ÿÿÿÿÿÿÿÿÿÿçÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿçÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ
+0         | 4 = "D.T."           | Header
+4         | 4                    | Taille du chunk - 4
+8         | 2                    | Type de la donn‚e (Module=0, song, etc...)
+10        | 2                    | Reservee
+12        | 2                    | Reservee
+14        | 2                    | Vitesse
+16        | 2                    | Tempo
+18        | 20                   | Nom du module
+ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ
+
+Chunk d'info d'une sequence :
+
+Offset    | Longueur             | Signification|       
+ÿÿÿÿÿÿÿÿÿÿçÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿçÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ
+0         | 4 = "S.Q."           | Header
+4         | 4                    | Taille du chunk - 4
+8         | 2                    | Nombre de position
+10        | 2                    | Restart de la sequence
+12        | 4                    | Reservee
+16        | Taille du chunk-16   | Donn‚ de la sequence
+ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ
+
+Chunk d'info d'un ensemble de patterns :
+
+Offset    | Longueur             | Signification|       
+ÿÿÿÿÿÿÿÿÿÿçÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿçÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ
+0         | 4 = "PATT"           | Header
+4         | 4                    | Taille du chunk - 4
+8         | 2                    | Nombre de voies
+10        | 2                    | Nombre de patterns
+12        | 4 = "2.04"           | Version du codage du pattern
+ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ
+
+Chunk d'info d'un ensemble d'instruments :
+
+Offset    | Longueur             | Signification|       
+ÿÿÿÿÿÿÿÿÿÿçÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿçÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ
+0         | 4 = "INST"           | Header
+4         | 4                    | Taille du chunk - 4
+8         | 2                    | Nombre d'instrument dans ce chunk
+
+10        | 4                    | Reservee
+14        | 4                    | Longueur de l'instrument No 1
+18        | 1                    | Fine
+19        | 1                    | Volume
+20        | 4                    | Repeat Start
+24        | 4                    | Repeat Length
+28        | 22                   | Nom
+40        | 1                    | Bit 0 = 1 Stereo, Bit 0 = 0 Mono
+41        | 1                    | Precision en bit
+42        | 4                    | Note midi
+46        | 4                    | Frequence
+
+10        | 4                    | Reservee
+14        | 4                    | Longueur de l'instrument No 2
+... etc ... etc ...
+Suivant le nombre d'instruments
+ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ
+
+Chunk de donn‚ d'un pattern :
+
+Offset    | Longueur             | Signification|       
+ÿÿÿÿÿÿÿÿÿÿçÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿçÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ
+0         | 4 = "DAPT"           | Header
+4         | 4                    | Taille du chunk - 4
+8         | 4                    | Voies sauv‚es (Bit = 1, Bit 31 = voie 0)
+12        | 2                    | Numero du pattern
+14        | 2                    | Nombre de lignes
+16        | Taille du chunk - 16 | Donn‚e du pattern
+ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ
+
+Chunk de donn‚ d'un instrument :
+
+Offset    | Longueur             | Signification|       
+ÿÿÿÿÿÿÿÿÿÿçÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿçÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ
+0         | 4 = "DAIT"           | Header
+4         | 4                    | Taille du chunk - 4
+8         | 2                    | Numero de l'instrument
+10        | Taille du chunk - 10 | Donn‚e de l'instrument
+ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ
+
+La sequentialit‚ des chunks est importante au niveau des chunks patterns,
+les infos separ‚es des donn‚es sont la cause des formats song ou patt
+ce qui permet la souplesse du chargement et de la sauvegarde avec
+une seule routine !
+
+Notez que les instruments sont toujours sign‚s et que le player prend en 
+compte chaque champ des infos de l'instrument...
+
+Le format des notes sur 4 octets est le suivant (V2.04) :
+
+Octet 0 = nnnnoooo
+Octet 1 = vvvvvvii
+Octet 2 = iiiicccc
+Octet 3 = pppppppp
+
+ou nnnn    = Numero de la note (0..11)
+ou oooo    = Octave de la note (2..7)
+ou vvvvvv  = Volume interne (0 = pas de changement du volume)
+ou iiiiii  = No instrument (0 = pas d'inst)
+ou cccc    = Commande
+ou pppppppp= Parametre
+
+La commande Cxx prend toujours le pas sur le volume interne...
+
+MC JEE / KAMIKAZES.
+
+
+
+
