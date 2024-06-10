@@ -14,8 +14,9 @@
 #include "paula.h"
 #endif
 
-#define MIXER(f) void libxmp_mix_##f(struct mixer_voice *vi, int *buffer, \
-	int count, int vl, int vr, int step, int ramp, int delta_l, int delta_r)
+#define MIXER(f) void libxmp_mix_##f(struct mixer_voice * LIBXMP_RESTRICT vi, \
+	int * LIBXMP_RESTRICT buffer, int count, int vl, int vr, int step, int ramp, \
+	int delta_l, int delta_r)
 
 struct mixer_voice {
 	int chn;		/* channel number */
