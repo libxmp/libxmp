@@ -417,12 +417,10 @@ static int oggdec(struct module_data *m, HIO_HANDLE *f, struct xmp_sample *xxs, 
 	n = stb_vorbis_decode_memory(data, len, &ch, &rate, &pcm16);
 	free(data);
 
-	if (n <= 0) {
+	if (n <= 0 || ch != 1) {
 		free(pcm16);
 		return -1;
 	}
-
-	xxs->len = n;
 
 	if ((xxs->flg & XMP_SAMPLE_16BIT) == 0) {
 		uint8 *pcm = (uint8 *)pcm16;
@@ -437,6 +435,11 @@ static int oggdec(struct module_data *m, HIO_HANDLE *f, struct xmp_sample *xxs, 
 		}
 		pcm16 = (int16 *)pcm;
 	}
+	if (xxs->flg & XMP_SAMPLE_STEREO) {
+		/* OXM stereo is a single channel non-interleaved stream. */
+		n >>= 1;
+	}
+	xxs->len = n;
 
 	flags |= SAMPLE_FLAG_NOLOAD;
 #ifdef WORDS_BIGENDIAN
@@ -684,7 +687,7 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 				xxs->lpe >>= 1;
 			}
 			if (xsh[j].type & XM_SAMPLE_STEREO) {
-				/* xxs->flg |= XMP_SAMPLE_STEREO; */
+				xxs->flg |= XMP_SAMPLE_STEREO;
 				xxs->len >>= 1;
 				xxs->lps >>= 1;
 				xxs->lpe >>= 1;
@@ -693,14 +696,15 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 			xxs->flg |= xsh[j].type & XM_LOOP_FORWARD ? XMP_SAMPLE_LOOP : 0;
 			xxs->flg |= xsh[j].type & XM_LOOP_PINGPONG ? XMP_SAMPLE_LOOP | XMP_SAMPLE_LOOP_BIDIR : 0;
 
-			D_(D_INFO "  size:%06x loop start:%06x loop end:%06x %c V%02x F%+04d P%02x R%+03d %s",
+			D_(D_INFO "  size:%06x loop start:%06x loop end:%06x %c V%02x F%+04d P%02x R%+03d %s%s",
 			   mod->xxs[sub->sid].len,
 			   mod->xxs[sub->sid].lps,
 			   mod->xxs[sub->sid].lpe,
 			   mod->xxs[sub->sid].flg & XMP_SAMPLE_LOOP_BIDIR ? 'B' :
 			   mod->xxs[sub->sid].flg & XMP_SAMPLE_LOOP ? 'L' : ' ',
 			   sub->vol, sub->fin, sub->pan, sub->xpo,
-			   mod->xxs[sub->sid].flg & XMP_SAMPLE_16BIT ? " (16 bit)" : "");
+			   mod->xxs[sub->sid].flg & XMP_SAMPLE_16BIT ? " (16 bit)" : "",
+			   xxs->flg & XMP_SAMPLE_STEREO ? " (stereo)" : "");
 		}
 
 		/* Read actual sample data */
@@ -741,12 +745,6 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 					total_sample_size += 16 + ((xsh[j].length + 1) >> 1);
 				} else {
 					total_sample_size += xsh[j].length;
-				}
-
-				/* TODO: implement stereo samples.
-				 * For now, just skip the right channel. */
-				if (xsh[j].type & XM_SAMPLE_STEREO) {
-					hio_seek(f, xsh[j].length >> 1, SEEK_CUR);
 				}
 			}
 		}

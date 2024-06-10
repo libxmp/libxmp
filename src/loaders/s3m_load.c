@@ -634,9 +634,12 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		xxs->lps = sih.loopbeg;
 		xxs->lpe = sih.loopend;
 
-		xxs->flg = sih.flags & 1 ? XMP_SAMPLE_LOOP : 0;
+		xxs->flg = (sih.flags & S3M_SAMP_LOOP) ? XMP_SAMPLE_LOOP : 0;
 
-		if (sih.flags & 4) {
+		if (sih.flags & S3M_SAMP_STEREO) {
+			xxs->flg |= XMP_SAMPLE_STEREO;
+		}
+		if (sih.flags & S3M_SAMP_16BIT) {
 			xxs->flg |= XMP_SAMPLE_16BIT;
 		}
 
@@ -650,9 +653,10 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 
 		libxmp_instrument_name(mod, i, sih.name, 28);
 
-		D_(D_INFO "[%2X] %-28.28s %04x%c%04x %04x %c V%02x %5d",
+		D_(D_INFO "[%2X] %-28.28s %04x%c%c %04x %04x %c V%02x %5d",
 		   i, mod->xxi[i].name, mod->xxs[i].len,
 		   xxs->flg & XMP_SAMPLE_16BIT ? '+' : ' ',
+		   xxs->flg & XMP_SAMPLE_STEREO ? 's' : ' ',
 		   xxs->lps, mod->xxs[i].lpe,
 		   xxs->flg & XMP_SAMPLE_LOOP ? 'L' : ' ', sub->vol, sih.c2spd);
 
