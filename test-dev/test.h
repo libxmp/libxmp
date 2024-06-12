@@ -34,6 +34,12 @@
 	if (!(x)) { printf("at %s:%d: %s: " FAIL_MSG, __FILE__, __LINE__, y); exit(1); } \
 } while (0)
 
+/* Sample indices for test.xm and test.it */
+#define TEST_XM_SAMPLE_8BIT_MONO	1
+#define TEST_XM_SAMPLE_16BIT_MONO	2
+#define TEST_XM_SAMPLE_8BIT_STEREO	3
+#define TEST_XM_SAMPLE_16BIT_STEREO	4
+
 static inline int is_big_endian() {
 	uint16 w = 0x00ff;
 	return (*(char *)&w == 0x00);
@@ -79,6 +85,8 @@ void read_file_to_memory(const char *, void **, long *);
 void compare_mixer_data(const char *, const char *);
 void compare_mixer_data_loops(const char *, const char *, int);
 void compare_mixer_data_no_rv(const char *, const char *);
+void compare_mixer_samples(const char *, const char *, int, int, int, int, int);
+void compare_mixer_samples_ext(struct context_data *, const char *, int, int);
 void convert_endian(unsigned char *, int);
 void create_simple_module(struct context_data *, int, int);
 void set_order(struct context_data *, int, int);

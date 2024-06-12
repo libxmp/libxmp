@@ -1,41 +1,9 @@
 #include "test.h"
-#include "../src/effects.h"
 
 TEST(test_mixer_stereoout_mono_8bit_linear_filter)
 {
-	xmp_context opaque;
-	struct context_data *ctx;
-	struct mixer_data *s;
-	struct xmp_frame_info info;
-	FILE *f;
-	int i, j, k, val;
-
-	f = fopen("data/mixer_8bit_linear_filter.data", "r");
-
-	opaque = xmp_create_context();
-	ctx = (struct context_data *)opaque;
-	s = &ctx->s;
-
-	xmp_load_module(opaque, "data/test.it");
-
-	new_event(ctx, 0, 0, 0, 30, 1, 0, 0x0f, 2, FX_FLT_CUTOFF, 50);
-	new_event(ctx, 0, 1, 0, 30, 1, 0, 0x0f, 2, FX_FLT_CUTOFF, 120);
-
-	xmp_start_player(opaque, 22050, 0);
-
-	for (i = 0; i < 4; i++) {
-		xmp_play_frame(opaque);
-		xmp_get_frame_info(opaque, &info);
-		for (k = j = 0; j < info.buffer_size / 4; j++) {
-			int ret = fscanf(f, "%d", &val);
-			fail_unless(ret == 1, "read error");
-			fail_unless(abs(s->buf32[k++] - val) <= 1, "mixing error L");
-			fail_unless(abs(s->buf32[k++] - val) <= 1, "mixing error R");
-		}
-	}
-
-	xmp_end_player(opaque);
-	xmp_release_module(opaque);
-	xmp_free_context(opaque);
+	compare_mixer_samples(
+		"data/mixer_stereoout_mono_8bit_linear_filter.data", "data/test.it",
+		22050, 0, XMP_INTERP_LINEAR, TEST_XM_SAMPLE_8BIT_MONO, 1);
 }
 END_TEST
