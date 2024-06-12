@@ -1,6 +1,13 @@
 #include <math.h>
 #include "../src/hio.h"
+#include "../src/effects.h"
 #include "test.h"
+
+#if 0
+/* Defining this makes the mixer tests and anything else that relies on
+ * compare_mixer_samples(_ext) regenerate its data file and then fail. */
+#define MIXER_GENERATE
+#endif
 
 #define BUFLEN 16384
 
@@ -598,5 +605,109 @@ void compare_playback(const char *filename, const struct playback_sequence *sequ
 		sequence++;
 	}
 
+	xmp_free_context(opaque);
+}
+
+/* Test raw mixer output data. Used by the mixer regression tests.
+ * If MIXER_GENERATE is defined, it generates new input files instead. */
+void compare_mixer_samples_ext(struct context_data *ctx, const char *data_file,
+				int stereo_out, int frames_to_play)
+{
+	xmp_context opaque = (xmp_context)ctx;
+	struct mixer_data *s = &ctx->s;
+	FILE *f;
+	int i, j, k;
+	int val_l, val_r;
+	int cmp_l, cmp_r;
+	int ret;
+
+#ifndef MIXER_GENERATE
+	f = fopen(data_file, "r");
+#else
+	f = fopen(data_file, "w");
+#endif
+	fail_unless(f, "failed to open data file");
+
+	for (i = 0; i < frames_to_play; i++) {
+		xmp_play_frame(opaque);
+		/* Note: ticksize is in frames. */
+		for (k = j = 0; j < s->ticksize; j++) {
+#ifndef MIXER_GENERATE
+			if (stereo_out) {
+				ret = fscanf(f, "%d %d", &val_l, &val_r);
+				fail_unless(ret == 2, "read error");
+
+				cmp_l = s->buf32[k++] - val_l;
+				cmp_r = s->buf32[k++] - val_r;
+				fail_unless(cmp_l >= -1 && cmp_l <= 1, "mixing error L");
+				fail_unless(cmp_r >= -1 && cmp_r <= 1, "mixing error R");
+			} else {
+				ret = fscanf(f, "%d", &val_l);
+				fail_unless(ret == 1, "read error");
+
+				cmp_l = s->buf32[k++] - val_l;
+				fail_unless(cmp_l >= -1 && cmp_l <= 1, "mixing error");
+			}
+#else
+			if (stereo_out) {
+				val_l = s->buf32[k++];
+				val_r = s->buf32[k++];
+				fprintf(f, "%d %d\n", val_l, val_r);
+			} else {
+				val_l = s->buf32[k++];
+				fprintf(f, "%d\n", val_l);
+			}
+#endif
+		}
+	}
+	fclose(f);
+
+#ifdef MIXER_GENERATE
+	fail_unless(0, "MIXER_GENERATE is enabled");
+#endif
+}
+
+/* Test raw mixer output data using presets chosen
+ * specifically for the mixer regression tests. */
+void compare_mixer_samples(const char *data_file, const char *mod_file,
+			   int rate, int flags, int interp, int sample, int filter)
+{
+	xmp_context opaque = xmp_create_context();
+	struct context_data *ctx = (struct context_data *)opaque;
+	int stereo_out = 0;
+	int frames;
+	int ret;
+	int i;
+
+	fail_unless(opaque, "failed to create context");
+
+	if (~flags & XMP_FORMAT_MONO) {
+		stereo_out = 1;
+	}
+
+	ret = xmp_load_module(opaque, mod_file);
+	fail_unless(ret == 0, "load error");
+
+	if (!filter) {
+		frames = 10;
+		for (i = 0; i < 5; i++) {
+			new_event(ctx, 0, i, 0, 20 + i * 20, sample, 0,
+				FX_SPEED, 0x02, FX_SETPAN, (i - 2) * 60 + 128);
+		}
+	} else {
+		frames = 4;
+		new_event(ctx, 0, 0, 0, 30, sample, 0,
+			FX_SPEED, 0x02, FX_FLT_CUTOFF, 50);
+		new_event(ctx, 0, 1, 0, 30, sample, 0,
+			FX_SPEED, 0x02, FX_FLT_CUTOFF, 120);
+	}
+
+	xmp_start_player(opaque, rate, flags);
+	xmp_set_player(opaque, XMP_PLAYER_INTERP, interp);
+
+	compare_mixer_samples_ext(ctx, data_file, stereo_out, frames);
+
+	xmp_end_player(opaque);
+	xmp_release_module(opaque);
 	xmp_free_context(opaque);
 }
