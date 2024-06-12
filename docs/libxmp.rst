@@ -852,7 +852,7 @@ int xmp_channel_mute(xmp_context c, int chn, int status)
 
     :chn: the channel to mute or unmute.
 
-    :status: 0 to mute channel, 1 to unmute or -1 to query the
+    :status: 0 to mute channel, 1 to unmute, 2 the inverse of the current channel status, or -1 to query the
       current channel status.
 
   **Returns:**
