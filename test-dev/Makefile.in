@@ -226,18 +226,20 @@ OPENMPT_MOD	= amigalimitsfinetune \
 		  ptoffset \
 		  vibratoreset
 
+MIXER_FUNCS	= monoout_mono_8bit_ monoout_mono_16bit_ \
+		  monoout_stereo_8bit_ monoout_stereo_16bit_ \
+		  stereoout_mono_8bit_ stereoout_mono_16bit_ \
+		  stereoout_stereo_8bit_ stereoout_stereo_16bit_
+
+MIXER_FUNCS_ALL	= $(addsuffix nearest,${MIXER_FUNCS}) \
+		  $(addsuffix linear,${MIXER_FUNCS}) \
+		  $(addsuffix linear_filter,${MIXER_FUNCS}) \
+		  $(addsuffix spline,${MIXER_FUNCS}) \
+		  $(addsuffix spline_filter,${MIXER_FUNCS})
+
 MIXER		= interpolation_default interpolation_loop bidi_sync \
-		  monoout_mono_8bit_nearest monoout_mono_16bit_nearest \
-		  stereoout_mono_8bit_nearest stereoout_mono_16bit_nearest \
-		  monoout_mono_8bit_linear monoout_mono_16bit_linear \
-		  stereoout_mono_8bit_linear stereoout_mono_16bit_linear \
-		  monoout_mono_8bit_linear_filter monoout_mono_16bit_linear_filter \
-		  stereoout_mono_8bit_linear_filter stereoout_mono_16bit_linear_filter \
-		  monoout_mono_8bit_spline monoout_mono_16bit_spline \
-		  stereoout_mono_8bit_spline stereoout_mono_16bit_spline \
-		  monoout_mono_8bit_spline_filter monoout_mono_16bit_spline_filter \
-		  stereoout_mono_8bit_spline_filter stereoout_mono_16bit_spline_filter \
-		  downmix_8bit downmix_16bit mpt116_preamp
+		  ${MIXER_FUNCS_ALL} downmix_8bit downmix_16bit \
+		  mpt116_preamp
 
 READ		= file_32bit_little_endian file_32bit_big_endian \
 		  file_24bit_little_endian file_24bit_big_endian \
