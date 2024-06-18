@@ -462,5 +462,6 @@ static int decrunch_mmcmp(HIO_HANDLE *in, void **out, long *outlen)
 
 const struct depacker libxmp_depacker_mmcmp = {
 	test_mmcmp,
+	NULL,
 	decrunch_mmcmp
 };

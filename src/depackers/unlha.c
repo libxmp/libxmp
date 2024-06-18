@@ -105,5 +105,6 @@ fail:
 
 const struct depacker libxmp_depacker_lha = {
     test_lha,
+    NULL,
     decrunch_lha
 };
