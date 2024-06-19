@@ -284,5 +284,6 @@ static int decrunch_compress(HIO_HANDLE * in, void ** out, long * outlen)
 
 const struct depacker libxmp_depacker_compress = {
 	test_compress,
+	NULL,
 	decrunch_compress
 };

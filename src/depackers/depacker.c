@@ -280,8 +280,9 @@ int libxmp_decrunch(HIO_HANDLE *h, const char *filename, char **temp)
 
 	/* Check built-in depackers */
 	for (i = 0; depacker_list[i] != NULL; i++) {
-		if (depacker_list[i]->test(b)) {
-			depacker = depacker_list[i];
+		const struct depacker *d = depacker_list[i];
+		if ((d->test && d->test(b)) || (d->test_hio && d->test_hio(h))) {
+			depacker = d;
 			D_(D_INFO "Use depacker %d", i);
 			break;
 		}

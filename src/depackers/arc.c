@@ -374,5 +374,6 @@ static int arc_decrunch(HIO_HANDLE *in, void **out, long *outlen)
 const struct depacker libxmp_depacker_arc =
 {
   arc_test,
+  NULL,
   arc_decrunch
 };

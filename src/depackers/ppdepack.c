@@ -234,5 +234,6 @@ err:
 
 const struct depacker libxmp_depacker_pp = {
 	test_pp,
+	NULL,
 	decrunch_pp
 };

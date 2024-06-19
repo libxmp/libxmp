@@ -21,6 +21,7 @@ extern const struct depacker libxmp_depacker_xfd;
 
 struct depacker {
 	int (*test)(unsigned char *);
+	int (*test_hio)(HIO_HANDLE *);
 	int (*depack)(HIO_HANDLE *, void **, long *);
 };
 
