@@ -30,6 +30,9 @@ case "$COMMAND" in
 	asanx)
 		./libxmp_fuzz_asan -artifact_prefix="ARTIFACTS/" "$@"
 		;;
+	hwasanx)
+		./libxmp_fuzz_hwasan -artifact_prefix="ARTIFACTS/" "$@"
+		;;
 	msanx)
 		./libxmp_fuzz_msan -artifact_prefix="ARTIFACTS/" "$@"
 		;;
@@ -40,6 +43,10 @@ case "$COMMAND" in
 	asan)
 		mkdir -p "CORPUS"
 		./libxmp_fuzz_asan $DEFAULT_PARAMETERS "$@"
+		;;
+	hwasan)
+		mkdir -p "CORPUS"
+		./libxmp_fuzz_hwasan $DEFAULT_PARAMETERS "$@"
 		;;
 	msan)
 		mkdir -p "CORPUS"

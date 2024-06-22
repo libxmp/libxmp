@@ -774,46 +774,80 @@ $(addprefix $(SRC_PATH)/,$(TEST_INTERNAL)): $(SRC_PATH)/player.h
 #
 
 FUZZLIB_PATH		= .fuzzer
-FUZZ_ASAN_FLAGS		= -O3 -fsanitize=fuzzer,address,undefined -fno-sanitize-recover=all -fno-sanitize=shift-base -fno-omit-frame-pointer -g -DLIBXMP_LIBFUZZER -I../include -I../src
-FUZZ_MSAN_FLAGS		= -O3 -fsanitize=fuzzer,memory -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -g -DLIBXMP_LIBFUZZER -I../include -I../src
-FUZZLIB_ASAN_FLAGS	= $(subst fuzzer,fuzzer-no-link,$(FUZZ_ASAN_FLAGS))
-FUZZLIB_MSAN_FLAGS	= $(subst fuzzer,fuzzer-no-link,$(FUZZ_MSAN_FLAGS))
+FUZZ_CFLAGS		+= -fno-omit-frame-pointer -g -DLIBXMP_LIBFUZZER -I../include -I../src
+FUZZ_LDFLAGS		+= -fuse-ld=lld -L$(FUZZLIB_PATH)
 FUZZ_CC			?= clang
+
+FUZZ_ASAN_FLAGS		= -O3 -fsanitize=fuzzer,address,undefined \
+			  -fno-sanitize-recover=all -fno-sanitize=shift-base
+FUZZ_HWASAN_FLAGS	= -O3 -fsanitize=fuzzer,hwaddress,undefined \
+			  -fno-sanitize-recover=all -fno-sanitize=shift-base
+FUZZ_MSAN_FLAGS		= -O3 -fsanitize=fuzzer,memory -fsanitize-memory-track-origins=2
+
+FUZZ_ASAN_FLAGS		+= $(FUZZ_CFLAGS)
+FUZZ_HWASAN_FLAGS	+= $(FUZZ_CFLAGS)
+FUZZ_MSAN_FLAGS		+= $(FUZZ_CFLAGS)
+
+FUZZLIB_ASAN_FLAGS	= $(subst fuzzer,fuzzer-no-link,$(FUZZ_ASAN_FLAGS))
+FUZZLIB_HWASAN_FLAGS	= $(subst fuzzer,fuzzer-no-link,$(FUZZ_HWASAN_FLAGS))
+FUZZLIB_MSAN_FLAGS	= $(subst fuzzer,fuzzer-no-link,$(FUZZ_MSAN_FLAGS))
+
+FUZZ_MAKE		= CC=$(FUZZ_CC) \
+			  cmake ../../../CMakeLists.txt -B. -S../../.. \
+			  -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED=OFF && \
+			  $(MAKE)
 
 .PHONY: fuzzers fuzzerclean $(FUZZLIB_PATH)
 
 fuzzers: libxmp_fuzz_asan libxmp_fuzz_msan
 
+# This will build on x86_64 but currently is usable on ARM only.
+ifneq ($(filter aarch64 arm64,$(shell uname -m)),)
+fuzzers: libxmp_fuzz_hwasan
+endif
+
 fuzzerclean:
-	rm -rf $(FUZZLIB_PATH) libxmp_fuzz_asan libxmp_fuzz_msan
+	rm -rf $(FUZZLIB_PATH) libxmp_fuzz_asan libxmp_fuzz_hwasan libxmp_fuzz_msan
 
 $(FUZZLIB_PATH):
 	rm -rf $(FUZZLIB_PATH)
-	mkdir -p $(FUZZLIB_PATH)
-	(BASE=$$(pwd); cd .. && git checkout-index -a --prefix "$$BASE/$(FUZZLIB_PATH)/")
+	mkdir -p $(FUZZLIB_PATH)/asan $(FUZZLIB_PATH)/hwasan $(FUZZLIB_PATH)/msan
 
 $(FUZZLIB_PATH)/libxmp-asan.a: $(FUZZLIB_PATH)
-	(cd $(FUZZLIB_PATH) && \
-		$(AUTOCONF) && \
-		CC="$(FUZZ_CC)" CFLAGS="$(FUZZLIB_ASAN_FLAGS)" LDFLAGS="$(FUZZLIB_ASAN_FLAGS)" ./configure && \
-		$(MAKE) static && \
-		cp lib/libxmp.a libxmp-asan.a && \
-		$(MAKE) distclean)
+	(cd $(FUZZLIB_PATH)/asan && \
+		CFLAGS="$(FUZZLIB_ASAN_FLAGS)" \
+		LDFLAGS="$(FUZZLIB_ASAN_FLAGS)" \
+		$(FUZZ_MAKE) && \
+		mv libxmp.a ../libxmp-asan.a && \
+		$(MAKE) clean)
 
-$(FUZZLIB_PATH)/libxmp-msan.a: $(FUZZLIB_PATH) | $(FUZZLIB_PATH)/libxmp-asan.a
-	(cd $(FUZZLIB_PATH) && \
-		$(AUTOCONF) && \
-		CC="$(FUZZ_CC)" CFLAGS="$(FUZZLIB_MSAN_FLAGS)" LDFLAGS="$(FUZZLIB_MSAN_FLAGS)" ./configure && \
-		$(MAKE) static && \
-		cp lib/libxmp.a libxmp-msan.a && \
-		$(MAKE) distclean)
+$(FUZZLIB_PATH)/libxmp-hwasan.a: $(FUZZLIB_PATH)
+	(cd $(FUZZLIB_PATH)/hwasan && \
+		CFLAGS="$(FUZZLIB_HWASAN_FLAGS)" \
+		LDFLAGS="$(FUZZLIB_HWASAN_FLAGS)" \
+		$(FUZZ_MAKE) && \
+		mv libxmp.a ../libxmp-hwasan.a && \
+		$(MAKE) clean)
+
+$(FUZZLIB_PATH)/libxmp-msan.a: $(FUZZLIB_PATH)
+	(cd $(FUZZLIB_PATH)/msan && \
+		CFLAGS="$(FUZZLIB_MSAN_FLAGS)" \
+		LDFLAGS="$(FUZZLIB_MSAN_FLAGS)" \
+		$(FUZZ_MAKE) && \
+		mv libxmp.a ../libxmp-msan.a && \
+		$(MAKE) clean)
 
 libxmp_fuzz_asan: libxmp_fuzz.c $(FUZZLIB_PATH)/libxmp-asan.a
-	@CMD='$(FUZZ_CC) $(FUZZ_ASAN_FLAGS) -o $@ $< -L$(FUZZLIB_PATH) -lxmp-asan'; \
+	@CMD='$(FUZZ_CC) $(FUZZ_ASAN_FLAGS) -o $@ $< $(FUZZ_LDFLAGS) -lxmp-asan'; \
+	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
+	eval $$CMD
+
+libxmp_fuzz_hwasan: libxmp_fuzz.c $(FUZZLIB_PATH)/libxmp-hwasan.a
+	@CMD='$(FUZZ_CC) $(FUZZ_HWASAN_FLAGS) -o $@ $< $(FUZZ_LDFLAGS) -lxmp-hwasan'; \
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
 	eval $$CMD
 
 libxmp_fuzz_msan: libxmp_fuzz.c $(FUZZLIB_PATH)/libxmp-msan.a
-	@CMD='$(FUZZ_CC) $(FUZZ_MSAN_FLAGS) -o $@ $< -L$(FUZZLIB_PATH) -lxmp-msan'; \
+	@CMD='$(FUZZ_CC) $(FUZZ_MSAN_FLAGS) -o $@ $< $(FUZZ_LDFLAGS) -lxmp-msan'; \
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
 	eval $$CMD
