@@ -271,7 +271,7 @@ AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <dirent.h>]], [[
  [have_dirent=no])
 AC_MSG_RESULT($have_dirent)
 
-AC_CHECK_FUNCS(popen mkstemp fnmatch umask)
+AC_CHECK_FUNCS(asprintf popen mkstemp fnmatch umask)
 dnl fork, execv & co don't work with djgpp
 case "${host_os}" in
 *djgpp|mingw*|riscos*)

@@ -86,6 +86,12 @@
 #define LIBXMP_ATTRIB_SYMVER(_sym)
 #endif
 
+#if defined(__GNUC__) || defined(__clang__)
+#define LIBXMP_ATTRIB_PRINTF(x,y) __attribute__((__format__(__printf__,x,y)))
+#else
+#define LIBXMP_ATTRIB_PRINTF(x,y)
+#endif
+
 /* AmigaOS fixes by Chris Young <cdyoung@ntlworld.com>, Nov 25, 2007
  */
 #if defined B_BEOS_VERSION
@@ -215,30 +221,38 @@ static void __inline D_(const char *text, ...) {
 
 #if defined(_WIN32) || defined(__WATCOMC__) /* in win32.c */
 #define USE_LIBXMP_SNPRINTF
+#define USE_LIBXMP_ASPRINTF
 /* MSVC 2015+ has C99 compliant snprintf and vsnprintf implementations.
  * If __USE_MINGW_ANSI_STDIO is defined for MinGW (which it is by default),
  * compliant implementations will be used instead of the broken MSVCRT
  * functions. Additionally, GCC may optimize some calls to those functions. */
 #if defined(_MSC_VER) && _MSC_VER >= 1900
 #undef USE_LIBXMP_SNPRINTF
+#undef USE_LIBXMP_ASPRINTF
 #endif
 #if defined(__MINGW32__) && !defined(__MINGW_FEATURES__)
 #define __MINGW_FEATURES__ 0 /* to avoid -Wundef from old mingw.org headers */
 #endif
 #if defined(__MINGW32__) && defined(__USE_MINGW_ANSI_STDIO) && (__USE_MINGW_ANSI_STDIO != 0)
 #undef USE_LIBXMP_SNPRINTF
+#undef USE_LIBXMP_ASPRINTF
 #endif
+#endif
+
+#ifndef HAVE_ASPRINTF
+#define USE_LIBXMP_ASPRINTF
+#endif
+
 #ifdef USE_LIBXMP_SNPRINTF
-#if defined(__GNUC__) || defined(__clang__)
-#define LIBXMP_ATTRIB_PRINTF(x,y) __attribute__((__format__(__printf__,x,y)))
-#else
-#define LIBXMP_ATTRIB_PRINTF(x,y)
-#endif
 int libxmp_vsnprintf(char *, size_t, const char *, va_list) LIBXMP_ATTRIB_PRINTF(3,0);
 int libxmp_snprintf (char *, size_t, const char *, ...) LIBXMP_ATTRIB_PRINTF(3,4);
 #define snprintf  libxmp_snprintf
 #define vsnprintf libxmp_vsnprintf
 #endif
+
+#ifdef USE_LIBXMP_ASPRINTF
+int libxmp_asprintf (char **, const char *, ...) LIBXMP_ATTRIB_PRINTF(2,3);
+#define asprintf libxmp_asprintf
 #endif
 
 /* Output file size limit for files unpacked from unarchivers into RAM. Most

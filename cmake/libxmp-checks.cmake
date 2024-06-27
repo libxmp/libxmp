@@ -136,6 +136,7 @@ endif()
 xmp_check_function(powf "math.h" HAVE_POWF)
 cmake_pop_check_state()
 
+xmp_check_function(asprintf "stdio.h" HAVE_ASPRINTF)
 xmp_check_function(popen "stdio.h" HAVE_POPEN)
 xmp_check_function(fnmatch "fnmatch.h" HAVE_FNMATCH)
 xmp_check_function(umask "sys/stat.h" HAVE_UMASK)
