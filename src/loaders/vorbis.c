@@ -826,9 +826,9 @@ struct stb_vorbis
    int close_on_free;
 #endif
 
-   uint8 *stream;
-   uint8 *stream_start;
-   uint8 *stream_end;
+   const uint8 *stream;
+   const uint8 *stream_start;
+   const uint8 *stream_end;
 
    uint32 stream_len;
 
@@ -1200,8 +1200,8 @@ static void compute_accelerated_huffman(Codebook *c)
 
 static int STBV_CDECL uint32_compare(const void *p, const void *q)
 {
-   uint32 x = * (uint32 *) p;
-   uint32 y = * (uint32 *) q;
+   uint32 x = * (const uint32 *) p;
+   uint32 y = * (const uint32 *) q;
    return x < y ? -1 : x > y;
 }
 
@@ -1362,8 +1362,8 @@ typedef struct
 
 static int STBV_CDECL point_compare(const void *p, const void *q)
 {
-   stbv__floor_ordering *a = (stbv__floor_ordering *) p;
-   stbv__floor_ordering *b = (stbv__floor_ordering *) q;
+   const stbv__floor_ordering *a = (const stbv__floor_ordering *) p;
+   const stbv__floor_ordering *b = (const stbv__floor_ordering *) q;
    return a->x < b->x ? -1 : a->x > b->x;
 }
 
@@ -5202,9 +5202,9 @@ stb_vorbis * stb_vorbis_open_memory(const unsigned char *data, int len, int *err
       return NULL;
    }
    vorbis_init(&p, alloc);
-   p.stream = (uint8 *) data;
-   p.stream_end = (uint8 *) data + len;
-   p.stream_start = (uint8 *) p.stream;
+   p.stream = (const uint8 *) data;
+   p.stream_end = (const uint8 *) data + len;
+   p.stream_start = (const uint8 *) p.stream;
    p.stream_len = len;
    p.push_mode = FALSE;
    if (start_decoder(&p)) {
