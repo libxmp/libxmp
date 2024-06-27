@@ -67,8 +67,6 @@ struct alm_file_header {
     uint8 order[128];		/* Pattern sequence */
 };
 
-#define NAME_SIZE 255
-
 static int alm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 {
     struct xmp_module *mod = &m->mod;
@@ -76,9 +74,8 @@ static int alm_load(struct module_data *m, HIO_HANDLE *f, const int start)
     struct alm_file_header afh;
     struct xmp_event *event;
     uint8 b;
-    char *basename;
-    char filename[NAME_SIZE];
-    char modulename[NAME_SIZE];
+    char *fileext;
+    char *filename;
 
     LOAD_INIT();
 
@@ -86,9 +83,6 @@ static int alm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     if (!strncmp((char *)afh.id, "ALEYMOD", 7))		/* Version 1.0 */
 	mod->spd = afh.speed / 2;
-
-    strncpy(modulename, m->filename, NAME_SIZE);
-    basename = strtok (modulename, ".");
 
     afh.speed = hio_read8(f);
     afh.length = hio_read8(f);
@@ -139,14 +133,20 @@ static int alm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     D_(D_INFO "Loading samples: %d", mod->ins);
 
+    if (asprintf(&filename, "%s%s000", m->dirname, m->basename) < 0)
+        return -1;
+
+    if ((fileext = strrchr (filename, ".")) == NULL)
+        goto err;
+
     for (i = 0; i < mod->ins; i++) {
 	HIO_HANDLE *s;
 
 	if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
-	    return -1;
+	    goto err;
 
 	mod->xxi[i].sub = calloc(sizeof (struct xmp_subinstrument), 1);
-	snprintf(filename, NAME_SIZE, "%s.%d", basename, i + 1);
+	snprintf(fileext, 4, ".%d", i + 1);
 	s = hio_open(filename, "rb");
 
 	if (s == NULL)
@@ -174,14 +174,20 @@ static int alm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		mod->xxs[i].flg & XMP_SAMPLE_LOOP ? 'L' : ' ', mod->xxi[i].sub[0].vol);
 
 	if (libxmp_load_sample(m, s, SAMPLE_FLAG_UNS, &mod->xxs[i], NULL) < 0)
-	    return -1;
+	    goto err;
 
 	hio_close(s);
     }
+
+    free(filename);
 
     /* ALM is LRLR, not LRRL */
     for (i = 0; i < mod->chn; i++)
 	mod->xxc[i].pan = DEFPAN((i % 2) * 0xff);
 
     return 0;
+
+  err:
+    free(filename);
+    return -1;
 }

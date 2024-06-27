@@ -47,8 +47,8 @@ void	libxmp_set_xxh_defaults		(struct xmp_module *);
 void	libxmp_decode_protracker_event	(struct xmp_event *, const uint8 *);
 void	libxmp_decode_noisetracker_event(struct xmp_event *, const uint8 *);
 void	libxmp_disable_continue_fx	(struct xmp_event *);
-int	libxmp_check_filename_case	(const char *, const char *, char *, int);
-void	libxmp_get_instrument_path	(struct module_data *, char *, int);
+char    *libxmp_check_filename_case	(const char *, const char *);
+const char *libxmp_get_instrument_path	(struct module_data *);
 void	libxmp_set_type			(struct module_data *, const char *, ...);
 int	libxmp_load_sample		(struct module_data *, HIO_HANDLE *, int,
 					 struct xmp_sample *, const void *);

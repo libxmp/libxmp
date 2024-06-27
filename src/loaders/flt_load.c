@@ -298,27 +298,28 @@ static int flt_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	struct mod_header mh;
 	uint8 mod_event[4];
 	const char *tracker;
-	char filename[1024];
+	char *filename = NULL;
 	char buf[16];
-	HIO_HANDLE *nt;
+	HIO_HANDLE *nt = NULL;
 	int am_synth;
 
 	LOAD_INIT();
 
 	/* See if we have the synth parameters file */
 	am_synth = 0;
-	snprintf(filename, 1024, "%s%s.NT", m->dirname, m->basename);
-	if ((nt = hio_open(filename, "rb")) == NULL) {
-		snprintf(filename, 1024, "%s%s.nt", m->dirname, m->basename);
+	if (asprintf(&filename, "%s%s.NT", m->dirname, m->basename) >= 0) {
+		char *p = strrchr(filename, '.');
 		if ((nt = hio_open(filename, "rb")) == NULL) {
-			snprintf(filename, 1024, "%s%s.AS", m->dirname,
-				 m->basename);
+			strcpy(p, ".nt");
 			if ((nt = hio_open(filename, "rb")) == NULL) {
-				snprintf(filename, 1024, "%s%s.as", m->dirname,
-					 m->basename);
-				nt = hio_open(filename, "rb");
+				strcpy(p, ".AS");
+				if ((nt = hio_open(filename, "rb")) == NULL) {
+					strcpy(p, ".as");
+					nt = hio_open(filename, "rb");
+				}
 			}
 		}
+		free(filename);
 	}
 
 	tracker = "Startrekker";

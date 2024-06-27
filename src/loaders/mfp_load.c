@@ -96,7 +96,7 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	struct xmp_module *mod = &m->mod;
 	int i, j, k, x, y;
 	struct xmp_event *event;
-	char smp_filename[XMP_MAXPATH];
+	char *smp_filename = NULL;
 	HIO_HANDLE *s;
 	int size1 /*, size2*/;
 	int pat_addr, pat_table[128][4];
@@ -215,7 +215,11 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	m->basename[0] = 's';
 	m->basename[1] = 'm';
 	m->basename[2] = 'p';
-	snprintf(smp_filename, XMP_MAXPATH, "%s%s", m->dirname, m->basename);
+	if (asprintf(&smp_filename, "%s%s", m->dirname, m->basename) < 0) {
+		D_(D_CRIT "can't allocate memory for sample file name");
+		goto err;
+	}
+
 	if ((s = hio_open(smp_filename, "rb")) == NULL) {
 		/* handle .set filenames like in Kid Chaos*/
 		if (strchr(m->basename, '-')) {
@@ -228,6 +232,8 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			goto err;
 		}
 	}
+	free(smp_filename);
+	smp_filename = NULL;
 
 	for (i = 0; i < mod->ins; i++) {
 		if (libxmp_load_sample(m, s, SAMPLE_FLAG_FULLREP,
@@ -249,5 +255,6 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		memset(&mod->xxs[i], 0, sizeof(struct xmp_sample));
 	}
 
+	free(smp_filename);
 	return 0;
 }

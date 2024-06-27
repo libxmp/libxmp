@@ -48,38 +48,50 @@
 #define umask _umask
 int mkstemp(char *);
 
-static int get_temp_dir(char *buf, size_t size)
+static char *get_temp_dir(const char *leaf)
 {
 	static const char def[] = "C:\\WINDOWS\\TEMP";
 	const char *tmp = getenv("TEMP");
-	snprintf(buf, size, "%s\\", (tmp != NULL)? tmp : def);
-	return 0;
+	char *path = NULL;
+
+	if (asprintf(&path, "%s\\%s", (tmp != NULL)? tmp : def, leaf) < 0)
+		return NULL;
+	return path;
 }
 
 #elif defined(__OS2__) || defined(__EMX__)
 
-static int get_temp_dir(char *buf, size_t size)
+static char *get_temp_dir(const char *leaf)
 {
 	static const char def[] = "C:";
 	const char *tmp = getenv("TMP");
-	snprintf(buf, size, "%s\\", (tmp != NULL)? tmp : def);
-	return 0;
+	char *path = NULL;
+
+	if (asprintf(&path, "%s\\%s", (tmp != NULL)? tmp : def, leaf) < 0)
+		return NULL;
+	return path;
 }
 
 #elif defined(__MSDOS__) || defined(_DOS)
 
-static int get_temp_dir(char *buf, size_t size)
+static char *get_temp_dir(const char *leaf)
 {
-	strcpy(buf, "C:\\"); /* size-safe against XMP_MAXPATH */
-	return 0;
+	char *path = NULL;
+
+	if (asprintf(&path, "C:\\%s", leaf) < 0)
+		return NULL;
+	return path;
 }
 
 #elif defined LIBXMP_AMIGA
 
-static int get_temp_dir(char *buf, size_t size)
+static char *get_temp_dir(const char *leaf)
 {
-	strcpy(buf, "T:"); /* size-safe against XMP_MAXPATH */
-	return 0;
+	char *path = NULL;
+
+	if (asprintf(&path, "T:%s", leaf) < 0)
+		return NULL;
+	return path;
 }
 
 #elif defined __ANDROID__
@@ -87,10 +99,12 @@ static int get_temp_dir(char *buf, size_t size)
 #include <sys/types.h>
 #include <sys/stat.h>
 
-static int get_temp_dir(char *buf, size_t size)
+static char *get_temp_dir(const char *leaf)
 {
 #define APPDIR "/sdcard/Xmp for Android"
 	struct stat st;
+	char *path = NULL;
+
 	if (stat(APPDIR, &st) < 0) {
 		if (mkdir(APPDIR, 0777) < 0)
 			return -1;
@@ -99,40 +113,37 @@ static int get_temp_dir(char *buf, size_t size)
 		if (mkdir(APPDIR "/tmp", 0777) < 0)
 			return -1;
 	}
-	strncpy(buf, APPDIR "/tmp/", size);
 
-	return 0;
+	if (asprintf(&path, APPDIR "/tmp/%s", leaf) < 0)
+		return NULL;
+	return path;
 }
 
 #else /* unix */
 
-static int get_temp_dir(char *buf, size_t size)
+static char *get_temp_dir(const char *leaf)
 {
 	const char *tmp = getenv("TMPDIR");
+	char *path = NULL;
+	int ret;
 
 	if (tmp) {
-		snprintf(buf, size, "%s/", tmp);
+		ret = asprintf(&path, "%s/%s", tmp, leaf);
 	} else {
-		strncpy(buf, "/tmp/", size);
+		ret = asprintf(&path, "/tmp/%s", leaf);
 	}
 
-	return 0;
+	return (ret < 0) ? NULL : path;
 }
 
 #endif
 
 
 FILE *make_temp_file(char **filename) {
-	char tmp[XMP_MAXPATH];
 	FILE *temp;
 	int fd;
 
-	if (get_temp_dir(tmp, XMP_MAXPATH) < 0)
-		return NULL;
-
-	strncat(tmp, "xmp_XXXXXX", XMP_MAXPATH - 10);
-
-	if ((*filename = libxmp_strdup(tmp)) == NULL)
+	if ((*filename = get_temp_dir("xmp_XXXXXX")) == NULL)
 		goto err;
 
 #ifdef HAVE_UMASK

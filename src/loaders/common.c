@@ -429,48 +429,49 @@ void libxmp_disable_continue_fx(struct xmp_event *event)
     /* case-insensitive file system: directly probe the file */\
     \
    !defined(HAVE_DIRENT) /* or, target does not have dirent. */
-int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
+char *libxmp_check_filename_case(const char *dir, const char *name)
 {
-	char path[XMP_MAXPATH];
-	snprintf(path, sizeof(path), "%s/%s", dir, name);
-	if (! (libxmp_get_filetype(path) & XMP_FILETYPE_FILE))
-		return 0;
-	strncpy(new_name, name, size);
-	return 1;
+	char *path = NULL;
+	if (asprintf(&path, "%s/%s", dir, name) < 0)
+		return NULL;
+	if ((libxmp_get_filetype(path) & XMP_FILETYPE_FILE))
+		return path;
+	free(path);
+	return NULL;
 }
 #else /* target has dirent */
-int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
+char *libxmp_check_filename_case(const char *dir, const char *name)
 {
-	int found = 0;
 	DIR *dirp;
 	struct dirent *d;
+	char *path = NULL;
 
 	dirp = opendir(dir);
 	if (dirp == NULL)
-		return 0;
+		return NULL;
 
 	while ((d = readdir(dirp)) != NULL) {
 		if (!strcasecmp(d->d_name, name)) {
-			found = 1;
-			strncpy(new_name, d->d_name, size);
+			if (asprintf(&path, "%s/%s", dir, d->d_name) < 0)
+				path = NULL;
 			break;
 		}
 	}
 
 	closedir(dirp);
 
-	return found;
+	return path;
 }
 #endif
 
-void libxmp_get_instrument_path(struct module_data *m, char *path, int size)
+const char *libxmp_get_instrument_path(struct module_data *m)
 {
 	if (m->instrument_path) {
-		strncpy(path, m->instrument_path, size);
+		return m->instrument_path;
 	} else if (getenv("XMP_INSTRUMENT_PATH")) {
-		strncpy(path, getenv("XMP_INSTRUMENT_PATH"), size);
+		return getenv("XMP_INSTRUMENT_PATH");
 	} else {
-		strncpy(path, ".", size);
+		return ".";
 	}
 }
 #endif /* LIBXMP_CORE_PLAYER */
