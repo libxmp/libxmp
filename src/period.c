@@ -32,7 +32,7 @@
 /*
  * Period table from the Protracker V2.1A play routine
  */
-static uint16 pt_period_table[16][36] = {
+static const uint16 pt_period_table[16][36] = {
 	/* Tuning 0, Normal */
 	{
 		856,808,762,720,678,640,604,570,538,508,480,453,

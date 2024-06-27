@@ -25,6 +25,7 @@
 #include "mixer.h"
 #include "rng.h"
 
+/* TODO: Change this to const char *const in a future ABI change */
 const char *xmp_version LIBXMP_EXPORT_VAR = XMP_VERSION;
 const unsigned int xmp_vercode LIBXMP_EXPORT_VAR = XMP_VERCODE;
 
