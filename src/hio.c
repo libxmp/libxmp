@@ -390,7 +390,7 @@ HIO_HANDLE *hio_open(const char *path, const char *mode)
 	return NULL;
 }
 
-HIO_HANDLE *hio_open_mem(const void *ptr, long size, int free_after_use)
+HIO_HANDLE *hio_open_const_mem(const void *ptr, long size)
 {
 	HIO_HANDLE *h;
 
@@ -400,7 +400,7 @@ HIO_HANDLE *hio_open_mem(const void *ptr, long size, int free_after_use)
 		return NULL;
 
 	h->type = HIO_HANDLE_TYPE_MEMORY;
-	h->handle.mem = mopen(ptr, size, free_after_use);
+	h->handle.mem = mcopen(ptr, size);
 	h->size = size;
 
 	if (!h->handle.mem) {
@@ -486,7 +486,7 @@ static int hio_close_internal(HIO_HANDLE *h)
 }
 
 /* hio_close + hio_open_mem. Reuses the same HIO_HANDLE. */
-int hio_reopen_mem(const void *ptr, long size, int free_after_use, HIO_HANDLE *h)
+int hio_reopen_mem(void *ptr, long size, int free_after_use, HIO_HANDLE *h)
 {
 	MFILE *m;
 	int ret;
@@ -499,7 +499,7 @@ int hio_reopen_mem(const void *ptr, long size, int free_after_use, HIO_HANDLE *h
 
 	ret = hio_close_internal(h);
 	if (ret < 0) {
-		m->free_after_use = 0;
+		m->ptr_free = NULL;
 		mclose(m);
 		return ret;
 	}

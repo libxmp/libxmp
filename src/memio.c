@@ -92,7 +92,7 @@ int meof(MFILE *m)
 	return CAN_READ(m) <= 0;
 }
 
-MFILE *mopen(const void *ptr, long size, int free_after_use)
+MFILE *mopen(void *ptr, long size, int free_after_use)
 {
 	MFILE *m;
 
@@ -103,15 +103,31 @@ MFILE *mopen(const void *ptr, long size, int free_after_use)
 	m->start = (const unsigned char *)ptr;
 	m->pos = 0;
 	m->size = size;
-	m->free_after_use = free_after_use;
+	m->ptr_free = free_after_use ? ptr : NULL;
+
+	return m;
+}
+
+MFILE *mcopen(const void *ptr, long size)
+{
+	MFILE *m;
+
+	m = (MFILE *) malloc(sizeof(MFILE));
+	if (m == NULL)
+		return NULL;
+
+	m->start = (const unsigned char *)ptr;
+	m->pos = 0;
+	m->size = size;
+	m->ptr_free = NULL;
 
 	return m;
 }
 
 int mclose(MFILE *m)
 {
-	if (m->free_after_use)
-		free((void *)m->start);
+	if (m->ptr_free)
+		free(m->ptr_free);
 	free(m);
 	return 0;
 }
