@@ -846,7 +846,7 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	mod->chn = xfh.channels;
 	mod->pat = xfh.patterns;
 	mod->ins = xfh.instruments;
-	mod->rst = xfh.restart > xfh.songlen ? 0 : xfh.restart;
+	mod->rst = xfh.restart >= xfh.songlen ? 0 : xfh.restart;
 	mod->spd = xfh.tempo;
 	mod->bpm = xfh.bpm;
 	mod->trk = mod->chn * mod->pat + 1;
