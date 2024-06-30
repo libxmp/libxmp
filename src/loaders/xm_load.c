@@ -814,10 +814,6 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		return -1;
 	}
 
-	if (xfh.restart > 255 && xfh.restart != 0xffff) {
-		D_(D_CRIT "bad restart position: %d", xfh.restart);
-		return -1;
-	}
 	if (xfh.channels > XMP_MAX_CHANNELS) {
 		D_(D_CRIT "bad channel count: %d", xfh.channels);
 		return -1;
@@ -850,7 +846,7 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	mod->chn = xfh.channels;
 	mod->pat = xfh.patterns;
 	mod->ins = xfh.instruments;
-	mod->rst = xfh.restart > 255 ? 0 : xfh.restart;
+	mod->rst = xfh.restart > xfh.songlen ? 0 : xfh.restart;
 	mod->spd = xfh.tempo;
 	mod->bpm = xfh.bpm;
 	mod->trk = mod->chn * mod->pat + 1;
