@@ -3,6 +3,54 @@
 
 #include "common.h"
 
+#if defined(USE_LIBXMP_ASPRINTF)
+
+#undef asprintf
+
+int libxmp_asprintf(char **strp, const char *fmt, ...)
+{
+	int n;
+	int size = 100;     /* Guess we need no more than 100 bytes */
+	char *p, *np;
+	va_list ap;
+
+	*strp = NULL;
+
+	if ((p = malloc(size)) == NULL)
+		return -1;
+
+	while (1) {
+		/* Try to print in the allocated space */
+		va_start(ap, fmt);
+		n = vsnprintf(p, size, fmt, ap);
+		va_end(ap);
+
+		/* Check error code */
+		if (n < 0) {
+			free(p);
+			return -1;
+		}
+
+		/* If that worked, return the string */
+		if (n < size) {
+			*strp = p;
+			return n;
+		}
+
+		/* Else try again with more space */
+		size = n + 1; /* Precisely what is needed */
+
+		if ((np = realloc (p, size)) == NULL) {
+			free(p);
+			return -1;
+		} else {
+			p = np;
+		}
+	}
+}
+
+#endif
+
 #if defined(USE_LIBXMP_SNPRINTF)
 
 #undef snprintf

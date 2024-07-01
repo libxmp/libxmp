@@ -943,7 +943,7 @@ skip_test:
 	#else
 	if (ptsong) {
 	    HIO_HANDLE *s;
-	    char sn[XMP_MAXPATH];
+	    char *sn = NULL;
 	    char tmpname[32];
 	    const char *instname = mod->xxi[i].name;
 
@@ -953,15 +953,19 @@ skip_test:
 	    if (libxmp_copy_name_for_fopen(tmpname, instname, 32))
 		continue;
 
-	    snprintf(sn, XMP_MAXPATH, "%s%s", m->dirname, tmpname);
+	    if (asprintf(&sn, "%s%s", m->dirname, tmpname) < 0)
+		return -1;
 
 	    if ((s = hio_open(sn, "rb")) != NULL) {
 	        if (libxmp_load_sample(m, s, flags, &mod->xxs[i], NULL) < 0) {
 		    hio_close(s);
+		    free(sn);
 		    return -1;
 		}
 		hio_close(s);
 	    }
+
+            free(sn);
 	} else {
 	    uint8 buf[5];
 	    long pos;
