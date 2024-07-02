@@ -826,9 +826,9 @@ struct stb_vorbis
    int close_on_free;
 #endif
 
-   uint8 *stream;
-   uint8 *stream_start;
-   uint8 *stream_end;
+   const uint8 *stream;
+   const uint8 *stream_start;
+   const uint8 *stream_end;
 
    uint32 stream_len;
 
@@ -1065,7 +1065,7 @@ static float square(float x)
 // @OPTIMIZE: called multiple times per-packet with "constants"; move to setup
 static int ilog(int32 n)
 {
-   static signed char log2_4[16] = { 0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4 };
+   static const signed char log2_4[16] = { 0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4 };
 
    if (n < 0) return 0; // signed n returns 0
 
@@ -1200,8 +1200,8 @@ static void compute_accelerated_huffman(Codebook *c)
 
 static int STBV_CDECL uint32_compare(const void *p, const void *q)
 {
-   uint32 x = * (uint32 *) p;
-   uint32 y = * (uint32 *) q;
+   uint32 x = * (const uint32 *) p;
+   uint32 y = * (const uint32 *) q;
    return x < y ? -1 : x > y;
 }
 
@@ -1271,7 +1271,7 @@ static void compute_sorted_huffman(Codebook *c, uint8 *lengths, uint32 *values)
 // only run while parsing the header (3 times)
 static int vorbis_validate(uint8 *data)
 {
-   static uint8 vorbis[6] = { 'v', 'o', 'r', 'b', 'i', 's' };
+   static const uint8 vorbis[6] = { 'v', 'o', 'r', 'b', 'i', 's' };
    return memcmp(data, vorbis, 6) == 0;
 }
 
@@ -1362,8 +1362,8 @@ typedef struct
 
 static int STBV_CDECL point_compare(const void *p, const void *q)
 {
-   stbv__floor_ordering *a = (stbv__floor_ordering *) p;
-   stbv__floor_ordering *b = (stbv__floor_ordering *) q;
+   const stbv__floor_ordering *a = (const stbv__floor_ordering *) p;
+   const stbv__floor_ordering *b = (const stbv__floor_ordering *) q;
    return a->x < b->x ? -1 : a->x > b->x;
 }
 
@@ -1472,7 +1472,7 @@ static int set_file_offset(stb_vorbis *f, unsigned int loc)
 }
 
 
-static uint8 ogg_page_header[4] = { 0x4f, 0x67, 0x67, 0x53 };
+static const uint8 ogg_page_header[4] = { 0x4f, 0x67, 0x67, 0x53 };
 
 static int capture_pattern(vorb *f)
 {
@@ -1993,7 +1993,7 @@ static int predict_point(int x, int x0, int x1, int y0, int y1)
 }
 
 // the following table is block-copied from the specification
-static float inverse_db_table[256] =
+static const float inverse_db_table[256] =
 {
   1.0649863e-07f, 1.1341951e-07f, 1.2079015e-07f, 1.2863978e-07f,
   1.3699951e-07f, 1.4590251e-07f, 1.5538408e-07f, 1.6548181e-07f,
@@ -3256,7 +3256,7 @@ static int vorbis_decode_packet_rest(vorb *f, int *len, Mode *m, int left_start,
          if (get_bits(f, 1)) {
             short *finalY;
             uint8 step2_flag[256];
-            static int range_list[4] = { 256, 128, 86, 64 };
+            static const int range_list[4] = { 256, 128, 86, 64 };
             int range = range_list[g->floor1_multiplier-1];
             int offset = 2;
             finalY = f->finalY[i];
@@ -5202,9 +5202,9 @@ stb_vorbis * stb_vorbis_open_memory(const unsigned char *data, int len, int *err
       return NULL;
    }
    vorbis_init(&p, alloc);
-   p.stream = (uint8 *) data;
-   p.stream_end = (uint8 *) data + len;
-   p.stream_start = (uint8 *) p.stream;
+   p.stream = (const uint8 *) data;
+   p.stream_end = (const uint8 *) data + len;
+   p.stream_start = (const uint8 *) p.stream;
    p.stream_len = len;
    p.push_mode = FALSE;
    if (start_decoder(&p)) {
@@ -5230,7 +5230,7 @@ stb_vorbis * stb_vorbis_open_memory(const unsigned char *data, int len, int *err
 #define C  (PLAYBACK_LEFT  | PLAYBACK_RIGHT | PLAYBACK_MONO)
 #define R  (PLAYBACK_RIGHT | PLAYBACK_MONO)
 
-static int8 channel_position[7][6] =
+static const int8 channel_position[7][6] =
 {
    { 0 },
    { C },
@@ -5345,7 +5345,7 @@ static void convert_samples_short(int buf_c, short **buffer, int b_offset, int d
 {
    int i;
    if (buf_c != data_c && buf_c <= 2 && data_c <= 6) {
-      static int channel_selector[3][2] = { {0}, {PLAYBACK_MONO}, {PLAYBACK_LEFT, PLAYBACK_RIGHT} };
+      static const int channel_selector[3][2] = { {0}, {PLAYBACK_MONO}, {PLAYBACK_LEFT, PLAYBACK_RIGHT} };
       for (i=0; i < buf_c; ++i)
          compute_samples(channel_selector[buf_c][i], buffer[i]+b_offset, data_c, data, d_offset, samples);
    } else {

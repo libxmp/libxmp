@@ -11,7 +11,7 @@ TEST(test_read_mem_hio)
 	for (i = 0; i < 100; i++)
 		mem[i] = i;
 
-	h = hio_open_mem(mem, 100, 0);
+	h = hio_open_const_mem(mem, 100);
 	fail_unless(h != NULL, "hio_open");
 
 	x = hio_size(h);

@@ -111,7 +111,7 @@ MIX_FN(stereoout_mono_a500_filter);
 
 typedef void (*MIX_FP) (struct mixer_voice *, int32 *, int, int, int, int, int, int, int);
 
-static MIX_FP nearest_mixers[] = {
+static const MIX_FP nearest_mixers[] = {
 	LIST_MIX_FUNCTIONS(nearest),
 
 #ifndef LIBXMP_CORE_DISABLE_IT
@@ -119,7 +119,7 @@ static MIX_FP nearest_mixers[] = {
 #endif
 };
 
-static MIX_FP linear_mixers[] = {
+static const MIX_FP linear_mixers[] = {
 	LIST_MIX_FUNCTIONS(linear),
 
 #ifndef LIBXMP_CORE_DISABLE_IT
@@ -127,7 +127,7 @@ static MIX_FP linear_mixers[] = {
 #endif
 };
 
-static MIX_FP spline_mixers[] = {
+static const MIX_FP spline_mixers[] = {
 	LIST_MIX_FUNCTIONS(spline),
 
 #ifndef LIBXMP_CORE_DISABLE_IT
@@ -142,11 +142,11 @@ static MIX_FP spline_mixers[] = {
 	NULL, NULL, NULL, NULL, \
 	NULL, NULL, NULL, NULL
 
-static MIX_FP a500_mixers[] = {
+static const MIX_FP a500_mixers[] = {
 	LIST_MIX_FUNCTIONS_PAULA(a500)
 };
 
-static MIX_FP a500led_mixers[] = {
+static const MIX_FP a500led_mixers[] = {
 	LIST_MIX_FUNCTIONS_PAULA(a500_filter)
 };
 #endif
@@ -505,7 +505,7 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 	int prev_l, prev_r = 0;
 	int32 *buf_pos;
 	MIX_FP  mix_fn;
-	MIX_FP *mixerset;
+	const MIX_FP *mixerset;
 
 	switch (s->interp) {
 	case XMP_INTERP_NEAREST:

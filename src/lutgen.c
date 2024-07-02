@@ -260,7 +260,7 @@ void windowed_fir_init(void)
 
 
 #define LOOP(x, y) \
-    printf("static signed short %s[%lu] = {\n", #x, y); \
+    printf("static const signed short %s[%lu] = {\n", #x, y); \
     \
     for (i = 0; i < y; i++) { \
         if (i && !(i % 64)) { \
@@ -273,7 +273,7 @@ void windowed_fir_init(void)
 
 #define LOOP2(x, y) \
 for(j = 0; j < 4; j++) { \
-    printf("static int16 %s%d[%lu] = {\n\t", #x, j, y); \
+    printf("static const int16 %s%d[%lu] = {\n\t", #x, j, y); \
     \
     for (i = 0; i < y; i++) { \
         if (i && !(i % 8)) { \

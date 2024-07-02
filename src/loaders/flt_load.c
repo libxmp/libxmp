@@ -120,7 +120,7 @@ static int read_am_instrument(struct module_data *m, HIO_HANDLE *nt, int i)
 	struct xmp_envelope *freq_env = &xxi->fei;
 	struct am_instrument am;
 	struct rng_state rng;
-	char *wave;
+	const int8 *wave;
 	int a, b;
 	int8 am_noise[1024];
 
@@ -156,7 +156,7 @@ static int read_am_instrument(struct module_data *m, HIO_HANDLE *nt, int i)
 		xxs->len = 32;
 		xxs->lps = 0;
 		xxs->lpe = 32;
-		wave = (char *)&am_waveform[am.wf][0];
+		wave = &am_waveform[am.wf][0];
 	} else {
 		int j;
 
@@ -168,7 +168,7 @@ static int read_am_instrument(struct module_data *m, HIO_HANDLE *nt, int i)
 		for (j = 0; j < 1024; j++)
 			am_noise[j] = libxmp_get_random(&rng, 256);
 
-		wave = (char *)&am_noise[0];
+		wave = &am_noise[0];
 	}
 
 	xxs->flg = XMP_SAMPLE_LOOP;

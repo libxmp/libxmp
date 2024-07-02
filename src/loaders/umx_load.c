@@ -77,7 +77,7 @@ typedef int _check_hdrsize[2 * (offsetof(struct upkg_hdr, gen) == UPKG_HDR_SIZE)
 #define UMUSIC_WAV	4
 #define UMUSIC_MP2	5
 
-static const char *mustype[] = {
+static const char *const mustype[] = {
 	"IT", "S3M", "XM", "MOD",
 	"WAV", "MP2", NULL
 };

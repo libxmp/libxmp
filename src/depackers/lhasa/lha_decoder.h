@@ -101,7 +101,7 @@ typedef size_t (*LHADecoderCallback)(void *buf, size_t buf_len,
  *                       is no decoder type for the specified name.
  */
 
-LHADecoderType *lha_decoder_for_name(const char *name);
+const LHADecoderType *lha_decoder_for_name(const char *name);
 
 /**
  * Allocate a new decoder for the specified type.
@@ -115,7 +115,7 @@ LHADecoderType *lha_decoder_for_name(const char *name);
  * @return               Pointer to the new decoder, or NULL for failure.
  */
 
-LHADecoder *lha_decoder_new(LHADecoderType *dtype,
+LHADecoder *lha_decoder_new(const LHADecoderType *dtype,
                             LHADecoderCallback callback,
                             void *callback_data,
                             size_t stream_length);
@@ -201,7 +201,7 @@ struct _LHADecoder {
 
 	/** Type of decoder (algorithm) */
 
-	LHADecoderType *dtype;
+	const LHADecoderType *dtype;
 
 	/** Last announced block position, for progress callback. */
 
@@ -226,23 +226,23 @@ struct _LHADecoder {
 };
 
 // Null decoder, used for -lz4-, -lh0-, -pm0-:
-extern LHADecoderType lha_null_decoder;
+extern const LHADecoderType lha_null_decoder;
 
 // LArc compression algorithms:
-extern LHADecoderType lha_lz5_decoder;
-extern LHADecoderType lha_lzs_decoder;
+extern const LHADecoderType lha_lz5_decoder;
+extern const LHADecoderType lha_lzs_decoder;
 
 // LHarc compression algorithms:
-extern LHADecoderType lha_lh1_decoder;
-extern LHADecoderType lha_lh4_decoder;
-extern LHADecoderType lha_lh5_decoder;
-extern LHADecoderType lha_lh6_decoder;
-extern LHADecoderType lha_lh7_decoder;
-extern LHADecoderType lha_lhx_decoder;
-extern LHADecoderType lha_lk7_decoder;
+extern const LHADecoderType lha_lh1_decoder;
+extern const LHADecoderType lha_lh4_decoder;
+extern const LHADecoderType lha_lh5_decoder;
+extern const LHADecoderType lha_lh6_decoder;
+extern const LHADecoderType lha_lh7_decoder;
+extern const LHADecoderType lha_lhx_decoder;
+extern const LHADecoderType lha_lk7_decoder;
 
 // PMarc compression algorithms:
-extern LHADecoderType lha_pm1_decoder;
-extern LHADecoderType lha_pm2_decoder;
+extern const LHADecoderType lha_pm1_decoder;
+extern const LHADecoderType lha_pm2_decoder;
 
 #endif /* #ifndef LHASA_LHA_DECODER_H */
