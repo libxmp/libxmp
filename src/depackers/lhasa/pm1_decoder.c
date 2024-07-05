@@ -700,7 +700,7 @@ static size_t lha_pm1_read(void *data, uint8 *buf)
 	}
 }
 
-LHADecoderType lha_pm1_decoder = {
+const LHADecoderType lha_pm1_decoder = {
 	lha_pm1_init,
 	NULL,
 	lha_pm1_read,

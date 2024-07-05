@@ -24,9 +24,9 @@ CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include "lha_decoder.h"
 
 
-static struct {
+static const struct {
 	const char *name;
-	LHADecoderType *dtype;
+	const LHADecoderType *dtype;
 } decoders[] = {
 	{ "-lz4-", &lha_null_decoder },
 	{ "-lz5-", &lha_lz5_decoder },
@@ -44,7 +44,7 @@ static struct {
 	{ "-pm2-", &lha_pm2_decoder },
 };
 
-LHADecoder *lha_decoder_new(LHADecoderType *dtype,
+LHADecoder *lha_decoder_new(const LHADecoderType *dtype,
                             LHADecoderCallback callback,
                             void *callback_data,
                             size_t stream_length)
@@ -86,7 +86,7 @@ LHADecoder *lha_decoder_new(LHADecoderType *dtype,
 	return decoder;
 }
 
-LHADecoderType *lha_decoder_for_name(const char *name)
+const LHADecoderType *lha_decoder_for_name(const char *name)
 {
 	unsigned int i;
 

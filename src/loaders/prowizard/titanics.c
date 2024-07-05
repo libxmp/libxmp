@@ -36,7 +36,7 @@
 /* With the help of Xigh :) .. thx */
 static int cmplong(const void *a, const void *b)
 {
-	return *(int *)a == *(int *)b ? 0 : *(int *)a > *(int *)b ? 1 : -1;
+	return *(const int *)a == *(const int *)b ? 0 : *(const int *)a > *(const int *)b ? 1 : -1;
 }
 
 

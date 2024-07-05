@@ -109,7 +109,7 @@ static int ext_header_common_decoder(LHAFileHeader *header,
 	return 1;
 }
 
-static LHAExtHeaderType lha_ext_header_common = {
+static const LHAExtHeaderType lha_ext_header_common = {
 	LHA_EXT_HEADER_COMMON,
 	ext_header_common_decoder,
 	2
@@ -153,7 +153,7 @@ static int ext_header_filename_decoder(LHAFileHeader *header,
 	return 1;
 }
 
-static LHAExtHeaderType lha_ext_header_filename = {
+static const LHAExtHeaderType lha_ext_header_filename = {
 	LHA_EXT_HEADER_FILENAME,
 	ext_header_filename_decoder,
 	1
@@ -203,7 +203,7 @@ static int ext_header_path_decoder(LHAFileHeader *header,
 	return 1;
 }
 
-static LHAExtHeaderType lha_ext_header_path = {
+static const LHAExtHeaderType lha_ext_header_path = {
 	LHA_EXT_HEADER_PATH,
 	ext_header_path_decoder,
 	1
@@ -215,7 +215,7 @@ static LHAExtHeaderType lha_ext_header_path = {
 // Windows FILETIME format. The timestamps have 100ns accuracy, which is
 // much more accurate than the normal Unix time_t format.
 
-static LHAExtHeaderType lha_ext_header_windows_timestamps = {
+static const LHAExtHeaderType lha_ext_header_windows_timestamps = {
 	LHA_EXT_HEADER_WINDOWS_TIMESTAMPS,
 	ext_header_dummy_decoder,
 	24
@@ -224,7 +224,7 @@ static LHAExtHeaderType lha_ext_header_windows_timestamps = {
 
 // Unix permissions header (0x50).
 
-static LHAExtHeaderType lha_ext_header_unix_perms = {
+static const LHAExtHeaderType lha_ext_header_unix_perms = {
 	LHA_EXT_HEADER_UNIX_PERMISSION,
 	ext_header_dummy_decoder,
 	2
@@ -232,7 +232,7 @@ static LHAExtHeaderType lha_ext_header_unix_perms = {
 
 // Unix UID/GID header (0x51).
 
-static LHAExtHeaderType lha_ext_header_unix_uid_gid = {
+static const LHAExtHeaderType lha_ext_header_unix_uid_gid = {
 	LHA_EXT_HEADER_UNIX_UID_GID,
 	ext_header_dummy_decoder,
 	4
@@ -243,7 +243,7 @@ static LHAExtHeaderType lha_ext_header_unix_uid_gid = {
 // This stores a string containing the username. There don't seem to be
 // any tools that actually generate archives containing this header.
 
-static LHAExtHeaderType lha_ext_header_unix_username = {
+static const LHAExtHeaderType lha_ext_header_unix_username = {
 	LHA_EXT_HEADER_UNIX_USER,
 	ext_header_dummy_decoder,
 	1
@@ -255,7 +255,7 @@ static LHAExtHeaderType lha_ext_header_unix_username = {
 // username header, there don't seem to be  any tools that actually
 // generate archives containing this header.
 
-static LHAExtHeaderType lha_ext_header_unix_group = {
+static const LHAExtHeaderType lha_ext_header_unix_group = {
 	LHA_EXT_HEADER_UNIX_GROUP,
 	ext_header_dummy_decoder,
 	1
@@ -275,7 +275,7 @@ static int ext_header_unix_timestamp_decoder(LHAFileHeader *header,
 	return 1;
 }
 
-static LHAExtHeaderType lha_ext_header_unix_timestamp = {
+static const LHAExtHeaderType lha_ext_header_unix_timestamp = {
 	LHA_EXT_HEADER_UNIX_TIMESTAMP,
 	ext_header_unix_timestamp_decoder,
 	4
@@ -285,7 +285,7 @@ static LHAExtHeaderType lha_ext_header_unix_timestamp = {
 //
 // This stores OS-9 filesystem metadata.
 
-static LHAExtHeaderType lha_ext_header_os9 = {
+static const LHAExtHeaderType lha_ext_header_os9 = {
 	LHA_EXT_HEADER_OS9,
 	ext_header_dummy_decoder,
 	12
@@ -293,7 +293,7 @@ static LHAExtHeaderType lha_ext_header_os9 = {
 
 // Table of extended headers.
 
-static const LHAExtHeaderType *ext_header_types[] = {
+static const LHAExtHeaderType *const ext_header_types[] = {
 	&lha_ext_header_common,
 	&lha_ext_header_filename,
 	&lha_ext_header_path,
