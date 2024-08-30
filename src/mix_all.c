@@ -24,6 +24,12 @@
 #include "mixer.h"
 #include "precomp_lut.h"
 
+#if defined(__cplusplus) && (__cplusplus >= 201402L)
+#define REGISTER
+#else
+#define REGISTER register
+#endif
+
 /* Mixers
  *
  * To increase performance eight mixers are defined, one for each
@@ -170,7 +176,7 @@
 } while (0)
 
 #define VAR_NORM(x) \
-    register int smpl; \
+    REGISTER int smpl; \
     x *sptr = (x *)vi->sptr; \
     int pos = ((int)vi->pos) * chn; \
     int frac = (1 << SMIX_SHIFT) * (vi->pos - (int)vi->pos)
@@ -181,7 +187,7 @@
 
 #define VAR_STEREO(x) \
     const int chn = 2; \
-    register int smpr; \
+    REGISTER int smpr; \
     VAR_NORM(x)
 
 #define VAR_LINEAR() \
