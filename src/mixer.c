@@ -42,16 +42,18 @@
 
 struct loop_data
 {
-#define LOOP_PROLOGUE (1 * 2 /* stereo */)
-#define LOOP_EPILOGUE (2 * 2 /* stereo */)
+#define LOOP_PROLOGUE 1
+#define LOOP_EPILOGUE 2
 	void *sptr;
 	int start;
 	int end;
 	int first_loop;
 	int _16bit;
 	int active;
-	uint32 prologue[LOOP_PROLOGUE];
-	uint32 epilogue[LOOP_EPILOGUE];
+	int prologue_num;
+	int epilogue_num;
+	uint8 prologue[LOOP_PROLOGUE * 2 /* 16-bit */ * 2 /* stereo */];
+	uint8 epilogue[LOOP_EPILOGUE * 2 /* 16-bit */ * 2 /* stereo */];
 };
 
 /* Mixers array index:
@@ -274,10 +276,14 @@ static void set_sample_end(struct context_data *ctx, int voc, int end)
 }
 
 /* Back up sample data before and after loop and replace it for interpolation.
+ * TODO: if higher order interpolation than spline is added, the copy needs to
+ *       properly wrap around the loop data (modulo) for correct small loops.
  * TODO: use an overlap buffer like OpenMPT? This is easier, but a little dirty. */
 static void init_sample_wraparound(struct mixer_data *s, struct loop_data *ld,
 				   struct mixer_voice *vi, struct xmp_sample *xxs)
 {
+	int prologue_num = LOOP_PROLOGUE;
+	int epilogue_num = LOOP_EPILOGUE;
 	int bidir;
 	int i;
 
@@ -297,7 +303,11 @@ static void init_sample_wraparound(struct mixer_data *s, struct loop_data *ld,
 	if (xxs->flg & XMP_SAMPLE_STEREO) {
 		ld->start <<= 1;
 		ld->end <<= 1;
+		prologue_num <<= 1;
+		epilogue_num <<= 1;
 	}
+	ld->prologue_num = prologue_num;
+	ld->epilogue_num = epilogue_num;
 
 	bidir = vi->flags & VOICE_BIDIR;
 
@@ -305,30 +315,32 @@ static void init_sample_wraparound(struct mixer_data *s, struct loop_data *ld,
 		uint16 *start = (uint16 *)ld->sptr + ld->start;
 		uint16 *end = (uint16 *)ld->sptr + ld->end;
 
+		memcpy(ld->prologue, start - prologue_num, prologue_num * 2);
+		memcpy(ld->epilogue, end, epilogue_num * 2);
+
 		if (!ld->first_loop) {
-			for (i = 0; i < LOOP_PROLOGUE; i++) {
-				int j = i - LOOP_PROLOGUE;
-				ld->prologue[i] = start[j];
+			for (i = 0; i < prologue_num; i++) {
+				int j = i - prologue_num;
 				start[j] = bidir ? start[-1 - j] : end[j];
 			}
 		}
-		for (i = 0; i < LOOP_EPILOGUE; i++) {
-			ld->epilogue[i] = end[i];
+		for (i = 0; i < epilogue_num; i++) {
 			end[i] = bidir ? end[-1 - i] : start[i];
 		}
 	} else {
 		uint8 *start = (uint8 *)ld->sptr + ld->start;
 		uint8 *end = (uint8 *)ld->sptr + ld->end;
 
+		memcpy(ld->prologue, start - prologue_num, prologue_num);
+		memcpy(ld->epilogue, end, epilogue_num);
+
 		if (!ld->first_loop) {
-			for (i = 0; i < LOOP_PROLOGUE; i++) {
-				int j = i - LOOP_PROLOGUE;
-				ld->prologue[i] = start[j];
+			for (i = 0; i < prologue_num; i++) {
+				int j = i - prologue_num;
 				start[j] = bidir ? start[-1 - j] : end[j];
 			}
 		}
-		for (i = 0; i < LOOP_EPILOGUE; i++) {
-			ld->epilogue[i] = end[i];
+		for (i = 0; i < epilogue_num; i++) {
 			end[i] = bidir ? end[-1 - i] : start[i];
 		}
 	}
@@ -337,7 +349,8 @@ static void init_sample_wraparound(struct mixer_data *s, struct loop_data *ld,
 /* Restore old sample data from before and after loop. */
 static void reset_sample_wraparound(struct loop_data *ld)
 {
-	int i;
+	int prologue_num = ld->prologue_num;
+	int epilogue_num = ld->epilogue_num;
 
 	if (!ld->active)
 		return;
@@ -346,22 +359,14 @@ static void reset_sample_wraparound(struct loop_data *ld)
 		uint16 *start = (uint16 *)ld->sptr + ld->start;
 		uint16 *end = (uint16 *)ld->sptr + ld->end;
 
-		if (!ld->first_loop) {
-			for (i = 0; i < LOOP_PROLOGUE; i++)
-				start[i - LOOP_PROLOGUE] = ld->prologue[i];
-		}
-		for (i = 0; i < LOOP_EPILOGUE; i++)
-			end[i] = ld->epilogue[i];
+		memcpy(start - prologue_num, ld->prologue, prologue_num * 2);
+		memcpy(end, ld->epilogue, epilogue_num * 2);
 	} else {
 		uint8 *start = (uint8 *)ld->sptr + ld->start;
 		uint8 *end = (uint8 *)ld->sptr + ld->end;
 
-		if (!ld->first_loop) {
-			for (i = 0; i < LOOP_PROLOGUE; i++)
-				start[i - LOOP_PROLOGUE] = ld->prologue[i];
-		}
-		for (i = 0; i < LOOP_EPILOGUE; i++)
-			end[i] = ld->epilogue[i];
+		memcpy(start - prologue_num, ld->prologue, prologue_num);
+		memcpy(end, ld->epilogue, epilogue_num);
 	}
 }
 

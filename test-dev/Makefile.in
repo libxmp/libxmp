@@ -553,6 +553,7 @@ FUZZER		= misc \
 		  play_it_bad_sustain \
 		  play_it_extreme_filter \
 		  play_it_globalvol_marker \
+		  play_it_interpolation_loop \
 		  play_it_offset_reverse \
 		  play_it_row_0_loop_row_delay \
 		  play_it_sustain_bidi \
