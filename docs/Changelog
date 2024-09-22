@@ -5,6 +5,7 @@ Stable versions
 	Changes by Claudio Matsuoka:
 	- The full library is now under MIT license
 	Changes by Alice Rowan:
+	- Add stereo sample loading support for IT, S3M, XM, and MED.
 	- Fix XM envelope sustain points that exist on a zero-length loop.
 	- Fix loading edge case STMs with an EOF byte of 2.
 	- Fix loading Imago Orpheus modules with null instrument magic
@@ -23,6 +24,8 @@ Stable versions
 	- Bug fixes to DSMI loader
 	- Fix 16-bit sample check in MultiTracker loader
 	- Fix finetune in MultiTracker loader
+	- Fix XM restart position, so that it is possible to play
+	 "10 Days Of Abstinence.xm"
 	Changes by Saga Musix:
 	- S3M: Detect PlayerPRO, Velvet Studio and old MPT versions
 	Changes by ds-sloth:
