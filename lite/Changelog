@@ -3,16 +3,19 @@ Stable versions
 
 4.6.1 (?):
 	Changes by Alice Rowan:
+	- Add stereo sample loading support for IT, S3M, XM.
 	- Fix XM envelope sustain points that exist on a zero-length loop.
 	- Faster IT loading by buffering pattern, sample, and comment reads.
 	- Fix loop detection edge cases broken by S3M/IT marker scan bugs.
 	- Replace rand() with a built-in reentrant alternative.
-        - xmp_set_tempo_factor now returns -XMP_ERROR_STATE when called prior
-          to xmp_start_player (instead of causing crashes).
-        - Fix mixer crashes caused by previously valid tempo factors after
-          sample rate or BPM changes.
+	- xmp_set_tempo_factor now returns -XMP_ERROR_STATE when called prior
+	  to xmp_start_player (instead of causing crashes).
+	- Fix mixer crashes caused by previously valid tempo factors after
+	  sample rate or BPM changes.
 	Changes by Thomas Neumann:
 	- Fix XM envelope handling
+	- Fix XM restart position, so that it is possible to play
+	 "10 Days Of Abstinence.xm"
 	Changes by ds-sloth:
 	- Optimize scan code for common case of no effects
 	Changes by Ozkan Sezer:
