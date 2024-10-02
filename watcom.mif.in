@@ -22,7 +22,7 @@ LBCFILE=libxmp.lbc
 
 TESTNAME=libxmp-test.exe
 
-# the lite version:
+## the lite version :
 !ifeq TARGET_OS2 yes
 DLLNAME_LITE=libxmplt.dll
 LIBNAME_LITE=libxmplt.lib
@@ -35,6 +35,7 @@ EXPNAME_LITE=xmp-lite.exp
 # Note: not libxmp.map...
 MAPNAME_LITE=xmp-lite.map
 LIBSTATIC_LITE=xmplite_static.lib
+TESTNAME_LITE=libxmp-lite-test.exe
 LBCLITE=libxmplt.lbc
 
 !ifeq target static
@@ -43,11 +44,13 @@ LIBFLAGS=$(CFLAGS)
 BLD_TARGET=$(LIBSTATIC)
 BLD_LIB=$(LIBSTATIC)
 LITE_TARGET=$(LIBSTATIC_LITE)
+LITE_LIB=$(LIBSTATIC_LITE)
 !else
 LIBFLAGS=$(CFLAGS) $(DLLFLAGS)
 BLD_TARGET=$(DLLNAME)
 BLD_LIB=$(LIBNAME)
 LITE_TARGET=$(DLLNAME_LITE)
+LITE_LIB=$(LIBNAME_LITE)
 !endif
 
 OBJS=@OBJS@
@@ -62,6 +65,7 @@ ALL_OBJS+= $(PROWIZ_OBJS)
 ALL_OBJS+= $(DEPACKER_OBJS)
 !endif
 TEST_OBJS=test/md5.obj test/test.obj
+TESTLITE_OBJS=test/md5.obj test/testlite.obj
 
 all: $(BLD_TARGET)
 dll: $(DLLNAME)
@@ -78,8 +82,9 @@ lite: $(LITE_TARGET)
 
 test/md5.obj: src/md5.c
 	$(CC) $(CFLAGS) -fo=$^@ $<
-
 test/test.obj: test/test.c
+	$(CC) $(CFLAGS) -fo=$^@ $<
+test/testlite.obj: test/testlite.c
 	$(CC) $(CFLAGS) -fo=$^@ $<
 
 # rely on symbol name, not ordinal: -irn switch of wlib is default, but -inn is not.
@@ -98,6 +103,9 @@ $(LIBSTATIC_LITE): $(LITE_OBJS) $(LBCLITE)
 test/$(TESTNAME): $(BLD_LIB) $(TEST_OBJS)
 	wlink NAM test/$(TESTNAME) SYSTEM $(SYSTEM) OP QUIET LIBR {$(BLD_LIB)} FIL {$(TEST_OBJS)}
 
+test/$(TESTNAME_LITE): $(LITE_LIB) $(TESTLITE_OBJS)
+	wlink NAM test/$(TESTNAME_LITE) SYSTEM $(SYSTEM) OP QUIET LIBR {$(LITE_LIB)} FIL {$(TESTLITE_OBJS)}
+
 check-build: test/$(TESTNAME) .symbolic
 !ifneq target static
 	$(CMD_CP) $(DLLNAME) test
@@ -105,6 +113,14 @@ check-build: test/$(TESTNAME) .symbolic
 
 check: check-build .symbolic
 	cd test & $(TESTNAME)
+
+checklite-build: test/$(TESTNAME_LITE) .symbolic
+!ifneq target static
+	$(CMD_CP) $(DLLNAME_LITE) test
+!endif
+
+check-lite: checklite-build .symbolic
+	cd test & $(TESTNAME_LITE)
 
 clean: .symbolic
 	rm -f src/*.obj
@@ -116,7 +132,7 @@ clean: .symbolic
 distclean: clean .symbolic
 	rm -f *.err *.lnk *.lbc
 	rm -f $(DLLNAME) $(EXPNAME) $(MAPNAME) $(LIBNAME) $(LIBSTATIC) test/$(DLLNAME) test/$(TESTNAME)
-	rm -f $(DLLNAME_LITE) $(EXPNAME_LITE) $(MAPNAME_LITE) $(LIBNAME_LITE) $(LIBSTATIC_LITE)
+	rm -f $(DLLNAME_LITE) $(EXPNAME_LITE) $(MAPNAME_LITE) $(LIBNAME_LITE) $(LIBSTATIC_LITE) test/$(DLLNAME_LITE) test/$(TESTNAME_LITE)
 
 !ifdef __UNIX__
 CMD_CP=cp

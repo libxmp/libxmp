@@ -10,6 +10,16 @@
 #define TEST_IT_FILE "test.itz"
 #endif
 
+#ifdef LIBXMP_CORE_DISABLE_IT /* FIXME: ADD AN XM OR MOD TEST DATA */
+
+int main(void)
+{
+	printf("XFAIL: no test data when IT loader is disabled.\n");
+	return 0;
+}
+
+#else
+
 static inline int is_big_endian(void) {
 	unsigned short w = 0x00ff;
 	return (*(char *)&w == 0x00);
@@ -135,3 +145,4 @@ int main(void)
 	}
 	exit(1);
 }
+#endif /* !LIBXMP_CORE_DISABLE_IT */
