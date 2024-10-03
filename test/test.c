@@ -4,21 +4,25 @@
 #include "../src/md5.h"
 #include "xmp.h"
 
+#ifndef LIBXMP_CORE_DISABLE_IT
+
 #ifdef LIBXMP_NO_DEPACKERS
 #define TEST_IT_FILE "test.it"
 #else
 #define TEST_IT_FILE "test.itz"
 #endif
+#define TEST_PLAY_TIME	4800
+#define TEST_MD5_IEEE	"0fb814a84db24a21d93851cbeebe2a98"
+#define TEST_MD5_X87	"97eb1ff2bb3ee8252133cdee90fb162d"
 
-#ifdef LIBXMP_CORE_DISABLE_IT /* FIXME: ADD AN XM OR MOD TEST DATA */
+#else /* !LIBXMP_CORE_DISABLE_IT */
 
-int main(void)
-{
-	printf("XFAIL: no test data when IT loader is disabled.\n");
-	return 0;
-}
+#define TEST_IT_FILE	"test.xm"
+#define TEST_PLAY_TIME	8000
+#define TEST_MD5_IEEE	"089e2fcddb8989d04d5004876d642139"
+#define TEST_MD5_X87	"089e2fcddb8989d04d5004876d642139"
 
-#else
+#endif
 
 static inline int is_big_endian(void) {
 	unsigned short w = 0x00ff;
@@ -82,8 +86,8 @@ int main(void)
 	}
 
 	xmp_get_frame_info(c, &info);
-	if (info.total_time != 4800) {
-		printf("estimated replay time error\n");
+	if (info.total_time != TEST_PLAY_TIME) {
+		printf("estimated replay time error: %d\n", info.total_time);
 		goto err;
 	}
 
@@ -120,14 +124,14 @@ int main(void)
 	  x87 floating point results in a very slightly different output from
 	  SSE and other floating point implementations, so check two hashes.
 	 */
-	if (compare_md5(digest, "0fb814a84db24a21d93851cbeebe2a98") < 0 && /* SSE2 */
-	    compare_md5(digest, "97eb1ff2bb3ee8252133cdee90fb162d") < 0) { /* x87 */
+	if (compare_md5(digest, TEST_MD5_IEEE) < 0 &&
+	    compare_md5(digest, TEST_MD5_X87) < 0) {
 		printf("rendering error\n");
 		goto err;
 	}
 
-	if (time / 1000 != info.total_time) {
-		printf("replay time error\n");
+	if ((time + 500) / 1000 != info.total_time) {
+		printf("replay time error: %ld\n", time);
 		goto err;
 	}
 
@@ -145,4 +149,3 @@ int main(void)
 	}
 	exit(1);
 }
-#endif /* !LIBXMP_CORE_DISABLE_IT */
