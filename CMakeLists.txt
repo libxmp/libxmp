@@ -259,11 +259,19 @@ endif()
 
 
 add_library(XMP_IF INTERFACE)
-
 if(NOT BUILD_SHARED)
     target_link_libraries(XMP_IF INTERFACE xmp_static)
 else()
     target_link_libraries(XMP_IF INTERFACE xmp_shared)
+endif()
+
+if(BUILD_LITE)
+    add_library(XMPLITE_IF INTERFACE)
+    if(NOT BUILD_SHARED)
+        target_link_libraries(XMPLITE_IF INTERFACE xmp_lite_static)
+    else()
+        target_link_libraries(XMPLITE_IF INTERFACE xmp_lite_shared)
+    endif()
 endif()
 
 # === Unit tests ====

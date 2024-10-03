@@ -188,13 +188,16 @@ if(NOT (WIN32 OR CYGWIN OR AMIGA OR OS2))
         # Note: LIBXMP_DEFINES and LIBXMP_DEFINES should be defined externally before to include the "build_pros.cmake"
         list(APPEND LIBXMP_CFLAGS -fvisibility=hidden)
         list(APPEND LIBXMP_DEFINES -DXMP_SYM_VISIBILITY)
+        list(APPEND LIBXMPLITE_DEFINES -DXMP_SYM_VISIBILITY)
 
         if(HAVE_EXTERNAL_VISIBILITY)
             list(APPEND LIBXMP_DEFINES -DHAVE_EXTERNAL_VISIBILITY)
+            list(APPEND LIBXMPLITE_DEFINES -DHAVE_EXTERNAL_VISIBILITY)
         endif()
     endif()
 
     if(HAVE_ATTRIBUTE_SYMVER)
         list(APPEND LIBXMP_DEFINES -DHAVE_ATTRIBUTE_SYMVER)
+        list(APPEND LIBXMPLITE_DEFINES -DHAVE_ATTRIBUTE_SYMVER)
     endif()
 endif()

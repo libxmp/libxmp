@@ -208,11 +208,11 @@ docs: all-docs
 clean:
 	@rm -f $(ALL_OBJS) $(LOBJS) $(T_OBJS)
 	@rm -f $(GCOBJS) $(ALL_OBJS:.o=.gcno) $(ALL_OBJS:.o=.gcda)
-	@rm -f $(LITE_OBJS) $(LOBJS_LITE)
+	@rm -f $(LITE_OBJS) $(LOBJS_LITE) $(TLITE_OBJS)
 	@rm -f $(GCOBJS_LITE) $(LITE_OBJS:.o=.gcno) $(LITE_OBJS:.o=.gcda)
 
 distclean: clean
-	@rm -f config.log config.cache config.status *.pc *-version.cmake.autotools depend Makefile lib/* test/libxmp-test*
+	@rm -f config.log config.cache config.status *.pc *-version.cmake.autotools depend Makefile lib/* test/libxmp-test* test/libxmp-lite-test*
 
 install: all
 	@mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(LIBDIR) $(DESTDIR)$(INCLUDEDIR)
@@ -282,7 +282,7 @@ install: all
 depend:
 	@echo Building dependencies...
 	@echo > $@
-	@for i in $(ALL_OBJS) $(LITE_OBJS) $(T_OBJS); do \
+	@for i in $(ALL_OBJS) $(LITE_OBJS) $(T_OBJS) $(TLITE_OBJS); do \
 	    c="$${i%.o}.c"; l="$${i%.o}.lo"; \
 	    $(CC) $(CFLAGS) -MM $$c | \
 		sed "s!^.*\.o:!$$i $$l:!" >> $@ ; \
@@ -334,7 +334,7 @@ dist-subdirs: $(addprefix dist-,$(DDIRS))
 distcheck:
 	rm -Rf $(DIST)
 	tar xf $(DIST).tar.gz
-	(cd $(DIST); ./configure --enable-lite --enable-static --prefix=`pwd`/test-install; make; make check; make install; find test-install)
+	(cd $(DIST); ./configure --enable-lite --enable-static --prefix=`pwd`/test-install; make; make check check-lite; make install; find test-install)
 
 devcheck:
 	$(MAKE) -C test-dev
