@@ -334,7 +334,7 @@ dist-subdirs: $(addprefix dist-,$(DDIRS))
 distcheck:
 	rm -Rf $(DIST)
 	tar xf $(DIST).tar.gz
-	(cd $(DIST); ./configure --enable-lite --enable-static --prefix=`pwd`/test-install; make; make check; make install; find test-install)
+	(cd $(DIST); ./configure --enable-lite --enable-static --prefix=`pwd`/test-install; make; make check check-lite; make install; find test-install)
 
 devcheck:
 	$(MAKE) -C test-dev
