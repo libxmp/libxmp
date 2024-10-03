@@ -1,7 +1,7 @@
 
 TEST_OBJS	= test.o
 TESTLITE_OBJS	= testlite.o
-TEST_DFILES	= Makefile CMakeLists.txt $(TEST_OBJS:.o=.c) $(TESTLITE_OBJS:.o=.c) test.it test.itz
+TEST_DFILES	= Makefile CMakeLists.txt $(TEST_OBJS:.o=.c) $(TESTLITE_OBJS:.o=.c) test.it test.itz test.xm
 TEST_PATH	= test
 
 MAIN_OBJS	= md5.o
@@ -34,3 +34,4 @@ $(TEST_PATH)/libxmp-lite-test: $(TLITE_OBJS)
 	@CMD='$(LD) -o $@ $(TLITE_OBJS) $(LIBS) -Llib -lxmp-lite'; \
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
 	eval $$CMD
+
