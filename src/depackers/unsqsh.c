@@ -4,7 +4,7 @@
  * Checksum added by Sipos Attila <h430827@stud.u-szeged.hu>
  * Rewritten for libxmp by Claudio Matsuoka
  *
- * Copyright (C) 2013 Claudio Matsuoka
+ * Copyright (C) 2013-2024 Claudio Matsuoka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
