@@ -542,11 +542,13 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
     strncpy(mod->name, (char *) mh.name, 20);
 
     mod->len = mh.len;
-    /* mod->rst = mh.restart; */
-
-    if (mod->rst >= mod->len)
-	mod->rst = 0;
     memcpy(mod->xxo, mh.order, 128);
+
+    if (mh.restart < 0x7f && mh.restart != 0x78 && (int)mh.restart < mod->len) {
+	/* TODO: an older version of this code was commented out 23+ years ago
+	 * and adding this may have rebroke something. */
+	mod->rst = mh.restart;
+    }
 
     for (i = 0; i < 128; i++) {
 	/* This fixes dragnet.mod (garbage in the order list) */
