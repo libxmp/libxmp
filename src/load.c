@@ -387,11 +387,8 @@ int xmp_load_module(xmp_context opaque, const char *path)
 		ret = -XMP_ERROR_SYSTEM;
 		goto err;
 	}
-
-	m->filename = path;	/* For ALM, SSMT, etc */
 	m->size = hio_size(h);
 #else
-	ctx->m.filename = NULL;
 	ctx->m.dirname = NULL;
 	ctx->m.basename = NULL;
 #endif
@@ -432,7 +429,6 @@ int xmp_load_module_from_memory(xmp_context opaque, const void *mem, long size)
 	if (ctx->state > XMP_STATE_UNLOADED)
 		xmp_release_module(opaque);
 
-	m->filename = NULL;
 	m->basename = NULL;
 	m->dirname = NULL;
 	m->size = size;
@@ -457,7 +453,6 @@ int xmp_load_module_from_file(xmp_context opaque, void *file, long size)
 	if (ctx->state > XMP_STATE_UNLOADED)
 		xmp_release_module(opaque);
 
-	m->filename = NULL;
 	m->basename = NULL;
 	m->dirname = NULL;
 	m->size = hio_size(h);
@@ -483,7 +478,6 @@ int xmp_load_module_from_callbacks(xmp_context opaque, void *priv,
 	if (ctx->state > XMP_STATE_UNLOADED)
 		xmp_release_module(opaque);
 
-	m->filename = NULL;
 	m->basename = NULL;
 	m->dirname = NULL;
 	m->size = hio_size(h);
