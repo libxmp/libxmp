@@ -53,7 +53,7 @@ EFFECTS		= 0_arpeggio 1_slide_up 2_slide_down \
 		  it_g00_nosuck it_l00_nosuck it_fine_vol_row_delay \
 		  far_slide far_toneporta far_retrig far_noteoffset \
 		  far_vibrato far_vibrato_per far_volslide far_tempo \
-		  ult_toneporta
+		  ult_tempo ult_toneporta
 
 API		= get_format_list create_context free_context \
 		  test_module load_module load_module_from_memory \

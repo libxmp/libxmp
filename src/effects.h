@@ -88,7 +88,8 @@
 #define FX_FAR_RETRIG	0x6d	/* FAR retrigger */
 #define FX_FAR_DELAY	0x6e	/* FAR note offset */
 
-/* Other frequency based effects (ULT, etc) */
+/* ULT effects */
+#define FX_ULT_TEMPO	0x5f
 #define FX_ULT_TPORTA   0x6f
 #endif
 

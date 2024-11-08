@@ -407,6 +407,44 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 				bpm = far_bpm;
 			}
 		}
+
+		/* ULT tempo processing */
+
+		if (f1 == FX_ULT_TEMPO || f2 == FX_ULT_TEMPO) {
+		    int parm2 = 0;
+		    parm = 0;
+		    if (f2 == FX_ULT_TEMPO) {
+			if (p2 == 0) {
+				parm = 6;
+				parm2 = 125;
+			} else if (p2 < 0x30) {
+				parm = p2;
+			} else {
+				parm2 = p2;
+			}
+		    }
+		    if (f1 == FX_ULT_TEMPO) {
+			if (p1 == 0) {
+				parm = 6;
+				parm2 = 125;
+			} else if (p1 < 0x30) {
+				parm = p1;
+			} else {
+				parm2 = p1;
+			}
+		    }
+		    frame_count += row_count * speed;
+		    row_count = 0;
+		    if (parm > 0) {
+			speed = parm;
+			st26_speed = 0;
+		    }
+		    if (parm2 > 0) {
+			time += m->time_factor * frame_count * base_time / bpm;
+			frame_count = 0;
+			bpm = parm2;
+		    }
+		}
 #endif
 
 		if ((f1 == FX_S3M_SPEED && p1) || (f2 == FX_S3M_SPEED && p2)) {

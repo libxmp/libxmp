@@ -1090,6 +1090,22 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 
 	/* ULT effects */
 
+	case FX_ULT_TEMPO:	/* ULT tempo */
+		/* Has unusual semantics and is hard to split into multiple
+		 * effects, due to ULT's two effects lanes per channel:
+		 *
+		 * 00:    reset both speed and BPM to the default 6/125.
+		 * 01-2f: set speed
+		 * 30-ff: set BPM (CIA compatible)
+		 */
+		if (fxp == 0) {
+			p->speed = 6;
+			p->st26_speed = 0;
+			fxp = 125;
+		} else if (fxp < 0x30) {
+			goto fx_s3m_speed;
+		}
+		goto fx_s3m_bpm;
 	case FX_ULT_TPORTA:	/* ULT tone portamento */
 		/* Like normal persistent tone portamento, except:
 		 *
