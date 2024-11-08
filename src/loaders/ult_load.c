@@ -152,7 +152,20 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     MODULE_INFO();
 
-    hio_seek(f, ufh.msgsize * 32, SEEK_CUR);
+    if (ufh.msgsize > 0) {
+	if ((m->comment = (char *)malloc(ufh.msgsize * 33)) != NULL) {
+	    char *pos = m->comment;
+	    for (i = 0; i < (int)ufh.msgsize; i++) {
+		if (hio_read(pos, 1, 32, f) < 32)
+		    return -1;
+		pos[32] = '\n';
+		pos += 33;
+	    }
+	    *(--pos) = '\0';
+	} else {
+	    hio_seek(f, ufh.msgsize * 32, SEEK_CUR);
+	}
+    }
 
     mod->ins = mod->smp = hio_read8(f);
     /* mod->flg |= XXM_FLG_LINEAR; */
