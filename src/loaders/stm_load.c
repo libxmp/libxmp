@@ -385,7 +385,7 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 
 		if (sfh.type == STM_TYPE_SONG) {
 			HIO_HANDLE *s;
-			char sn[XMP_MAXPATH];
+			char *sn = NULL;
 			char tmpname[32];
 			const char *instname = mod->xxi[i].name;
 
@@ -395,15 +395,20 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			if (libxmp_copy_name_for_fopen(tmpname, instname, 32))
 				continue;
 
-			snprintf(sn, XMP_MAXPATH, "%s%s", m->dirname, tmpname);
+			if (asprintf(&sn, "%s%s", m->dirname, tmpname) < 0)
+				return -1;
+
 			s = hio_open(sn, "rb");
 			if (s != NULL) {
 				if (libxmp_load_sample(m, s, SAMPLE_FLAG_UNS, &mod->xxs[i], NULL) < 0) {
 					hio_close(s);
+					free(sn);
 					return -1;
 				}
 				hio_close(s);
 			}
+
+			free(sn);
 		} else {
 			hio_seek(f, start + (sfh.ins[i].rsvd1 << 4), SEEK_SET);
 			if (libxmp_load_sample(m, f, 0, &mod->xxs[i], NULL) < 0)

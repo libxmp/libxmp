@@ -235,6 +235,8 @@ dnl djgpp has all c89 math funcs in libc.a
 esac
 AC_CHECK_FUNCS(powf)
 
+AC_CHECK_FUNCS(asprintf)
+
 AC_SUBST([libxmplite_VERSION_MAJOR],libxmplite_VERSION_MAJOR_m4)
 AC_SUBST([libxmplite_VERSION_MINOR],libxmplite_VERSION_MINOR_m4)
 AC_SUBST([libxmplite_VERSION_PATCH],libxmplite_VERSION_PATCH_m4)

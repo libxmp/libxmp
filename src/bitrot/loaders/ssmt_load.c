@@ -182,7 +182,7 @@ static int mtp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	for (i = 0; i < mod->ins; i++) {
 		struct xmp_instrument *xxi = &mod->xxi[i];
 		HIO_HANDLE *s;
-		char filename[1024];
+		char *filename = NULL;
 		char tmpname[32];
 
 		if (!m->dirname) {
@@ -192,12 +192,15 @@ static int mtp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (!xxi->name[0] || libxmp_copy_name_for_fopen(tmpname, xxi->name, 32))
 			continue;
 
-		snprintf(filename, 1024, "%s%s", m->dirname, tmpname);
+		if (asprintf(&filename, "%s%s", m->dirname, tmpname) < 0)
+			continue;
 
 		if ((s = hio_open(filename, "rb")) != NULL) {
 			asif_load(m, s, i);
 			hio_close(s);
 		}
+
+		free(filename);
 
 #if 0
 		mod->xxs[i].lps = 0;
