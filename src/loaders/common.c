@@ -443,7 +443,7 @@ int libxmp_check_filename_case(const char *dir, const char *name, char *new_name
 int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
 {
 	int found = 0;
-	int ret;
+	int ret = size;
 	DIR *dirp;
 	struct dirent *d;
 
