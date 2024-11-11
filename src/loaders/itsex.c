@@ -95,6 +95,8 @@ int itsex_decompress8(HIO_HANDLE *src, uint8 *dst, int len,
 	uint8 left = 0, temp = 0, temp2 = 0;
 	uint32 d, pos;
 
+	memset(&in, 0, sizeof(in)); /* bogus GCC 12 -Wmaybe-uninitialized */
+
 	while (len) {
 		if (!block_count) {
 			block_count = 0x8000;
@@ -189,6 +191,8 @@ int itsex_decompress16(HIO_HANDLE *src, int16 *dst, int len,
 	uint8 left = 0;
 	int16 temp = 0, temp2 = 0;
 	uint32 d, pos;
+
+	memset(&in, 0, sizeof(in)); /* bogus GCC 12 -Wmaybe-uninitialized */
 
 	while (len) {
 		if (!block_count) {
