@@ -389,21 +389,20 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			char tmpname[32];
 			const char *instname = mod->xxi[i].name;
 
-			if (!instname[0] || !m->dirname)
+			if (libxmp_copy_name_for_fopen(tmpname, instname, 32) != 0)
 				continue;
 
-			if (libxmp_copy_name_for_fopen(tmpname, instname, 32))
+			if (!libxmp_find_instrument_file(m, sn, sizeof(sn), tmpname))
 				continue;
 
-			snprintf(sn, XMP_MAXPATH, "%s%s", m->dirname, tmpname);
-			s = hio_open(sn, "rb");
-			if (s != NULL) {
-				if (libxmp_load_sample(m, s, SAMPLE_FLAG_UNS, &mod->xxs[i], NULL) < 0) {
-					hio_close(s);
-					return -1;
-				}
+			if ((s = hio_open(sn, "rb")) == NULL)
+				continue;
+
+			if (libxmp_load_sample(m, s, SAMPLE_FLAG_UNS, &mod->xxs[i], NULL) < 0) {
 				hio_close(s);
+				return -1;
 			}
+			hio_close(s);
 		} else {
 			hio_seek(f, start + (sfh.ins[i].rsvd1 << 4), SEEK_SET);
 			if (libxmp_load_sample(m, f, 0, &mod->xxs[i], NULL) < 0)
