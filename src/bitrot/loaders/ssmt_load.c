@@ -14,10 +14,10 @@
 /* From the deMODifier readme:
  *
  * SoundSmith was arguably the most popular music authoring tool for the
- * Apple IIgs.  Introduced in the IIgs's heyday (which was, accurately 
+ * Apple IIgs.  Introduced in the IIgs's heyday (which was, accurately
  * enough, just about one day), this software inspired the creation
- * of countless numbers of IIgs-specific tunes, several of which were 
- * actually worth listening to.  
+ * of countless numbers of IIgs-specific tunes, several of which were
+ * actually worth listening to.
  */
 
 #include "loader.h"
@@ -76,7 +76,7 @@ static int mtp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	blocksize = hio_read16l(f);
 	mod->spd = hio_read16l(f);
 	hio_seek(f, 10, SEEK_CUR);		/* skip 10 reserved bytes */
-	
+
 	mod->ins = mod->smp = 15;
 	if (libxmp_init_instrument(m) < 0)
 		return -1;
@@ -182,17 +182,14 @@ static int mtp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	for (i = 0; i < mod->ins; i++) {
 		struct xmp_instrument *xxi = &mod->xxi[i];
 		HIO_HANDLE *s;
-		char filename[1024];
+		char filename[XMP_MAXPATH];
 		char tmpname[32];
 
-		if (!m->dirname) {
-			return -1;
-		}
-
-		if (!xxi->name[0] || libxmp_copy_name_for_fopen(tmpname, xxi->name, 32))
+		if (libxmp_copy_name_for_fopen(tmpname, xxi->name, 32) != 0)
 			continue;
 
-		snprintf(filename, 1024, "%s%s", m->dirname, tmpname);
+		if (!libxmp_find_instrument_file(m, filename, sizeof(filename), tmpname))
+			continue;
 
 		if ((s = hio_open(filename, "rb")) != NULL) {
 			asif_load(m, s, i);

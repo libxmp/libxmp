@@ -939,31 +939,30 @@ skip_test:
 
 	flags = (ptkloop && mod->xxs[i].lps == 0) ? SAMPLE_FLAG_FULLREP : 0;
 
-	#ifdef LIBXMP_CORE_PLAYER
+#ifdef LIBXMP_CORE_PLAYER
 	if (libxmp_load_sample(m, f, flags, &mod->xxs[i], NULL) < 0)
 		return -1;
-	#else
+#else
 	if (ptsong) {
 	    HIO_HANDLE *s;
 	    char sn[XMP_MAXPATH];
 	    char tmpname[32];
 	    const char *instname = mod->xxi[i].name;
 
-	    if (!instname[0] || !m->dirname)
+	    if (libxmp_copy_name_for_fopen(tmpname, instname, 32) != 0)
 		continue;
 
-	    if (libxmp_copy_name_for_fopen(tmpname, instname, 32))
+	    if (!libxmp_find_instrument_file(m, sn, sizeof(sn), tmpname))
 		continue;
 
-	    snprintf(sn, XMP_MAXPATH, "%s%s", m->dirname, tmpname);
+	    if ((s = hio_open(sn, "rb")) == NULL)
+		continue;
 
-	    if ((s = hio_open(sn, "rb")) != NULL) {
-	        if (libxmp_load_sample(m, s, flags, &mod->xxs[i], NULL) < 0) {
-		    hio_close(s);
-		    return -1;
-		}
+	    if (libxmp_load_sample(m, s, flags, &mod->xxs[i], NULL) < 0) {
 		hio_close(s);
+		return -1;
 	    }
+	    hio_close(s);
 	} else {
 	    uint8 buf[5];
 	    long pos;
@@ -983,7 +982,7 @@ skip_test:
 	    if (libxmp_load_sample(m, f, flags, &mod->xxs[i], NULL) < 0)
 		return -1;
 	}
-	#endif
+#endif
     }
 
     #ifdef LIBXMP_CORE_PLAYER
