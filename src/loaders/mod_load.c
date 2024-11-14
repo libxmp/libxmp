@@ -476,6 +476,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
     int needs_timing_detection = 0;
     int samerow_fxx = 0;		/* speed + BPM set on same row */
     int high_fxx = 0;			/* high Fxx is used anywhere */
+    int invert_loop = 0;		/* EFx found anywhere in module */
 #endif
     int ptkloop = 0;			/* Protracker loop */
 
@@ -788,6 +789,10 @@ skip_test:
 			speed_row = 1;
 		    }
 		}
+		/* Usage of effect EFx is typically Protracker invert loop. */
+		if (LSN(mod_event[2]) == 0xe && MSN(mod_event[3]) == 0xf) {
+		    invert_loop = 1;
+		}
 		mod_event += 4;
 	    }
 	    if (bpm_row && speed_row) {
@@ -811,6 +816,13 @@ skip_test:
 		D_(D_INFO "maybe-Amiga with out-of-range note -> unknown");
 		tracker_id = TRACKER_UNKNOWN;
 	    }
+	} else if (invert_loop && !detected &&
+	    (tracker_id == TRACKER_NOISETRACKER ||
+	     tracker_id == TRACKER_PROBABLY_NOISETRACKER)) {
+	    /* Switch Noisetracker to Protracker to disable event filtering. */
+	    D_(D_INFO "effect EFx is present in suspected Noisetracker -> "
+	       "more likely Protracker");
+	    tracker_id = TRACKER_PROTRACKER;
 	}
 #endif
 
@@ -896,6 +908,16 @@ skip_test:
 		break;
 	    }
 	}
+    }
+
+    if (invert_loop && !detected && !out_of_range) {
+	/* If EFx was detected and NO notes were out-of-range,
+	 * that's a strong indicator of a Protracker origin. */
+	D_(D_INFO "effect EFx and no out-of-range notes -> Protracker or OpenMPT");
+	if (tracker_id != TRACKER_OPENMPT) {
+	    tracker_id = TRACKER_PROTRACKER;
+	}
+	detected = 1;
     }
 
     switch (tracker_id) {
