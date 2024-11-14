@@ -297,6 +297,8 @@ static int get_tracker_id(struct module_data *m, struct mod_header *mh, int id)
 	int has_vol_in_empty_ins = 0;
 	int i;
 
+	D_(D_INFO "attempting initial tracker ID via header details");
+
 	/* Check if has instruments with loop size 0 */
 	for (i = 0; i < 31; i++) {
 		if (mh->ins[i].loop_size == 0) {
@@ -318,8 +320,10 @@ static int get_tracker_id(struct module_data *m, struct mod_header *mh, int id)
 	 */
 	if (mh->restart == mod->pat) {
 		if (mod->chn == 4) {
+			D_(D_INFO "restart=#pat and 4ch -> Soundtracker");
 			id = TRACKER_SOUNDTRACKER;
 		} else {
+			D_(D_INFO "restart=#pat and !4ch -> unknown");
 			id = TRACKER_UNKNOWN;
 		}
 	} else if (mh->restart == 0x78) {
@@ -327,36 +331,46 @@ static int get_tracker_id(struct module_data *m, struct mod_header *mh, int id)
 			/* Can't trust this for Noisetracker, MOD.Data City Remix
 			 * has Protracker effects and Noisetracker restart byte
 			 */
+			D_(D_INFO "restart=78 and 4ch -> maybe Noisetracker");
 			id = TRACKER_PROBABLY_NOISETRACKER;
 		} else {
+			D_(D_INFO "restart=78 and !4ch -> unknown");
 			id = TRACKER_UNKNOWN;
 		}
 		return id;
 	} else if (mh->restart < 0x7f) {
 		if (mod->chn == 4 && !has_vol_in_empty_ins) {
+			D_(D_INFO "restart<7f and 4ch and empty ins are "
+			   "volume 0 -> Noisetracker");
 			id = TRACKER_NOISETRACKER;
 		} else {
+			D_(D_INFO "restart<7f and not Noisetracker -> unknown");
 			id = TRACKER_UNKNOWN; /* ? */
 		}
 		mod->rst = mh->restart;
 	} else if (mh->restart == 0x7f) {
 		if (mod->chn == 4) {
 			if (has_loop_0) {
+				D_(D_INFO "restart=7f and 4ch and 0-size loop -> clone");
 				id = TRACKER_CLONE;
 			}
 		} else {
+			D_(D_INFO "restart=7f and !4ch -> Scream Tracker");
 			id = TRACKER_SCREAMTRACKER3;
 		}
 		return id;
 	} else if (mh->restart > 0x7f) {
+		D_(D_INFO "restart>7f -> unknown");
 		id = TRACKER_UNKNOWN; /* ? */
 		return id;
 	}
 
 	if (!has_loop_0) { /* All loops are size 2 or greater */
+		D_(D_INFO "no instrument 0-length loops...");
 
 		for (i = 0; i < 31; i++) {
 			if (mh->ins[i].size == 1 && mh->ins[i].volume == 0) {
+				D_(D_INFO "...and length 2 with 0 volume -> converted");
 				return TRACKER_CONVERTED;
 			}
 		}
@@ -366,6 +380,7 @@ static int get_tracker_id(struct module_data *m, struct mod_header *mh, int id)
 				break;
 		}
 		if (i == 31) {	/* No st- instruments */
+			D_(D_INFO "...and no ST- instruments...");
 			for (i = 0; i < 31; i++) {
 				if (mh->ins[i].size != 0
 				    || mh->ins[i].loop_size != 1) {
@@ -375,14 +390,17 @@ static int get_tracker_id(struct module_data *m, struct mod_header *mh, int id)
 				switch (mod->chn) {
 				case 4:
 					if (has_vol_in_empty_ins) {
+						D_(D_INFO "...and 4ch, vol in empty -> OpenMPT");
 						id = TRACKER_OPENMPT;
 					} else {
+						D_(D_INFO "...and 4ch -> Noisetracker");
 						id = TRACKER_NOISETRACKER;
 						/* or Octalyser */
 					}
 					break;
 				case 6:
 				case 8:
+					D_(D_INFO "..and 6ch or 8ch -> Octalyser");
 					id = TRACKER_OCTALYSER;
 					break;
 				default:
@@ -391,22 +409,28 @@ static int get_tracker_id(struct module_data *m, struct mod_header *mh, int id)
 				return id;
 			}
 
+			D_(D_INFO "...and no empty...");
 			if (mod->chn == 4) {
+				D_(D_INFO "...and 4ch -> Protracker");
 				id = TRACKER_PROTRACKER;
 			} else if (mod->chn == 6 || mod->chn == 8) {
 				/* FastTracker 1.01? */
+				D_(D_INFO "...and 6ch or 8ch -> Fast Tracker");
 				id = TRACKER_FASTTRACKER;
 			} else {
+				D_(D_INFO "...and %dch -> unknown", mod->chn);
 				id = TRACKER_UNKNOWN;
 			}
 		}
 	} else { /* Has loops with size 0 */
+		D_(D_INFO "instrument with 0-length loop...");
 		for (i = 15; i < 31; i++) {
 			/* Is the name or size set? */
 			if (mh->ins[i].name[0] || mh->ins[i].size > 0)
 				break;
 		}
 		if (i == 31 && is_st_ins((char *)mh->ins[14].name)) {
+			D_(D_INFO "...and <=15 instruments and ST-* -> converted ST");
 			return TRACKER_CONVERTEDST;
 		}
 
@@ -416,13 +440,16 @@ static int get_tracker_id(struct module_data *m, struct mod_header *mh, int id)
 				break;
 		}
 		if (i < 31) {
+			D_(D_INFO "...and >15 instruments and ST-* -> converted");
 			return TRACKER_UNKNOWN_CONV;
 		}
 
 		if (mod->chn == 4 || mod->chn == 6 || mod->chn == 8) {
+			D_(D_INFO "...and >15 instruments and 4ch/6ch/8ch -> Fast Tracker");
 			return TRACKER_FASTTRACKER;
 		}
 
+		D_(D_INFO "...and >15 instruments and %dch -> unknown", mod->chn);
 		id = TRACKER_UNKNOWN;	/* ?! */
 	}
 
@@ -504,6 +531,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	    mod->chn = mod_magic[i].ch;
 	    tracker_id = mod_magic[i].id;
 	    detected = mod_magic[i].flag;
+	    D_(D_INFO "magic match %4.4s -> %d", magic, tracker_id);
 	    break;
 	}
     }
@@ -533,10 +561,11 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	} else {
 	    return -1;
 	}
-	#ifndef LIBXMP_CORE_PLAYER
+#ifndef LIBXMP_CORE_PLAYER
+	D_(D_INFO "#CHN or ##CH signature -> FastTracker or TakeTracker");
 	tracker_id = mod->chn & 1 ? TRACKER_TAKETRACKER : TRACKER_FASTTRACKER2;
 	detected = 1;
-	#endif
+#endif
     }
 
     strncpy(mod->name, (char *) mh.name, 20);
@@ -572,6 +601,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 #ifndef LIBXMP_CORE_PLAYER
 	if (mh.ins[i].size >= 0x8000) {
+	    D_(D_INFO "sample %d >64k length -> OpenMPT", i);
 	    tracker_id = TRACKER_OPENMPT;
 	    needs_timing_detection = 0;
 	    detected = 1;
@@ -629,8 +659,10 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	hio_seek(f, start + pos, SEEK_SET);
 
 	if (num_read == 4 && !memcmp(idbuffer, "FLEX", 4)) {
+	    D_(D_INFO "FlexTrax FLEX data detected -> FlexTrax");
 	    tracker_id = TRACKER_FLEXTRAX;
 	    needs_timing_detection = 0;
+	    detected = 1;
 	    goto skip_test;
 	}
     }
@@ -654,15 +686,19 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     if (!strncmp(magic, "M.K.", 4) && maybe_wow &&
 		(0x43c + mod->pat * 32 * 0x40 + smp_size) == (m->size & ~1)) {
+	D_(D_INFO "file is M.K. with Mod's Grave characteristics -> Mod's Grave");
 	mod->chn = 8;
 	tracker_id = TRACKER_MODSGRAVE;
 	needs_timing_detection = 0;
+	detected = 1;
     } else {
 	/* Test for Protracker song files */
 	ptsong = !strncmp((char *)magic, "M.K.", 4) &&
 		 (0x43c + mod->pat * 0x400 == m->size);
 	if (ptsong) {
+		D_(D_INFO "file is Protracker song length M.K. -> Protracker");
 		tracker_id = TRACKER_PROTRACKER;
+		detected = 1;
 		goto skip_test;
 	} else {
 	/* something else */
@@ -671,6 +707,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
     }
 
 skip_test:
+    D_(D_INFO "initial tracker ID: %d%s", tracker_id, detected ? " (locked in)" : "");
 #endif
 
     if (mod->chn >= XMP_MAX_CHANNELS) {
@@ -736,6 +773,7 @@ skip_test:
 		    unsigned char fxp = LSN(mod_event[3]);
 
 		    if ((fxt > 0x06 && fxt < 0x0a) || (fxt == 0x0e && fxp > 1)) {
+			D_(D_INFO "non-Noisetracker effect -> unknown");
 			tracker_id = TRACKER_UNKNOWN;
 		    }
 		}
@@ -759,6 +797,8 @@ skip_test:
 
 	if (out_of_range) {
 	    if (tracker_id == TRACKER_UNKNOWN && mh.restart == 0x7f) {
+		D_(D_INFO "unknown tracker w/ restart 0x7f and out-of-range "
+		   "notes are present -> Scream Tracker");
 		tracker_id = TRACKER_SCREAMTRACKER3;
 	    }
 
@@ -768,6 +808,7 @@ skip_test:
 		tracker_id == TRACKER_PROBABLY_NOISETRACKER ||
 		tracker_id == TRACKER_SOUNDTRACKER) {   /* note > B-3 */
 
+		D_(D_INFO "maybe-Amiga with out-of-range note -> unknown");
 		tracker_id = TRACKER_UNKNOWN;
 	    }
 	}
@@ -819,6 +860,8 @@ skip_test:
 	    tracker_id == TRACKER_PROBABLY_NOISETRACKER ||
 	    tracker_id == TRACKER_SOUNDTRACKER) {
 
+	    D_(D_INFO "low Fxx and high Fxx on the same line, but tracker ID "
+	       "selected a VBlank-only tracker -> unknown");
 	    tracker_id = TRACKER_UNKNOWN;
 	}
 	m->compare_vblank = 0;
@@ -921,6 +964,8 @@ skip_test:
     } else {
 	snprintf(mod->type, XMP_NAME_SIZE, "%s %s", tracker, magic);
     }
+
+    D_(D_INFO "final tracker ID: %d", tracker_id);
 #else
     libxmp_set_type(m, (mod->chn == 4) ? "Protracker" : "Fasttracker");
 #endif
