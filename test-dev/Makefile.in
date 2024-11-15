@@ -99,7 +99,7 @@ OPENMPT_XM	= 3xxins \
 		  3xx_no_old_samp \
 		  3xx_no_old_samp_noft \
 		  arpeggio \
-		  arpeggioclamp \
+		  arpeggioclamp_old \
 		  arpslide_old \
 		  delay1 \
 		  delay2 \

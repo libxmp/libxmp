@@ -390,7 +390,7 @@ test_openmpt_xm_3xxins
 test_openmpt_xm_3xx_no_old_samp
 test_openmpt_xm_3xx_no_old_samp_noft
 test_openmpt_xm_arpeggio
-test_openmpt_xm_arpeggioclamp
+test_openmpt_xm_arpeggioclamp_old
 test_openmpt_xm_arpslide_old
 test_openmpt_xm_delay1
 test_openmpt_xm_delay2
