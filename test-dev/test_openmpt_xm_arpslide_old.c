@@ -9,10 +9,10 @@
  is added.
 */
 
-TEST(test_openmpt_xm_arpslide)
+TEST(test_openmpt_xm_arpslide_old)
 {
 	compare_mixer_data(
-		"openmpt/xm/ArpSlide.xm",
-		"openmpt/xm/ArpSlide.data");
+		"openmpt/xm/ArpSlide_old.xm",
+		"openmpt/xm/ArpSlide_old.data");
 }
 END_TEST

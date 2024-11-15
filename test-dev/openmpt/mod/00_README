@@ -1,9 +1,9 @@
-   #[1]Edit [2]OpenMPT Wiki (en) [3]copyright [4]OpenMPT Wiki Atom feed
+   #[1]Edit [2]OpenMPT Wiki (en) [3]OpenMPT Wiki Atom feed
 
 Development: Test Cases/MOD
 
    From OpenMPT Wiki
-   Jump to: [5]navigation, [6]search
+   [4]Jump to navigation [5]Jump to search
 
    This test suite is a collection of MOD modules that were created while
    discovering playback bugs in OpenMPT. It is meant to be an easy way to
@@ -17,6 +17,14 @@ Development: Test Cases/MOD
    having to read any long test descriptions. When it is impossible to do
    such a cross-verification, a more detailed description of the test can
    usually be found in the sample, instrument or comment text.
+
+   Some test cases mention that they should stay quiet when played
+   correctly. This does not take different ramping algorithms into account
+   (so there might me a small “pop” at the start of samples or when
+   changing the volume), and it is generally expected that the test cases
+   are rendered at a mix rate of 44100 Hz, as otherwise different
+   calculations of channel playback speed and interpolation settings may
+   cause small but noticable differences in playback.
 
    Bit-exact output is not the goal of this test suite, correct playback
    is, so slight deviations from ProTracker’s output (e.g. different
@@ -36,72 +44,147 @@ Development: Test Cases/MOD
 
    Last but not least, please keep in mind that some descriptions might be
    wrong or too general. Sometimes, the description might be correct in
-   the given test case, but changing the test case might invalidate the
-   description. If you know better than me, please correct the texts, and
-   please ask me if you need more information one of the test cases. The
-   documentation is not always optimal because the test cases have been
-   written long before I have created this site.
+   the given test case, but changing the test case slightly might
+   completely invalidate the description of how an effect is supposed to
+   work, for example. If you know better than me, please correct the
+   texts, and please ask me if you need more information one of the test
+   cases. The documentation is not always optimal because the test cases
+   have been written long before I have created this site.
+   [ ]
 
 Contents
 
-     * [7]1 AmigaLimitsFinetune.mod
-     * [8]2 ArpWraparound.mod
-     * [9]3 DelayBreak.mod
-     * [10]4 finetune.mod
-     * [11]5 PatternJump.mod
-     * [12]6 PortaSmpChange.mod
-     * [13]7 ptoffset.mod
-     * [14]8 VibratoReset.mod
+     * [6]1 AmigaLimitsFinetune.mod
+     * [7]2 ArpWraparound.mod
+     * [8]3 DelayBreak.mod
+     * [9]4 finetune.mod
+     * [10]5 InstrDelay.mod
+     * [11]6 InstrSwapRetrigger.mod
+     * [12]7 NoteDelay-NextRow.mod
+     * [13]8 PatLoop-Break.mod
+     * [14]9 PatternDelaysRetrig.mod
+     * [15]10 PatternJump.mod
+     * [16]11 PortaSmpChange.mod
+     * [17]12 PortaSwapPT.mod
+     * [18]13 PortaTarget.mod
+     * [19]14 PTInstrSwap.mod
+     * [20]15 PTInstrVolume.mod
+     * [21]16 ptoffset.mod
+     * [22]17 PTRetrigger.mod
+     * [23]18 PTStoppedSwap.mod
+     * [24]19 PTSwapEmpty.mod
+     * [25]20 PTSwapNoLoop.mod
+     * [26]21 TempoChange.mod
+     * [27]22 VibratoReset.mod
 
-AmigaLimitsFinetune.mod[[15]edit]
+AmigaLimitsFinetune.mod
 
    Current status: OpenMPT passes this test since revision 1555.
-   Download: [16]AmigaLimitsFinetune.mod
+   Download: [28]AmigaLimitsFinetune.mod
    Description: ProTracker does not always clamp samples to the exact same
    range of periods — it rather depends on the actual finetune value of
-   the sample. In contrast to that, ScreamTracker 3 always clamps periods
+   the sample. In contrast to that, Scream Tracker 3 always clamps periods
    to the same range in its Amiga mode. This test file should stay
    completely in tune at all times.
 
-ArpWraparound.mod[[17]edit]
+ArpWraparound.mod
 
-   Current status: OpenMPT passes this test since revision 1537.
-   Download: [18]ArpWraparound.mod
+   Current status: OpenMPT passes this test since revision 1537 + 6738.
+   Download: [29]ArpWraparound.mod
    Description: If an arpeggio parameter exceeds the Amiga frequency
    range, ProTracker wraps it around. In fact, the first note that is too
-   high (which would be C-7 in OpenMPT or C-4 in ProTracker) because
-   inaudible, C#7 / C#4 becomes C-4 / C-1, and so on. OpenMPT won't play
-   the first case correctly, but that's rather complicated to emulate and
-   probably not all that important.
+   high (which would be C-7 in OpenMPT or C-4 in ProTracker) will play at
+   a period of 0 (so just a static DC offset), C#7 / C#4 becomes C-4 /
+   C-1, and so on.
 
-DelayBreak.mod[[19]edit]
+DelayBreak.mod
 
    Current status: OpenMPT passes this test since revision 2108.
-   Download: [20]DelayBreak.mod
+   Download: [30]DelayBreak.mod
    Description: If there is a row delay (EEx) on the same row as a pattern
    break (Dxx), the target row of that jump is not played. Instead, the
    next row is played.
 
-finetune.mod[[21]edit]
+finetune.mod
 
    Current status: OpenMPT currently fails this test.
-   Download: [22]finetune.mod
+   Download: [31]finetune.mod
    Description: ProTracker’s E5x finetune handling is a bit weird. It is
    also evaluated if there is no note next to the command, and the command
    is also affected by 3xx portamentos.
 
-PatternJump.mod[[23]edit]
+InstrDelay.mod
+
+   Current status: OpenMPT passes this test since revision 4212 + 8653 +
+   8674.
+   Download: [32]InstrDelay.mod
+   Description: ProTracker always loads the new instrument settings
+   (volume, finetune and sample pointer) on the first tick, even if there
+   is a note delay. The new sample pointer is only used if the current
+   sample is looped and its loop end is reached.
+
+   This quirk is implemented in ProTracker 1/2 mode.
+
+InstrSwapRetrigger.mod
+
+   Current status: OpenMPT passes this test since revision 18955 + 18956.
+   Download: [33]InstrSwapRetrigger.mod
+   Description: Instrument swapping should happen instantly (not at the
+   end of the sample or end of sample loop like in [34]PTInstrSwap.mod)
+   when there is an E9x retrigger command next to a lone instrument
+   number. As with regular sample swapping, the sample finetune is not
+   updated. The left and right channel of this module should sound
+   identical.
+
+   Note that the retrigger command can cause semi-random tiny delays with
+   ProTracker on a real Amiga, so if there are small differences in phase
+   between the left and right channel when playing this test in ProTracker
+   but not in an external player, this is acceptable.
+
+NoteDelay-NextRow.mod
+
+   Current status: OpenMPT passes this test since revision 8730.
+   Download: [35]NoteDelay-NextRow.mod
+   Description: In ProTracker, a note delay greater than the current speed
+   will cause the delayed note to be played on the first tick of the next
+   row if there is no new note on the next row (even if that new note is
+   also delayed). However, the note is note restarted but rather continues
+   where a previous note left off playing (like an instant portamento).
+
+PatLoop-Break.mod
+
+   Current status: OpenMPT passes this test since revision 5402.
+   Download: [36]PatLoop-Break.mod
+   Description: Just as with XM and IT, a pattern break should not reset
+   the pattern loop counter. You should hear two noise bursts, followed by
+   the words “success”.
+
+PatternDelaysRetrig.mod
+
+   Current status: OpenMPT passes this test since revision 9152.
+   Download: [37]PatternDelaysRetrig.mod
+   Description: When there is a row delay (EEx), fine slides and note
+   delays should be executed on every row repetition.
+
+   Note. OpenMPT does not apply ProTracker behaviour for this quirk if the
+   MOD file contains more than 4 channels or notes outside of the Amiga
+   frequency range. This is to avoid some potential issues with infinite
+   pattern loops due to row delays that e.g. FastTracker 2 doesn't have
+   (and thus FT2-made MODs would get stuck in an infinite loop where they
+   should not).
+
+PatternJump.mod
 
    Current status: OpenMPT passes this test since revision 1321.
-   Download: [24]PatternJump.mod
+   Download: [38]PatternJump.mod
    Description: A Bxx command should reset the effect of a Dxx command
    that is left of the Bxx command. You should hear a voice saying
    “success”.
 
-PortaSmpChange.mod[[25]edit]
+PortaSmpChange.mod
 
    Current status: OpenMPT passes this test since revision 3578.
-   Download: [26]PortaSmpChange.mod
+   Download: [39]PortaSmpChange.mod
    Description: The interpretation of this scenario highly differs between
    various replayers. If the sample number next to a portamento effect
    differs from the previous number, the new sample's default volume
@@ -109,16 +192,63 @@ PortaSmpChange.mod[[25]edit]
      * the old sample should be played until reaching its end or loop end
        (ProTracker 1/2). If the sample loops, the new sample should be
        activated after the loop ended.
-     * the new sample should be applied (ProTracker 3, various other
-       players)
+     * the old sample should keep playing (various other players)
 
-   OpenMPT implements the second option, which is also how it works in
-   e.g. XM and S3M files.
+   OpenMPT implements the second option in normal playback mode and the
+   first option in ProTracker 1/2 mode.
 
-ptoffset.mod[[27]edit]
+PortaSwapPT.mod
+
+   Current status: OpenMPT passes this test since revision 6614 + 8665.
+   Download: [40]PortaSwapPT.mod
+   Description: Related to [41]PortaSmpChange.mod, this tests the
+   portamento with sample swap behaviour for ProTracker-compatible MODs.
+   Noteworthy tested behaviours:
+     * When doing a sample swap without portamento, the new sample keeps
+       using the old sample’s finetune.
+     * When doing a sample swap with portamento, the new sample’s finetune
+       is instantly applied, and the new sample is started as soon as the
+       old sample’s loop is finished playing.
+
+PortaTarget.mod
+
+   Current status: OpenMPT passes this test since revision 4726.
+   Download: [42]PortaTarget.mod
+   Description: ProTracker’s portamento behaviour is somewhere between FT2
+   and IT:
+     * A new note (with no portamento command next to it) does not reset
+       the portamento target. That is, if a previous portamento has not
+       finished yet, calling 3xx or 5xx after the new note will slide it
+       towards the old target.
+     * Once the portamento target period is reached, the target is reset.
+       This means that if the period is modified by another slide (e.g.
+       1xx or 2xx), a following 3xx will not slide back to the original
+       target.
+
+PTInstrSwap.mod
+
+   Current status: OpenMPT passes this test since revision 4223.
+   Download: [43]PTInstrSwap.mod
+   Description: When specifying an instrument number without a note,
+   ProTracker 1/2 instantly applies the new instrument settings, but does
+   not use the new sample until the end of the (loop of the) current
+   sample is reached. In this example, sample 2 should be played at
+   maximum volume as soon as instrument number 1 is encountered in the
+   pattern, then sample 1 should be triggered somewhere around row 10 and
+   then stop playing at around row 18.
+
+PTInstrVolume.mod
+
+   Current status: OpenMPT passes this test since revision 12249.
+   Download: [44]PTInstrVolume.mod
+   Description: This test verifies that a volume command set together with
+   an instrument but no note will be kept once the note is triggered
+   later.
+
+ptoffset.mod
 
    Current status: OpenMPT passes this test since revision 4018.
-   Download: [28]ptoffset.mod
+   Download: [45]ptoffset.mod
    Description: ProTracker 1/2 has a slightly buggy offset implementation
    which adds the offset in two different places (according to
    tracker_notes.txt coming with libxmp: "once before playing this
@@ -127,45 +257,101 @@ ptoffset.mod[[27]edit]
    identical. OpenMPT emulates this behaviour correctly in ProTracker
    mode.
 
-VibratoReset.mod[[29]edit]
+PTRetrigger.mod
+
+   Current status: OpenMPT passes this test since revision 14872.
+   Download: [46]PTRetrigger.mod
+   Description: This tests the E9x implementation against the ProTracker
+   implementation. Left and right channel should retrigger at the same
+   intervals.
+
+   In summary, this is how the retrigger effect should work:
+     * If current tick is 0 and there is a note, do not retrigger
+     * If effect parameter is greater than 0, and the current tick modulo
+       the parameter is 0, do retrigger
+
+   Note that the current tick counts upwards (starting at 0), and is reset
+   on every repetition caused by the EEx (row delay) command.
+
+PTStoppedSwap.mod
+
+   Current status: OpenMPT passes this test since revision 21029.
+   Download: [47]PTStoppedSwap.mod
+   Description: When a non-looped sample stopped playing, it is still
+   possible to perform sample swapping to a looped sample. As a result, on
+   the first and third row, a square wave should be heard, a drum on the
+   second and fourth row, but no new sample should be triggered on the
+   fifth row.
+
+PTSwapEmpty.mod
+
+   Current status: OpenMPT passes this test since revision 4950.
+   Download: [48]PTSwapEmpty.mod
+   Description: ProTracker instrument swapping (see [49]PTInstrSwap.mod
+   test case) also works when swapping from an empty sample slot back to a
+   normal slot: If the sample was already swapped, it is restarted
+   immediately.
+
+PTSwapNoLoop.mod
+
+   Current status: OpenMPT passes this test since revision 11843 + 11844.
+   Download: [50]PTSwapNoLoop.mod
+   Description: ProTracker instrument swapping (see [51]PTInstrSwap.mod
+   test case) should also work when the "source" sample is not looped.
+   However, when the "target" sample is not looped, sample playback should
+   stop as with [52]PTSwapEmpty.mod. Conceptually this can be explained
+   because in this case, the sample loop goes from 0 to 2 in "oneshot"
+   mode, i.e. it will loop a (hopefully) silent part of the sample.
+
+TempoChange.mod
+
+   Current status: OpenMPT passes this test since revision 8732.
+   Download: [53]TempoChange.mod
+   Description: ProTracker applies any tempo changes after the first tick
+   (so at one tick per row, they happen on the next row).
+
+VibratoReset.mod
 
    Current status: OpenMPT passes this test since revision 1556.
-   Download: [30]VibratoReset.mod
+   Download: [54]VibratoReset.mod
    Description: Like many other trackers, ProTracker does not advance the
    vibrato position on the first tick of the row. However, it also does
    not apply the vibrato offset on the first tick, which results in
    somewhat funky-sounding vibratos. OpenMPT uses this behaviour only in
-   ProTracker 1.x mode. The same applies to the tremolo effect.
+   ProTracker 1/2 mode. The same applies to the tremolo effect.
 
-   In total, OpenMPT passes 7 out of 8 tests.
+   In total, OpenMPT passes 21 out of 22 tests.
    Retrieved from
-   "[31]http://wiki.openmpt.org/index.php?title=Development:_Test_Cases/MO
-   D&oldid=2036"
-   [32]Categories:
-     * [33]Development
-     * [34]MOD Format
+   "[55]https://wiki.openmpt.org/index.php?title=Development:_Test_Cases/M
+   OD&oldid=4572"
+   [56]Categories:
+     * [57]Development
+     * [58]MOD Format
 
 Navigation menu
 
 Personal tools
 
-     * [35]Create account
-     * [36]Log in
+     * Not logged in
+     * [59]Talk
+     * [60]Contributions
+     * [61]Create account
+     * [62]Log in
 
 Namespaces
 
-     * [37]Page
-     * [38]Discussion
+     * [63]Page
+     * [64]Discussion
 
-Variants
+   [ ] English
 
 Views
 
-     * [39]Read
-     * [40]Edit
-     * [41]View history
+     * [65]Read
+     * [66]Edit
+     * [67]View history
 
-Actions
+   [ ] More
 
 Search
 
@@ -173,109 +359,128 @@ Search
 
 Navigation
 
-     * [42]Main page
-     * [43]Download OpenMPT
-     * [44]OpenMPT Website
-     * [45]Community portal
-     * [46]Current events
-     * [47]Recent changes
-     * [48]Random page
-     * [49]Help
+     * [68]Main page
+     * [69]Download OpenMPT
+     * [70]OpenMPT Website
+     * [71]Recent changes
+     * [72]Random page
+     * [73]Help
 
 Tools
 
-     * [50]What links here
-     * [51]Related changes
-     * [52]Special pages
-     * [53]Permanent link
-     * [54]Page information
+     * [74]What links here
+     * [75]Related changes
+     * [76]Special pages
+     * [77]Permanent link
+     * [78]Page information
 
 Print/export
 
-     * [55]Create a book
-     * [56]Download as PDF
-     * [57]Printable version
+     * [79]Create a book
+     * [80]Download as PDF
+     * [81]Printable version
 
-     * This page was last modified on 28 April 2014, at 01:31.
-     * This page has been accessed 864 times.
-     * Content is available under [58]Creative Commons Attribution Share
+     * This page was last edited on 14 June 2024, at 21:51.
+     * Content is available under [82]Creative Commons Attribution Share
        Alike unless otherwise noted.
 
-     * [59]Privacy policy
-     * [60]About OpenMPT Wiki
-     * [61]Disclaimers
+     * [83]Privacy policy
+     * [84]About OpenMPT Wiki
+     * [85]Disclaimers
 
-     * [62]Creative Commons Attribution Share Alike
-     * [63]Powered by MediaWiki
+     * [86]Creative Commons Attribution Share Alike
+     * [87]Powered by MediaWiki
 
 References
 
-   Visible links
-   1. http://wiki.openmpt.org/index.php?title=Development:_Test_Cases/MOD&action=edit
-   2. http://wiki.openmpt.org/opensearch_desc.php
-   3. http://creativecommons.org/licenses/by-sa/3.0/
-   4. http://wiki.openmpt.org/index.php?title=Special:RecentChanges&feed=atom
-   5. http://wiki.openmpt.org/Development:_Test_Cases/MOD#mw-navigation
-   6. http://wiki.openmpt.org/Development:_Test_Cases/MOD#p-search
-   7. http://wiki.openmpt.org/Development:_Test_Cases/MOD#AmigaLimitsFinetune.mod
-   8. http://wiki.openmpt.org/Development:_Test_Cases/MOD#ArpWraparound.mod
-   9. http://wiki.openmpt.org/Development:_Test_Cases/MOD#DelayBreak.mod
-  10. http://wiki.openmpt.org/Development:_Test_Cases/MOD#finetune.mod
-  11. http://wiki.openmpt.org/Development:_Test_Cases/MOD#PatternJump.mod
-  12. http://wiki.openmpt.org/Development:_Test_Cases/MOD#PortaSmpChange.mod
-  13. http://wiki.openmpt.org/Development:_Test_Cases/MOD#ptoffset.mod
-  14. http://wiki.openmpt.org/Development:_Test_Cases/MOD#VibratoReset.mod
-  15. http://wiki.openmpt.org/index.php?title=Template:Testcase&action=edit&section=T-1
-  16. http://resources.openmpt.org/player_tests/mod/AmigaLimitsFinetune.mod
-  17. http://wiki.openmpt.org/index.php?title=Template:Testcase&action=edit&section=T-1
-  18. http://resources.openmpt.org/player_tests/mod/ArpWraparound.mod
-  19. http://wiki.openmpt.org/index.php?title=Template:Testcase&action=edit&section=T-1
-  20. http://resources.openmpt.org/player_tests/mod/DelayBreak.mod
-  21. http://wiki.openmpt.org/index.php?title=Template:Testcase&action=edit&section=T-1
-  22. http://resources.openmpt.org/player_tests/mod/finetune.mod
-  23. http://wiki.openmpt.org/index.php?title=Template:Testcase&action=edit&section=T-1
-  24. http://resources.openmpt.org/player_tests/mod/PatternJump.mod
-  25. http://wiki.openmpt.org/index.php?title=Template:Testcase&action=edit&section=T-1
-  26. http://resources.openmpt.org/player_tests/mod/PortaSmpChange.mod
-  27. http://wiki.openmpt.org/index.php?title=Template:Testcase&action=edit&section=T-1
-  28. http://resources.openmpt.org/player_tests/mod/ptoffset.mod
-  29. http://wiki.openmpt.org/index.php?title=Template:Testcase&action=edit&section=T-1
-  30. http://resources.openmpt.org/player_tests/mod/VibratoReset.mod
-  31. http://wiki.openmpt.org/index.php?title=Development:_Test_Cases/MOD&oldid=2036
-  32. http://wiki.openmpt.org/Special:Categories
-  33. http://wiki.openmpt.org/Category:Development
-  34. http://wiki.openmpt.org/Category:MOD_Format
-  35. http://wiki.openmpt.org/index.php?title=Special:UserLogin&returnto=Development%3A+Test+Cases%2FMOD&type=signup
-  36. http://wiki.openmpt.org/index.php?title=Special:UserLogin&returnto=Development%3A+Test+Cases%2FMOD
-  37. http://wiki.openmpt.org/Development:_Test_Cases/MOD
-  38. http://wiki.openmpt.org/index.php?title=Talk:Development:_Test_Cases/MOD&action=edit&redlink=1
-  39. http://wiki.openmpt.org/Development:_Test_Cases/MOD
-  40. http://wiki.openmpt.org/index.php?title=Development:_Test_Cases/MOD&action=edit
-  41. http://wiki.openmpt.org/index.php?title=Development:_Test_Cases/MOD&action=history
-  42. http://wiki.openmpt.org/Main_Page
-  43. http://openmpt.org/download
-  44. http://openmpt.org/
-  45. http://wiki.openmpt.org/OpenMPT_Wiki:Community_portal
-  46. http://wiki.openmpt.org/OpenMPT_Wiki:Current_events
-  47. http://wiki.openmpt.org/Special:RecentChanges
-  48. http://wiki.openmpt.org/Special:Random
-  49. https://www.mediawiki.org/wiki/Special:MyLanguage/Help:Contents
-  50. http://wiki.openmpt.org/Special:WhatLinksHere/Development:_Test_Cases/MOD
-  51. http://wiki.openmpt.org/Special:RecentChangesLinked/Development:_Test_Cases/MOD
-  52. http://wiki.openmpt.org/Special:SpecialPages
-  53. http://wiki.openmpt.org/index.php?title=Development:_Test_Cases/MOD&oldid=2036
-  54. http://wiki.openmpt.org/index.php?title=Development:_Test_Cases/MOD&action=info
-  55. http://wiki.openmpt.org/index.php?title=Special:Book&bookcmd=book_creator&referer=Development%3A+Test+Cases%2FMOD
-  56. http://wiki.openmpt.org/index.php?title=Special:Book&bookcmd=render_article&arttitle=Development%3A+Test+Cases%2FMOD&oldid=2036&writer=rl
-  57. http://wiki.openmpt.org/index.php?title=Development:_Test_Cases/MOD&printable=yes
-  58. http://creativecommons.org/licenses/by-sa/3.0/
-  59. http://wiki.openmpt.org/OpenMPT_Wiki:Privacy_policy
-  60. http://wiki.openmpt.org/OpenMPT_Wiki:About
-  61. http://wiki.openmpt.org/OpenMPT_Wiki:General_disclaimer
-  62. http://creativecommons.org/licenses/by-sa/3.0/
-  63. http://www.mediawiki.org/
+   Visible links:
+   1. https://wiki.openmpt.org/index.php?title=Development:_Test_Cases/MOD&action=edit
+   2. https://wiki.openmpt.org/opensearch_desc.php
+   3. https://wiki.openmpt.org/index.php?title=Special:RecentChanges&feed=atom
+   4. https://wiki.openmpt.org/Development:_Test_Cases/MOD#mw-head
+   5. https://wiki.openmpt.org/Development:_Test_Cases/MOD#searchInput
+   6. https://wiki.openmpt.org/Development:_Test_Cases/MOD#AmigaLimitsFinetune.mod
+   7. https://wiki.openmpt.org/Development:_Test_Cases/MOD#ArpWraparound.mod
+   8. https://wiki.openmpt.org/Development:_Test_Cases/MOD#DelayBreak.mod
+   9. https://wiki.openmpt.org/Development:_Test_Cases/MOD#finetune.mod
+  10. https://wiki.openmpt.org/Development:_Test_Cases/MOD#InstrDelay.mod
+  11. https://wiki.openmpt.org/Development:_Test_Cases/MOD#InstrSwapRetrigger.mod
+  12. https://wiki.openmpt.org/Development:_Test_Cases/MOD#NoteDelay-NextRow.mod
+  13. https://wiki.openmpt.org/Development:_Test_Cases/MOD#PatLoop-Break.mod
+  14. https://wiki.openmpt.org/Development:_Test_Cases/MOD#PatternDelaysRetrig.mod
+  15. https://wiki.openmpt.org/Development:_Test_Cases/MOD#PatternJump.mod
+  16. https://wiki.openmpt.org/Development:_Test_Cases/MOD#PortaSmpChange.mod
+  17. https://wiki.openmpt.org/Development:_Test_Cases/MOD#PortaSwapPT.mod
+  18. https://wiki.openmpt.org/Development:_Test_Cases/MOD#PortaTarget.mod
+  19. https://wiki.openmpt.org/Development:_Test_Cases/MOD#PTInstrSwap.mod
+  20. https://wiki.openmpt.org/Development:_Test_Cases/MOD#PTInstrVolume.mod
+  21. https://wiki.openmpt.org/Development:_Test_Cases/MOD#ptoffset.mod
+  22. https://wiki.openmpt.org/Development:_Test_Cases/MOD#PTRetrigger.mod
+  23. https://wiki.openmpt.org/Development:_Test_Cases/MOD#PTStoppedSwap.mod
+  24. https://wiki.openmpt.org/Development:_Test_Cases/MOD#PTSwapEmpty.mod
+  25. https://wiki.openmpt.org/Development:_Test_Cases/MOD#PTSwapNoLoop.mod
+  26. https://wiki.openmpt.org/Development:_Test_Cases/MOD#TempoChange.mod
+  27. https://wiki.openmpt.org/Development:_Test_Cases/MOD#VibratoReset.mod
+  28. https://resources.openmpt.org/player_tests/mod/AmigaLimitsFinetune.mod
+  29. https://resources.openmpt.org/player_tests/mod/ArpWraparound.mod
+  30. https://resources.openmpt.org/player_tests/mod/DelayBreak.mod
+  31. https://resources.openmpt.org/player_tests/mod/finetune.mod
+  32. https://resources.openmpt.org/player_tests/mod/InstrDelay.mod
+  33. https://resources.openmpt.org/player_tests/mod/InstrSwapRetrigger.mod
+  34. https://wiki.openmpt.org/Development:_Test_Cases/MOD#PTInstrSwap.mod
+  35. https://resources.openmpt.org/player_tests/mod/NoteDelay-NextRow.mod
+  36. https://resources.openmpt.org/player_tests/mod/PatLoop-Break.mod
+  37. https://resources.openmpt.org/player_tests/mod/PatternDelaysRetrig.mod
+  38. https://resources.openmpt.org/player_tests/mod/PatternJump.mod
+  39. https://resources.openmpt.org/player_tests/mod/PortaSmpChange.mod
+  40. https://resources.openmpt.org/player_tests/mod/PortaSwapPT.mod
+  41. https://wiki.openmpt.org/Development:_Test_Cases/MOD#PortaSmpChange.mod
+  42. https://resources.openmpt.org/player_tests/mod/PortaTarget.mod
+  43. https://resources.openmpt.org/player_tests/mod/PTInstrSwap.mod
+  44. https://resources.openmpt.org/player_tests/mod/PTInstrVolume.mod
+  45. https://resources.openmpt.org/player_tests/mod/ptoffset.mod
+  46. https://resources.openmpt.org/player_tests/mod/PTRetrigger.mod
+  47. https://resources.openmpt.org/player_tests/mod/PTStoppedSwap.mod
+  48. https://resources.openmpt.org/player_tests/mod/PTSwapEmpty.mod
+  49. https://wiki.openmpt.org/Development:_Test_Cases/MOD#PTInstrSwap.mod
+  50. https://resources.openmpt.org/player_tests/mod/PTSwapNoLoop.mod
+  51. https://wiki.openmpt.org/Development:_Test_Cases/MOD#PTInstrSwap.mod
+  52. https://wiki.openmpt.org/Development:_Test_Cases/MOD#PTSwapEmpty.mod
+  53. https://resources.openmpt.org/player_tests/mod/TempoChange.mod
+  54. https://resources.openmpt.org/player_tests/mod/VibratoReset.mod
+  55. https://wiki.openmpt.org/index.php?title=Development:_Test_Cases/MOD&oldid=4572
+  56. https://wiki.openmpt.org/Special:Categories
+  57. https://wiki.openmpt.org/Category:Development
+  58. https://wiki.openmpt.org/Category:MOD_Format
+  59. https://wiki.openmpt.org/Special:MyTalk
+  60. https://wiki.openmpt.org/Special:MyContributions
+  61. https://wiki.openmpt.org/index.php?title=Special:CreateAccount&returnto=Development:+Test+Cases/MOD
+  62. https://wiki.openmpt.org/index.php?title=Special:UserLogin&returnto=Development:+Test+Cases/MOD
+  63. https://wiki.openmpt.org/Development:_Test_Cases/MOD
+  64. https://wiki.openmpt.org/index.php?title=Talk:Development:_Test_Cases/MOD&action=edit&redlink=1
+  65. https://wiki.openmpt.org/Development:_Test_Cases/MOD
+  66. https://wiki.openmpt.org/index.php?title=Development:_Test_Cases/MOD&action=edit
+  67. https://wiki.openmpt.org/index.php?title=Development:_Test_Cases/MOD&action=history
+  68. https://wiki.openmpt.org/Main_Page
+  69. https://openmpt.org/download
+  70. https://openmpt.org/
+  71. https://wiki.openmpt.org/Special:RecentChanges
+  72. https://wiki.openmpt.org/Special:Random
+  73. https://www.mediawiki.org/wiki/Special:MyLanguage/Help:Contents
+  74. https://wiki.openmpt.org/Special:WhatLinksHere/Development:_Test_Cases/MOD
+  75. https://wiki.openmpt.org/Special:RecentChangesLinked/Development:_Test_Cases/MOD
+  76. https://wiki.openmpt.org/Special:SpecialPages
+  77. https://wiki.openmpt.org/index.php?title=Development:_Test_Cases/MOD&oldid=4572
+  78. https://wiki.openmpt.org/index.php?title=Development:_Test_Cases/MOD&action=info
+  79. https://wiki.openmpt.org/index.php?title=Special:Book&bookcmd=book_creator&referer=Development:+Test+Cases/MOD
+  80. https://wiki.openmpt.org/index.php?title=Special:Book&bookcmd=render_article&arttitle=Development:+Test+Cases/MOD&returnto=Development:+Test+Cases/MOD&oldid=4572&writer=rl
+  81. https://wiki.openmpt.org/index.php?title=Development:_Test_Cases/MOD&printable=yes
+  82. https://creativecommons.org/licenses/by-sa/3.0/
+  83. https://wiki.openmpt.org/OpenMPT_Wiki:Privacy_policy
+  84. https://wiki.openmpt.org/OpenMPT_Wiki:About
+  85. https://wiki.openmpt.org/OpenMPT_Wiki:General_disclaimer
+  86. https://creativecommons.org/licenses/by-sa/3.0/
+  87. https://www.mediawiki.org/
 
    Hidden links:
-  65. http://wiki.openmpt.org/Development:_Test_Cases/MOD
-  66. http://wiki.openmpt.org/Development:_Test_Cases/MOD
-  67. http://wiki.openmpt.org/Main_Page
+  89. https://wiki.openmpt.org/Main_Page

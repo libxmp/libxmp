@@ -5,10 +5,10 @@
  this worked, it has been ages since I fixed this.
 */
 
-TEST(test_openmpt_xm_arpeggioclamp)
+TEST(test_openmpt_xm_arpeggioclamp_old)
 {
 	compare_mixer_data(
-		"openmpt/xm/ArpeggioClamp.xm",
-		"openmpt/xm/ArpeggioClamp.data");
+		"openmpt/xm/ArpeggioClamp_old.xm",
+		"openmpt/xm/ArpeggioClamp_old.data");
 }
 END_TEST

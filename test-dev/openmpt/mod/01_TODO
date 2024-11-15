@@ -1,0 +1,14 @@
+InstrDelay.mod
+InstrSwapRetrigger.mod
+NoteDelay-NextRow.mod
+PTInstrSwap.mod
+PTInstrVolume.mod
+PTRetrigger.mod
+PTStoppedSwap.mod
+PTSwapEmpty.mod
+PTSwapNoLoop.mod
+PatLoop-Break.mod
+PatternDelaysRetrig.mod
+PortaSwapPT.mod
+TempoChange.mod
+

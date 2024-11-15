@@ -1,0 +1,17 @@
+AdlibZeroVolumeNote.s3m
+LoopReset.s3m
+NOP.s3m
+NoCombinedSlidesOnFirstTick-Fast.s3m
+NoCombinedSlidesOnFirstTick-Normal.s3m
+OffsetLoopWraparound.s3m
+OffsetPastSampleEnd.s3m
+OxxMemory.s3m
+OxxMemoryWithRetrig.s3m
+PatternDelays.s3m
+PeriodLimitUpper.s3m
+PortaAfterArp.s3m
+RetrigAfterNoteCut.s3m
+RetrigSlide.s3m
+TonePortamentoWithAdlibNote.s3m
+VibratoTypeChange.s3m
+weirdloop.s3m

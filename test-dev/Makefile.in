@@ -99,8 +99,8 @@ OPENMPT_XM	= 3xxins \
 		  3xx_no_old_samp \
 		  3xx_no_old_samp_noft \
 		  arpeggio \
-		  arpeggioclamp \
-		  arpslide \
+		  arpeggioclamp_old \
+		  arpslide_old \
 		  delay1 \
 		  delay2 \
 		  delay3 \
@@ -134,7 +134,7 @@ OPENMPT_XM	= 3xxins \
 		  patloop_break \
 		  patloop_weird \
 		  pickup \
-		  porta_linkmem \
+		  porta_linkmem_old \
 		  porta_offset \
 		  porta_pickup \
 		  setenvpos \
