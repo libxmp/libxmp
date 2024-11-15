@@ -1,3 +1,5 @@
+ArpSlide.xm
+ArpeggioClamp.xm
 AutoVibratoSweepKeyOff.xm
 BidiPrecision.xm
 DelayVolume.xm
@@ -16,6 +18,7 @@ PatLoop-Nested.xm
 PatLoop-Overflow.xm
 PatLoop-Various.xm
 PatternDelay-NoteDelay.xm
+Porta-LinkMem.xm
 PortaDelay.xm
 PortaJustStoppedNote.xm
 PortaResetDirection.xm
