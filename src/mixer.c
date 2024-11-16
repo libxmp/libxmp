@@ -722,38 +722,28 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 			}
 
 			vi->pos += step_dir * samples;
-
-			/* No more samples in this tick */
 			size -= samples;
-			if (size <= 0) {
-				if (has_active_loop(ctx, vi, xxs)) {
-					/* This isn't particularly important for
-					 * forward loops, but reverse loops need
-					 * to be corrected here to avoid their
-					 * negative positions getting clamped
-					 * in later ticks. */
-					if (((~vi->flags & VOICE_REVERSE) && vi->pos >= vi->end) ||
-					    ((vi->flags & VOICE_REVERSE) && vi->pos <= vi->start)) {
-						if (loop_reposition(ctx, vi, xxs, xtra)) {
-							reset_sample_wraparound(&loop_data);
-							init_sample_wraparound(s, &loop_data, vi, xxs);
-						}
-					}
-				}
-				continue;
-			}
 
-			/* First sample loop run */
+			/* One-shot samples do not loop. */
 			if (!has_active_loop(ctx, vi, xxs) || split_noloop) {
-				do_anticlick(ctx, voc, buf_pos, size);
-				set_sample_end(ctx, voc, 1);
+				if (size > 0) {
+					do_anticlick(ctx, voc, buf_pos, size);
+					set_sample_end(ctx, voc, 1);
+				}
 				size = 0;
 				continue;
 			}
 
-			if (loop_reposition(ctx, vi, xxs, xtra)) {
-				reset_sample_wraparound(&loop_data);
-				init_sample_wraparound(s, &loop_data, vi, xxs);
+			/* Loop before continuing to the next channel if the
+			 * tick is complete. This is particularly important
+			 * for reverse loops to avoid position clamping. */
+			if (size > 0 ||
+			    ((~vi->flags & VOICE_REVERSE) && vi->pos >= vi->end) ||
+			     ((vi->flags & VOICE_REVERSE) && vi->pos <= vi->start)) {
+				if (loop_reposition(ctx, vi, xxs, xtra)) {
+					reset_sample_wraparound(&loop_data);
+					init_sample_wraparound(s, &loop_data, vi, xxs);
+				}
 			}
 		}
 
