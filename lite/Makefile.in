@@ -8,7 +8,8 @@ VERSION		= @libxmplite_VERSION@
 COMPAT_VERSION	= $(VERSION_MAJOR)
 
 CC		= @CC@
-CFLAGS		= -c @CFLAGS@ @DEFS@ -D_REENTRANT -DLIBXMP_CORE_PLAYER
+CFLAGS		= -c @CFLAGS@
+CPPFLAGS	= -Iinclude/libxmp-lite -DLIBXMP_CORE_PLAYER -D_REENTRANT @DEFS@ @CPPFLAGS@
 #CFLAGS		+= -DDEBUG
 CFLAGS_SHARED	= @CFLAGS_SHARED@
 CFLAGS_STATIC	= -DLIBXMP_STATIC
@@ -68,8 +69,6 @@ include test/Makefile
 LOBJS = $(OBJS:.o=.lo)
 
 GCOBJS = $(OBJS:.o=.gco)
-
-CFLAGS += -Iinclude/libxmp-lite
 
 .SUFFIXES: .c .o .lo .a .so .dll .in .gco .gcda .gcno
 
@@ -183,7 +182,7 @@ depend:
 	@echo > $@
 	@for i in $(OBJS) $(T_OBJS); do \
 	    c="$${i%.o}.c"; l="$${i%.o}.lo"; \
-	    $(CC) $(CFLAGS) -MM $$c | \
+	    $(CC) $(CFLAGS) $(CPPFLAGS) -MM $$c | \
 		sed "s!^.*\.o:!$$i $$l:!" >> $@ ; \
 	done
 
