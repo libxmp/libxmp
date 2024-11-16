@@ -8,7 +8,8 @@ VERSION		= @libxmp_VERSION@
 COMPAT_VERSION	= $(VERSION_MAJOR)
 
 CC		= @CC@
-CFLAGS		= -c @CFLAGS@ @DEFS@ -D_REENTRANT
+CFLAGS		= -c @CFLAGS@
+CPPFLAGS	= -Iinclude -D_REENTRANT @DEFS@ @CPPFLAGS@
 #CFLAGS		+= -DDEBUG
 CFLAGS_SHARED	= @CFLAGS_SHARED@
 CFLAGS_STATIC	= -DLIBXMP_STATIC
@@ -88,8 +89,6 @@ GCOBJS = $(ALL_OBJS:.o=.gco)
 LOBJS_LITE = $(LITE_OBJS:.o=.lo)
 
 GCOBJS_LITE = $(LITE_OBJS:.o=.gco)
-
-CFLAGS += -Iinclude
 
 .SUFFIXES: .c .o .lo .a .so .dll .in .gco .gcda .gcno
 
@@ -284,7 +283,7 @@ depend:
 	@echo > $@
 	@for i in $(ALL_OBJS) $(LITE_OBJS) $(T_OBJS) $(TLITE_OBJS); do \
 	    c="$${i%.o}.c"; l="$${i%.o}.lo"; \
-	    $(CC) $(CFLAGS) -MM $$c | \
+	    $(CC) $(CFLAGS) $(CPPFLAGS) -MM $$c | \
 		sed "s!^.*\.o:!$$i $$l:!" >> $@ ; \
 	done
 
