@@ -612,8 +612,13 @@ void libxmp_apply_mpt_preamp(struct module_data *m)
 
 char *libxmp_strdup(const char *src)
 {
-	size_t len = strlen(src) + 1;
-	char *buf = (char *) malloc(len);
+	size_t len;
+	char *buf;
+	if (src == NULL) {
+		return NULL;
+	}
+	len = strlen(src) + 1;
+	buf = (char *) malloc(len);
 	if (buf) {
 		memcpy(buf, src, len);
 	}
