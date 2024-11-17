@@ -255,6 +255,7 @@ test_api_channel_vol
 test_api_inject_event
 test_api_scan_module
 test_api_set_tempo_factor
+test_api_set_instrument_path
 test_api_smix_play_instrument
 test_api_smix_load_sample
 test_api_smix_play_sample

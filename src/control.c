@@ -559,8 +559,13 @@ int xmp_set_instrument_path(xmp_context opaque, const char *path)
 	struct context_data *ctx = (struct context_data *)opaque;
 	struct module_data *m = &ctx->m;
 
-	if (m->instrument_path != NULL)
+	if (m->instrument_path != NULL) {
 		free(m->instrument_path);
+		m->instrument_path = NULL;
+	}
+	if (path == NULL) {
+		return 0;
+	}
 
 	m->instrument_path = libxmp_strdup(path);
 	if (m->instrument_path == NULL) {

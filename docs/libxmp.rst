@@ -919,13 +919,15 @@ int xmp_set_instrument_path(xmp_context c, char \*path)
 ```````````````````````````````````````````````````````
 
   Set the path to retrieve external instruments or samples. Used by some
-  formats (such as MED2) to read sample files from a different directory
-  in the filesystem.
+  formats (such as Protracker song files, ST2 song files, and MED2) to
+  read sample files from a different directory in the filesystem.
 
   **Parameters:**
     :c: the player context handle.
 
     :path: the path to retrieve instrument files.
+      A value of ``NULL`` will unset the instrument path.
+      Prior to 4.6.1, this function crashes when ``path`` is ``NULL``.
 
   **Returns:**
     0 if the instrument path was correctly set, or ``-XMP_ERROR_SYSTEM``

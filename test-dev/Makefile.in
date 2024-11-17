@@ -64,7 +64,7 @@ API		= get_format_list create_context free_context \
 		  set_position prev_position set_position_midfx set_row \
 		  set_player stop_module restart_module seek_time \
 		  channel_mute channel_vol inject_event scan_module \
-		  set_tempo_factor
+		  set_tempo_factor set_instrument_path
 
 API_SMIX	= smix_play_instrument smix_load_sample smix_play_sample \
 		  smix_channel_pan
