@@ -176,7 +176,13 @@ static void set_period(struct context_data *ctx, int note,
 {
 	struct module_data *m = &ctx->m;
 
-	if (sub != NULL && note >= 0) {
+	/* TODO: blocking period updates on whether or not the event has a
+	 * valid instrument seems suspicious, but almost every format uses
+	 * this. Only allow Protracker to update without it for now. */
+	if (sub == NULL && !HAS_QUIRK(QUIRK_PROTRACK))
+		return;
+
+	if (note >= 0) {
 		double per = libxmp_note_to_period(ctx, note, xc->finetune,
 							xc->per_adj);
 
@@ -231,8 +237,9 @@ static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn
 	struct xmp_module *mod = &m->mod;
 	struct channel_data *xc = &p->xc_data[chn];
 	int note;
-	struct xmp_subinstrument *sub;
+	struct xmp_subinstrument *sub = NULL;
 	int new_invalid_ins = 0;
+	int new_swap_ins = 0;
 	int is_toneporta;
 	int use_ins_vol;
 
@@ -259,6 +266,18 @@ static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn
 		if (IS_VALID_INSTRUMENT(ins)) {
 			sub = get_subinstrument(ctx, ins, e->note - 1);
 
+			if (sub != NULL) {
+				new_swap_ins = 1;
+
+				/* Finetune is always loaded, but only applies
+				 * when the period is updated by a note/porta
+				 * (OpenMPT finetune.mod, PortaSwapPT.mod). */
+				if (HAS_QUIRK(QUIRK_PROTRACK)) {
+					xc->finetune = sub->fin;
+					xc->ins = ins;
+				}
+			}
+
 			if (is_toneporta) {
 				/* Get new instrument volume */
 				if (sub != NULL) {
@@ -273,16 +292,26 @@ static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn
 			} else {
 				xc->ins = ins;
 				xc->ins_fade = mod->xxi[ins].rls;
-
-				if (sub != NULL) {
-					if (HAS_QUIRK(QUIRK_PROTRACK)) {
-						xc->finetune = sub->fin;
-					}
-				}
 			}
 		} else {
 			new_invalid_ins = 1;
-			libxmp_virt_resetchannel(ctx, chn);
+
+			/* Invalid instruments do not reset the channel in
+			 * Protracker; instead, they set the current sample
+			 * to the invalid sample, which stops the current
+			 * sample at the end of its loop.
+			 *
+			 * OpenMPT PTInstrSwap.mod: uses a null sample to pause
+			 * a looping sample, plays several on a channel with no note.
+			 *
+			 * OpenMPT PTSwapEmpty.mod: repeatedly pauses and
+			 * restarts a sample using a null sample.
+			 */
+			if (!HAS_QUIRK(QUIRK_PROTRACK)) {
+				libxmp_virt_resetchannel(ctx, chn);
+			} else {
+				libxmp_virt_queuepatch(ctx, chn, -1, -1, 0);
+			}
 		}
 	}
 
@@ -300,26 +329,46 @@ static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn
 
 			sub = get_subinstrument(ctx, xc->ins, xc->key);
 
-			if (!new_invalid_ins && sub != NULL) {
+			if (sub != NULL) {
 				int transp = mod->xxi[xc->ins].map[xc->key].xpo;
 				int smp;
 
 				note = xc->key + sub->xpo + transp;
 				smp = sub->sid;
 
-				if (!IS_VALID_SAMPLE(smp)) {
+				if (new_invalid_ins || !IS_VALID_SAMPLE(smp)) {
 					smp = -1;
 				}
 
 				if (smp >= 0 && smp < mod->smp) {
 					set_patch(ctx, chn, xc->ins, smp, note);
+					new_swap_ins = 0;
 					xc->smp = smp;
 				}
 			} else {
 				xc->flags = 0;
 				use_ins_vol = 0;
+				note = xc->key;
 			}
 		}
+
+		if (note >= 0) {
+			xc->note = note;
+			SET_NOTE(NOTE_SET);
+		}
+	}
+
+	/* Protracker 1/2 sample swap occurs when a sample number is
+	 * encountered without a note or with a note and toneporta. The new
+	 * instrument is switched to when the current sample reaches its loop
+	 * end. A valid note must have been played in this channel before.
+	 *
+	 * Empty samples can also be set, which stops the sample at the end
+	 * of its loop (see above).
+	 */
+	if (new_swap_ins && sub && HAS_QUIRK(QUIRK_PROTRACK) && TEST_NOTE(NOTE_SET)) {
+		libxmp_virt_queuepatch(ctx, chn, e->ins - 1, sub->sid, xc->note);
+		xc->smp = sub->sid;
 	}
 
 	sub = get_subinstrument(ctx, xc->ins, xc->key);
@@ -354,8 +403,7 @@ static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn
 		return 0;
 	}
 
-	if (note >= 0) {
-		xc->note = note;
+	if (note >= 0 && !new_invalid_ins) {
 		libxmp_virt_voicepos(ctx, chn, xc->offset.val);
 	}
 

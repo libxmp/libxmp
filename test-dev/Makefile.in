@@ -222,8 +222,14 @@ OPENMPT_MOD	= amigalimitsfinetune \
 		  finetune \
 		  patternjump \
 		  portasmpchange \
+		  portaswappt \
 		  portatarget \
+		  ptinstrswap \
+		  ptinstrvolume \
 		  ptoffset \
+		  ptstoppedswap \
+		  ptswapempty \
+		  ptswapnoloop \
 		  vibratoreset
 
 MIXER_FUNCS	= monoout_mono_8bit_ monoout_mono_16bit_ \
