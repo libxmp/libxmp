@@ -156,16 +156,14 @@ void libxmp_virt_off(struct context_data *ctx)
 {
 	struct player_data *p = &ctx->p;
 #ifdef LIBXMP_PAULA_SIMULATOR
-	struct module_data *m = &ctx->m;
 	int i;
 #endif
 
 #ifdef LIBXMP_PAULA_SIMULATOR
 	/* Free Paula simulator state */
-	if (IS_AMIGA_MOD()) {
-		for (i = 0; i < p->virt.maxvoc; i++) {
-			free(p->virt.voice_array[i].paula);
-		}
+	/* Player type may have been changed; always free this. */
+	for (i = 0; i < p->virt.maxvoc; i++) {
+		free(p->virt.voice_array[i].paula);
 	}
 #endif
 
