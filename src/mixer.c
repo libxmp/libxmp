@@ -843,6 +843,18 @@ void libxmp_mixer_voicepos(struct context_data *ctx, int voc, double pos, int ac
 	struct xmp_sample *xxs;
 	struct extra_sample_data *xtra;
 
+	/* Position changes e.g. retrigger make the new sample take effect
+	 * if queued (OpenMPT InstrSwapRetrigger.mod). */
+	if (vi->flags & SAMPLE_QUEUED) {
+		vi->flags &= ~SAMPLE_QUEUED;
+		if (vi->queued.smp < 0) {
+			vi->flags |= SAMPLE_PAUSED;
+		} else if (vi->smp != vi->queued.smp) {
+			hotswap_sample(ctx, vi, voc, vi->queued.smp);
+		}
+		vi->flags |= SAMPLE_LOOP;
+	}
+
 	if (vi->smp < m->mod.smp) {
 		xxs = &m->mod.xxs[vi->smp];
 		xtra = &m->xtra[vi->smp];

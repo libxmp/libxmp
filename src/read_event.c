@@ -227,6 +227,8 @@ static void set_period_ft2(struct context_data *ctx, int note,
 #define IS_TONEPORTA(x) ((x) == FX_TONEPORTA || (x) == FX_TONE_VSLIDE)
 #endif
 
+#define IS_MOD_RETRIG(x,p) ((x) == FX_EXTENDED && MSN(p) == EX_RETRIG)
+
 #define set_patch(ctx,chn,ins,smp,note) \
 	libxmp_virt_setpatch(ctx, chn, ins, smp, note, 0, 0, 0, 0)
 
@@ -241,15 +243,20 @@ static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn
 	int new_invalid_ins = 0;
 	int new_swap_ins = 0;
 	int is_toneporta;
+	int is_retrig;
 	int use_ins_vol;
 
 	xc->flags = 0;
 	note = -1;
 	is_toneporta = 0;
+	is_retrig = 0;
 	use_ins_vol = 0;
 
 	if (IS_TONEPORTA(e->fxt) || IS_TONEPORTA(e->f2t)) {
 		is_toneporta = 1;
+	}
+	if (IS_MOD_RETRIG(e->fxt, e->fxp) || IS_MOD_RETRIG(e->f2t, e->f2p)) {
+		is_retrig = 1;
 	}
 
 	/* Check instrument */
@@ -307,7 +314,7 @@ static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn
 			 * OpenMPT PTSwapEmpty.mod: repeatedly pauses and
 			 * restarts a sample using a null sample.
 			 */
-			if (!HAS_QUIRK(QUIRK_PROTRACK)) {
+			if (!HAS_QUIRK(QUIRK_PROTRACK) || is_retrig) {
 				libxmp_virt_resetchannel(ctx, chn);
 			} else {
 				libxmp_virt_queuepatch(ctx, chn, -1, -1, 0);
@@ -405,6 +412,11 @@ static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn
 
 	if (note >= 0 && !new_invalid_ins) {
 		libxmp_virt_voicepos(ctx, chn, xc->offset.val);
+	} else if (new_swap_ins && is_retrig && HAS_QUIRK(QUIRK_PROTRACK)) {
+		/* Protracker: an instrument number with no note and retrigger
+		 * triggers the new sample on tick 0. Other effects that set
+		 * RETRIG should not. (OpenMPT InstrSwapRetrigger.mod) */
+		libxmp_virt_voicepos(ctx, chn, 0);
 	}
 
 	if (TEST(OFFSET)) {

@@ -220,6 +220,7 @@ OPENMPT_MOD	= amigalimitsfinetune \
 		  arpwraparound \
 		  delaybreak \
 		  finetune \
+		  instrswapretrigger \
 		  patternjump \
 		  portasmpchange \
 		  portaswappt \
