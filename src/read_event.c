@@ -227,7 +227,7 @@ static void set_period_ft2(struct context_data *ctx, int note,
 #define IS_TONEPORTA(x) ((x) == FX_TONEPORTA || (x) == FX_TONE_VSLIDE)
 #endif
 
-#define IS_MOD_RETRIG(x,p) ((x) == FX_EXTENDED && MSN(p) == EX_RETRIG)
+#define IS_MOD_RETRIG(x,p) ((x) == FX_EXTENDED && MSN(p) == EX_RETRIG && LSN(p) != 0)
 
 #define set_patch(ctx,chn,ins,smp,note) \
 	libxmp_virt_setpatch(ctx, chn, ins, smp, note, 0, 0, 0, 0)
