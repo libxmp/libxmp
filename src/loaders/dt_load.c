@@ -63,8 +63,10 @@
 #define FORMAT_V204	MAGIC4('2','.','0','4')
 #define FORMAT_V206	MAGIC4('2','.','0','6')
 
-/* "Mono" mode is actually panoramic stereo in later 1.9xx and DHS. */
-#define DTM_MONO_MODE_OR_PANORAMIC	0xff
+/* "Mono" mode has always been panoramic stereo, but this wasn't clearly
+ * communicated in the documentation or UI until Digital Home Studio. */
+#define DTM_OLD_STEREO		0x00
+#define DTM_PANORAMIC_STEREO	0xff
 
 
 static int dt_test(HIO_HANDLE *, char *, const int);
@@ -85,7 +87,7 @@ static int dt_test(HIO_HANDLE *f, char *t, const int start)
 
 	size = hio_read32b(f);		/* chunk size */
 	hio_read16b(f);			/* type */
-	hio_read16b(f);			/* 0xff then mono */
+	hio_read16b(f);			/* stereo mode; global depth (2.03) */
 	hio_read16b(f);			/* reserved */
 	hio_read16b(f);			/* tempo */
 	hio_read16b(f);			/* bpm */
@@ -105,7 +107,8 @@ struct local_data {
 	int sv19_flag;
 	int pflag;
 	int sflag;
-	int stereo; /* 0=stereo, ff=mono (<=1.9) or panoramic (>=1.9) */
+	int stereo; /* 0=old stereo, ff=panoramic stereo (>=2.04) */
+	int depth; /* global sample depth used by 2.03 modules */
 	int c2spd; /* global sample rate used by 2.03 modules */
 	int version;
 	int version_derived;
@@ -140,6 +143,20 @@ static void dtm_translate_effect(struct xmp_event *event,
 		/* DT beta through 2.04: does nothing. */
 		if (data->version_derived == DTM_V203) {
 			event->fxp = 0;
+		}
+		break;
+
+	case 0x8:			/* set panning */
+		/* DT 2.04+: only supported in panoramic stereo mode.
+		 * The effect is backward; 810 is right and 8F0 is left.
+		 * TODO: Prior to 1.9 there is additionally have some odd
+		 * behavior with 800-80F and 8F0-8FF not simulated here.
+		 */
+		if (data->version_derived >= DTM_V204 &&
+		    data->stereo == DTM_PANORAMIC_STEREO) {
+		    event->fxp ^= 0xff;
+		} else {
+		    event->fxt = event->fxp = 0;
 		}
 		break;
 
@@ -287,12 +304,27 @@ static int get_d_t_(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	}
 
 	hio_read16b(f);			/* type */
-	data->stereo = hio_read16b(f);	/* 0xff then mono */
+	data->stereo = hio_read8(f);	/* 0:old stereo, ff:panoramic stereo */
+	data->depth = hio_read8(f);	/* global sample bit depth (2.03) */
 	hio_read16b(f);			/* reserved */
 	mod->spd = hio_read16b(f);
 	if ((b = hio_read16b(f)) > 0)	/* RAMBO.DTM has bpm 0 */
 		mod->bpm = b;		/* Not clamped by Digital Tracker. */
-	data->c2spd = hio_read32b(f);	/* global sample rate for 2.03 */
+	data->c2spd = hio_read32b(f);	/* global sample rate (2.03) */
+
+	if (data->stereo != DTM_OLD_STEREO && data->stereo != DTM_PANORAMIC_STEREO) {
+		D_(D_WARN "unknown stereo mode: %d, report this", data->stereo);
+		data->stereo = DTM_OLD_STEREO;
+	}
+
+	/* Global sample depth is applied to all samples in 2.03.
+	 * Later Digital Tracker versions incorrectly ignore this field when
+	 * importing 2.03 modules.
+	 */
+	if (data->depth != 8 && data->depth != 16) {
+		D_(D_WARN "unknown global sample depth %d", data->depth);
+		data->depth = 8;
+	}
 
 	/* Only known used values for global sample rate are 8400 and 24585,
 	 * but 12292 and 49170 are also supported and referenced in the UI.
@@ -306,8 +338,10 @@ static int get_d_t_(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	case 49170:
 	case 24585:
 	case 12292:
+	case 8400:
 		break;
 	default:
+		D_(D_WARN "unknown global sample rate %d, report this", data->c2spd);
 		data->c2spd = 8400;
 	}
 
@@ -393,7 +427,7 @@ static int get_sv19(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	}
 	for (i = 0; i < 32; i++) {
 		int val = readmem16b(buf + 2 * i);
-		if (val <= 180 && data->stereo == DTM_MONO_MODE_OR_PANORAMIC)
+		if (val <= 180 && data->stereo == DTM_PANORAMIC_STEREO)
 			mod->xxc[i].pan = val * 0x100 / 180;
 	}
 
@@ -509,6 +543,14 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 
 		libxmp_instrument_name(mod, i, buf + 18, 22);
 
+		/* DT 2.03: global sample depth is used for playback; the
+		 * sample depth field seems to be for the resampler only.
+		 * See Lot/5th-2.dtm, which relies on this.
+		 */
+		if (data->version_derived == DTM_V203) {
+			buf[41] = data->depth;
+		}
+
 		stereo = buf[40];	/* stereo */
 		if (buf[41] > 8) {	/* resolution (8, 16, or rarely 0) */
 			mod->xxs[i].flg |= XMP_SAMPLE_16BIT;
@@ -517,20 +559,19 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 			mod->xxs[i].lpe >>= 1;
 		}
 
-		/* 2.04 through 1.1: mono mode forces stereo samples to be
+		/* 2.04 through 1.1: panoramic mode forces stereo samples to be
 		 * interpreted as mono. This bug was fixed in 1.901 or another
 		 * commercial version, so this can't really be checked, and
 		 * there's no reason to do this anyway. */
 		/*
-		if (data->stereo == DTM_MONO_MODE &&
+		if (data->stereo == DTM_PANORAMIC_STEREO &&
 		    data->version_derived == DTM_V204) {
 			stereo = 0;
 		}
 		*/
 
 		if (stereo) {
-			/* TODO: in 2.04 to 1.9x (and in Digital Home Studio
-			 * "Old Stereo" mode), stereo samples do something
+			/* TODO: in old stereo mode, stereo samples do something
 			 * unusual: the left channel is sent to the first
 			 * channel of the "pair" it is played in, and the
 			 * right channel is sent to the second channel of
@@ -814,13 +855,13 @@ static int dt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		libxmp_set_type(m, "Digital Tracker 2.03 DTM");
 	}
 
-	if (data.stereo == DTM_MONO_MODE_OR_PANORAMIC) {
-		/* Mono mode: all channels play center.
-		 * Mono mode was changed to panoramic stereo in 1.9xx,
-		 * but these default values should be used if SV19 is
-		 * missing.
+	if (data.version_derived >= DTM_V204 &&
+	    data.stereo == DTM_PANORAMIC_STEREO) {
+		/* Panoramic stereo mode: all channels default to center.
+		 * In 1.9xx, the SV19 chunk is used to specify initial values,
+		 * so this should be skipped if it wasn't loaded.
 		 */
-		if (data.version_derived < DTM_V19 || !data.sv19_flag) {
+		if (!data.sv19_flag) {
 			for (i = 0; i < mod->chn; i++) {
 				mod->xxc[i].pan = 0x80;
 			}
