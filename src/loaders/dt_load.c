@@ -859,7 +859,7 @@ static int dt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	    data.stereo == DTM_PANORAMIC_STEREO) {
 		/* Panoramic stereo mode: all channels default to center.
 		 * In 1.9xx, the SV19 chunk is used to specify initial values,
-		 * so this should be skipped if it wasn't loaded.
+		 * so this should be skipped if it was loaded.
 		 */
 		if (!data.sv19_flag) {
 			for (i = 0; i < mod->chn; i++) {
