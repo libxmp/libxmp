@@ -298,7 +298,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  digi \
 		  dsmi dsmi_08 dsmi_09 dsmi_10 dsmi_10_trunc dsmi_11 dsmi_13 \
 		  dsmi_track0 dsmi_note7f dsmi_pan dsmi_vol \
-		  dtm \
+		  dtm dtm_203 dtm_19 \
 		  emod \
 		  far far_fx \
 		  flt flt8 \
