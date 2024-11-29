@@ -154,9 +154,9 @@ static void dtm_translate_effect(struct xmp_event *event,
 		 */
 		if (data->version_derived >= DTM_V204 &&
 		    data->stereo == DTM_PANORAMIC_STEREO) {
-		    event->fxp ^= 0xff;
+			event->fxp ^= 0xff;
 		} else {
-		    event->fxt = event->fxp = 0;
+			event->fxt = event->fxp = 0;
 		}
 		break;
 
