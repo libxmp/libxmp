@@ -26,6 +26,7 @@
 
 /* TODO: Digital Home Studio features (SV19 extensions, IENV, 2.06 format, etc).
  * TODO: Digital Home Studio DTM 2.1 test; 2.03, 2.04, 1.9, 2.1 effects tests.
+ * TODO: libxmp needs a new pan law for modules from 2.04 until 1.9.
  * TODO: libxmp does not support track or pattern names.
  * TODO: libxmp does not support SV19 fractional BPM.
  * TODO: libxmp does not support horrible DTM stereo hacks (see below).
@@ -147,14 +148,45 @@ static void dtm_translate_effect(struct xmp_event *event,
 		break;
 
 	case 0x8:			/* set panning */
-		/* DT 2.04+: only supported in panoramic stereo mode.
-		 * The effect is backward; 810 is right and 8F0 is left.
-		 * TODO: Prior to 1.9 there is additionally have some odd
-		 * behavior with 800-80F and 8F0-8FF not simulated here.
-		 */
+		/* DT 2.04+: only supported in panoramic stereo mode. */
 		if (data->version_derived >= DTM_V204 &&
 		    data->stereo == DTM_PANORAMIC_STEREO) {
-			event->fxp ^= 0xff;
+			/* DT 1.9 and up have 800 as full right and 8FF as
+			 * full left. 2.04 through 1.1 use the high nibble to
+			 * control the channel's left mix value (0:low, F:high)
+			 * and the low nibble control the channel's right mix
+			 * level. 0 is not completely silent. The default
+			 * setting is 15 (full) for each channel.
+			 *
+			 * For the older behavior, see:
+			 *   Bitmaps/no happy end !!!!!!.dtm
+			 *   Tyan/fruchtix 1997.dtm
+			 */
+			if (data->version_derived >= DTM_V19) {
+				event->fxp ^= 0xff;
+			} else {
+				/* TODO: solve DT's old pan law into libxmp's.
+				 * would be nice to have pan law support instead.
+				 *
+				 * L = 0x80 * (left + 1) = vol * (0x80 - pan)
+				 * R = 0x80 * (right + 1) = vol * (0x80 + pan)
+				 **/
+				int left = MSN(event->fxp);
+				int right = LSN(event->fxp);
+				int pan = 0x80 * (right - left) / (left + right + 2);
+				int vol;
+				if (right > left) {
+					vol = 0x80 * ((right + 1) << 2) / (0x80 + pan);
+				} else if (left > right) {
+					vol = 0x80 * ((left + 1) << 2) / (0x80 - pan);
+				} else {
+					vol = (left + 1) << 2;
+				}
+				event->fxt = FX_SETPAN;
+				event->fxp = pan + 0x80;
+				event->f2t = FX_TRK_VOL;
+				event->f2p = vol;
+			}
 		} else {
 			event->fxt = event->fxp = 0;
 		}
