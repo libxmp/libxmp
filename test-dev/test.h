@@ -85,6 +85,7 @@ void read_file_to_memory(const char *, void **, long *);
 void compare_mixer_data(const char *, const char *);
 void compare_mixer_data_loops(const char *, const char *, int);
 void compare_mixer_data_no_rv(const char *, const char *);
+void compare_mixer_data_player_mode(const char *, const char *, int);
 void compare_mixer_samples(const char *, const char *, int, int, int, int, int);
 void compare_mixer_samples_ext(struct context_data *, const char *, int, int);
 void convert_endian(unsigned char *, int);

@@ -445,6 +445,35 @@ static int loop_reposition(struct context_data *ctx, struct mixer_voice *vi,
 	return loop_changed;
 }
 
+static void hotswap_sample(struct context_data *ctx, struct mixer_voice *vi,
+ int voc, int smp)
+{
+	int vol = vi->vol;
+	int pan = vi->pan;
+	libxmp_mixer_setpatch(ctx, voc, smp, 0);
+	vi->flags |= SAMPLE_LOOP;
+	vi->vol = vol;
+	vi->pan = pan;
+}
+
+static void get_current_sample(struct context_data *ctx, struct mixer_voice *vi,
+ struct xmp_sample **xxs, struct extra_sample_data **xtra, int *c5spd)
+{
+	struct module_data *m = &ctx->m;
+	struct xmp_module *mod = &m->mod;
+
+	if (vi->smp < mod->smp) {
+		*xxs = &mod->xxs[vi->smp];
+		*xtra = &m->xtra[vi->smp];
+		*c5spd = m->xtra[vi->smp].c5spd;
+	} else {
+		*xxs = &ctx->smix.xxs[vi->smp - mod->smp];
+		*xtra = NULL;
+		*c5spd = m->c4rate;
+	}
+	adjust_voice_end(ctx, vi, *xxs, *xtra);
+}
+
 /* Calculate the required number of sample frames to render a tick.
  * Returns -1 if any of the parameters are invalid. */
 int libxmp_mixer_get_ticksize(int freq, double time_factor, double rrate, int bpm)
@@ -591,14 +620,17 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 			vol_r = vol * (0x80 + vi->pan);
 		}
 
-		if (vi->smp < mod->smp) {
-			xxs = &mod->xxs[vi->smp];
-			xtra = &m->xtra[vi->smp];
-			c5spd = m->xtra[vi->smp].c5spd;
+		/* Sample is paused - skip channel unless a new sample is queued. */
+		if (vi->flags & SAMPLE_PAUSED) {
+			if ((~vi->flags & SAMPLE_QUEUED) || vi->queued.smp < 0) {
+				vi->flags &= ~SAMPLE_QUEUED;
+				continue;
+			}
+			hotswap_sample(ctx, vi, voc, vi->queued.smp);
+			get_current_sample(ctx, vi, &xxs, &xtra, &c5spd);
+			vi->pos = vi->start;
 		} else {
-			xxs = &ctx->smix.xxs[vi->smp - mod->smp];
-			xtra = NULL;
-			c5spd = m->c4rate;
+			get_current_sample(ctx, vi, &xxs, &xtra, &c5spd);
 		}
 
 		step = C4_PERIOD * c5spd / s->freq / vi->period;
@@ -610,7 +642,6 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 			continue;
 		}
 
-		adjust_voice_end(ctx, vi, xxs, xtra);
 		init_sample_wraparound(s, &loop_data, vi, xxs);
 
 		rampsize = s->ticksize >> ANTICLICK_SHIFT;
@@ -725,10 +756,13 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 			size -= samples;
 
 			/* One-shot samples do not loop. */
-			if (!has_active_loop(ctx, vi, xxs) || split_noloop) {
+			if ((!has_active_loop(ctx, vi, xxs) || split_noloop) &&
+			    !(vi->flags & SAMPLE_QUEUED)) {
 				if (size > 0) {
 					do_anticlick(ctx, voc, buf_pos, size);
 					set_sample_end(ctx, voc, 1);
+					/* Next sample should ramp. */
+					vol_l = vol_r = 0;
 				}
 				size = 0;
 				continue;
@@ -740,6 +774,33 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 			if (size > 0 ||
 			    ((~vi->flags & VOICE_REVERSE) && vi->pos >= vi->end) ||
 			     ((vi->flags & VOICE_REVERSE) && vi->pos <= vi->start)) {
+				if (vi->flags & SAMPLE_QUEUED) {
+					/* Protracker sample swap */
+					do_anticlick(ctx, voc, buf_pos, size);
+					if (vi->queued.smp < 0 ||
+					    (!has_active_loop(ctx, vi, xxs) &&
+					     !(mod->xxs[vi->queued.smp].flg & XMP_SAMPLE_LOOP))) {
+						/* Invalid samples and one-shots that
+						 * are being replaced by one-shots
+						 * (OpenMPT PTStoppedSwap.mod) stop
+						 * the current sample. If the current
+						 * sample is looped, it needs to be paused.
+						 */
+						vi->flags &= ~SAMPLE_QUEUED;
+						vi->flags |= SAMPLE_PAUSED;
+						set_sample_end(ctx, voc, 1);
+						/* Next sample should ramp. */
+						vol_l = vol_r = 0;
+						size = 0;
+						continue;
+					}
+					reset_sample_wraparound(&loop_data);
+					hotswap_sample(ctx, vi, voc, vi->queued.smp);
+					get_current_sample(ctx, vi, &xxs, &xtra, &c5spd);
+					init_sample_wraparound(s, &loop_data, vi, xxs);
+					vi->pos = vi->start;
+					continue;
+				}
 				if (loop_reposition(ctx, vi, xxs, xtra)) {
 					reset_sample_wraparound(&loop_data);
 					init_sample_wraparound(s, &loop_data, vi, xxs);
@@ -781,6 +842,18 @@ void libxmp_mixer_voicepos(struct context_data *ctx, int voc, double pos, int ac
 	struct mixer_voice *vi = &p->virt.voice_array[voc];
 	struct xmp_sample *xxs;
 	struct extra_sample_data *xtra;
+
+	/* Position changes e.g. retrigger make the new sample take effect
+	 * if queued (OpenMPT InstrSwapRetrigger.mod). */
+	if (vi->flags & SAMPLE_QUEUED) {
+		vi->flags &= ~SAMPLE_QUEUED;
+		if (vi->queued.smp < 0) {
+			vi->flags |= SAMPLE_PAUSED;
+		} else if (vi->smp != vi->queued.smp) {
+			hotswap_sample(ctx, vi, voc, vi->queued.smp);
+		}
+		vi->flags |= SAMPLE_LOOP;
+	}
 
 	if (vi->smp < m->mod.smp) {
 		xxs = &m->mod.xxs[vi->smp];
@@ -843,7 +916,7 @@ void libxmp_mixer_setpatch(struct context_data *ctx, int voc, int smp, int ac)
 	vi->smp = smp;
 	vi->vol = 0;
 	vi->pan = 0;
-	vi->flags &= ~(SAMPLE_LOOP | VOICE_REVERSE | VOICE_BIDIR);
+	vi->flags &= ~(SAMPLE_LOOP | SAMPLE_QUEUED | SAMPLE_PAUSED | VOICE_REVERSE | VOICE_BIDIR);
 
 	vi->fidx = 0;
 
@@ -872,6 +945,25 @@ void libxmp_mixer_setpatch(struct context_data *ctx, int voc, int smp, int ac)
 	}
 
 	libxmp_mixer_voicepos(ctx, voc, 0, ac);
+}
+
+/**
+ * Replace the current playing sample when it reaches the end of its
+ * sample loop, a la Protracker 1/2. The new sample will begin playing
+ * at the start of its loop if it is looped, the start of the sample if
+ * it is a one-shot, and it will not play and instead pause the channel
+ * if both the original and the new sample are one-shots or if the new
+ * sample is empty/invalid/-1.
+ */
+void libxmp_mixer_queuepatch(struct context_data *ctx, int voc, int smp)
+{
+	struct player_data *p = &ctx->p;
+	struct mixer_voice *vi = &p->virt.voice_array[voc];
+
+	if (smp != vi->smp || (vi->flags & SAMPLE_PAUSED)) {
+		vi->queued.smp = smp;
+		vi->flags |= SAMPLE_QUEUED;
+	}
 }
 
 void libxmp_mixer_setnote(struct context_data *ctx, int voc, int note)

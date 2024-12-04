@@ -44,11 +44,17 @@ struct mixer_voice {
 #define SAMPLE_LOOP	(1 << 2)
 #define VOICE_REVERSE	(1 << 3)
 #define VOICE_BIDIR	(1 << 4)
+#define SAMPLE_QUEUED	(1 << 5)
+#define SAMPLE_PAUSED	(1 << 6)
 	int flags;		/* flags */
 	void *sptr;		/* sample pointer */
 #ifdef LIBXMP_PAULA_SIMULATOR
 	struct paula_state *paula; /* paula simulation state */
 #endif
+
+	struct {		/* Protracker queued instrument change */
+		int smp;
+	} queued;
 
 #ifndef LIBXMP_CORE_DISABLE_IT
 	struct {
@@ -74,6 +80,7 @@ int	libxmp_mixer_numvoices	(struct context_data *, int);
 void	libxmp_mixer_softmixer	(struct context_data *);
 void	libxmp_mixer_reset	(struct context_data *);
 void	libxmp_mixer_setpatch	(struct context_data *, int, int, int);
+void	libxmp_mixer_queuepatch	(struct context_data *, int, int);
 void	libxmp_mixer_voicepos	(struct context_data *, int, double, int);
 double	libxmp_mixer_getvoicepos(struct context_data *, int);
 void	libxmp_mixer_setnote	(struct context_data *, int, int);

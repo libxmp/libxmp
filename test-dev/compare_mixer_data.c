@@ -4,7 +4,7 @@
 #include "../src/mixer.h"
 #include "../src/virtual.h"
 
-static void _compare_mixer_data(const char *mod, const char *data, int loops, int ignore_rv)
+static void _compare_mixer_data(const char *mod, const char *data, int loops, int ignore_rv, int mode)
 {
 	xmp_context opaque;
 	struct context_data *ctx;
@@ -31,6 +31,7 @@ static void _compare_mixer_data(const char *mod, const char *data, int loops, in
 
 	xmp_start_player(opaque, 44100, 0);
 	xmp_set_player(opaque, XMP_PLAYER_MIX, 100);
+	xmp_set_player(opaque, XMP_PLAYER_MODE, mode);
 
 	max_channels = p->virt.virt_channels;
 
@@ -110,15 +111,20 @@ static void _compare_mixer_data(const char *mod, const char *data, int loops, in
 
 void compare_mixer_data(const char *mod, const char *data)
 {
-	_compare_mixer_data(mod, data, 1, 0);
+	_compare_mixer_data(mod, data, 1, 0, XMP_MODE_AUTO);
 }
 
 void compare_mixer_data_loops(const char *mod, const char *data, int loops)
 {
-	_compare_mixer_data(mod, data, loops, 0);
+	_compare_mixer_data(mod, data, loops, 0, XMP_MODE_AUTO);
 }
 
 void compare_mixer_data_no_rv(const char *mod, const char *data)
 {
-	_compare_mixer_data(mod, data, 1, 1);
+	_compare_mixer_data(mod, data, 1, 1, XMP_MODE_AUTO);
+}
+
+void compare_mixer_data_player_mode(const char *mod, const char *data, int mode)
+{
+	_compare_mixer_data(mod, data, 1, 0, mode);
 }
