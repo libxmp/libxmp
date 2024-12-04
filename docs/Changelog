@@ -69,6 +69,11 @@ Stable versions
 	- Passing NULL to xmp_set_instrument_path() now unsets the instrument
 	  path instead of crashing.
 	- Merge song file instrument path detection routines.
+	- Add compatibility for non-standard Pattern Loop implementations:
+	  Scream Tracker 3.01b; Scream Tracker 3.03b+; Impulse Tracker 1.00;
+	  Impulse Tracker 1.04 to 2.09; Modplug Tracker 1.16; Digital Tracker
+	  <=2.04; Digital Tracker 1.9; Octalyser; Imago Orpheus; Liquid Tracker;
+	  Poly Tracker. (MOD, FT2, and IT 2.10+ were already supported.)
 	Changes by Thomas Neumann:
 	- Fix XM envelope handling
 	- Bug fixes to DSMI loader

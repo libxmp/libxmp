@@ -102,7 +102,7 @@ static const uint8 fx[15] = {
 	0, /* special */
 	FX_JUMP,
 	FX_TREMOLO,
-	0, /* special */
+	FX_VOLSLIDE,
 	0, /* special */
 	FX_TONEPORTA,
 	FX_OFFSET
@@ -350,6 +350,7 @@ static int no_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	}
 
 	m->quirk |= QUIRK_FINEFX | QUIRK_RTONCE;
+	m->flow_mode = FLOW_MODE_LIQUID;
 	m->read_event_type = READ_EVENT_ST3;
 
 	for (i = 0; i < mod->chn; i++) {

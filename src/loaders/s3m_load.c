@@ -387,6 +387,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	}
 
 	m->c4rate = C4_NTSC_RATE;
+	m->flow_mode = FLOW_MODE_ST3_321;
 
 	if (sfh.version == 0x1300) {
 		m->quirk |= QUIRK_VSALL;
@@ -402,6 +403,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 				/* MPT 1.0 alpha5 doesn't set the stereo flag, but MPT 1.0 alpha6 does. */
 				strcpy(tracker_name, "ModPlug Tracker 1.0 alpha");
 			}
+			m->flow_mode = FLOW_MODE_MPT_116;
 		} else if(sfh.version == 0x1320 && sfh.special == 0 && sfh.uc == 0 && sfh.flags == 0 && sfh.dp == 0) {
 			if (sfh.gv == 64 && sfh.mv == 48) {
 				strcpy(tracker_name, "PlayerPRO");
@@ -412,6 +414,9 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			snprintf(tracker_name, 40, "Scream Tracker %d.%02x",
 				 (sfh.version & 0x0f00) >> 8, sfh.version & 0xff);
 			m->quirk |= QUIRK_ST3BUGS;
+			if (sfh.version < 0x1303) {
+				m->flow_mode = FLOW_MODE_ST3_301;
+			}
 		}
 		break;
 	case 2:
@@ -420,9 +425,11 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		} else {
 			snprintf(tracker_name, 40, "Imago Orpheus %d.%02x",
 				 (sfh.version & 0x0f00) >> 8, sfh.version & 0xff);
+			m->flow_mode = FLOW_MODE_ORPHEUS;
 		}
 		break;
 	case 3:
+		m->flow_mode = FLOW_MODE_IT_210;
 		if (sfh.version == 0x3216) {
 			strcpy(tracker_name, "Impulse Tracker 2.14v3");
 		} else if (sfh.version == 0x3217) {

@@ -276,6 +276,8 @@ struct channel_data {
 
 void	libxmp_process_fx	(struct context_data *, struct channel_data *,
 				 int, struct xmp_event *, int);
+void	libxmp_process_pattern_loop	(struct context_data *,
+					 struct flow_control *f, int, int, int);
 void	libxmp_filter_setup	(int, int, int, int*, int*, int *);
 int	libxmp_read_event	(struct context_data *, struct xmp_event *, int);
 

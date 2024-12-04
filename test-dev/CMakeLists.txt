@@ -18,6 +18,7 @@ set(DEVTEST_SRC
     ../src/md5.c
     ../src/far_extras.c
     ../src/filetype.c
+    ../src/flow.c
     ../src/hio.c
     ../src/lfo.c
     ../src/load_helpers.c

@@ -25,6 +25,7 @@ XMP_SOURCES	= \
  ..\src\memio.c \
  ..\src\depackers\xfnmatch.c \
  ..\src\far_extras.c \
+ ..\src\flow.c \
  ..\src\lfo.c \
  ..\src\rng.c \
 
