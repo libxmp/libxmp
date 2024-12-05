@@ -1094,15 +1094,20 @@ int libxmp_mixer_numvoices(struct context_data *ctx, int num)
 int libxmp_mixer_on(struct context_data *ctx, int rate, int format, int c4rate)
 {
 	struct mixer_data *s = &ctx->s;
+	int total_size = 5 * rate * 2 / XMP_MIN_BPM; /* See xmp.h */
 
-	s->buffer = (char *) calloc(XMP_MAX_FRAMESIZE, sizeof(int16));
+	if(total_size < XMP_MAX_FRAMESIZE)
+		total_size = XMP_MAX_FRAMESIZE;
+
+	s->buffer = (char *) calloc(total_size, sizeof(int16));
 	if (s->buffer == NULL)
 		goto err;
 
-	s->buf32 = (int32 *) calloc(XMP_MAX_FRAMESIZE, sizeof(int32));
+	s->buf32 = (int32 *) calloc(total_size, sizeof(int32));
 	if (s->buf32 == NULL)
 		goto err1;
 
+	s->total_size = total_size;
 	s->freq = rate;
 	s->format = format;
 	s->amplify = DEFAULT_AMPLIFY;
