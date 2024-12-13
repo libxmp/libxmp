@@ -4,6 +4,8 @@ Stable versions
 4.6.1 (?):
 	Changes by Alice Rowan:
 	- Add stereo sample loading support for IT, S3M, XM.
+	- Add sample preamplification to filter mixers for high sample rates.
+	- Implement support for Protracker instrument swapping.
 	- Fix XM envelope sustain points that exist on a zero-length loop.
 	- Faster IT loading by buffering pattern, sample, and comment reads.
 	- Fix loop detection edge cases broken by S3M/IT marker scan bugs.
@@ -16,7 +18,7 @@ Stable versions
 	- Fix mixer crashes caused by previously valid tempo factors after
 	  sample rate or BPM changes.
 	- Passing NULL to xmp_set_instrument_path() now unsets the instrument
-	  path and not crash.
+	  path instead of crashing.
 	Changes by Thomas Neumann:
 	- Fix XM envelope handling
 	- Fix XM restart position, so that it is possible to play
