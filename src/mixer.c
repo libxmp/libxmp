@@ -111,7 +111,7 @@ MIX_FN(stereoout_mono_a500);
 MIX_FN(stereoout_mono_a500_filter);
 #endif
 
-typedef void (*MIX_FP) (struct mixer_voice *, int32 *, int, int, int, int, int, int, int);
+typedef void (*MIX_FP) (struct mixer_voice* LIBXMP_RESTRICT, int32* LIBXMP_RESTRICT, int, int, int, int, int, int, int);
 
 static const MIX_FP nearest_mixers[] = {
 	LIST_MIX_FUNCTIONS(nearest),
