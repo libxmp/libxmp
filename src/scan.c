@@ -513,8 +513,9 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 			m->scan_cnt[ord][row] = MIN(x, 255);
 			frame_count += (p1 & 0x0f) * speed;
 		}
-
-		if (f1 == FX_IT_BREAK) {
+		/* IT break is not applied if a lower channel looped (2.00+).
+		 * (Labyrinth of Zeux ZX_11.it "Raceway"). */
+		if (f1 == FX_IT_BREAK && loop_chn < 0) {
 		    break_row = p1;
 		    last_row = 0;
 		}
