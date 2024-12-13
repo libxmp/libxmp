@@ -445,11 +445,12 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 			fxp <<= 4;
 			goto fx_setpan;
 		case EX_RETRIG:		/* Retrig note */
+		    fx_retrig:
 			SET(RETRIG);
 			xc->retrig.val = fxp;
-			xc->retrig.count = LSN(xc->retrig.val) + 1;
+			xc->retrig.count = fxp + 1;
 			xc->retrig.type = 0;
-			xc->retrig.limit = 0;
+			xc->retrig.limit = HAS_QUIRK(QUIRK_RTONCE) ? 1 : 0;
 			break;
 		case EX_F_VSLIDE_UP:	/* Fine volume slide up */
 			EFFECT_MEMORY(fxp, xc->fine_vol.up_memory);
@@ -694,11 +695,11 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 	case FX_MULTI_RETRIG:	/* Multi retrig */
 		EFFECT_MEMORY_S3M(fxp);
 		if (fxp) {
-			xc->retrig.val = fxp;
-			xc->retrig.type = MSN(xc->retrig.val);
+			xc->retrig.val = LSN(fxp);
+			xc->retrig.type = MSN(fxp);
 		}
 		if (note) {
-			xc->retrig.count = LSN(xc->retrig.val) + 1;
+			xc->retrig.count = xc->retrig.val + 1;
 		}
 		xc->retrig.limit = 0;
 		SET(RETRIG);
@@ -1138,6 +1139,8 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 		p->flow.jumpline = fxp;
 		p->flow.jump_in_pat = p->ord;
 		break;
+	case FX_RETRIG:		/* Retrigger with extended range */
+		goto fx_retrig;
 #endif
 
 	default:

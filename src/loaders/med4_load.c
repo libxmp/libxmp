@@ -76,14 +76,17 @@ static void fix_effect(struct xmp_event *event, int hexvol)
 			event->fxp = event->fxt = 0;
 			event->vol = 1;
 		} else if (event->fxp == 0xf1) {
+			/* Retrigger once on tick 3 */
 			event->fxt = FX_EXTENDED;
 			event->fxp = (EX_RETRIG << 4) | 3;
 		} else if (event->fxp == 0xf2) {
-			event->fxt = FX_EXTENDED;
-			event->fxp = (EX_CUT << 4) | 3;
-		} else if (event->fxp == 0xf3) {
+			/* Delay until tick 3 */
 			event->fxt = FX_EXTENDED;
 			event->fxp = (EX_DELAY << 4) | 3;
+		} else if (event->fxp == 0xf3) {
+			/* Retriger once on tick 2 */
+			event->fxt = FX_EXTENDED;
+			event->fxp = (EX_RETRIG << 4) | 2;
 		} else if (event->fxp > 0xf0) {
 			event->fxp = event->fxt = 0;
 		} else if (event->fxp > 10) {
@@ -309,6 +312,7 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	flags = hio_read8s(f);
 	mod->spd = hio_read16b(f);
 
+	m->quirk |= QUIRK_RTONCE;
 	if (~flags & 0x20)	/* sliding */
 		m->quirk |= QUIRK_VSALL | QUIRK_PBALL;
 

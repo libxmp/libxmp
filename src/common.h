@@ -260,6 +260,7 @@ int libxmp_snprintf (char *, size_t, const char *, ...) LIBXMP_ATTRIB_PRINTF(3,4
 #define QUIRK_S3MLOOP	(1 << 0)	/* S3M loop mode */
 #define QUIRK_ENVFADE	(1 << 1)	/* Fade at end of envelope */
 #define QUIRK_PROTRACK	(1 << 2)	/* Use Protracker-specific quirks */
+#define QUIRK_RTONCE	(1 << 3)	/* Retrigger one time only */
 #define QUIRK_ST3BUGS	(1 << 4)	/* Scream Tracker 3 bug compatibility */
 #define QUIRK_FINEFX	(1 << 5)	/* Enable 0xf/0xe for fine effects */
 #define QUIRK_VSALL	(1 << 6)	/* Volume slides in all frames */

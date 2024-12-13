@@ -1627,7 +1627,7 @@ static void play_channel(struct context_data *ctx, int chn)
 			xc->volume += rval[xc->retrig.type].s;
 			xc->volume *= rval[xc->retrig.type].m;
 			xc->volume /= rval[xc->retrig.type].d;
-			xc->retrig.count = LSN(xc->retrig.val);
+			xc->retrig.count = xc->retrig.val;
 
 			if (xc->retrig.limit > 0) {
 				/* Limit the number of retriggers. */

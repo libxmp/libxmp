@@ -224,6 +224,9 @@ void mmd_xlat_fx(struct xmp_event *event, int bpm_on, int bpmlen, int med_8ch,
 			event->fxp = (EX_DELAY << 4) | 3;
 			break;
 		case 0xf3:	/* Play note three times */
+			/* Actually just retriggers once on tick 2, except
+			 * for a bug in OctaMED <=4.00 where it will retrigger
+			 * every tick from tick 2 onward. */
 			event->fxt = FX_EXTENDED;
 			event->fxp = (EX_RETRIG << 4) | 2;
 			break;
