@@ -316,7 +316,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  imf \
 		  ims \
 		  j2b \
-		  liq liq_no \
+		  liq liq_no liq_no_fx \
 		  masi \
 		  masi16 \
 		  mdl0 mdl \

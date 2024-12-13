@@ -1,0 +1,155 @@
+Liquid Tracker old format (NO)
+------------------------------
+by Lachesis, last updated 2024-12-13
+
+All multibyte numeric values are little endian.
+
+Header:
+
+Pos.	Bytes	Description
+-----	-----	-----------
+   0h	4	"NO\x00\x00"
+   4h	1	nlen = length of name, in bytes.
+   5h	29	name; should not include 00h in the first [nlen] bytes.
+  22h	1	number of patterns
+  23h	1	unknown (FFh)
+  24h	1	chn = number of channels
+  25h	6	unknown
+  2Bh	256	pattern list (FFh = none/end of module)
+---------------------------
+ 12Bh (299) bytes total
+
+The 6 unknown bytes after the channel count vary between TIMETIME.LIQ
+and WASTETIM.LIQ, but are all 00h in MOD2LIQ.EXE modules. They don't
+seem to affect anything in any of the demo versions.
+
+
+Instruments: 63 instrument definitions immediately follow the header at
+offset 12Bh (299). Each instrument definition consists of:
+
+Pos.	Bytes	Description
+-----	-----	-----------
+   0h	1	inlen = length of instrument name, in bytes.
+   1h	30	iname; should not include 00h in the first [inlen] bytes.
+  1Fh	1	volume (0-64)
+  20h	2	c2 rate
+  22h	4	sample length (bytes)
+  26h	4	sample loop start (bytes)
+  2Ah	4	sample loop length (bytes)
+---------------------------
+  2Eh (46) bytes total
+
+
+Patterns: event data immediately follows the header/instruments at
+offset C7Dh (3197). Each pattern is 64 rows * [chn] channels * 4 bytes long.
+
+Event packing (copied from Claudio): each event is a 32-bit value:
+
+0b pppppppp eeeevvvv vvviiiii iinnnnnn
+   |||||||| |||||||| |||||||| ||++++++--> note		(0=C-0; 3Fh = none)
+   |||||||| |||||||| |||+++++-++--------> instrument	(0-62; 7Fh = none)
+   |||||||| ||||++++-+++----------------> volume	(0-64; 7Fh = none)
+   |||||||| ++++------------------------> effect	(0-14; 0Fh = none)
+   ++++++++-----------------------------> param		(0-255)
+
+XXXXXXXX
+--------
+      3F >>  0 = note
+    1FC  >>  6 = instrument
+   FE    >> 13 = volume
+  F      >> 20 = effect
+FF       >> 24 = param
+
+
+Samples: sample data immediately follows the last pattern.
+Samples are 8-bit unsigned.
+
+
+Effects: the effects mappings were changed sometime between 0.64b and 0.80b.
+It's not clear how many of the effects were ever implemented, or if the later
+NO-format versions translate the new effects back to the old effects format
+when saving (0.80b and 0.82b are not capable of loading the new format).
+
+Changelog alleges a global volume effect Fxx (05h) added in 0.67b.
+All surviving later versions (as of writing this) strip this effect out,
+so unless 0.68b or 0.69b surfaces with this effect, probably ignore it.
+It's also not clear if effects I4x and I5x were ever implemented.
+
+For Lxy, volume slide up takes precedence over volume slide down.
+Volume slide in the new format has fine volume slides combined into it
+using the encodings LFx for fine volslide down and LxF for fine volslide
+up, with fine volslide up taking precedence for LFF. This quirk is not
+present in versions prior to 0.80b and later versions will not strip
+these encodings from loaded NO files, so it's not clear which behavior
+should be supported.
+
+Note: pan control H70 (also H6A) resets EVERY channel to its default pan.
+
+Number	Effect	Description				Translation
+------	------	-----------				-----------
+00h	Axx	Set speed (0-1F) and BPM (20-FF)	Sxx and Bxx
+01h	Bxy	Vibrato					Vxy
+02h	Cxx	"Cut" pattern (pattern break, decimal)	Cxx
+03h	Dxx	Portamento down (DFx fine, DEx extra)	Dxx
+04h	Exx	Portamento up (EFx fine, EEx extra)	Uxx
+05h	Fxx	Global volume				---
+06h	Gxy	Arpeggio				Axy
+07h	Hxx	Pan control (decimal, 0-64; 70=reset)	Pxx
+08h	Ixy	Misc 1 (see below)			(see below)
+09h	Jxx	Jump Position				Jxx
+0Ah	Kxy	Tremolo					Txy
+0Bh	Lxy	Volume slide (L0x down, Lx0 up,		Lxy
+		 LFx fine down, LxF fine up)
+0Ch	Mxx	Misc 2 (see below)			(see below)
+0Dh	Nxx	"Note" (tone) portamento		Nxx
+0Eh	Oxx	Sample offset				Oxx
+
+
+Misc effects:
+
+Number	Effect	Description				Translation
+------	------	-----------				-----------
+08h 0	I0x	Vibrato+volslide up			Yx0
+08h 1	I1x	Vibrato+volslide down			Y0x
+08h 2	I2x	Toneporta+volslide up			Xx0
+08h 3	I3x	Toneporta+volslide down			X0x
+08h 4	I4x	Tremolo+volslide up			---
+08h 5	I5x	Tremolo+volslide down			---
+08h 6	---
+08h 7	---
+08h 8	---
+08h 9	---
+08h A	---
+08h B	---
+08h C	---
+08h D	---
+08h E	---
+08h F	---
+0Ch 0	M0x	Fine porta up				UFx
+0Ch 1	M1x	Fine porta down				DFx
+0Ch 2	M2x	Fine volslide up			LxF
+0Ch 3	M3x	Fine volslide down			LFx
+0Ch 4	M4x	Vibrato waveform			M4x
+0Ch 5	M5x	Tremolo waveform			M7x
+0Ch 6	M6x	Note retrigger				R0x
+0Ch 7	M7x	Note cut				MCx
+0Ch 8	M8x	Note delay				MDx
+0Ch 9	---
+0Ch A	---
+0Ch B	MBx	Pattern loop				M6x
+0Ch C	MCx	Pattern delay				MEx
+0Ch D	---
+0Ch E	---
+0Ch F	---
+
+
+Waveform	Type
+--------	----
+0		Sine
+1		Ramp down (period)
+2		Square
+3		Square
+4		Sine (continue)
+5		Ramp down (period) (continue)
+6		Square (continue)
+7		Square (continue)

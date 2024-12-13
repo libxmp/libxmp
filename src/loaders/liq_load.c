@@ -129,9 +129,9 @@ static const uint8 fx[25] = {
 	FX_EXTENDED,
 	FX_TONEPORTA,
 	FX_OFFSET,
-	NONE,			/* FIXME: Pan */
+	FX_SETPAN,
 	NONE,
-	NONE, /*FX_MULTI_RETRIG,*/
+	FX_RETRIG,
 	FX_S3M_SPEED,
 	FX_TREMOLO,
 	FX_PORTA_UP,
@@ -160,8 +160,8 @@ static void xlat_fx(int c, struct xmp_event *e)
 	    e->fxp = l | (EX_GLISS << 4);
 	    break;
 	case 0x4:			/* Vibrato wave */
-	    if (l == 3)
-		l++;
+	    if ((l & 3) == 3)
+		l--;
 	    e->fxp = l | (EX_VIBRATO_WF << 4);
 	    break;
 	case 0x5:			/* Finetune */
@@ -171,8 +171,8 @@ static void xlat_fx(int c, struct xmp_event *e)
 	    e->fxp = l | (EX_PATTERN_LOOP << 4);
 	    break;
 	case 0x7:			/* Tremolo wave */
-	    if (l == 3)
-		l++;
+	    if ((l & 3) == 3)
+		l--;
 	    e->fxp = l | (EX_TREMOLO_WF << 4);
 	    break;
 	case 0xc:			/* Cut */
@@ -187,6 +187,32 @@ static void xlat_fx(int c, struct xmp_event *e)
 	default:			/* Ignore */
 	    e->fxt = e->fxp = 0;
 	    break;
+	}
+	break;
+    case FX_VOLSLIDE:			/* Volslide and fine volslide */
+	if (LSN(e->fxp) == 0x0f && MSN(e->fxp)) {
+	    /* Fine up */
+	    e->fxt = FX_EXTENDED;
+	    e->fxp = (EX_F_VSLIDE_UP << 4) + MSN(e->fxp);
+	} else if (MSN(e->fxp) == 0xf && LSN(e->fxp)) {
+	    /* Fine down */
+	    e->fxt = FX_EXTENDED;
+	    e->fxp = (EX_F_VSLIDE_DN << 4) + LSN(e->fxp);
+	} else {
+	    e->fxt = FX_VOLSLIDE;
+	    e->fxp = e->fxp;
+	}
+	break;
+    case FX_SETPAN:			/* Pan control */
+	l = (e->fxp >> 4) * 10 + (e->fxp & 0x0f);
+	if (l == 70) {
+	    /* TODO: if the effective value is 70, reset ALL channels to
+	    * default pan positions. */
+	    e->fxt = e->fxp = 0;
+	} else if (l <= 64) {
+	    e->fxp = l * 0xff / 64;
+	} else {
+	    e->fxt = e->fxp = 0;
 	}
 	break;
     case NONE:				/* No effect */
@@ -649,7 +675,7 @@ next_pattern:
 	    return -1;
     }
 
-    m->quirk |= QUIRKS_ST3;
+    m->quirk |= QUIRK_FINEFX | QUIRK_RTONCE;
     m->read_event_type = READ_EVENT_ST3;
 
     return 0;
