@@ -562,7 +562,7 @@ static void update_invloop(struct context_data *ctx, struct channel_data *xc)
 {
 	struct xmp_sample *xxs = libxmp_get_sample(ctx, xc->smp);
 	struct module_data *m = &ctx->m;
-	int lps, len = -1;
+	int lps = 0, len = -1;
 
 	xc->invloop.count += invloop_table[xc->invloop.speed];
 
