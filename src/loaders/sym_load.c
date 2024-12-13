@@ -148,9 +148,9 @@ static void fix_effect(struct xmp_event *e, int parm)
 		e->fxp = (EX_TREMOLO_WF << 4) | (parm & 0x0f);
 		break;
 	case 0x19:	/* 19 xxx Retrig Note */
-		if (parm < 0x10) {
-			e->fxt = FX_EXTENDED;
-			e->fxp = (EX_RETRIG << 4) | (parm & 0x0f);
+		if (parm < 0x100) {
+			e->fxt = FX_RETRIG;
+			e->fxp = parm & 0xff;
 		} else {
 			/* ignore */
 			e->fxt = 0;
