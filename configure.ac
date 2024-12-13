@@ -127,12 +127,6 @@ XMP_TRY_COMPILE(whether compiler understands -Wunused-parameter,
   int main(void){return 0;}],
   CFLAGS="${CFLAGS} -Wno-unused-parameter")
 
-if test x$ac_cv_c_flag_w_extra != xyes && test x$ac_cv_c_flag_w_unused_parameter = xyes; then
-  XMP_TRY_COMPILE(whether compiler understands -W,
-    ac_cv_c_flag_w, -W,
-   [int main(void){return 0;}], CFLAGS="${CFLAGS} -W")
-fi
-
 XMP_TRY_COMPILE(whether compiler understands -Wsign-compare,
   ac_cv_c_flag_w_sign_compare,
   -Wsign-compare,[
