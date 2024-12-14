@@ -674,7 +674,7 @@ static int load_new_it_instrument(struct xmp_instrument *xxi, HIO_HANDLE *f)
 	}
 
 	xxi->nsm = k;
-	xxi->vol = i2h.gbv >> 1;
+	xxi->vol = MIN(i2h.gbv, 128) >> 1;
 
 	if (k) {
 		xxi->sub = (struct xmp_subinstrument *) calloc(k, sizeof(struct xmp_subinstrument));
@@ -881,7 +881,7 @@ static int load_it_sample(struct module_data *m, int i, int start,
 			struct xmp_subinstrument *sub = &mod->xxi[j].sub[k];
 			if (sub->sid == i) {
 				sub->vol = ish.vol;
-				sub->gvl = ish.gvl;
+				sub->gvl = MIN(ish.gvl, 64);
 				sub->vra = ish.vis;	/* sample to sub-instrument vibrato */
 				sub->vde = ish.vid << 1;
 				sub->vwf = ish.vit;
