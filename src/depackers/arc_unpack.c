@@ -129,14 +129,13 @@ static int arc_unpack_init(struct arc_data *arc, int init_width, int max_width, 
     if(max_width < 9 || max_width > 16)
       return -1;
 
-    arc->tree = (struct arc_code *)calloc(1 << max_width, sizeof(struct arc_code));
+    arc->tree = (struct arc_code *)calloc((size_t)(1U << max_width), sizeof(struct arc_code));
     if(!arc->tree)
       return -1;
 
     for(i = 0; i < 256; i++)
     {
       struct arc_code *c = &(arc->tree[i]);
-      c->prev = (arc_uint16)ARC_NO_CODE;
       c->length = 1;
       c->value = i;
     }
@@ -737,7 +736,7 @@ static int arc_huffman_init(struct arc_data * ARC_RESTRICT arc,
       continue;
     }
 
-    iter = 1 << bits;
+    iter = (size_t)(1U << bits);
     for(j = i; j < table_size; j += iter)
     {
       arc->huffman_lookup[j].value = ~index;
