@@ -36,6 +36,18 @@ Stable versions
 	  * Support for Digital Tracker 1.9 "MIDI note" transpose.
 	  * Simulate Digital Tracker effects bugs where possible.
 	  * Fix loading of Digital Tracker module names (not always 32 bytes).
+	- Liquid Tracker bug fixes:
+	  * [Old] Fix loading of module and instrument names (fixes the old
+	    format version of WASTETIM.LIQ).
+	  * [Old] Fix loading of instrument lengths/loops (32-bit, not 16-bit).
+	  * [Old] Fix loading of pattern notes and volumes (off-by-one).
+	  * [Old] Fix initial panning.
+	  * [Old] Most effects are now supported. H70/H6A is not yet supported.
+	    Fxx, if it was ever implemented, is not yet supported.
+	  * [New] Fixed Pan Control, Retrigger, Volume Slide effects, and
+	    vibrato/tremolo waveform 3. P70/P6A is not yet supported.
+	  * [Both] Stopped incorrectly applying QUIRK_S3MLOOP, QUIRK_VOLPDN,
+	    QUIRK_S3MRTG, and QUIRK_MARKER.
 	- Fix loading of Poly Tracker (PTM) empty sample names.
 	- Fix out-of-bounds reads in His Master's Noise Mupp instruments.
 	- Fix slow ProWizard testing.
