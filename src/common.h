@@ -336,7 +336,7 @@ struct ord_data {
 	int speed;
 	int bpm;
 	int gvl;
-	int time;
+	int time; /* TODO: double */
 	int start_row;
 #ifndef LIBXMP_CORE_PLAYER
 	int st26_speed;
@@ -445,7 +445,7 @@ struct virt_channel {
 };
 
 struct scan_data {
-	int time;			/* replay time in ms */
+	int time;			/* replay time in ms */ /* TODO: double */
 	int row;
 	int ord;
 	int num;
