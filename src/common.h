@@ -118,6 +118,11 @@ typedef int tst_uint64[2 * (8 == sizeof(uint64)) - 1];
 
 #ifdef _MSC_VER
 #pragma warning(disable:4100) /* unreferenced formal parameter */
+#pragma warning(disable:4389) /* signed/unsigned mismatch ( <, <=, >, >= ) */
+#pragma warning(disable:4018) /* signed/unsigned mismatch ( ==, != ) */
+#pragma warning(disable:4761) /* integral size mismatch in argument; conversion supplied (for MSVC6 and older.) */
+#pragma warning(disable:4244) /* conversion from 'type' to 'int', possible loss of data */
+#pragma warning(disable:4267) /* conversion from 'size_t' to 'type', possible loss of data */
 #endif
 
 #ifndef LIBXMP_CORE_PLAYER

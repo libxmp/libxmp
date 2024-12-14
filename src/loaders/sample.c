@@ -66,13 +66,13 @@ static void convert_7bit_to_8bit(uint8 *p, int l)
 static void convert_vidc_to_linear(uint8 *p, int l)
 {
 	int i;
+	int8 amp;
 	uint8 x;
 
 	for (i = 0; i < l; i++) {
 		x = p[i];
-		p[i] = vdic_table[x >> 1];
-		if (x & 0x01)
-			p[i] *= -1;
+		amp = vdic_table[x >> 1];
+		p[i] = (uint8)((x & 0x01) ? -amp : amp);
 	}
 }
 
