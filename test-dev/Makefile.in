@@ -404,7 +404,7 @@ FUZZER		= misc \
 		  amf_truncated \
 		  amf_truncated2 \
 		  arch_duplicate_chunk \
-		  arch_invalid_patterns \
+		  arch_invalid \
 		  asy_invalid_samples \
 		  chip_truncated \
 		  coco_invalid_sequence \

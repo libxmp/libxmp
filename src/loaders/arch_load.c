@@ -434,7 +434,15 @@ static int get_samp(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	m->vol_table = libxmp_arch_vol_table;
 	m->volbase = 0xff;
 
+	/* Clean bad loops */
+	if (mod->xxs[i].lps < 0 || mod->xxs[i].lps >= mod->xxs[i].len) {
+		mod->xxs[i].lps = mod->xxs[i].lpe = 0;
+	}
+
 	if (mod->xxs[i].lpe > 2) {
+		if (mod->xxs[i].lpe > mod->xxs[i].len - mod->xxs[i].lps) {
+			mod->xxs[i].lpe = mod->xxs[i].len - mod->xxs[i].lps;
+		}
 		mod->xxs[i].flg = XMP_SAMPLE_LOOP;
 		mod->xxs[i].lpe = mod->xxs[i].lps + mod->xxs[i].lpe;
 	} else if (mod->xxs[i].lpe == 2 && mod->xxs[i].lps > 0) {
