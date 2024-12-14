@@ -467,10 +467,21 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			sub->xpo += 48 - rs.basenote;
 			sub->vol = rs.defaultvolume * rs.basevolume / 0x40;
 			sub->pan = 0x80 + rs.panning * 2;
-			sub->vwf = ri.vibflg;
-			sub->vde = ri.vibdepth << 2;
-			sub->vra = ri.vibrate;
-			sub->vsw = ri.vibsweep;
+			/* Autovibrato oddities:
+			 * Wave:  TODO: 0 sine, 1 square, 2 ramp down, 3 ramp up
+			 *        All invalid values are also ramp up.
+			 * Depth: the UI limits it 0-15, but higher values
+			 *        work. Negatives are very broken.
+			 * Rate:  the UI limits 0-63; but higher and negative
+			 *        values actually work how you would expect!
+			 *        Rate is half as fast as libxmp currently.
+			 * Sweep: the UI limits 0-255 but loads as signed.
+			 *        During playback, it is treated as unsigned.
+			 */
+			sub->vwf = MIN((uint8)ri.vibflg, 3);
+			sub->vde = MAX(ri.vibdepth, 0) << 2;
+			sub->vra = (ri.vibrate + (ri.vibrate > 0)) >> 1;
+			sub->vsw = (uint8)ri.vibsweep;
 			sub->sid = smpnum;
 
 			if (smpnum >= mod->smp) {

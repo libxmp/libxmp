@@ -140,7 +140,7 @@ int libxmp_lfo_get(struct context_data *ctx, struct lfo *lfo, int is_vibrato)
 void libxmp_lfo_update(struct lfo *lfo)
 {
 	lfo->phase += lfo->rate;
-	lfo->phase %= WAVEFORM_SIZE;
+	lfo->phase &= WAVEFORM_SIZE - 1; /* Rate may be negative, don't %= */
 }
 
 void libxmp_lfo_set_phase(struct lfo *lfo, int phase)
