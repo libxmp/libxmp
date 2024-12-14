@@ -467,10 +467,12 @@ int libxmp_check_filename_case(const char *dir, const char *name, char *new_name
 
 static const char *libxmp_get_instrument_path(struct module_data *m)
 {
-	char *env;
+	const char *env;
 	if (m->instrument_path) {
 		return m->instrument_path;
-	} else if ((env = getenv("XMP_INSTRUMENT_PATH"))) {
+	}
+	env = getenv("XMP_INSTRUMENT_PATH");
+	if (env) {
 		return env;
 	}
 	return NULL;
