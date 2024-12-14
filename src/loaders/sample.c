@@ -131,7 +131,7 @@ static void convert_signal(uint8 *p, int l, int r)
 			*w += 0x8000;
 	} else {
 		for (; l--; p++)
-			*p += (char)0x80;	/* cast needed by MSVC++ */
+			*p += (unsigned char)0x80;
 	}
 }
 
