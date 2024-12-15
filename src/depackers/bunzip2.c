@@ -68,6 +68,10 @@ struct bwdata {
   unsigned int *dbuf;
 };
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4324) /* structure was padded due to alignment specifier */
+#endif
 // Structure holding all the housekeeping data, including IO buffers and
 // memory that persists between calls to bunzip
 struct bunzip_data {
@@ -99,6 +103,9 @@ struct bunzip_data {
   /* libxmp: For I/O error handling */
   jmp_buf jmpbuf;
 };
+#if defined(_MSC_VER)
+#pragma warning (pop)
+#endif
 
 /* libxmp addition */
 struct bunzip_output {
