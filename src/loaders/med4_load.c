@@ -175,7 +175,7 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	uint8 m0;
 	uint64 mask;
 	int transp, masksz;
-	int32 pos;
+	long pos;
 	int vermaj, vermin;
 	uint8 trkvol[16], buf[1024];
 	struct xmp_event *event;
@@ -550,7 +550,7 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 				_len -= 22;
 			}
 
-			if (_len < 0) {
+			if (_len < 0 || _len > hio_size(f)) {
 				D_(D_CRIT "invalid sample %d length", i);
 				return -1;
 			}
@@ -569,7 +569,7 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	smp_idx = 0;
 	for (i = 0; mask != 0 && i < num_ins; i++, mask <<= 1) {
-		int length, type;
+		int length, length2, type;
 		struct SynthInstr synth;
 		struct xmp_instrument *xxi;
 		struct xmp_subinstrument *sub;
@@ -624,9 +624,14 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			if (hio_error(f))
 				return -1;
 
+			/* FIXME: load waveforms too
+			 * how much of this can be merged with MMD? */
 			hio_seek(f, pos + hio_read32b(f), SEEK_SET);
-			length = hio_read32b(f);
-			type = hio_read16b(f);
+			length2 = hio_read32b(f);
+			if (hio_read16b(f) != 0) {
+				D_(D_CRIT "hybrid %d has non-sample at pos 0", i);
+				return -1;
+			}
 
 			if (libxmp_med_new_instrument_extras(xxi) != 0)
 				return -1;
@@ -651,7 +656,7 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 			xxs = &mod->xxs[smp_idx];
 
-			xxs->len = length;
+			xxs->len = length2;
 			xxs->lps = temp_inst[i].loop_start;
 			xxs->lpe = temp_inst[i].loop_end;
 			xxs->flg = temp_inst[i].loop_end > 2 ?
@@ -669,6 +674,7 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			if (mmd_alloc_tables(m, i, &synth) != 0)
 				return -1;
 
+			hio_seek(f, pos + length, SEEK_SET);
 			continue;
 		}
 
