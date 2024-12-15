@@ -552,6 +552,7 @@ FUZZER		= misc \
 		  play_xm_bad_env_sustain \
 		  play_xm_bad_instrument \
 		  play_xm_vol_env_clamp \
+		  play_it_adpcm_bound \
 		  play_it_bad_env \
 		  play_it_bad_loop \
 		  play_it_bad_set_nna \
