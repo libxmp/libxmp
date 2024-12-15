@@ -712,6 +712,7 @@ test_fuzzer_med4_instrument_name
 test_fuzzer_med4_invalid_iff
 test_fuzzer_med4_invalid_sample
 test_fuzzer_mfp_truncated
+test_fuzzer_mgt_invalid
 test_fuzzer_mgt_patterns_bound
 test_fuzzer_mmd0_sample_count
 test_fuzzer_mmd1_channel_count

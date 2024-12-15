@@ -465,6 +465,7 @@ FUZZER		= misc \
 		  med4_invalid_iff \
 		  med4_invalid_sample \
 		  mfp_truncated \
+		  mgt_invalid \
 		  mgt_patterns_bound \
 		  mmd0_sample_count \
 		  mmd1_channel_count \
