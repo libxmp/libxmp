@@ -408,12 +408,12 @@ FUZZER		= misc \
 		  asy_invalid_samples \
 		  chip_truncated \
 		  coco_invalid_sequence \
+		  dbm_bad_fx_conv \
 		  dbm_chunk_order \
 		  dbm_invalid_instruments \
 		  dbm_name_buffer_overflow \
 		  dbm_sample_count \
 		  dbm_truncated \
-		  dbm_truncated_inst \
 		  digi_truncated \
 		  dt_duplicate_chunk \
 		  dt_invalid \
