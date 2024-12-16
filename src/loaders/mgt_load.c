@@ -196,6 +196,12 @@ static int mgt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	/* Tracks */
 
+	/* Sanity check */
+	if (trk_ptr >= hio_size(f)) {
+		D_(D_CRIT "track pointer past EOF, can't load tracks");
+		return -1;
+	}
+
 	for (i = 1; i < mod->trk; i++) {
 		int offset, rows;
 		uint8 b;

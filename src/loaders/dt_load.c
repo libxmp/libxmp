@@ -81,7 +81,7 @@ const struct format_loader libxmp_loader_dt = {
 
 static int dt_test(HIO_HANDLE *f, char *t, const int start)
 {
-	int size;
+	uint32 size;
 
 	if (hio_read32b(f) != MAGIC_D_T_)
 		return -1;
@@ -94,8 +94,8 @@ static int dt_test(HIO_HANDLE *f, char *t, const int start)
 	hio_read16b(f);			/* bpm */
 	hio_read32b(f);			/* global sample rate (2.03) */
 
+	CLAMP(size, 14, XMP_NAME_SIZE + 14);
 	size -= 14;
-	CLAMP(size, 0, XMP_NAME_SIZE);
 	libxmp_read_title(f, t, size);
 
 	return 0;
@@ -544,7 +544,7 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 		return -1;
 
 	for (i = 0; i < mod->ins; i++) {
-		uint32 len, repstart, replen;
+		int len, repstart, replen;
 		int fine, stereo, midinote;
 
 		if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
@@ -555,6 +555,9 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 
 		/*hio_read32b(f);*/	/* reserved */
 		len = readmem32b(buf + 4);
+		if (len < 0) {
+			len = 0;
+		}
 		mod->xxs[i].len = len;
 		mod->xxi[i].nsm = (mod->xxs[i].len > 0);
 		fine = buf[8];		/* finetune */
@@ -563,7 +566,7 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 		repstart = readmem32b(buf + 10);
 		replen = readmem32b(buf + 14);
 
-		if (repstart >= len || (int)repstart < 0 || (int)replen < 0) {
+		if (repstart >= len || repstart < 0 || replen < 0) {
 			repstart = 0;
 			replen = 0;
 		}

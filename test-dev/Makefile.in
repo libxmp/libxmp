@@ -404,21 +404,19 @@ FUZZER		= misc \
 		  amf_truncated \
 		  amf_truncated2 \
 		  arch_duplicate_chunk \
-		  arch_invalid_patterns \
+		  arch_invalid \
 		  asy_invalid_samples \
 		  chip_truncated \
 		  coco_invalid_sequence \
+		  dbm_bad_fx_conv \
 		  dbm_chunk_order \
 		  dbm_invalid_instruments \
 		  dbm_name_buffer_overflow \
 		  dbm_sample_count \
 		  dbm_truncated \
-		  dbm_truncated_inst \
 		  digi_truncated \
-		  dt_channels_bound \
 		  dt_duplicate_chunk \
-		  dt_instrument_count \
-		  dt_invalid_loop \
+		  dt_invalid \
 		  dt_truncated \
 		  emod_duplicate_chunk \
 		  far_truncated \
@@ -467,6 +465,7 @@ FUZZER		= misc \
 		  med4_invalid_iff \
 		  med4_invalid_sample \
 		  mfp_truncated \
+		  mgt_invalid \
 		  mgt_patterns_bound \
 		  mmd0_sample_count \
 		  mmd1_channel_count \
@@ -554,6 +553,7 @@ FUZZER		= misc \
 		  play_xm_bad_env_sustain \
 		  play_xm_bad_instrument \
 		  play_xm_vol_env_clamp \
+		  play_it_adpcm_bound \
 		  play_it_bad_env \
 		  play_it_bad_loop \
 		  play_it_bad_set_nna \
@@ -564,6 +564,7 @@ FUZZER		= misc \
 		  play_it_offset_reverse \
 		  play_it_row_0_loop_row_delay \
 		  play_it_sustain_bidi \
+		  play_it_vol_clamp \
 		  play_669_low_freq \
 		  play_abk_0_length_track \
 		  play_asylum_bad_effects \
@@ -576,6 +577,7 @@ FUZZER		= misc \
 		  play_mdl_zero_samples \
 		  play_med4_0_chn_invalid_ord \
 		  play_mmd1_synth_bad_tables \
+		  play_rtm_autovib \
 		  play_stm_bad_note_toneporta \
 
 SYNTH		= #adlib #spectrum

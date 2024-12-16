@@ -64,7 +64,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
     int orders_since_last_valid, any_valid;
     int gvl, bpm, speed, base_time, chn;
     int frame_count;
-    double time, start_time;
+    double time, start_time, time_calc;
     int loop_chn, loop_num, inside_loop, line_jump;
     int pdelay = 0;
     int loop_count[XMP_MAX_CHANNELS];
@@ -218,7 +218,9 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
             info->gvl = gvl;
             info->bpm = bpm;
             info->speed = speed;
-            info->time = time + m->time_factor * frame_count * base_time / bpm;
+	    /* TODO: double ord_data::time */
+	    time_calc = time + m->time_factor * frame_count * base_time / bpm;
+            info->time = time_calc > (double)INT_MAX ? INT_MAX : (int)time_calc;
 #ifndef LIBXMP_CORE_PLAYER
             info->st26_speed = st26_speed;
 #endif
@@ -643,7 +645,9 @@ end_module:
     time -= start_time;
     frame_count += row_count * speed;
 
-    return (time + m->time_factor * frame_count * base_time / bpm);
+    /* TODO: double scan_data::time */
+    time_calc = time + m->time_factor * frame_count * base_time / bpm;
+    return time_calc > (double)INT_MAX ? INT_MAX : (int)time_calc;
 }
 
 static void reset_scan_data(struct context_data *ctx)

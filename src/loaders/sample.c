@@ -212,10 +212,31 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 		return 0;
 	}
 
+	/* Patches with samples
+	 * Allocate extra sample for interpolation.
+	 */
+	bytelen = xxs->len;
+	framelen = 1;
+	extralen = 4;
+
+	if (xxs->flg & XMP_SAMPLE_16BIT) {
+		bytelen *= 2;
+		extralen *= 2;
+		framelen *= 2;
+	}
+	if (xxs->flg & XMP_SAMPLE_STEREO) {
+		bytelen *= 2;
+		extralen *= 2;
+		framelen *= 2;
+		channels = 2;
+	}
+
 	/* If this sample starts at or after EOF, skip it entirely.
 	 */
 	if (~flags & SAMPLE_FLAG_NOLOAD) {
 		long file_pos, file_len;
+		long remaining = 0;
+		long over = 0;
 		if (!f) {
 			return 0;
 		}
@@ -226,10 +247,33 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 			return 0;
 		}
 		/* If this sample goes past EOF, truncate it. */
-		if (file_pos + xxs->len > file_len && (~flags & SAMPLE_FLAG_ADPCM)) {
+		remaining = file_len - file_pos;
+#ifndef LIBXMP_CORE_PLAYER
+		if (flags & SAMPLE_FLAG_ADPCM) {
+			long bound = 16 + ((bytelen + 1) >> 1);
+			if (remaining < 16) {
+				D_(D_WARN "ignoring truncated ADPCM sample");
+				return 0;
+			}
+			if (bound > remaining) {
+				over = bound - remaining;
+				bytelen = (remaining - 16) << 1;
+			}
+		} else
+#endif
+		if (bytelen > remaining) {
+			over = bytelen - remaining;
+			bytelen = remaining;
+		}
+
+		if (over) {
 			D_(D_WARN "sample would extend %ld bytes past EOF; truncating to %ld",
-				file_pos + xxs->len - file_len, file_len - file_pos);
-			xxs->len = file_len - file_pos;
+				over, remaining);
+			xxs->len = bytelen;
+			if (xxs->flg & XMP_SAMPLE_16BIT)
+				xxs->len >>= 1;
+			if (xxs->flg & XMP_SAMPLE_STEREO)
+				xxs->len >>= 1;
 		}
 	}
 
@@ -246,13 +290,6 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 		xxs->flg &= ~(XMP_SAMPLE_LOOP | XMP_SAMPLE_LOOP_BIDIR);
 	}
 
-	/* Patches with samples
-	 * Allocate extra sample for interpolation.
-	 */
-	bytelen = xxs->len;
-	framelen = 1;
-	extralen = 4;
-
 	/* Disable bidirectional loop flag if sample is not looped
 	 */
 	if (xxs->flg & XMP_SAMPLE_LOOP_BIDIR) {
@@ -262,18 +299,6 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 	if (xxs->flg & XMP_SAMPLE_SLOOP_BIDIR) {
 		if (~xxs->flg & XMP_SAMPLE_SLOOP)
 			xxs->flg &= ~XMP_SAMPLE_SLOOP_BIDIR;
-	}
-
-	if (xxs->flg & XMP_SAMPLE_16BIT) {
-		bytelen *= 2;
-		extralen *= 2;
-		framelen *= 2;
-	}
-	if (xxs->flg & XMP_SAMPLE_STEREO) {
-		bytelen *= 2;
-		extralen *= 2;
-		framelen *= 2;
-		channels = 2;
 	}
 
 	/* add guard bytes before the buffer for higher order interpolation */
