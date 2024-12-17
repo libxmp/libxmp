@@ -131,6 +131,7 @@ typedef int tst_uint64[2 * (8 == sizeof(uint64)) - 1];
 #endif
 
 /* Constants */
+#define REAL_MAX_SRATE	384000		/* actual maximum sample rate */
 #define PAL_RATE	250.0		/* 1 / (50Hz * 80us)		  */
 #define NTSC_RATE	208.0		/* 1 / (60Hz * 80us)		  */
 #define C4_PAL_RATE	8287		/* 7093789.2 / period (C4) * 2	  */
@@ -521,6 +522,7 @@ struct mixer_data {
 	int dsp;		/* dsp effect flags */
 	char *buffer;		/* output buffer */
 	int32 *buf32;		/* temporary buffer for 32 bit samples */
+	int total_size;		/* allocated samples (not frames) in buffers */
 	int numvoc;		/* default softmixer voices number */
 	int ticksize;
 	int dtright;		/* anticlick control, right channel */
