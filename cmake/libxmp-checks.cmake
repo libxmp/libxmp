@@ -94,8 +94,6 @@ if(MSVC)
     endif()
     # Disable bogus MSVC warnings
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-    # Tune warnings
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4244 /wd4018 /wd4996 /wd4048 /wd4267 /wd4127")
 else()
     xmp_add_warning_flag("-Wall" ALL)
     xmp_add_warning_flag("-Wwrite-strings" WRITE_STRINGS)
