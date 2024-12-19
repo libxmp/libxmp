@@ -49,8 +49,9 @@
  * Note that there's a later Digital Tracker release series for BeOS
  * using a completely new format that this loader doesn't support.
  */
-#define DTM_V203	203		/* Digital Tracker 2.015 thru 2.03 */
-#define DTM_V204	204		/* Digital Tracker 2.04 thru 1.9 */
+#define DTM_V2015	2015		/* Digital Tracker 2.015 and 2.02 */
+#define DTM_V203	2030		/* Digital Tracker 2.03 */
+#define DTM_V204	2040		/* Digital Tracker 2.04 thru 1.9 */
 #define DTM_V19		(19 << 8)	/* Digital Tracker 1.9 (later vers) */
 #define DTM_V21		(21 << 8)	/* Digital Home Studio */
 
@@ -142,7 +143,7 @@ static void dtm_translate_effect(struct xmp_event *event,
 
 	case 0x0:			/* arpeggio */
 		/* DT beta through 2.04: does nothing. */
-		if (data->version_derived == DTM_V203) {
+		if (data->version_derived <= DTM_V203) {
 			event->fxp = 0;
 		}
 		break;
@@ -215,7 +216,7 @@ static void dtm_translate_effect(struct xmp_event *event,
 		 * This works as expected from 1.901 onward.
 		 * TODO: does anything rely on the broken version?
 		 */
-		if (data->version_derived == DTM_V203) {
+		if (data->version_derived <= DTM_V203) {
 			event->fxp = 0;
 		}
 		break;
@@ -231,7 +232,7 @@ static void dtm_translate_effect(struct xmp_event *event,
 		 * bugs with slow BPMs. Whatever issue was fixed by 1.901.
 		 * TODO: what does anything actually rely on, if at all?
 		 */
-		if (data->version_derived == DTM_V203) {
+		if (data->version_derived <= DTM_V203) {
 			if (event->fxp == 0 || event->fxp == 0x20) {
 				event->fxp = 1;
 			}
@@ -353,12 +354,11 @@ static int get_d_t_(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	/* Global sample depth is applied to all samples pre-2.04.
 	 * Later Digital Tracker versions incorrectly ignore this field when
 	 * importing pre-2.04 modules.
+	 *
+	 * DT 2.015 and 2.02 will save a value of 0 in this field.
 	 */
-	if (data->depth != 8 && data->depth != 16) {
-		/* DT 2.015 will save a value of 0 in this field. */
-		if (data->depth != 0) {
-			D_(D_WARN "unknown global sample depth %d", data->depth);
-		}
+	if (data->depth != 0 && data->depth != 8 && data->depth != 16) {
+		D_(D_WARN "unknown global sample depth %d", data->depth);
 		data->depth = 8;
 	}
 
@@ -503,7 +503,14 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 		 (data->format == FORMAT_V206) ? DTM_V21 : DTM_V204;
 	} else {
 		D_(D_INFO "PATT format    : Protracker");
-		data->version_derived = DTM_V203;
+
+		/* DTM 2.015/2.02 have depth=0 and 31 instruments instead of 63.
+		 * There are also modules with depth!=0 but 31 instruments,
+		 * and it's not clear what the origin of those is. */
+		if (data->depth != 0)
+			data->version_derived = DTM_V203;
+		else
+			data->version_derived = DTM_V2015;
 	}
 
 	if (data->vers_flag && data->version) {
@@ -586,8 +593,8 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 		 * sample depth field seems to be for the resampler only.
 		 * See Lot/5th-2.dtm, which relies on this.
 		 */
-		if (data->version_derived == DTM_V203) {
-			buf[41] = data->depth;
+		if (data->version_derived <= DTM_V203) {
+			buf[41] = data->depth ? data->depth : 8;
 		}
 
 		stereo = buf[40];	/* stereo */
@@ -643,7 +650,7 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 		/* DT pre-2.04: the sample rate is used for resampling only(?)
 		 * and the global sample rate is used for playback instead.
 		 * This field was removed from 2.04. */
-		if (data->version_derived == DTM_V203) {
+		if (data->version_derived <= DTM_V203) {
 			c2spd = data->c2spd;
 		}
 		libxmp_c2spd_to_note(c2spd, &mod->xxi[i].sub[0].xpo, &mod->xxi[i].sub[0].fin);
@@ -890,8 +897,10 @@ static int dt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 				data.version / 10, data.version % 10);
 	} else if (data.format == FORMAT_V204) {
 		libxmp_set_type(m, "Digital Tracker 2.04 DTM");
-	} else {
+	} else if (data.depth != 0) {
 		libxmp_set_type(m, "Digital Tracker 2.03 DTM");
+	} else {
+		libxmp_set_type(m, "Digital Tracker 2.015 DTM");
 	}
 
 	if (data.version_derived >= DTM_V204 &&
