@@ -130,6 +130,7 @@ test_loader_dsmi_note7f
 test_loader_dsmi_pan
 test_loader_dsmi_vol
 test_loader_dtm
+test_loader_dtm_2015
 test_loader_dtm_203
 test_loader_dtm_19
 test_loader_emod
