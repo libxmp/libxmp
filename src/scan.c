@@ -557,7 +557,6 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 		    if ((parm >> 4) == EX_PATT_DELAY) {
 			if (m->read_event_type != READ_EVENT_ST3 || !pdelay) {
 			    pdelay = parm & 0x0f;
-			    frame_count += pdelay * speed;
                         }
 		    }
 
@@ -589,6 +588,10 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 			}
 		    }
 		}
+	    }
+
+	    if (pdelay > 0) {
+		frame_count += pdelay * speed;
 	    }
 
 	    if (loop_chn >= 0) {
