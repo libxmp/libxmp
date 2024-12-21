@@ -5,7 +5,7 @@ Stable versions
 	Changes by Claudio Matsuoka:
 	- The full library is now under MIT license
 	Changes by Alice Rowan:
-	- Add stereo sample loading support for IT, S3M, XM, MED, and
+	- Add stereo sample loading support for IT, S3M, XM, MED, LIQ, and
 	  Digital Tracker (partial).
 	- Add sample preamplification to filter mixers for high sample rates.
 	- Add support for Ultra Tracker tempo commands.
@@ -44,8 +44,17 @@ Stable versions
 	  * [Old] Fix initial panning.
 	  * [Old] Most effects are now supported. H70/H6A is not yet supported.
 	    Fxx, if it was ever implemented, is not yet supported.
-	  * [New] Fixed Pan Control, Retrigger, Volume Slide effects, and
+	  * [New] Fixed Pan Control, Retrigger, Global Volume effects, and
 	    vibrato/tremolo waveform 3. P70/P6A is not yet supported.
+	  * [New] Fix incorrect bounding of notes that caused several LIQs
+	    to fail to load.
+	  * [New] Fix loading of pattern volumes (off-by-one).
+	  * [New] 16-bit samples with loops no longer cause a failed load.
+	  * [New] Fix loading of instrument global volumes.
+	  * [New] Add support for ping pong loops.
+	  * [New] Fix initial channel volume/pan tables for 0.00 LIQs.
+	  * [New] Support channel volume and instrument global volume gain
+	    functionality by doubling the mix volume once for each (4x total).
 	  * [Both] Stopped incorrectly applying QUIRK_S3MLOOP, QUIRK_VOLPDN,
 	    QUIRK_S3MRTG, and QUIRK_MARKER.
 	- Fix loading of Poly Tracker (PTM) empty sample names.

@@ -140,6 +140,7 @@ static void no_translate_effect(struct xmp_event *event, int fxt, int fxp)
 	case 0x6:				/* Gxx Arpeggio */
 	case 0x9:				/* Jxx Jump Position */
 	case 0xa:				/* Kxy Tremolo */
+	case 0xb:				/* Lxy Volslide (fine 0.80b+ only) */
 	case 0xd:				/* Nxx Note Portamento */
 	case 0xe:				/* Oxx Sample Offset */
 		event->fxt = fx[fxt];
@@ -190,21 +191,6 @@ static void no_translate_effect(struct xmp_event *event, int fxt, int fxp)
 			event->f2t = FX_VOLSLIDE;
 			event->f2p = LSN(fxp);
 			break;
-		}
-		break;
-
-	case 0xb:				/* Lxy Volume slide */
-		if (LSN(fxp) == 0x0f && MSN(fxp) != 0) {
-			/* Fine up (0.80b+) */
-			event->fxt = FX_EXTENDED;
-			event->fxp = (EX_F_VSLIDE_UP << 4) + MSN(fxp);
-		} else if (MSN(fxp) == 0xf && LSN(fxp) != 0) {
-			/* Fine down (0.80b+) */
-			event->fxt = FX_EXTENDED;
-			event->fxp = (EX_F_VSLIDE_DN << 4) + LSN(fxp);
-		} else {
-			event->fxt = FX_VOLSLIDE;
-			event->fxp = fxp;
 		}
 		break;
 
