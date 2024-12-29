@@ -709,7 +709,7 @@ next_pattern:
 	sub->pan = li.pan;
 	sub->sid = i;
 
-	libxmp_instrument_name(mod, i, li.name, 31);
+	libxmp_instrument_name(mod, i, li.name, 30);
 
 	D_(D_INFO "[%2X] %-30.30s %05x%c%05x %05x %c%c%c %02x %02x %2d.%02d %5d",
 		i, mod->xxi[i].name, mod->xxs[i].len,
