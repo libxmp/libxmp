@@ -943,9 +943,13 @@ skip_test:
 	break;
     case TRACKER_OCTALYSER:
 	tracker = "Octalyser";
+	if (detected) {
+		m->flow_mode = FLOW_MODE_OCTALYSER;
+	}
 	break;
     case TRACKER_DIGITALTRACKER:
 	tracker = "Digital Tracker";
+	m->flow_mode = FLOW_MODE_DTM_203;
 	break;
     case TRACKER_FLEXTRAX:
 	tracker = "Flextrax";

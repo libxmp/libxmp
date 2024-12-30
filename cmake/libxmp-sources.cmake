@@ -15,6 +15,7 @@ set(LIBXMP_SRC_LIST
     src/med_extras.c
     src/filter.c
     src/effects.c
+    src/flow.c
     src/mixer.c
     src/mix_all.c
     src/rng.c
@@ -204,6 +205,7 @@ set(LIBXMP_SRC_LIST_LITE
     src/lite/lite-memio.c
     src/lite/lite-rng.c
     src/lite/lite-win32.c
+    src/lite/lite-flow.c
     src/lite/lite-common.c
     src/lite/lite-itsex.c
     src/lite/lite-sample.c

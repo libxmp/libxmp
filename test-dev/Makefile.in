@@ -53,7 +53,14 @@ EFFECTS		= 0_arpeggio 1_slide_up 2_slide_down \
 		  it_g00_nosuck it_l00_nosuck it_fine_vol_row_delay \
 		  far_slide far_toneporta far_retrig far_noteoffset \
 		  far_vibrato far_vibrato_per far_volslide far_tempo \
-		  ult_tempo ult_toneporta
+		  ult_tempo ult_toneporta \
+		  pattern_loop_st301 pattern_loop_st321 \
+		  pattern_loop_it100 pattern_loop_it104 pattern_loop_it210 \
+		  pattern_loop_mpt_it pattern_loop_mpt_xm pattern_loop_mpt_s3m \
+		  pattern_loop_imf pattern_loop_imf_s3m pattern_loop_ptm \
+		  pattern_loop_liq pattern_loop_liq_s3m pattern_loop_liq_no \
+		  pattern_loop_dt_mod pattern_loop_dt pattern_loop_dt19 \
+		  pattern_loop_octalyser
 
 API		= get_format_list create_context free_context \
 		  test_module load_module load_module_from_memory \
@@ -377,6 +384,7 @@ PROBLEMATIC	= length_data_jack \
 		  length_flowerpower \
 		  length_space_traveller \
 		  length_listen \
+		  length_dammed_illusion \
 
 FUZZER		= misc \
 		  mod_no_null_terminator \
@@ -676,7 +684,7 @@ SRC_PATH	= ../src
 
 TEST_INTERNAL	= md5.o win32.o hio.o load_helpers.o loaders/itsex.o dataio.o scan.o \
 		  loaders/sample.o loaders/common.o filetype.o period.o memio.o \
-		  depackers/xfnmatch.o far_extras.o lfo.o rng.o
+		  depackers/xfnmatch.o far_extras.o flow.o lfo.o rng.o
 
 T_OBJS 		= $(addprefix $(TEST_PATH)/,$(TEST_OBJS)) \
 		  $(addprefix $(SRC_PATH)/,$(TEST_INTERNAL))

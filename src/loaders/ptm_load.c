@@ -372,6 +372,7 @@ static int ptm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		mod->xxc[i].pan = pfh.chset[i] << 4;
 
 	m->quirk |= QUIRKS_ST3;
+	m->flow_mode = FLOW_LOOP_GLOBAL; /* Has none of ST3's loop quirks. */
 	m->read_event_type = READ_EVENT_ST3;
 
 	return 0;

@@ -46,6 +46,7 @@ OBJS	= \
  src\med_extras.obj \
  src\filter.obj \
  src\effects.obj \
+ src\flow.obj \
  src\mixer.obj \
  src\mix_all.obj \
  src\rng.obj \
@@ -239,6 +240,7 @@ LITE_OBJS	= \
  src\lite\lite-memio.obj \
  src\lite\lite-rng.obj \
  src\lite\lite-win32.obj \
+ src\lite\lite-flow.obj \
  src\lite\lite-common.obj \
  src\lite\lite-itsex.obj \
  src\lite\lite-sample.obj \

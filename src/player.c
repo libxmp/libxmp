@@ -1700,6 +1700,7 @@ static void next_order(struct context_data *ctx)
 	struct xmp_module *mod = &m->mod;
 	int reset_gvol = 0;
 	int mark;
+	int i;
 
 	do {
 		p->ord++;
@@ -1742,6 +1743,17 @@ static void next_order(struct context_data *ctx)
 	p->pos = p->ord;
 	p->frame = 0;
 
+	/* Scream Tracker 3, Imago Orpheus: position change resets loop vars.
+	 * For some reason the pattern jump effect does not do this in IMF. */
+	if (HAS_FLOW_MODE(FLOW_LOOP_PATTERN_RESET)) {
+		f->loop_start = -1;
+		f->loop_count = 0;
+		for (i = 0; i < mod->chn; i++) {
+			f->loop[i].start = 0;
+			f->loop[i].count = 0;
+		}
+	}
+
 #ifndef LIBXMP_CORE_PLAYER
 	f->jump_in_pat = -1;
 
@@ -1762,6 +1774,7 @@ static void next_row(struct context_data *ctx)
 
 	p->frame = 0;
 	f->delay = 0;
+	f->loop_param = -1;
 
 	if (f->pbreak) {
 		f->pbreak = 0;
@@ -1780,9 +1793,9 @@ static void next_row(struct context_data *ctx)
 			f->rowdelay--;
 		}
 
-		if (f->loop_chn) {
-			p->row = f->loop[f->loop_chn - 1].start;
-			f->loop_chn = 0;
+		if (f->loop_dest >= 0) {
+			p->row = f->loop_dest;
+			f->loop_dest = -1;
 		}
 
 		/* check end of pattern */
@@ -1839,7 +1852,11 @@ void libxmp_reset_flow(struct context_data *ctx)
 	f->jumpline = 0;
 	f->jump = -1;
 	f->pbreak = 0;
-	f->loop_chn = 0;
+	f->loop_dest = -1;
+	f->loop_param = -1;
+	f->loop_start = -1;
+	f->loop_count = 0;
+	f->loop_active_num = 0;
 	f->delay = 0;
 	f->rowdelay = 0;
 	f->rowdelay_set = 0;

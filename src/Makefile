@@ -1,7 +1,7 @@
 
 SRC_OBJS	= virtual.o format.o period.o player.o read_event.o dataio.o \
 		  misc.o mkstemp.o md5.o lfo.o scan.o control.o far_extras.o \
-		  med_extras.o filter.o effects.o mixer.o mix_all.o rng.o \
+		  med_extras.o filter.o effects.o flow.o mixer.o mix_all.o rng.o \
 		  load_helpers.o load.o hio.o hmn_extras.o extras.o smix.o \
 		  filetype.o memio.o tempfile.o mix_paula.o miniz_tinfl.o win32.o
 

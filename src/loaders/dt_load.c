@@ -515,6 +515,9 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 
 	if (data->vers_flag && data->version) {
 		data->version_derived = data->version << 8;
+		m->flow_mode = FLOW_MODE_DTM_19;
+	} else {
+		m->flow_mode = FLOW_MODE_DTM_203;
 	}
 
 	/* Sanity check */
