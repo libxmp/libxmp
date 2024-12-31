@@ -25,6 +25,7 @@ Stable versions
 	- Fix loop detection edge cases broken by S3M/IT marker scan bugs.
 	- Add fix for IT break to module scan (was missed in libxmp 4.5.0.)
 	- Fix restart position for >64k sample and Digital Tracker MODs.
+	- Reset Invert Loop position when a new instrument is encountered.
 	- MOD: make presence of invert loop override tracker ID guesses.
 	  M.K. modules within Amiga limits which use EFx invert loop are
 	  now IDed as Protracker.
