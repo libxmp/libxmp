@@ -1,6 +1,15 @@
 #ifndef LIBXMP_COMMON_H
 #define LIBXMP_COMMON_H
 
+/* band-aid for autotools: we aren't using autoheader.
+ * See: https://github.com/libxmp/libxmp/issues/373 . */
+#ifdef AC_APPLE_UNIVERSAL_BUILD
+# #undef WORDS_BIGENDIAN
+# if defined __BIG_ENDIAN__
+#  define WORDS_BIGENDIAN 1
+# endif
+#endif
+
 #ifdef LIBXMP_CORE_PLAYER
 #ifndef LIBXMP_NO_PROWIZARD
 #define LIBXMP_NO_PROWIZARD
