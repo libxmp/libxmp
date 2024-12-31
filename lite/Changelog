@@ -19,6 +19,9 @@ Stable versions
 	  sample rate or BPM changes.
 	- Passing NULL to xmp_set_instrument_path() now unsets the instrument
 	  path instead of crashing.
+	- Fix module scan pattern delay counting.
+	- Add compatibility for non-standard IT Pattern Loop implementations.
+	- Fixed numerous defects found by fuzzing.
 	Changes by Thomas Neumann:
 	- Fix XM envelope handling
 	- Fix XM restart position, so that it is possible to play
@@ -407,3 +410,4 @@ Stable versions
 
 4.2.0 (20140302):
 	- forked from libxmp 4.2.5 and removed unnecessary features
+

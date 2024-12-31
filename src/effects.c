@@ -425,7 +425,9 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 			fxp <<= 4;
 			goto fx_setpan;
 		case EX_RETRIG:		/* Retrig note */
+#ifndef LIBXMP_CORE_PLAYER
 		    fx_retrig:
+#endif
 			SET(RETRIG);
 			xc->retrig.val = fxp;
 			xc->retrig.count = fxp + 1;
