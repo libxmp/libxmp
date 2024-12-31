@@ -19,7 +19,6 @@ PatLoop-Overflow.xm
 PatLoop-Various.xm
 PatternDelay-NoteDelay.xm
 PatternDelays.xm (missing X6y)
-Porta-LinkMem.xm
 PortaDelay.xm
 PortaJustStoppedNote.xm
 PortaResetDirection.xm
