@@ -7,6 +7,9 @@ Stable versions
 	- Add sample preamplification to filter mixers for high sample rates.
 	- Implement support for Protracker instrument swapping.
 	- Fix XM envelope sustain points that exist on a zero-length loop.
+	- Fix XM extra fine portamento effect memory.
+	- Fix XM portamento up and portamento down memory (only for modules
+	  where FT2 bug compatibility is enabled, for now).
 	- Faster IT loading by buffering pattern, sample, and comment reads.
 	- Fix loop detection edge cases broken by S3M/IT marker scan bugs.
 	- Add fix for IT break to module scan (was missed in libxmp 4.5.0.)

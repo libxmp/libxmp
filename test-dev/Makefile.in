@@ -141,6 +141,7 @@ OPENMPT_XM	= 3xxins \
 		  patloop_break \
 		  patloop_weird \
 		  pickup \
+		  porta_linkmem \
 		  porta_linkmem_old \
 		  porta_offset \
 		  porta_pickup \

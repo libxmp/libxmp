@@ -173,23 +173,24 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 				goto fx_f_porta_up;
 			case 0xe:
 				fxp &= 0x0f;
-				fxp |= 0x10;
-				goto fx_xf_porta;
+				goto fx_xf_porta_up;
 			}
 		}
 
-		SET(PITCHBEND);
-
 		if (fxp != 0) {
+			SET(PITCHBEND);
 			xc->freq.slide = -fxp;
 			if (HAS_QUIRK(QUIRK_UNISLD))
 				xc->porta.memory = fxp;
-		} else if (xc->freq.slide > 0) {
-			xc->freq.slide *= -1;
 		}
 		break;
 	case FX_PORTA_DN:	/* Portamento down */
-		EFFECT_MEMORY(fxp, xc->freq.memory);
+		/* FT2 has separate up and down memory. */
+		if (HAS_QUIRK(QUIRK_FT2BUGS)) {
+			EFFECT_MEMORY(fxp, xc->freq.down_memory);
+		} else {
+			EFFECT_MEMORY(fxp, xc->freq.memory);
+		}
 
 		if (HAS_QUIRK(QUIRK_FINEFX)
 		    && (fnum == 0 || !HAS_QUIRK(QUIRK_ITVPOR))) {
@@ -199,19 +200,15 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 				goto fx_f_porta_dn;
 			case 0xe:
 				fxp &= 0x0f;
-				fxp |= 0x20;
-				goto fx_xf_porta;
+				goto fx_xf_porta_dn;
 			}
 		}
 
-		SET(PITCHBEND);
-
 		if (fxp != 0) {
+			SET(PITCHBEND);
 			xc->freq.slide = fxp;
 			if (HAS_QUIRK(QUIRK_UNISLD))
 				xc->porta.memory = fxp;
-		} else if (xc->freq.slide < 0) {
-			xc->freq.slide *= -1;
 		}
 		break;
 	case FX_TONEPORTA:	/* Tone portamento */
@@ -702,14 +699,20 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 		SET(TREMOR);
 		break;
 	case FX_XF_PORTA:	/* Extra fine portamento */
-	      fx_xf_porta:
-		SET(FINE_BEND);
-		switch (MSN(fxp)) {
-		case 1:
-			xc->freq.fslide = -0.25 * LSN(fxp);
+		h = MSN(fxp);
+		fxp &= 0x0f;
+		switch (h) {
+		case XX_XF_PORTA_UP:	/* Extra fine portamento up */
+			EFFECT_MEMORY(fxp, xc->fine_porta.xf_up_memory);
+		      fx_xf_porta_up:
+			SET(FINE_BEND);
+			xc->freq.fslide = -0.25 * fxp;
 			break;
-		case 2:
-			xc->freq.fslide = 0.25 * LSN(fxp);
+		case XX_XF_PORTA_DN:	/* Extra fine portamento down */
+			EFFECT_MEMORY(fxp, xc->fine_porta.xf_down_memory);
+		      fx_xf_porta_dn:
+			SET(FINE_BEND);
+			xc->freq.fslide = 0.25 * fxp;
 			break;
 		}
 		break;

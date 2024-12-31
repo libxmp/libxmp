@@ -15,6 +15,9 @@ Stable versions
 	  where only one retrigger occurs. Liquid Tracker (new format) and
 	  Digital Symphony now allow retrigger values larger than 15.
 	- Fix XM envelope sustain points that exist on a zero-length loop.
+	- Fix XM extra fine portamento effect memory.
+	- Fix XM portamento up and portamento down memory (only for modules
+	  where FT2 bug compatibility is enabled, for now).
 	- Fix loading edge case STMs with an EOF byte of 2.
 	- Fix loading Imago Orpheus modules with null instrument magic
 	  strings, bidirectional samples, and disabled default panning.

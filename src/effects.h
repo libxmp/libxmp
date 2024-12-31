@@ -49,6 +49,10 @@
 #define EX_PATT_DELAY	0x0e
 #define EX_INVLOOP	0x0f
 
+/* XM extended effects 2 */
+#define XX_XF_PORTA_UP	0x01
+#define XX_XF_PORTA_DN	0x02
+
 #ifndef LIBXMP_CORE_PLAYER
 /* Oktalyzer effects */
 #define FX_OKT_ARP3	0x70
