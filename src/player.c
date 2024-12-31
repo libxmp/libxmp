@@ -564,6 +564,11 @@ static void update_invloop(struct context_data *ctx, struct channel_data *xc)
 	struct module_data *m = &ctx->m;
 	int lps = 0, len = -1;
 
+	/* If an instrument number is present, reset the position. */
+	if (ctx->p.frame == 0 && TEST(NEW_INS)) {
+		xc->invloop.pos = 0;
+	}
+
 	xc->invloop.count += invloop_table[xc->invloop.speed];
 
 	if (xxs != NULL) {
