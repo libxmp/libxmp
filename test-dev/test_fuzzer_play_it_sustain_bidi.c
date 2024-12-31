@@ -39,5 +39,13 @@ TEST(test_fuzzer_play_it_sustain_bidi)
 	 */
 	compare_playback("data/f/play_it_sustain_bidi3.it",
 		sequence_long, 4000, 0, 0);
+
+	/* This module encountered a similar issue to the sustain/bidi
+	 * bugs--the position advances far past the end of the sample at
+	 * very low sample rates, which the effect S9F Reverse can then
+	 * cause a crash at.
+	 */
+	compare_playback("data/f/play_it_reverse_past_end.it",
+		sequence_long, 4000, 0, 0);
 }
 END_TEST
