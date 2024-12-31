@@ -269,6 +269,10 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 		if (over) {
 			D_(D_WARN "sample would extend %ld bytes past EOF; truncating to %ld",
 				over, remaining);
+
+			/* Trim extra bytes non-aligned to sample frame. */
+			bytelen -= bytelen & (framelen - 1);
+
 			xxs->len = bytelen;
 			if (xxs->flg & XMP_SAMPLE_16BIT)
 				xxs->len >>= 1;

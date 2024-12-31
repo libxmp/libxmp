@@ -404,8 +404,7 @@ FUZZER		= misc \
 		  it_dca_3 \
 		  it_invalid_compressed \
 		  it_long_patterns \
-		  it_truncated_header \
-		  it_truncated_pattern \
+		  it_truncated \
 		  669_truncated \
 		  abk_0_instruments \
 		  abk_test_title \
@@ -573,6 +572,7 @@ FUZZER		= misc \
 		  play_it_offset_reverse \
 		  play_it_row_0_loop_row_delay \
 		  play_it_sustain_bidi \
+		  play_it_truncated \
 		  play_it_vol_clamp \
 		  play_669_low_freq \
 		  play_abk_0_length_track \
