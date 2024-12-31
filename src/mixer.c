@@ -442,6 +442,11 @@ static int loop_reposition(struct context_data *ctx, struct mixer_voice *vi,
 			vi->pos = vi->start * 2 - vi->pos;
 		}
 	}
+	/* Safety check: pos should not be excessively past the sample end.
+	 * This only seems to happen with very low sample rates. */
+	if (vi->pos > xxs->len + 1) {
+		vi->pos = xxs->len + 1;
+	}
 	return loop_changed;
 }
 
