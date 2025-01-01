@@ -1,7 +1,7 @@
 Stable versions
 ---------------
 
-4.6.1 (?):
+4.6.1 (20250101):
 	Changes by Alice Rowan:
 	- Add stereo sample loading support for IT, S3M, XM.
 	- Add sample preamplification to filter mixers for high sample rates.

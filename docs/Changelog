@@ -1,7 +1,7 @@
 Stable versions
 ---------------
 
-4.6.1 (?):
+4.6.1 (20250101):
 	Changes by Claudio Matsuoka:
 	- The full library is now under MIT license
 	Changes by Alice Rowan:
@@ -2055,4 +2055,3 @@ Development (unreleased) versions
 
 0.05 and before:
 	- Lots of changes.
-
