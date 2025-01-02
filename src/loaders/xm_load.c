@@ -417,7 +417,7 @@ static int oggdec(struct module_data *m, HIO_HANDLE *f, struct xmp_sample *xxs, 
 	n = stb_vorbis_decode_memory(data, len, &ch, &rate, &pcm16);
 	free(data);
 
-	if (n <= 0 || ch != 1) {
+	if (n < 0 || ch != 1) {
 		free(pcm16);
 		return -1;
 	}
@@ -428,7 +428,7 @@ static int oggdec(struct module_data *m, HIO_HANDLE *f, struct xmp_sample *xxs, 
 		for (i = 0; i < n; i++) {
 			pcm[i] = pcm16[i] >> 8;
 		}
-		pcm = (uint8 *)realloc(pcm16, n);
+		pcm = (uint8 *)realloc(pcm16, n == 0 ? 1 : n);
 		if (pcm == NULL) {
 			free(pcm16);
 			return -1;
