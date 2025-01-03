@@ -422,13 +422,13 @@ static int oggdec(struct module_data *m, HIO_HANDLE *f, struct xmp_sample *xxs, 
 		return -1;
 	}
 
-	if ((xxs->flg & XMP_SAMPLE_16BIT) == 0) {
+	if ((xxs->flg & XMP_SAMPLE_16BIT) == 0 && n > 0) {
 		uint8 *pcm = (uint8 *)pcm16;
 
 		for (i = 0; i < n; i++) {
 			pcm[i] = pcm16[i] >> 8;
 		}
-		pcm = (uint8 *)realloc(pcm16, n == 0 ? 1 : n);
+		pcm = (uint8 *)realloc(pcm16, n);
 		if (pcm == NULL) {
 			free(pcm16);
 			return -1;
