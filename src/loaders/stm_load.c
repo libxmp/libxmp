@@ -87,6 +87,7 @@ const struct format_loader libxmp_loader_stm = {
 static int stm_test(HIO_HANDLE * f, char *t, const int start)
 {
 	uint8 buf[8];
+	uint16 version;
 
 	hio_seek(f, start + 20, SEEK_SET);
 	if (hio_read(buf, 1, 8, f) < 8)
@@ -102,6 +103,17 @@ static int stm_test(HIO_HANDLE * f, char *t, const int start)
 
 	if (hio_read8(f) > STM_TYPE_MODULE)
 		return -1;
+
+	buf[0] = hio_read8(f);
+	buf[1] = hio_read8(f);
+	version = (100 * buf[0]) + buf[1];
+
+	if (version != 110 &&
+	    version != 200 && version != 210 &&
+	    version != 220 && version != 221) {
+		D_(D_CRIT "Unknown version: %d", version);
+		return -1;
+	}
 
 	hio_seek(f, start + 60, SEEK_SET);
 	if (hio_read(buf, 1, 4, f) < 4)
