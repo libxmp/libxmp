@@ -328,6 +328,7 @@ int mmd_alloc_tables(struct module_data *, int, struct SynthInstr *);
 int mmd_load_instrument(HIO_HANDLE *, struct module_data *, int, int,
 		struct MMD0exp *, struct InstrExt *, struct MMD0sample *, int);
 
+int mmd_convert_tempo(int tempo, int bpm_on, int med_8ch);
 void mmd_set_bpm(struct module_data *, int, int, int, int);
 void mmd_info_text(HIO_HANDLE *, struct module_data *, int);
 

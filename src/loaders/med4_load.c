@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -61,6 +61,13 @@ static void fix_effect(struct xmp_event *event, int hexvol)
 	case 0x03:	/* portamento */
 	case 0x04:	/* vibrato? */
 		break;
+	case 0x09:	/* set speed (3.00+) */
+		if (event->fxp >= 0x01 && event->fxp <= 0x20) {
+			event->fxt = FX_SPEED;
+		} else {
+			event->fxt = event->fxp = 0;
+		}
+		break;
 	case 0x0c:	/* set volume (BCD) */
 		if (!hexvol) {
 			event->fxp = MSN(event->fxp) * 10 + LSN(event->fxp);
@@ -70,9 +77,9 @@ static void fix_effect(struct xmp_event *event, int hexvol)
 		event->fxt = FX_VOLSLIDE;
 		break;
 	case 0x0f:	/* tempo/break */
-		if (event->fxp == 0)
+		if (event->fxp == 0) {
 			event->fxt = FX_BREAK;
-		if (event->fxp == 0xff) {
+		} else if (event->fxp == 0xff) {
 			event->fxp = event->fxt = 0;
 			event->vol = 1;
 		} else if (event->fxp == 0xf1) {
@@ -87,11 +94,11 @@ static void fix_effect(struct xmp_event *event, int hexvol)
 			/* Retriger once on tick 2 */
 			event->fxt = FX_EXTENDED;
 			event->fxp = (EX_RETRIG << 4) | 2;
-		} else if (event->fxp > 0xf0) {
-			event->fxp = event->fxt = 0;
-		} else if (event->fxp > 10) {
+		} else if (event->fxp <= 0xf0) {
 			event->fxt = FX_S3M_BPM;
-			event->fxp = 125 * event->fxp / 33;
+			event->fxp = mmd_convert_tempo(event->fxp, 0, 0);
+		} else {
+			event->fxp = event->fxt = 0;
 		}
 		break;
 	default:
@@ -302,15 +309,12 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	 * secondary tempo can be used now).
 	 */
 	tempo = hio_read16b(f);
-	if (tempo <= 10) {
-		mod->spd = tempo;
-		mod->bpm = 125;
-	} else {
-		mod->bpm = 125 * tempo / 33;
-	}
 	transp = hio_read8s(f);
 	flags = hio_read8s(f);
 	mod->spd = hio_read16b(f);
+
+	mod->bpm = mmd_convert_tempo(tempo, 0, 0);
+	m->time_factor = MED_TIME_FACTOR;
 
 	m->quirk |= QUIRK_RTONCE;
 	if (~flags & 0x20)	/* sliding */
