@@ -251,6 +251,7 @@ static int med3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	uint32 mask;
 	int transp, sliding;
 	int tempo;
+	int flags;
 
 	LOAD_INIT();
 
@@ -314,7 +315,7 @@ static int med3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	hio_read(mod->xxo, 1, mod->len, f);
 	tempo = hio_read16b(f);
 	transp = hio_read8s(f);
-	hio_read8(f);			/* flags */
+	flags = hio_read8(f);		/* flags */
 	sliding = hio_read16b(f);	/* sliding */
 	hio_read32b(f);			/* jumping mask */
 	hio_seek(f, 16, SEEK_CUR);	/* rgb */
@@ -424,6 +425,16 @@ static int med3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (~mask & MASK)
 			continue;
 
+		if (~flags & FLAG_INSTRSATT) {
+			/* Song file */
+			if (med_load_external_instrument(f, m, i)) {
+				D_(D_CRIT "error loading instrument %d", i);
+				return -1;
+			}
+			continue;
+		}
+
+		/* Module file */
 		mod->xxi[i].nsm = 1;
 		mod->xxs[i].len = hio_read32b(f);
 

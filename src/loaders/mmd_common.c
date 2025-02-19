@@ -986,6 +986,48 @@ int mmd_load_instrument(HIO_HANDLE *f, struct module_data *m, int i, int smp_idx
 	return smp_idx;
 }
 
+/* Load an external instrument (pre-MMD when the internal instruments flag is
+ * not set). Returns 0 on successfully loading or if the instrument can't be
+ * found. Returns -1 if an instrument is found but fails to load. */
+int med_load_external_instrument(HIO_HANDLE *f, struct module_data *m, int i)
+{
+	struct xmp_module *mod = &m->mod;
+	char path[XMP_MAXPATH];
+	char ins_name[32];
+	HIO_HANDLE *s = NULL;
+
+	if (libxmp_copy_name_for_fopen(ins_name, mod->xxi[i].name, 32) != 0)
+		return 0;
+
+	D_(D_INFO "[%2X] %-32.32s ---- %04x %04x %c V%02x",
+		i, mod->xxi[i].name, mod->xxs[i].lps, mod->xxs[i].lpe,
+		mod->xxs[i].flg & XMP_SAMPLE_LOOP ? 'L' : ' ',
+		mod->xxi[i].sub[0].vol);
+
+	if (!libxmp_find_instrument_file(m, path, sizeof(path), ins_name))
+		return 0;
+
+	if ((s = hio_open(path, "rb")) == NULL) {
+		return 0;
+	}
+
+	mod->xxs[i].len = hio_size(s);
+	if (mod->xxs[i].len == 0) {
+		hio_close(s);
+		return 0;
+	}
+	mod->xxi[i].nsm = 1;
+
+	D_(D_INFO "     %-32s %04x", "(OK)", mod->xxs[i].len);
+
+	if (libxmp_load_sample(m, s, 0, &mod->xxs[i], NULL) < 0) {
+		hio_close(s);
+		return -1;
+	}
+	hio_close(s);
+	return 0;
+}
+
 
 void mmd_set_bpm(struct module_data *m, int med_8ch, int deftempo,
 						int bpm_on, int bpmlen)
