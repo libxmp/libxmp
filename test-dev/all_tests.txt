@@ -160,6 +160,7 @@ test_loader_med3
 test_loader_med3_song
 test_loader_med4
 test_loader_med4_decvol
+test_loader_med4_song
 test_loader_mmd0
 test_loader_mmd0_compattempo
 test_loader_mmd1_longpat

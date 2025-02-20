@@ -328,7 +328,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  masi \
 		  masi16 \
 		  mdl0 mdl \
-		  med2 med3 med3_song med4 med4_decvol \
+		  med2 med3 med3_song med4 med4_decvol med4_song \
 		  mmd0 mmd0_compattempo mmd1_longpat mmd_iff3oct mmdc \
 		  mmd3 mmd3_stereo \
 		  mfp \
