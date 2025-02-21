@@ -384,10 +384,7 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	mod->trk = mod->pat * mod->chn;
 
-	if (ver == 2)
-		libxmp_set_type(m, "OctaMED v5 MMD2");
-	else
-		libxmp_set_type(m, "OctaMED Soundstudio MMD%c", '0' + ver);
+	mmd_tracker_version(m, ver, 0, expdata_offset ? &expdata : NULL);
 
 	MODULE_INFO();
 

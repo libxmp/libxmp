@@ -380,9 +380,7 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	mod->trk = mod->pat * mod->chn;
 
-	libxmp_set_type(m, ver == 0 ? mmdc ? "MED Packer MMDC" :
-				mod->chn > 4 ? "OctaMED 2.00 MMD0" :
-				"MED 2.10 MMD0" : "OctaMED 4.00 MMD1");
+	mmd_tracker_version(m, ver, mmdc, expdata_offset ? &expdata : NULL);
 
 	MODULE_INFO();
 

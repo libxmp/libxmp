@@ -1068,3 +1068,70 @@ void mmd_info_text(HIO_HANDLE *f, struct module_data *m, int offset)
 		}
 	}
 }
+
+/* Determine an approximate tracker version from an MMD module since, unlike
+ * MED4, they don't store any useful tracker information. If expdata is not
+ * present in the module, it should be passed as NULL.
+ */
+int mmd_tracker_version(struct module_data *m, int mmdver, int mmdc,
+	struct MMD0exp *expdata)
+{
+	struct xmp_module *mod = &m->mod;
+	int soundstudio = 0;
+	int medver = 0;
+	int s_ext_entrsz = 0;
+	int mmdch = '0' + mmdver;
+
+	if (expdata) {
+		D_(D_INFO "expdata.s_ext_entrsz = %d", expdata->s_ext_entrsz);
+		D_(D_INFO "expdata.i_ext_entrsz = %d", expdata->i_ext_entrsz);
+		s_ext_entrsz = expdata->s_ext_entrsz;
+	} else {
+		D_(D_INFO "expdata = NULL");
+	}
+
+	if (s_ext_entrsz > 18) {		/* s_ext_entrsz == 24 */
+		medver = MED_VER_OCTAMED_SS_2;
+		soundstudio = 2;
+	} else if (mmdver >= 3) {
+		medver = MED_VER_OCTAMED_SS_1;
+		soundstudio = 1;
+	} else if (s_ext_entrsz > 10) {		/* s_ext_entrsz == 18 */
+		medver = MED_VER_OCTAMED_SS_1;
+		soundstudio = 1;
+	} else if (s_ext_entrsz > 8) {		/* s_ext_entrsz == 10 */
+		medver = MED_VER_OCTAMED_502;
+	} else if (s_ext_entrsz > 4) {		/* s_ext_entrsz == 8 */
+		medver = MED_VER_OCTAMED_500;
+	} else if (mmdver >= 2) {
+		medver = MED_VER_OCTAMED_500;
+	} else if (mmdver >= 1) {
+		medver = MED_VER_OCTAMED_400;
+	} else if (mod->chn > 4) {
+		medver = MED_VER_OCTAMED_200;
+	} else if (s_ext_entrsz > 2) {		/* s_ext_entrsz == 4 */
+		medver = MED_VER_320;
+	} else if (expdata != NULL) {		/* s_ext_entrsz == 2 */
+		/* MED 3.00 and 3.10 i_ext_entrsz always 0? */
+		medver = MED_VER_300;
+	} else {
+		medver = MED_VER_210;
+	}
+
+	if (mmdc) {
+		mmdch = 'C';
+	}
+
+	if (soundstudio == 2) {
+		libxmp_set_type(m, "MED Soundstudio 2.00 MMD%c", mmdch);
+	} else if (soundstudio == 1) {
+		libxmp_set_type(m, "OctaMED Soundstudio MMD%c", mmdch);
+	} else if (medver > MED_VER_320) {
+		libxmp_set_type(m, "OctaMED %d.%02x MMD%c",
+				medver >> 12, medver & 0xff, mmdch);
+	} else {
+		libxmp_set_type(m, "MED %d.%02x MMD%c",
+				medver >> 8, medver & 0xff, mmdch);
+	}
+	return medver;
+}
