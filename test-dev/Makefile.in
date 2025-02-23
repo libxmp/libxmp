@@ -53,6 +53,7 @@ EFFECTS		= 0_arpeggio 1_slide_up 2_slide_down \
 		  it_g00_nosuck it_l00_nosuck it_fine_vol_row_delay \
 		  far_slide far_toneporta far_retrig far_noteoffset \
 		  far_vibrato far_vibrato_per far_volslide far_tempo \
+		  med_retrig \
 		  ult_tempo ult_toneporta \
 		  pattern_loop_st301 pattern_loop_st321 \
 		  pattern_loop_it100 pattern_loop_it104 pattern_loop_it210 \

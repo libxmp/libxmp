@@ -217,9 +217,9 @@ static int unpack_block(struct module_data *m, uint16 bnum, uint8 *from, uint16 
 					event->fxt = FX_EXTENDED;
 					event->fxp = (EX_DELAY << 4) | 3;
 				} else if (event->fxp == 0xf3) {
-					/* Retrigger once on tick 2 */
-					event->fxt = FX_EXTENDED;
-					event->fxp = (EX_RETRIG << 4) | 2;
+					/* Retriger every 2 ticks (TODO: buggy) */
+					event->fxt = FX_MED_RETRIG;
+					event->fxp = 0x02;
 				} else if (event->fxp <= 0xf0) {
 					event->fxt = FX_S3M_BPM;
 					event->fxp = mmd_convert_tempo(event->fxp, 0, 0);
@@ -343,7 +343,7 @@ static int med3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	D_(D_INFO "Sliding: %d", sliding);
 	D_(D_INFO "Play transpose: %d", transp);
 
-	m->quirk |= QUIRK_RTONCE;
+	m->quirk |= QUIRK_RTONCE; /* FF1 */
 	if (sliding == 6)
 		m->quirk |= QUIRK_VSALL | QUIRK_PBALL;
 

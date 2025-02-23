@@ -363,6 +363,7 @@ test_effect_far_vibrato
 test_effect_far_vibrato_per
 test_effect_far_volslide
 test_effect_far_tempo
+test_effect_med_retrig
 test_effect_ult_tempo
 test_effect_ult_toneporta
 test_effect_pattern_loop_st301

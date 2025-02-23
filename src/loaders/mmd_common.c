@@ -224,11 +224,11 @@ void mmd_xlat_fx(struct xmp_event *event, int bpm_on, int bpmlen, int med_8ch,
 			event->fxp = (EX_DELAY << 4) | 3;
 			break;
 		case 0xf3:	/* Play note three times */
-			/* Actually just retriggers once on tick 2, except
+			/* Actually just retriggers every 2 ticks, except
 			 * for a bug in OctaMED <=4.00 where it will retrigger
-			 * every tick from tick 2 onward. */
-			event->fxt = FX_EXTENDED;
-			event->fxp = (EX_RETRIG << 4) | 2;
+			 * on (tick & 7) >= 2 (TODO: verify). */
+			event->fxt = FX_MED_RETRIG;
+			event->fxp = 0x02;
 			break;
 		case 0xf8:	/* Turn filter off */
 		case 0xf9:	/* Turn filter on */
@@ -350,15 +350,12 @@ void mmd_xlat_fx(struct xmp_event *event, int bpm_on, int bpmlen, int med_8ch,
 		 * delay the note any number of ticks, and initiate fast
 		 * retrigger. Level 1 = note delay value, level 2 = retrigger
 		 * value.
+		 * Unlike FF1/FF3, this does nothing on a line with no note.
 		 */
-		if (MSN(event->fxp)) {
-			/* delay */
-			event->fxt = FX_EXTENDED;
-			event->fxp = 0xd0 | (event->fxp >> 4);
-		} else if (LSN(event->fxp)) {
-			/* retrig */
-			event->fxt = FX_EXTENDED;
-			event->fxp = 0x90 | (event->fxp & 0x0f);
+		if (event->fxp != 0 && event->note != 0) {
+			event->fxt = FX_MED_RETRIG;
+		} else {
+			event->fxt = event->fxp = 0;
 		}
 		break;
 	case 0x20:

@@ -91,9 +91,9 @@ static void fix_effect(struct xmp_event *event, int hexvol)
 			event->fxt = FX_EXTENDED;
 			event->fxp = (EX_DELAY << 4) | 3;
 		} else if (event->fxp == 0xf3) {
-			/* Retriger once on tick 2 */
-			event->fxt = FX_EXTENDED;
-			event->fxp = (EX_RETRIG << 4) | 2;
+			/* Retriger every 2 ticks (TODO: buggy) */
+			event->fxt = FX_MED_RETRIG;
+			event->fxp = 0x02;
 		} else if (event->fxp <= 0xf0) {
 			event->fxt = FX_S3M_BPM;
 			event->fxp = mmd_convert_tempo(event->fxp, 0, 0);
@@ -629,7 +629,7 @@ static int med4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	mod->bpm = mmd_convert_tempo(tempo, 0, 0);
 	m->time_factor = MED_TIME_FACTOR;
 
-	m->quirk |= QUIRK_RTONCE;
+	m->quirk |= QUIRK_RTONCE; /* FF1 */
 	if (~flags & 0x20)	/* sliding */
 		m->quirk |= QUIRK_VSALL | QUIRK_PBALL;
 

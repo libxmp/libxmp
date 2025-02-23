@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -1028,6 +1028,14 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 	case FX_VIBRATO2:	/* Deep vibrato (2x) */
 		SET(VIBRATO);
 		SET_LFO_NOTZERO(&xc->vibrato.lfo, LSN(fxp) << 3, MSN(fxp));
+		break;
+	case FX_MED_RETRIG:	/* MED 1Fxy delay x, then retrig every y */
+		/* initial delay is computed at frame loop */
+		SET(RETRIG);
+		xc->retrig.val = LSN(fxp);
+		xc->retrig.count = LSN(fxp) + 1;
+		xc->retrig.type = 0;
+		xc->retrig.limit = 0;
 		break;
 	case FX_SPEED_CP:	/* Set speed and ... */
 		if (fxp) {

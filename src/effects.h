@@ -122,6 +122,7 @@
 #define FX_HOLD_DECAY	0x90
 #define FX_SETPITCH	0x91
 #define FX_VIBRATO2	0x92
+#define FX_MED_RETRIG	0x93
 
 /* PTM effects */
 #define FX_NSLIDE_DN	0x9c	/* IMF/PTM note slide down */
