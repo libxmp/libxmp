@@ -15,6 +15,7 @@ Stable versions
 	Changes by Thomas Neumann:
 	- Fix oxm modules with empty samples (e.g.: The Four Ages.oxm)
 	- Fix some modules would be misidentified as Scream Tracker 2.
+	- Handle IT modules with edit history but no midi configuration
 	Changes by Ozkan Sezer:
 	- Revert a bad CVE fix to the miniz inflate code
 	- Add missing HAVE_DIRENT definition to Android makefile.
