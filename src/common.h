@@ -218,12 +218,25 @@ static void __inline D_(const char *text, ...) {
 #define D_INFO "\x1b[33m"
 #define D_CRIT "\x1b[31m"
 #define D_WARN "\x1b[36m"
+#if defined(__GNUC__) && (__GNUC__ < 3)
+#define D_(fmt, args...) do { \
+	printf("\x1b[33m%s \x1b[37m[%s:%d] " D_INFO, LIBXMP_FUNC, \
+		__FILE__, __LINE__); printf (fmt, ##args); printf ("\x1b[0m\n"); \
+	} while (0)
+#else /* assume C99 compatibility: */
 #define D_(...) do { \
 	printf("\x1b[33m%s \x1b[37m[%s:%d] " D_INFO, LIBXMP_FUNC, \
 		__FILE__, __LINE__); printf (__VA_ARGS__); printf ("\x1b[0m\n"); \
 	} while (0)
+#endif
 #else
+#if defined(__GNUC__) && (__GNUC__ < 3)
+#define D_(fmt, args...) \
+		do {} while (0)
+#else
+/* assume C99 compatibility: */
 #define D_(...) do {} while (0)
+#endif
 #endif
 
 #endif	/* !_MSC_VER */
