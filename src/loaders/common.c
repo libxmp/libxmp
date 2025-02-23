@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -433,6 +433,10 @@ int libxmp_check_filename_case(const char *dir, const char *name, char *new_name
 {
 	char path[XMP_MAXPATH];
 	int ret;
+
+	if (dir[0] == '\0')
+		dir = ".";
+
 	snprintf(path, sizeof(path), "%s/%s", dir, name);
 	if (! (libxmp_get_filetype(path) & XMP_FILETYPE_FILE))
 		return 0;
@@ -446,6 +450,9 @@ int libxmp_check_filename_case(const char *dir, const char *name, char *new_name
 	int ret = size;
 	DIR *dirp;
 	struct dirent *d;
+
+	if (dir[0] == '\0')
+		dir = ".";
 
 	dirp = opendir(dir);
 	if (dirp == NULL)
@@ -500,6 +507,9 @@ int libxmp_find_instrument_file(struct module_data *m, char *path_dest,
 		path_dest[path_dest_len - 1] = '\0';
 		return (ret < path_dest_len);
 	}
+
+	D_(D_WARN "instrument '%s' not found (ins_path: '%s') (m->dirname: '%s')",
+	   ins_name, ins_path ? ins_path : "NULL", m->dirname ? m->dirname : "NULL");
 	return 0;
 }
 #endif /* LIBXMP_CORE_PLAYER */

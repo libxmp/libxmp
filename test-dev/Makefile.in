@@ -53,6 +53,7 @@ EFFECTS		= 0_arpeggio 1_slide_up 2_slide_down \
 		  it_g00_nosuck it_l00_nosuck it_fine_vol_row_delay \
 		  far_slide far_toneporta far_retrig far_noteoffset \
 		  far_vibrato far_vibrato_per far_volslide far_tempo \
+		  med_retrig \
 		  ult_tempo ult_toneporta \
 		  pattern_loop_st301 pattern_loop_st321 \
 		  pattern_loop_it100 pattern_loop_it104 pattern_loop_it210 \
@@ -270,7 +271,7 @@ WRITE		= file_32bit_little_endian file_32bit_big_endian \
 
 PLAYER		= read_event scan loop period_amiga period_mod_range pan \
 		  med_extsample med_hold med_instruments med_ss2defpitch \
-		  med_synth med_synth_2 \
+		  med_synth med_synth_2 med_compat_tempo \
 		  hmn_extras \
 		  note_off_ft2 note_off_it \
 		  virtual_channel nna_cut nna_cont nna_off nna_fade dct_note \
@@ -328,7 +329,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  masi \
 		  masi16 \
 		  mdl0 mdl \
-		  med2 med3 med4 med4_decvol \
+		  med2 med3 med3_song med4 med4_decvol med4_song \
 		  mmd0 mmd0_compattempo mmd1_longpat mmd_iff3oct mmdc \
 		  mmd3 mmd3_stereo \
 		  mfp \

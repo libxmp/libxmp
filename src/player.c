@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -780,6 +780,19 @@ static int check_delay(struct context_data *ctx, struct xmp_event *e, int chn)
 		xc->delay = LSN(e->f2p) + 1;
 		goto do_delay;
 	}
+#ifndef LIBXMP_CORE_PLAYER
+	/* MED retrigger: reset retrigger so it doesn't continue during the delay. */
+	if (e->fxt == FX_MED_RETRIG && MSN(e->fxp)) {
+		RESET(RETRIG);
+		xc->delay = MSN(e->fxp) + 1;
+		goto do_delay;
+	}
+	if (e->f2t == FX_MED_RETRIG && MSN(e->f2p)) {
+		RESET(RETRIG);
+		xc->delay = MSN(e->fxp) + 1;
+		goto do_delay;
+	}
+#endif
 
 	return 0;
 

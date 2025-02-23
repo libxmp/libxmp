@@ -2,6 +2,16 @@ Stable versions
 ---------------
 
 4.6.2 ():
+	Changes by Alice Rowan:
+	- Fix MED effect 1Fxy (delay and retrigger). The new implementation
+	  supports both delay and retrigger at the same time and repeats.
+	- Fix MED effect FF3 (revert change from 4.6.1). The buggy version
+	  of this effect prior to OctaMED v5 is not currently supported.
+	- Fix MED3 and MED4 time factor and tempos 1-10.
+	- Fix MED4 effect 9xx (set speed).
+	- Add support for MED3 and MED4 song files.
+	- Better MED MMD tracker version fingerprinting.
+	- Fix loading external instruments from the current directory.
 	Changes by Thomas Neumann:
 	- Fix oxm modules with empty samples (e.g.: The Four Ages.oxm)
 	- Fix some modules would be misidentified as Scream Tracker 2.

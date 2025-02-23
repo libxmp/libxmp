@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -24,6 +24,7 @@
  * MED 1.12 is in Fish disk #255
  */
 
+#include "med.h"
 #include "loader.h"
 #include "../period.h"
 
@@ -184,39 +185,10 @@ static int med2_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	D_(D_INFO "Instruments    : %d ", mod->ins);
 
 	for (i = 0; i < 31; i++) {
-		char path[XMP_MAXPATH];
-		char ins_name[32];
-		HIO_HANDLE *s = NULL;
-
-		if (libxmp_copy_name_for_fopen(ins_name, mod->xxi[i].name, 32) != 0)
-			continue;
-
-		D_(D_INFO "[%2X] %-32.32s ---- %04x %04x %c V%02x",
-			i, mod->xxi[i].name, mod->xxs[i].lps, mod->xxs[i].lpe,
-			mod->xxs[i].flg & XMP_SAMPLE_LOOP ? 'L' : ' ',
-			mod->xxi[i].sub[0].vol);
-
-		if (!libxmp_find_instrument_file(m, path, sizeof(path), ins_name))
-			continue;
-
-		if ((s = hio_open(path, "rb")) == NULL) {
-			continue;
-		}
-
-		mod->xxs[i].len = hio_size(s);
-		if (mod->xxs[i].len == 0) {
-			hio_close(s);
-			continue;
-		}
-		mod->xxi[i].nsm = 1;
-
-		D_(D_INFO "     %-32s %04x", "(OK)", mod->xxs[i].len);
-
-		if (libxmp_load_sample(m, s, 0, &mod->xxs[i], NULL) < 0) {
-			hio_close(s);
+		if (med_load_external_instrument(f, m, i)) {
+			D_(D_CRIT "error loading instrument %d", i);
 			return -1;
 		}
-		hio_close(s);
 	}
 
 	return 0;
