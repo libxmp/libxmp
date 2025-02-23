@@ -334,7 +334,7 @@ static int med4_load_synth_instrument(HIO_HANDLE *f, struct module_data *m,
 		return -1;
 
 	j = 0;
-	if (type == -2) { /* Hybrid */
+	if (type == -2 && synth.wforms > 0) { /* Hybrid */
 		uint32 length;
 
 		hio_seek(f, pos + synth.wf[0], SEEK_SET);
