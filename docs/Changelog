@@ -1,7 +1,7 @@
 Stable versions
 ---------------
 
-4.6.2 ():
+4.6.2 (20250224):
 	Changes by Alice Rowan:
 	- Fix MED effect 1Fxy (delay and retrigger). The new implementation
 	  supports both delay and retrigger at the same time and repeats.

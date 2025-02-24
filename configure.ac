@@ -1,6 +1,6 @@
 m4_define([libxmp_VERSION_MAJOR_m4], [4])
 m4_define([libxmp_VERSION_MINOR_m4], [6])
-m4_define([libxmp_VERSION_PATCH_m4], [1])
+m4_define([libxmp_VERSION_PATCH_m4], [2])
 m4_define([libxmp_VERSION_m4], libxmp_VERSION_MAJOR_m4[.]libxmp_VERSION_MINOR_m4[.]libxmp_VERSION_PATCH_m4)
 
 AC_PREREQ(2.60)
