@@ -586,6 +586,7 @@ FUZZER		= misc \
 		  play_mdl_high_c5spd \
 		  play_mdl_zero_samples \
 		  play_med4_0_chn_invalid_ord \
+		  play_med4_hybrid_0_waveforms \
 		  play_mmd1_synth_bad_tables \
 		  play_rtm_autovib \
 		  play_stm_bad_note_toneporta \
