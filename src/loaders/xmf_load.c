@@ -211,7 +211,6 @@ static void xmf_translate_effect(struct xmp_event *event, uint8 effect, uint8 pa
 		switch (param >> 4) {
 		case 0x01:		/* fine slide up */
 		case 0x02:		/* fine slide down */
-		case 0x06:		/* pattern loop (broken) */
 		case 0x09:		/* note retrigger (TODO: only once) */
 		case 0x0c:		/* note cut */
 		case 0x0d:		/* note delay */
@@ -224,6 +223,10 @@ static void xmf_translate_effect(struct xmp_event *event, uint8 effect, uint8 pa
 		case 0x04:		/* vibrato waveform */
 			param &= 3;
 			param = param < 3 ? param : 2;
+			xmf_insert_effect(event, effect, param, chn);
+			break;
+
+		case 0x06:		/* pattern loop */
 			xmf_insert_effect(event, effect, param, chn);
 			break;
 
