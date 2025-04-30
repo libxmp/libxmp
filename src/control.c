@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -74,56 +74,54 @@ static void set_position(struct context_data *ctx, int pos, int dir)
 		seq = p->sequence;
 	}
 
-	if (seq == 0xff) {
+	if (seq < 0 || seq >= m->num_sequences) {
 		return;
 	}
 
 	has_marker = HAS_QUIRK(QUIRK_MARKER);
 
-	if (seq >= 0) {
-		int start = m->seq_data[seq].entry_point;
+	p->sequence = seq;
 
-		p->sequence = seq;
+	if (pos >= 0) {
+		int pat;
 
-		if (pos >= 0) {
-			int pat;
-
-			while (has_marker && mod->xxo[pos] == 0xfe) {
-				if (dir < 0) {
-					if (pos > start) {
-						pos--;
-					}
-				} else {
-					pos++;
-				}
-			}
-			pat = mod->xxo[pos];
-
-			if (pat < mod->pat) {
-				if (has_marker && pat == 0xff) {
-					return;
-				}
-
-				if (pos > p->scan[seq].ord) {
-					f->end_point = 0;
-				} else {
-					f->num_rows = mod->xxp[pat]->rows;
-					f->end_point = p->scan[seq].num;
-					f->jumpline = 0;
-				}
-			}
-		}
-
-		if (pos < mod->len) {
-			if (pos == 0) {
-				p->pos = -1;
+		while (has_marker && pos > 0 && pos < mod->len - 1 &&
+		       mod->xxo[pos] == XMP_MARK_SKIP) {
+			if (dir < 0) {
+				pos--;
 			} else {
-				p->pos = pos;
+				pos++;
 			}
-			/* Clear flow vars to prevent old pattern jumps and
-			 * other junk from executing in the new position. */
-			libxmp_reset_flow(ctx);
 		}
+		if (pos >= mod->len) {
+			return;
+		}
+		pat = mod->xxo[pos];
+
+		if (pat < mod->pat) {
+			if (has_marker && pat == XMP_MARK_END) {
+				return;
+			}
+
+			if (pos > p->scan[seq].ord) {
+				f->end_point = 0;
+			} else {
+				f->num_rows = mod->xxp[pat]->rows;
+				f->end_point = p->scan[seq].num;
+				f->jumpline = 0;
+			}
+		}
+	}
+
+	if (pos < mod->len) {
+		if (pos == 0) {
+			p->pos = -1;
+		} else {
+			p->pos = pos;
+		}
+		/* Clear flow vars to prevent old pattern jumps and
+		 * other junk from executing in the new position. */
+		libxmp_reset_flow(ctx);
 	}
 }
 
@@ -136,8 +134,13 @@ int xmp_next_position(xmp_context opaque)
 	if (ctx->state < XMP_STATE_PLAYING)
 		return -XMP_ERROR_STATE;
 
-	if (p->pos < m->mod.len)
+	if (p->pos < 0) {
+		/* Restart a stopped or restarting module.
+		 * This was previously done implicitly. */
+		set_position(ctx, -1, 1);
+	} else if (p->pos < m->mod.len) {
 		set_position(ctx, p->pos + 1, 1);
+	}
 
 	return p->pos;
 }
@@ -168,7 +171,7 @@ int xmp_set_position(xmp_context opaque, int pos)
 	if (ctx->state < XMP_STATE_PLAYING)
 		return -XMP_ERROR_STATE;
 
-	if (pos >= m->mod.len)
+	if (pos < 0 || pos >= m->mod.len)
 		return -XMP_ERROR_INVALID;
 
 	set_position(ctx, pos, 0);
@@ -194,7 +197,7 @@ int xmp_set_row(xmp_context opaque, int row)
 	if (ctx->state < XMP_STATE_PLAYING)
 		return -XMP_ERROR_STATE;
 
-	if (pattern >= mod->pat || row >= mod->xxp[pattern]->rows)
+	if (pattern >= mod->pat || row < 0 || row >= mod->xxp[pattern]->rows)
 		return -XMP_ERROR_INVALID;
 
 	/* See set_position. */

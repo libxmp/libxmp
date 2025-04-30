@@ -734,13 +734,16 @@ int xmp_next_position(xmp_context c)
 ````````````````````````````````````
 
   Skip replay to the start of the next position.
+  If the module was stopped with ``xmp_stop_module``, this operation
+  restarts the module at position 0. If the module is restarting
+  at position 0, this operation does nothing.
 
   **Parameters:**
     :c: the player context handle.
 
   **Returns:**
-    The new position index, or ``-XMP_ERROR_STATE`` if the player is not
-    in playing state.
+    The new position index, -1 if the module is restarting at position
+    0, or ``-XMP_ERROR_STATE`` if the player is not in playing state.
 
 .. _xmp_prev_position():
 
@@ -748,6 +751,9 @@ int xmp_prev_position(xmp_context c)
 ````````````````````````````````````
 
   Skip replay to the start of the previous position.
+  If the module was stopped with ``xmp_stop_module``, is restarting at
+  position 0, or if the previous position is part of a different sequence,
+  this operation does nothing.
 
   **Parameters:**
     :c: the player context handle.
@@ -762,6 +768,8 @@ int xmp_set_position(xmp_context c, int pos)
 ````````````````````````````````````````````
 
   Skip replay to the start of the given position.
+  If the module was stopped with ``xmp_stop_module``, this operation
+  will restart the module at the destination position.
 
   **Parameters:**
     :c: the player context handle.
@@ -769,8 +777,9 @@ int xmp_set_position(xmp_context c, int pos)
     :pos: the position index to set.
 
   **Returns:**
-    The new position index, ``-XMP_ERROR_INVALID`` of the new position is
-    invalid or ``-XMP_ERROR_STATE`` if the player is not in playing state.
+    The new position index, -1 if the module is restarting at
+    position 0, ``-XMP_ERROR_INVALID`` of the new position is invalid,
+    or ``-XMP_ERROR_STATE`` if the player is not in playing state.
 
 .. _xmp_set_row():
 

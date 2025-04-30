@@ -17,7 +17,7 @@ TEST(test_api_prev_position)
 	ret = xmp_prev_position(opaque);
 	fail_unless(ret == -XMP_ERROR_STATE, "state check error");
 
- 	create_simple_module(ctx, 2, 2);
+	create_simple_module(ctx, 2, 2);
 	libxmp_free_scan(ctx);
 	set_order(ctx, 0, 0);
 	set_order(ctx, 1, 1);
@@ -42,6 +42,41 @@ TEST(test_api_prev_position)
 	fail_unless(ret == 1, "prev position error");
 	xmp_play_frame(opaque);
 	fail_unless(p->ord == 1, "didn't change to prev position");
+
+	/* xmp_prev_position should not restart a stopped module. */
+	xmp_stop_module(opaque);
+	ret = xmp_play_frame(opaque);
+	fail_unless(ret == -XMP_END, "didn't stop module");
+	ret = xmp_prev_position(opaque);
+	fail_unless(ret == 0, "not in position 0");
+	ret = xmp_play_frame(opaque);
+	fail_unless(ret == -XMP_END, "module should still be stopped");
+
+	/* xmp_prev_position should not be able to seek backwards from restart. */
+	xmp_restart_module(opaque);
+	ret = xmp_prev_position(opaque);
+	fail_unless(ret == 0, "didn't change to position 0");
+	xmp_play_frame(opaque);
+	fail_unless(p->ord == 0, "not in position 0");
+
+	/* xmp_prev_position should not be confused by a skip marker
+	 * at position 0. */
+	xmp_end_player(opaque);
+
+	libxmp_free_scan(ctx);
+	set_order(ctx, 0, XMP_MARK_SKIP);
+	set_order(ctx, 1, 0);
+	set_quirk(ctx, QUIRK_MARKER, READ_EVENT_IT);
+	libxmp_prepare_scan(ctx);
+	libxmp_scan_sequences(ctx);
+
+	xmp_start_player(opaque, 44100, 0); /* Skip marker position */
+	xmp_play_frame(opaque);
+	fail_unless(p->ord == 1, "didn't start at pattern 1");
+	ret = xmp_prev_position(opaque);
+	fail_unless(ret == 0, "prev position error");
+	xmp_play_frame(opaque);
+	fail_unless(p->ord == 1, "not in position 1");
 
 	xmp_release_module(opaque);
 	xmp_free_context(opaque);

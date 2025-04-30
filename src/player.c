@@ -1724,7 +1724,8 @@ static void next_order(struct context_data *ctx)
 		p->ord++;
 
 		/* Restart module */
-		mark = HAS_QUIRK(QUIRK_MARKER) && p->ord < mod->len && mod->xxo[p->ord] == 0xff;
+		mark = HAS_QUIRK(QUIRK_MARKER) && p->ord < mod->len &&
+		       mod->xxo[p->ord] == XMP_MARK_END;
 		if (p->ord >= mod->len || mark) {
 			if (mod->rst > mod->len ||
 			    mod->xxo[mod->rst] >= mod->pat ||
@@ -2035,7 +2036,7 @@ int xmp_play_frame(xmp_context opaque)
 		return -XMP_END;
 	}
 
-	if (HAS_QUIRK(QUIRK_MARKER) && mod->xxo[p->ord] == 0xff) {
+	if (HAS_QUIRK(QUIRK_MARKER) && mod->xxo[p->ord] == XMP_MARK_END) {
 		return -XMP_END;
 	}
 

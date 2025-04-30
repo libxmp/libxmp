@@ -250,6 +250,7 @@ test_api_test_module_from_callbacks
 test_api_start_player
 test_api_play_buffer
 test_api_set_position
+test_api_next_position
 test_api_prev_position
 test_api_set_position_midfx
 test_api_set_row

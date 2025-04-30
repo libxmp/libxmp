@@ -55,6 +55,11 @@ static uint8_t *buf = NULL;
 static size_t buf_sz = 0;
 #endif
 
+/* Desintations for position, row, time seeks. */
+static const int seek_dests[] = {
+	0, 16, 57, 255, 256, 32768, 1000000, INT_MAX,
+	-1, -255, -32769, -1000000, INT_MIN
+};
 
 static inline int libxmp_test_function(xmp_context opaque, const uint8_t *data,
 					size_t size, int frames_to_play)
@@ -71,8 +76,7 @@ static inline int libxmp_test_function(xmp_context opaque, const uint8_t *data,
 
 	/* Fuzz loaders. */
 	load_error = xmp_load_module_from_memory(opaque, data, size);
-	if (load_error == 0)
-	{
+	if (load_error == 0) {
 		/* Fuzz playback. */
 		struct xmp_module_info info;
 		int interp, mono, i;
@@ -96,13 +100,78 @@ static inline int libxmp_test_function(xmp_context opaque, const uint8_t *data,
 		xmp_start_player(opaque, XMP_MIN_SRATE, mono ? XMP_FORMAT_MONO : 0);
 		xmp_set_player(opaque, XMP_PLAYER_INTERP, interp);
 
-		/* TODO Saga Musix also recommends performing different types of seeking. */
-		for (i = 0; i < frames_to_play; i++)
-		{
+		/* Play initial frames */
+		for (i = 0; i < frames_to_play; i++) {
 			int r = xmp_play_frame(opaque);
 			if (r != 0)
 				play_error = r;
 		}
+
+		/* Relative positional seeks */
+		xmp_next_position(opaque);
+		xmp_play_frame(opaque);
+		xmp_prev_position(opaque);
+		xmp_play_frame(opaque);
+
+		/* Relative positional seek to -1 */
+		xmp_set_position(opaque, 0);
+		xmp_play_frame(opaque);
+		xmp_prev_position(opaque);
+		xmp_play_frame(opaque);
+
+		/* Relative positional seek to len */
+		xmp_set_position(opaque, info.mod->len - 1);
+		xmp_play_frame(opaque);
+		xmp_next_position(opaque);
+		xmp_play_frame(opaque);
+
+		/* Restart module */
+		xmp_restart_module(opaque);
+		xmp_play_frame(opaque);
+		xmp_restart_module(opaque);
+		xmp_prev_position(opaque);
+		xmp_play_frame(opaque);
+		xmp_restart_module(opaque);
+		xmp_next_position(opaque);
+		xmp_play_frame(opaque);
+		xmp_restart_module(opaque);
+		xmp_set_position(opaque, 0);
+		xmp_play_frame(opaque);
+
+		/* Stop module */
+		xmp_stop_module(opaque);
+		xmp_play_frame(opaque); /* -XMP_END */
+		xmp_prev_position(opaque);
+		xmp_play_frame(opaque); /* -XMP_END */
+		xmp_next_position(opaque);
+		xmp_play_frame(opaque); /* ok */
+		xmp_stop_module(opaque);
+		xmp_restart_module(opaque);
+		xmp_play_frame(opaque); /* ok */
+		xmp_stop_module(opaque);
+		xmp_set_position(opaque, 0);
+		xmp_play_frame(opaque); /* ok */
+
+		/* Absolute positional seeks */
+		for (i = 0; i < (int)ARRAY_SIZE(seek_dests); i++) {
+			xmp_set_position(opaque, seek_dests[i]);
+			xmp_play_frame(opaque);
+		}
+
+		/* Row seeks within position 0 */
+		for (i = 0; i < (int)ARRAY_SIZE(seek_dests); i++) {
+			xmp_set_position(opaque, 0);
+			xmp_set_row(opaque, seek_dests[i]);
+			xmp_play_frame(opaque);
+		}
+
+		/* Time seeks */
+		for (i = 0; i < (int)ARRAY_SIZE(seek_dests); i++) {
+			xmp_seek_time(opaque, seek_dests[i]);
+			xmp_play_frame(opaque);
+		}
+
+		/* TODO: other API functions? */
 
 		xmp_release_module(opaque);
 	}
@@ -110,8 +179,7 @@ static inline int libxmp_test_function(xmp_context opaque, const uint8_t *data,
 #ifdef HAVE_FMEMOPEN
 	/* Fuzz depackers. */
 	f = fmemopen((void *)data, size, "rb");
-	if (f != NULL)
-	{
+	if (f != NULL) {
 		struct xmp_test_info info;
 		test_error = xmp_test_module_from_file(f, &info);
 		test_print = 1;
@@ -120,8 +188,7 @@ static inline int libxmp_test_function(xmp_context opaque, const uint8_t *data,
 #endif
 
 #ifndef LIBXMP_LIBFUZZER
-	if (!quiet)
-	{
+	if (!quiet) {
 		/* Print and log status */
 		total++;
 		if (load_error <= 0 && load_error > -256)
@@ -168,23 +235,19 @@ static void test_file(xmp_context opaque, struct stat *st,
 	O_("  %s ...", filename);
 
 	f = fopen(filename, "rb");
-	if (f == NULL)
-	{
+	if (f == NULL) {
 		O_(" fopen error\n");
 		return;
 	}
-	if (fstat(fileno(f), st) != 0)
-	{
+	if (fstat(fileno(f), st) != 0) {
 		O_(" fstat error\n");
 		fclose(f);
 		return;
 	}
 	len = st->st_size;
-	if (len > buf_sz)
-	{
+	if (len > buf_sz) {
 		uint8_t *tmp = (uint8_t *)realloc(buf, len);
-		if (tmp == NULL)
-		{
+		if (tmp == NULL) {
 			O_(" malloc error\n");
 			fclose(f);
 			return;
@@ -192,8 +255,7 @@ static void test_file(xmp_context opaque, struct stat *st,
 		buf = tmp;
 		buf_sz = len;
 	}
-	if (fread(buf, 1, len, f) != len)
-	{
+	if (fread(buf, 1, len, f) != len) {
 		O_(" fread error\n");
 		fclose(f);
 		return;
@@ -201,8 +263,7 @@ static void test_file(xmp_context opaque, struct stat *st,
 	fclose(f);
 
 	/* Special case: call stb-vorbis directly for Ogg signatures */
-	if (len >= 4 && buf[0] == 'O' && buf[1] == 'g' && buf[2] == 'g' && buf[3] == 'S')
-	{
+	if (len >= 4 && !memcmp(buf, "OggS", 4)) {
 		int16_t *pcm16 = NULL;
 		int ch, rate;
 
@@ -243,14 +304,10 @@ int main(int argc, char **argv)
 	/* stat instrumentation is broken for some versions of MSan */
 	memset(&st, 0, sizeof(struct stat));
 
-	for (i = 1; i < argc; i++)
-	{
-		if (allow_opt && argv[i][0] == '-')
-		{
-			if (!argv[i][1])
-			{
-				while (fgets(path, sizeof(path), stdin))
-				{
+	for (i = 1; i < argc; i++) {
+		if (allow_opt && argv[i][0] == '-') {
+			if (!argv[i][1]) {
+				while (fgets(path, sizeof(path), stdin)) {
 					size_t l = strlen(path);
 					while (l && (path[l - 1] == '\r' || path[l - 1] == '\n'))
 						path[--l] = '\0';
@@ -271,13 +328,11 @@ int main(int argc, char **argv)
 		test_file(opaque, &st, argv[i], frames_to_play);
 	}
 
-	if (total > 1)
-	{
+	if (total > 1) {
 		if (status_unkn)
 			O_("status    ?: %u\n", status_unkn);
 
-		for (i = 0; i < 256; i++)
-		{
+		for (i = 0; i < 256; i++) {
 			if (status_count[i])
 				O_("status %4d: %u\n", -i, status_count[i]);
 		}

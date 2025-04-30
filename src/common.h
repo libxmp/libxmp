@@ -416,11 +416,15 @@ int libxmp_snprintf (char *, size_t, const char *, ...) LIBXMP_ATTRIB_PRINTF(3,4
 #define MED_TIME_FACTOR		2.64
 #define FAR_TIME_FACTOR		4.01373	/* See far_extras.c */
 
+#define NO_SEQUENCE		MAX_SEQUENCES
 #define MAX_SEQUENCES		255
 #define MAX_SAMPLE_SIZE		0x10000000
 #define MAX_SAMPLES		1024
 #define MAX_INSTRUMENTS		255
 #define MAX_PATTERNS		256
+
+#define XMP_MARK_SKIP		0xfe /* S3M/IT (QUIRK_MARKER) skip position */
+#define XMP_MARK_END		0xff /* S3M/IT (QUIRK_MARKER) end position */
 
 #define IS_PLAYER_MODE_MOD()	(m->read_event_type == READ_EVENT_MOD)
 #define IS_PLAYER_MODE_FT2()	(m->read_event_type == READ_EVENT_FT2)

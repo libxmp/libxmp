@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -48,9 +48,6 @@
 #endif
 
 #define VBLANK_TIME_THRESHOLD	480000 /* 8 minutes */
-
-#define S3M_END		0xff
-#define S3M_SKIP	0xfe
 
 
 static int scan_module(struct context_data *ctx, int ep, int chain)
@@ -169,7 +166,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 	    }
 
 	    pat = mod->xxo[ord];
-	    if (has_marker && pat == S3M_END) {
+	    if (has_marker && pat == XMP_MARK_END) {
 		break;
 	    }
 	}
@@ -178,7 +175,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 	info = &m->xxo_info[ord];
 
 	/* Allow more complex order reuse only in main sequence */
-	if (ep != 0 && p->sequence_control[ord] != 0xff) {
+	if (ep != 0 && p->sequence_control[ord] != NO_SEQUENCE) {
 	    /* Currently to detect the end of the sequence, the player needs the
 	     * end to be a real position and row, so skip invalid and S3M_SKIP.
 	     * "amazonas-dynomite mix.it" by Skaven has a sequence (9) where an
@@ -189,7 +186,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 	     * so check S3M_END here too.
 	     */
 	    if (pat >= mod->pat) {
-		if (has_marker && pat == S3M_END) {
+		if (has_marker && pat == XMP_MARK_END) {
 			ord = mod->len;
 		}
 		continue;
@@ -200,7 +197,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 
 	/* All invalid patterns skipped, only S3M_END aborts replay */
 	if (pat >= mod->pat) {
-	    if (has_marker && pat == S3M_END) {
+	    if (has_marker && pat == XMP_MARK_END) {
 		ord = mod->len;
 	        continue;
 	    }
@@ -667,7 +664,7 @@ static void reset_scan_data(struct context_data *ctx)
 	for (i = 0; i < XMP_MAX_MOD_LENGTH; i++) {
 		ctx->m.xxo_info[i].time = -1;
 	}
-	memset(ctx->p.sequence_control, 0xff, XMP_MAX_MOD_LENGTH);
+	memset(ctx->p.sequence_control, NO_SEQUENCE, XMP_MAX_MOD_LENGTH);
 }
 
 #ifndef LIBXMP_CORE_PLAYER
@@ -714,6 +711,8 @@ static void compare_vblank_scan(struct context_data *ctx)
 int libxmp_get_sequence(struct context_data *ctx, int ord)
 {
 	struct player_data *p = &ctx->p;
+	if (ord < 0 || ord > ctx->m.mod.len)
+		return NO_SEQUENCE;
 	return p->sequence_control[ord];
 }
 
@@ -760,7 +759,7 @@ int libxmp_scan_sequences(struct context_data *ctx)
 		/* Scan song starting at given entry point */
 		/* Check if any patterns left */
 		for (i = 0; i < mod->len; i++) {
-			if (p->sequence_control[i] == 0xff) {
+			if (p->sequence_control[i] == NO_SEQUENCE) {
 				break;
 			}
 		}
@@ -788,6 +787,21 @@ int libxmp_scan_sequences(struct context_data *ctx)
 	for (i = 0; i < m->num_sequences; i++) {
 		m->seq_data[i].entry_point = temp_ep[i];
 		m->seq_data[i].duration = p->scan[i].time;
+	}
+	/* Wipe the remaining entries so the player doesn't think they're
+	 * valid e.g. when handling end-of-module markers. */
+	for (; i < MAX_SEQUENCES; i++) {
+		m->seq_data[i].entry_point = 0;
+		m->seq_data[i].duration = 0;
+	}
+	/* Correct any zero-length temporary sequences from the scan.
+	 * There's no "correct" sequence for these, so copy whichever
+	 * valid sequence precedes the affected position. */
+	for (i = 0; i < mod->len; i++) {
+		if (p->sequence_control[i] >= m->num_sequences) {
+			p->sequence_control[i] =
+				(i > 0) ? p->sequence_control[i - 1] : 0;
+		}
 	}
 
 	return 0;
