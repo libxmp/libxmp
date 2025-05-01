@@ -71,11 +71,6 @@
 #define STB_VORBIS_C
 #include "vorbis.h"
 
-#ifdef _MSC_VER
-#pragma warning(disable:4456) /* shadowing (hides previous local decl) */
-#pragma warning(disable:4457) /* shadowing (hides function parameter.) */
-#endif
-
 //////////////////////////////////////////////////////////////////////////////
 //
 //  HEADER BEGINS HERE
@@ -604,10 +599,18 @@ enum STBVorbisError
    #include <assert.h>
    #include <math.h>
 #else // STB_VORBIS_NO_CRT
+   #ifndef NULL
    #define NULL 0
+   #endif
+   #ifndef malloc
    #define malloc(s)   0
+   #endif
+   #ifndef free
    #define free(p)     ((void) 0)
+   #endif
+   #ifndef realloc
    #define realloc(p, s)  0
+   #endif
 #endif // STB_VORBIS_NO_CRT
 
 #include <limits.h>
@@ -993,7 +996,7 @@ static void *setup_malloc(vorb *f, int sz)
       f->setup_offset += sz;
       return p;
    }
-   return sz ? calloc(sz, 1) : NULL;
+   return sz ? malloc(sz) : NULL;
 }
 
 static void setup_free(vorb *f, void *p)
@@ -1011,7 +1014,7 @@ static void *setup_temp_malloc(vorb *f, int sz)
       f->temp_offset -= sz;
       return (char *) f->alloc.alloc_buffer + f->temp_offset;
    }
-   return calloc(sz, 1);
+   return malloc(sz);
 }
 
 static void setup_temp_free(vorb *f, void **_p, int sz)
@@ -1192,10 +1195,12 @@ static void compute_accelerated_huffman(Codebook *c)
    }
 }
 
+#ifndef STBV_CDECL
 #ifdef _MSC_VER
 #define STBV_CDECL __cdecl
 #else
 #define STBV_CDECL
+#endif
 #endif
 
 static int STBV_CDECL uint32_compare(const void *p, const void *q)
@@ -3577,7 +3582,7 @@ static int is_whole_packet_present(stb_vorbis *f)
    // of state to restore (primarily the page segment table)
 
    int s = f->next_seg, first = TRUE;
-   uint8 *p = f->stream;
+   const uint8 *p = f->stream;
 
    if (s != -1) { // if we're not starting the packet with a 'continue on next page' flag
       for (; s < f->segment_count; ++s) {
@@ -3592,7 +3597,7 @@ static int is_whole_packet_present(stb_vorbis *f)
       first = FALSE;
    }
    for (; s == -1;) {
-      uint8 *q;
+      const uint8 *q;
       int n;
 
       // check that we have the page header ready
@@ -3712,7 +3717,7 @@ static int start_decoder(vorb *f)
    f->comment_list = NULL;
    if (f->comment_list_length > 0)
    {
-      if (INT_MAX / sizeof(char*) < f->comment_list_length)
+      if (INT_MAX / (int)sizeof(char*) < f->comment_list_length)
           goto no_comment;
       len = sizeof(char*) * f->comment_list_length;
       f->comment_list = (char**) setup_malloc(f, len);
@@ -4442,7 +4447,7 @@ void stb_vorbis_flush_pushdata(stb_vorbis *f)
    f->channel_buffer_end = 0;
 }
 
-static int vorbis_search_for_page_pushdata(vorb *f, uint8 *data, int data_len)
+static int vorbis_search_for_page_pushdata(vorb *f, const uint8 *data, int data_len)
 {
    int i,n;
    for (i=0; i < f->page_crc_tests; ++i)
@@ -4548,11 +4553,11 @@ int stb_vorbis_decode_frame_pushdata(
 
    if (f->page_crc_tests >= 0) {
       *samples = 0;
-      return vorbis_search_for_page_pushdata(f, (uint8 *) data, data_len);
+      return vorbis_search_for_page_pushdata(f, data, data_len);
    }
 
-   f->stream     = (uint8 *) data;
-   f->stream_end = (uint8 *) data + data_len;
+   f->stream     = (const uint8 *) data;
+   f->stream_end = (const uint8 *) data + data_len;
    f->error      = VORBIS__no_error;
 
    // check that we have the entire packet in memory
@@ -4610,8 +4615,8 @@ stb_vorbis *stb_vorbis_open_pushdata(
 {
    stb_vorbis *f, p;
    vorbis_init(&p, alloc);
-   p.stream     = (uint8 *) data;
-   p.stream_end = (uint8 *) data + data_len;
+   p.stream     = (const uint8 *) data;
+   p.stream_end = (const uint8 *) data + data_len;
    p.push_mode  = TRUE;
    if (!start_decoder(&p)) {
       if (p.eof)
@@ -5210,7 +5215,7 @@ stb_vorbis * stb_vorbis_open_memory(const unsigned char *data, int len, int *err
    if (start_decoder(&p)) {
       f = vorbis_alloc(&p);
       if (f) {
-         *f = p;
+         memcpy(f, &p, sizeof (stb_vorbis));
          vorbis_pump_first_frame(f);
          if (error) *error = VORBIS__no_error;
          return f;
