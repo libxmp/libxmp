@@ -833,7 +833,7 @@ static mz_bool mz_zip_file_stat_internal(mz_zip_archive *pZip, mz_uint file_inde
     memcpy(pStat->m_comment, p + MZ_ZIP_CENTRAL_DIR_HEADER_SIZE + MZ_READ_LE16(p + MZ_ZIP_CDH_FILENAME_LEN_OFS) + MZ_READ_LE16(p + MZ_ZIP_CDH_EXTRA_LEN_OFS), n);
     pStat->m_comment[n] = '\0';
 
-    /* Set some flags for convienance */
+    /* Set some flags for convenience */
     pStat->m_is_directory = mz_zip_reader_is_file_a_directory(pZip, file_index);
     pStat->m_is_encrypted = mz_zip_reader_is_file_encrypted(pZip, file_index);
     pStat->m_is_supported = mz_zip_reader_is_file_supported(pZip, file_index);

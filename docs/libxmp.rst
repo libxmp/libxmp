@@ -1332,7 +1332,7 @@ int xmp_smix_release_sample(xmp_context c, int num)
 void xmp_end_smix(xmp_context c)
 ````````````````````````````````
 
-  Deinitialize and resease memory used by the external sample mixer subsystem.
+  Deinitialize and release memory used by the external sample mixer subsystem.
 
   **Parameters:**
     :c: the player context handle.

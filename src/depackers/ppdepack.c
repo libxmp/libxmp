@@ -10,7 +10,7 @@
  * - merged mld's checks from the old depack sources. Original credits:
  *   - corrupt file and data detection
  *     (thanks to Don Adan and Dirk Stoecker for help and infos)
- *   - implemeted "efficiency" checks
+ *   - implemented "efficiency" checks
  *   - further detection based on code by Georg Hoermann
  *
  * Modified for xmp by Claudio Matsuoka, 05/2013

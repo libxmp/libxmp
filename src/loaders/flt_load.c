@@ -421,8 +421,8 @@ static int flt_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	 *  format possible, since it can be loaded in a normal 4 channel
 	 *  tracker if you should want to rip sounds or patterns. So, in a
 	 *  8 track FLT8 module, patterns 00 and 01 is "really" pattern 00.
-	 *  Patterns 02 and 03 together is "really" pattern 01. Thats it.
-	 *  Oh well, I didnt have the time to implement all effect commands
+	 *  Patterns 02 and 03 together is "really" pattern 01. That's it.
+	 *  Oh well, I didn't have the time to implement all effect commands
 	 *  either, so some FLT8 modules would play back badly (I think
 	 *  especially the portamento command uses a different "scale" than
 	 *  the normal portamento command, that would be hard to patch).

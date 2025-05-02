@@ -147,8 +147,8 @@ struct lzma_dec {
 
 	/*
 	 * LZMA properties or related bit masks (number of literal
-	 * context bits, a mask dervied from the number of literal
-	 * position bits, and a mask dervied from the number
+	 * context bits, a mask derived from the number of literal
+	 * position bits, and a mask derived from the number
 	 * position bits)
 	 */
 	uint32 lc;
@@ -190,7 +190,7 @@ struct lzma_dec {
 	uint16 dist_slot[DIST_STATES][DIST_SLOTS];
 
 	/*
-	 * Probility trees for additional bits for match distance
+	 * Probability trees for additional bits for match distance
 	 * when the distance is in the range [4, 127].
 	 */
 	uint16 dist_special[FULL_DISTANCES - DIST_MODEL_END];
@@ -780,7 +780,7 @@ static xz_bool lzma_main(struct xz_dec_lzma2 *s)
 }
 
 /*
- * Reset the LZMA decoder and range decoder state. Dictionary is nore reset
+ * Reset the LZMA decoder and range decoder state. Dictionary is not reset
  * here, because LZMA state may be reset without resetting the dictionary.
  */
 static void lzma_reset(struct xz_dec_lzma2 *s)

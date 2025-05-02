@@ -61,7 +61,7 @@ static int depack_skyt(HIO_HANDLE *in, FILE *out)
 	hio_read32b(in);
 	hio_read32b(in);			/* bypass "SKYT" ID */
 
-	pat_pos = hio_read8(in) + 1;		/* pattern table lenght */
+	pat_pos = hio_read8(in) + 1;		/* pattern table length */
 	if (pat_pos >= 128) {
 		return -1;
 	}

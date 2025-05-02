@@ -24,7 +24,7 @@
  * Tue, 30 Jun 1998 20:23:11 +0200
  * Reported by John v/d Kamp <blade_@dds.nl>:
  * I have this song from Purple Motion called wcharts.s3m, the global
- * volume was set to 0, creating a devide by 0 error in xmp. There should
+ * volume was set to 0, creating a divide by 0 error in xmp. There should
  * be an extra test if it's 0 or not.
  *
  * Claudio's fix: global volume ignored

@@ -83,7 +83,7 @@ void Depack_PP30 (FILE * in, FILE * out)
 		fwrite (&c2, 1, 1, out);
 	}
 
-	/* pattern table lenght */
+	/* pattern table length */
 	fread (&NOP, 1, 1, in);
 	fwrite (&NOP, 1, 1, out);
 
