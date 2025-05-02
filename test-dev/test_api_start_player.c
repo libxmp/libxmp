@@ -33,7 +33,7 @@ TEST(test_api_start_player)
 	state = xmp_get_player(ctx, XMP_PLAYER_STATE);
 	fail_unless(state == XMP_STATE_LOADED, "state error");
 
-	ret = xmp_start_player(ctx, XMP_MAX_SRATE, 0);
+	ret = xmp_start_player(ctx, REAL_MAX_SRATE, 0);
 	fail_unless(ret == 0, "max sample rate failed");
 
 	state = xmp_get_player(ctx, XMP_PLAYER_STATE);
@@ -53,7 +53,7 @@ TEST(test_api_start_player)
 
 	xmp_end_player(ctx);
 
-	ret = xmp_start_player(ctx, XMP_MAX_SRATE + 1, 0);
+	ret = xmp_start_player(ctx, REAL_MAX_SRATE + 1, 0);
 	fail_unless(ret == -XMP_ERROR_INVALID, "max sample rate limit failed");
 
 	state = xmp_get_player(ctx, XMP_PLAYER_STATE);
