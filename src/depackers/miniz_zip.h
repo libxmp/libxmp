@@ -228,15 +228,15 @@ MINIZ_EXPORT mz_bool mz_zip_reader_locate_file_v2(mz_zip_archive *pZip, const ch
 /* Returns detailed information about an archive file entry. */
 MINIZ_EXPORT mz_bool mz_zip_reader_file_stat(mz_zip_archive *pZip, mz_uint file_index, mz_zip_archive_file_stat *pStat);
 
-/* Extracts an archive file to a memory buffer. */
+/* Extracts a archive file to a memory buffer. */
 MINIZ_EXPORT mz_bool mz_zip_reader_extract_to_mem(mz_zip_archive *pZip, mz_uint file_index, void *pBuf, size_t buf_size, mz_uint flags);
 
-/* Extracts an archive file to a dynamically allocated heap buffer. */
+/* Extracts a archive file to a dynamically allocated heap buffer. */
 /* The memory will be allocated via the mz_zip_archive's alloc/realloc functions. */
 /* Returns NULL and sets the last error on failure. */
 MINIZ_EXPORT void *mz_zip_reader_extract_to_heap(mz_zip_archive *pZip, mz_uint file_index, size_t *pSize, mz_uint flags);
 
-/* Extracts an archive file using a callback function to output the file's data. */
+/* Extracts a archive file using a callback function to output the file's data. */
 MINIZ_EXPORT mz_bool mz_zip_reader_extract_to_callback(mz_zip_archive *pZip, mz_uint file_index, mz_file_write_func pCallback, void *pOpaque, mz_uint flags);
 
 #ifdef __cplusplus

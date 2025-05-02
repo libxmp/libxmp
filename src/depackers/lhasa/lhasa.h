@@ -396,7 +396,7 @@ void lha_reader_free(LHAReader *reader);
 LHAFileHeader *lha_reader_next_file(LHAReader *reader);
 
 /**
- * Read some of the (decompressed) data for the current archived file,
+ * Read some of the (decompresed) data for the current archived file,
  * decompressing as appropriate.
  *
  * @param reader     The @ref LHAReader structure.

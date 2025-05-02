@@ -92,7 +92,7 @@
 
      For more complex archive modification scenarios:
      1. The safest way is to use a mz_zip_reader to read the existing archive, cloning only those bits you want to
-     preserve into a new archive using the mz_zip_writer_add_from_zip_reader() function (which compiles the
+     preserve into a new archive using using the mz_zip_writer_add_from_zip_reader() function (which compiles the
      compressed file data as-is). When you're done, delete the old archive and rename the newly written archive, and
      you're done. This is safe but requires a bunch of temporary disk space or heap memory.
 

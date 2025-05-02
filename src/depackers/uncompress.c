@@ -4,14 +4,14 @@
 
 #define	MAGIC_1		31	/* First byte of compressed file */
 #define	MAGIC_2		157	/* Second byte of compressed file */
-#define BIT_MASK	0x1f	/* Mask for 'number of compression bits */
+#define BIT_MASK	0x1f	/* Mask for 'number of compresssion bits */
 				/* Masks 0x20 and 0x40 are free. */
 #define BITS		16
 #define HSIZE		69001	/* 95% occupancy */
 #define FIRST		257	/* first free entry */
 #define CLEAR		256	/* table clear output code */
 #define INIT_BITS	9	/* initial number of bits/code */
-#define BLOCK_MODE	0x80	/* Block compression if table is full and */
+#define BLOCK_MODE	0x80	/* Block compresssion if table is full and */
 #define MAXCODE(n)     	(1L << (n))
 				/* compression rate is dropping flush tables */
 #define IBUFSIZ		BUFSIZ	/* Default input buffer size */
