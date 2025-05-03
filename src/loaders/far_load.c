@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-/* Based on the Farandole Composer format specifications by Daniel Potter.
+/* Based on the Farandole Composer format specifications by Megan Potter.
  *
  * "(...) this format is for EDITING purposes (storing EVERYTHING you're
  * working on) so it may include information not completely neccessary."
