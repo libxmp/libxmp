@@ -182,7 +182,7 @@ static int depack_xann(HIO_HANDLE *in, FILE *out)
 				fxt = 0x0E;
 				fxp |= 0x20;
 				break;
-			case 0x84:	/* retriger */
+			case 0x84:	/* retrigger */
 				fxt = 0x0E;
 				fxp |= 0x90;
 				break;

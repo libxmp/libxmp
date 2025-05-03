@@ -659,7 +659,7 @@ void testP60A_pack (void)
 	/* test pattern table */
 	l = 0;
 	o = 0;
-	/* first, test if we dont oversize the input file */
+	/* first, test if we don't oversize the input file */
 	if ((k * 6 + 8 + m * 8) > in_size) {
 /*printf ( "8,0 Start:%ld\n" , start );*/
 		Test = BAD;
