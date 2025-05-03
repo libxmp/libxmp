@@ -686,6 +686,8 @@ static int get_song_2(struct module_data *m, int size, HIO_HANDLE *f, void *parm
 
 		magic = hio_read32b(f);
 		subchunk_size = hio_read32l(f);
+		size -= 8;
+
 		if (subchunk_size <= 0 || hio_error(f)) {
 			return -1;
 		}
@@ -694,13 +696,13 @@ static int get_song_2(struct module_data *m, int size, HIO_HANDLE *f, void *parm
 
 		switch (magic) {
 		case MAGIC_OPLH:
-			if (subchunk_oplh(m, size, f, parm) < 0) {
+			if (subchunk_oplh(m, subchunk_size, f, parm) < 0) {
 				return -1;
 			}
 			break;
 
 		case MAGIC_PPAN:
-			if (subchunk_ppan(m, size, f, parm) < 0) {
+			if (subchunk_ppan(m, subchunk_size, f, parm) < 0) {
 				return -1;
 			}
 			break;
