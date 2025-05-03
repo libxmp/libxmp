@@ -15,6 +15,9 @@ Stable versions
 	  positions getting assigned a non-existent sequence.
 	- Document xmp_set_position/xmp_next_position/xmp_prev_position
 	  interactions with xmp_stop_module/xmp_restart_module.
+	Changes by Thomas Neumann:
+	- Fix the pattern loop effect in Astroidea XMF loader.
+	- Fix loading of Extreme Pinball modules.
 
 4.6.2 (20250224):
 	Changes by Alice Rowan:

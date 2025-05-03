@@ -1,6 +1,21 @@
 Stable versions
 ---------------
 
+4.6.3 (?):
+	Changes by Alice Rowan:
+	- Fix crashes when xmp_set_position is used to set a negative position.
+	  Negative positions now correctly return -XMP_ERROR_INVALID.
+	- Fix crashes when xmp_set_row is used to set a negative row.
+	  Negative positions now correctly return -XMP_ERROR_INVALID.
+	- Fix hangs when xmp_prev_position is used on the first position of
+	  a sequence which is preceded by an S3M/IT skip marker.
+	- Fix out-of-bounds reads when xmp_next_position is used at the end of
+	  a 256 position module.
+	- Fix hangs when seeking to an end-of-module marker caused by these
+	  positions getting assigned a non-existent sequence.
+	- Document xmp_set_position/xmp_next_position/xmp_prev_position
+	  interactions with xmp_stop_module/xmp_restart_module.
+
 4.6.2 (20250224):
 	
 
@@ -416,4 +431,3 @@ Stable versions
 
 4.2.0 (20140302):
 	- forked from libxmp 4.2.5 and removed unnecessary features
-
