@@ -319,10 +319,10 @@ static int unpack_sample8(uint8 *t, uint8 *f, int len, int l)
  * The description of the sample-packmethode (2) [16bit packing]:...
  * ----------------------------------------------------------------
  *
- * It works as method (1) but it only crunches every 2nd byte (the high-
+ * It works as methode (1) but it only crunches every 2nd byte (the high-
  * bytes of 16 bit samples). So when you depack 16 bit samples, you have to
  * read 8 bits from the data-stream first. They present the lowbyte of the
- * sample-word. Then depack the highbyte in the descripted way (method [1]).
+ * sample-word. Then depack the highbyte in the descripted way (methode [1]).
  * Only the highbytes are delta-values. So take the lowbytes as they are.
  * Go on this way for the whole sample!
  */

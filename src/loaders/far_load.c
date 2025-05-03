@@ -23,7 +23,7 @@
 /* Based on the Farandole Composer format specifications by Daniel Potter.
  *
  * "(...) this format is for EDITING purposes (storing EVERYTHING you're
- * working on) so it may include information not completely necessary."
+ * working on) so it may include information not completely neccessary."
  */
 
 #include "loader.h"
