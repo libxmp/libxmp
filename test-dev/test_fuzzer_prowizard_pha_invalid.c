@@ -34,6 +34,19 @@ TEST(test_fuzzer_prowizard_pha_invalid)
 	ret = xmp_load_module(opaque, "data/f/prowizard_pha_invalid_pattern_packing");
 	fail_unless(ret == -XMP_ERROR_LOAD, "module load (invalid_pattern_packing)");
 
+	/* These two inputs caused out-of-bounds reads/writes in the Pha depacker
+	 * due to overflowing the ocpt/onote iterator, which for some reason was
+	 * initialized off of input data instead of to 0. This combined with
+	 * truncated modulo would underflow the ocpt/onote arrays. Reproducing
+	 * the crashes with ASan requires leaving UBSan recovery enabled.
+	 * CVE-2025-47256 */
+	/* pdata[i] != 0xff, k overflows, out-of-bounds reads/writes */
+	ret = xmp_load_module(opaque, "data/f/prowizard_pha_invalid_ocpt");
+	fail_unless(ret == -XMP_ERROR_LOAD, "module load (invalid_ocpt)");
+	/* pdata[i] == 0xff, k+3 overflows, out-of-bounds write */
+	ret = xmp_load_module(opaque, "data/f/prowizard_pha_invalid_ocpt2");
+	fail_unless(ret == 0, "module load (invalid_ocpt2)");
+
 	xmp_free_context(opaque);
 }
 END_TEST

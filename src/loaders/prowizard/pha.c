@@ -1,7 +1,7 @@
 /* ProWizard
  * Copyright (C) 1996-1999 Asle / ReDoX
  * Modified in 2006,2007,2014 by Claudio Matsuoka
- * Modified in 2021 by Alice Rowan
+ * Modified in 2021, 2025 by Alice Rowan
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -149,7 +149,6 @@ restart:
 	/* try to take care of unused patterns ... HARRRRRRD */
 	memset(paddr1, 0, sizeof(paddr1));
 	j = 0;
-	k = paddr[0];
 	/* 120 ... leaves 8 unused ptk_tableible patterns .. */
 	for (i = 0; i < 120; i++) {
 		paddr1[j] = paddr2[i];
@@ -232,6 +231,7 @@ restart:
 		goto err;
 
 	j = 0;
+	k = 0;
 	for (i = 0; i < psize && j < size; i++) {
 		if (pdata[i] == 0xff) {
 			i += 1;
