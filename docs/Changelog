@@ -17,6 +17,7 @@ Stable versions
 	  interactions with xmp_stop_module/xmp_restart_module.
 	- Fix stack underflow in Pha Packer loader (CVE-2025-47256).
 	- Slight performance improvements for the Oktalyzer and SFX loaders.
+	- Fix broken conversion of ProRunner 2.0 pattern data.
 	Changes by Thomas Neumann:
 	- Fix the pattern loop effect in Astroidea XMF loader.
 	- Fix loading of Extreme Pinball modules.
