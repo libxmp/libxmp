@@ -12,6 +12,8 @@ Stable versions
 	- IFF format loading is now more permissive toward errors in the IFF
 	  tag structure, fixing some broken modules that would load for 64-bit
 	  Linux builds but not for Windows.
+	Changes by Alice Rowan and ds-sloth:
+	- Minor Impulse Tracker loader performance improvements.
 
 4.6.3 (20250511):
 	Changes by Alice Rowan:

@@ -1008,6 +1008,7 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 	uint8 mask[L_CHANNELS];
 	uint8 last_fxp[64];
 	uint8 *pos;
+	uint8 *end;
 
 	int r, c, pat_len, num_rows;
 	uint8 b;
@@ -1034,8 +1035,9 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 		return -1;
 	}
 	pos = patbuf;
+	end = patbuf + pat_len;
 
-	while (r < num_rows && --pat_len >= 0) {
+	while (r < num_rows && pos < end) {
 		b = *(pos++);
 		if (!b) {
 			r++;
@@ -1044,9 +1046,8 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 		c = (b - 1) & 63;
 
 		if (b & 0x80) {
-			if (pat_len < 1) break;
+			if (pos >= end) break;
 			mask[c] = *(pos++);
-			pat_len--;
 		}
 		/*
 		 * WARNING: we IGNORE events in disabled channels. Disabled
@@ -1060,8 +1061,11 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 			event = &EVENT(i, c, r);
 		}
 
+		if ((mask[c] & 0x0f) == 0) {
+			goto skip_packed_event;
+		}
 		if (mask[c] & 0x01) {
-			if (pat_len < 1) break;
+			if (pos >= end) break;
 			b = *(pos++);
 
 			/* From ittech.txt:
@@ -1085,23 +1089,20 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 				}
 			}
 			lastevent[c].note = event->note = b;
-			pat_len--;
 		}
 		if (mask[c] & 0x02) {
-			if (pat_len < 1) break;
+			if (pos >= end) break;
 			b = *(pos++);
 			lastevent[c].ins = event->ins = b;
-			pat_len--;
 		}
 		if (mask[c] & 0x04) {
-			if (pat_len < 1) break;
+			if (pos >= end) break;
 			b = *(pos++);
 			lastevent[c].vol = event->vol = b;
 			xlat_volfx(event);
-			pat_len--;
 		}
 		if (mask[c] & 0x08) {
-			if (pat_len < 2) break;
+			if (pos >= end - 1) break;
 			b = *(pos++);
 			if (b >= ARRAY_SIZE(fx)) {
 				D_(D_WARN "invalid effect %#02x", b);
@@ -1115,7 +1116,11 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 				lastevent[c].fxt = event->fxt;
 				lastevent[c].fxp = event->fxp;
 			}
-			pat_len -= 2;
+		}
+
+skip_packed_event:
+		if ((mask[c] & 0xf0) == 0) {
+			continue;
 		}
 		if (mask[c] & 0x10) {
 			event->note = lastevent[c].note;
