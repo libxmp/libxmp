@@ -21,6 +21,14 @@ Stable versions
 	- xmp_set_tempo_factor no longer alters frame time calculation for
 	  xmp_get_frame_info. Frame time is now updated to account for the
 	  new time factor after calling xmp_scan_module.
+	- Fix Poly Tracker pattern break hex parameter.
+	- Fix Digital Tracker 2.03 position jump effect for 4 channel DTMs.
+	- Fix pattern loop jump interactions with same row pattern jump/break:
+	  Scream Tracker 3.03b+; Impulse Tracker 1.00 to 1.06 IT;
+	  Impulse Tracker 2.00+ IT/S3M; Modplug Tracker 1.16 IT/XM/S3M;
+	  Imago Orpheus IMF/S3M; Liquid Tracker LIQ/S3M; Poly Tracker;
+	  Digital Tracker <=2.02 DTM/MOD; Digital Tracker 2.03 (partial);
+	  Digital Tracker 1.9 (partial); Octalyser.
 	Changes by Thomas Neumann:
 	- Fix the pattern loop effect in Astroidea XMF loader.
 	- Fix loading of Extreme Pinball modules.

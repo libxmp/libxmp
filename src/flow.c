@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -39,6 +39,7 @@ void libxmp_process_pattern_loop(struct context_data *ctx,
 	struct xmp_module *mod = &m->mod;
 	int *start = &f->loop[chn].start;
 	int *count = &f->loop[chn].count;
+	int looped = 0;
 	int i;
 
 	/* Digital Tracker: only the first E60 or E6x is handled per row. */
@@ -81,6 +82,7 @@ void libxmp_process_pattern_loop(struct context_data *ctx,
 		if (*count) {
 			if (--(*count)) {
 				f->loop_dest = *start;
+				looped = 1;
 			} else {
 				/* S3M and IT: loop termination advances the
 				 * loop target past SBx. */
@@ -106,6 +108,85 @@ void libxmp_process_pattern_loop(struct context_data *ctx,
 			*count = fxp;
 			f->loop_dest = *start;
 			f->loop_active_num++;
+			looped = 1;
 		}
 	}
+
+	/* Hacks for loop jumps altering prior position jumps/breaks. */
+	if (looped && f->pbreak != 0) {
+		/* Many implementations use the same variable for both the
+		 * jump/break destination row and the loop destination row. */
+		if (HAS_FLOW_MODE(FLOW_LOOP_SHARED_BREAK)) {
+			f->jumpline = f->loop_dest;
+		}
+		/* Various players e.g. ST3, IT will block prior breaks. */
+		if (HAS_FLOW_MODE(FLOW_LOOP_UNSET_BREAK) && f->jump < 0) {
+			f->pbreak = 0;
+		}
+		/* Various players e.g. ST3, IT will block prior jumps. */
+		if (HAS_FLOW_MODE(FLOW_LOOP_UNSET_JUMP) && f->jump >= 0) {
+			f->pbreak = 0;
+			f->jump = -1;
+		}
+	}
+}
+
+/* Process a pattern jump effect with the parameter fxp.
+ * This function will not actually perform the jump, but it will
+ * prepare the flow variables to perform a jump (unless prevented).
+ */
+void libxmp_process_pattern_jump(struct context_data *ctx,
+		struct flow_control *f, int fxp)
+{
+	struct module_data *m = &ctx->m;
+
+	/* Some formats and trackers e.g. S3M, Modplug Tracker 1.16 will
+	 * prevent jumps from being executed when a loop jump occurs. */
+	if (HAS_FLOW_MODE(FLOW_LOOP_DELAY_JUMP) && f->loop_dest >= 0) {
+		return;
+	}
+
+	f->pbreak = 1;
+	f->jump = fxp;
+	/* effect B resets effect D in lower channels */
+	f->jumpline = 0;
+}
+
+/* Process a pattern break effect with the parameter fxp.
+ * This function will not actually perform the jump, but it will
+ * prepare the flow variables to perform a jump (unless prevented).
+ */
+void libxmp_process_pattern_break(struct context_data *ctx,
+		struct flow_control *f, int fxp)
+{
+	struct module_data *m = &ctx->m;
+
+	/* Some formats and trackers e.g. S3M, IT 2.00+, Modplug Tracker 1.16
+	 * will prevent breaks from being executed when a loop jump occurs. */
+	if (HAS_FLOW_MODE(FLOW_LOOP_DELAY_BREAK) && f->loop_dest >= 0) {
+		return;
+	}
+
+	f->pbreak = 1;
+	f->jumpline = fxp;
+}
+
+/* Process a line jump within current position `ord` to row `fxp`.
+ * This function will not actually perform the jump, but it will
+ * prepare the flow variables to perform a jump (unless prevented).
+ */
+void libxmp_process_line_jump(struct context_data *ctx,
+		struct flow_control *f, int ord, int fxp)
+{
+#ifndef LIBXMP_CORE_PLAYER
+	/* In Digital Symphony, this can be combined with position jump
+	 * (like pattern break) and overrides the pattern break line in
+	 * lower channels. */
+	if (f->pbreak == 0) {
+		f->pbreak = 1;
+		f->jump = ord;
+	}
+	f->jumpline = fxp;
+	f->jump_in_pat = ord;
+#endif
 }

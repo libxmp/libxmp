@@ -949,7 +949,7 @@ skip_test:
 	break;
     case TRACKER_DIGITALTRACKER:
 	tracker = "Digital Tracker";
-	m->flow_mode = FLOW_MODE_DTM_203;
+	m->flow_mode = FLOW_MODE_DTM_2015;
 	break;
     case TRACKER_FLEXTRAX:
 	tracker = "Flextrax";

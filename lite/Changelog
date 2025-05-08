@@ -18,6 +18,8 @@ Stable versions
 	- xmp_set_tempo_factor no longer alters frame time calculation for
 	  xmp_get_frame_info. Frame time is now updated to account for the
 	  new time factor after calling xmp_scan_module.
+	- Fix pattern loop jump interactions with same row pattern jump/break
+	  for Scream Tracker 3.03b+ S3Ms and Impulse Tracker ITs.
 
 4.6.2 (20250224):
 	
