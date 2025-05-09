@@ -37,6 +37,8 @@ endif()
 
 if(MSVC)
     list(APPEND LIBXMP_DEFINES _USE_MATH_DEFINES)
+else()
+    list(APPEND LIBXMP_DEFINES _REENTRANT)
 endif()
 
 
