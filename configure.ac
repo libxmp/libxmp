@@ -280,6 +280,10 @@ amigaos*|aros*|morphos*)
   ;;
 esac
 
+# FIXME: Make out-of-tree builds work.
+CPPFLAGS="$CPPFLAGS -Iinclude"
+CPPFLAGS="$CPPFLAGS -D_REENTRANT"
+
 AC_SUBST([libxmp_VERSION_MAJOR],libxmp_VERSION_MAJOR_m4)
 AC_SUBST([libxmp_VERSION_MINOR],libxmp_VERSION_MINOR_m4)
 AC_SUBST([libxmp_VERSION_PATCH],libxmp_VERSION_PATCH_m4)
