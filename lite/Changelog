@@ -15,6 +15,9 @@ Stable versions
 	  positions getting assigned a non-existent sequence.
 	- Document xmp_set_position/xmp_next_position/xmp_prev_position
 	  interactions with xmp_stop_module/xmp_restart_module.
+	- xmp_set_tempo_factor no longer alters frame time calculation for
+	  xmp_get_frame_info. Frame time is now updated to account for the
+	  new time factor after calling xmp_scan_module.
 
 4.6.2 (20250224):
 	

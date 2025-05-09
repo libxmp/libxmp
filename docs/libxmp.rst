@@ -530,7 +530,8 @@ void xmp_scan_module(xmp_context c)
   Scan the loaded module for sequences and timing. Scanning is automatically
   performed by `xmp_load_module()`_ and this function should be called only
   if `xmp_set_player()`_ is used to change player timing (with parameter
-  ``XMP_PLAYER_VBLANK``) in libxmp 4.0.2 or older.
+  ``XMP_PLAYER_VBLANK``) in libxmp 4.0.2 or older, or if
+  `xmp_set_tempo_factor`_ is used to change the base tempo factor.
 
   **Parameters:**
     :c: the player context handle.
@@ -710,6 +711,9 @@ void xmp_get_frame_info(xmp_context c, struct xmp_frame_info \*info)
       `xmp_play_frame()`_ is called. Fields ``buffer`` and ``buffer_size``
       contain the pointer to the sound buffer PCM data and its size. The
       buffer size will be no larger than ``XMP_MAX_FRAMESIZE``.
+      Fields ``time``, ``total_time``, and ``frame_time`` are based on the
+      base tempo factor set when the module was last scanned (see
+      `xmp_set_tempo_factor`_ and `xmp_scan_module`_).
 
 .. _xmp_end_player():
 
@@ -802,7 +806,16 @@ int xmp_set_row(xmp_context c, int row)
 int xmp_set_tempo_factor(xmp_context c, double val)
 ```````````````````````````````````````````````````
 
-  *[Added in libxmp 4.5]* Modify the replay tempo multiplier.
+  *[Added in libxmp 4.5]* Modify the current base tempo multiplier.
+  This value is a property of the currently loaded module, not of
+  the player: the default value of the tempo factor is ``1.0``
+  for most modules, ``0.264`` for MED/OctaMED tempo mode modules,
+  ``4.0 / rows_per_beat`` for MED/OctaMED BPM mode modules, and
+  roughly ``0.401373`` for Farandole Composer modules.
+
+  This function does not recalculate the playback times returned by
+  `xmp_get_frame_info`_. To recalculate these times, call
+  `xmp_scan_module`_ after setting the tempo factor.
 
   **Parameters:**
     :c: the player context handle.

@@ -18,6 +18,9 @@ Stable versions
 	- Fix stack underflow in Pha Packer loader (CVE-2025-47256).
 	- Slight performance improvements for the Oktalyzer and SFX loaders.
 	- Fix broken conversion of ProRunner 2.0 pattern data.
+	- xmp_set_tempo_factor no longer alters frame time calculation for
+	  xmp_get_frame_info. Frame time is now updated to account for the
+	  new time factor after calling xmp_scan_module.
 	Changes by Thomas Neumann:
 	- Fix the pattern loop effect in Astroidea XMF loader.
 	- Fix loading of Extreme Pinball modules.
