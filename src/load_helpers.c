@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -414,6 +414,7 @@ void libxmp_load_epilogue(struct context_data *ctx)
 	p->filter = 0;
 	p->mode = XMP_MODE_AUTO;
 	p->flags = p->player_flags;
+	p->scan_time_factor = m->time_factor;
 #ifndef LIBXMP_CORE_PLAYER
 	module_quirks(ctx);
 #endif

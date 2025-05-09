@@ -571,8 +571,8 @@ struct player_data {
 	int player_flags;
 	int flags;
 
-	double current_time;
-	double frame_time;
+	double scan_time_factor;	/* m->time_factor for most recent scan */
+	double current_time;		/* current time based on scan time factor */
 
 	int loop_count;
 	int sequence;

@@ -9,7 +9,8 @@ TEST(test_api_set_tempo_factor)
 	struct context_data *ctx;
 	struct player_data *p;
 	struct module_data *m;
-	int state, ret;
+	struct xmp_frame_info info, prev;
+	int state, ret, i;
 	double factor;
 
 	opaque = xmp_create_context();
@@ -24,10 +25,6 @@ TEST(test_api_set_tempo_factor)
 	libxmp_free_scan(ctx);
 	set_order(ctx, 0, 0);
 
-	new_event(ctx, 0, 0, 0, 0, 0, 0, FX_S3M_BPM, 0x21, FX_SPEED, 1);
-	new_event(ctx, 0, 1, 0, 0, 0, 0, FX_S3M_BPM, 0xff, FX_BREAK, 0);
-	m->mod.bpm = 255; /* Initial BPM */
-
 	libxmp_prepare_scan(ctx);
 	libxmp_scan_sequences(ctx);
 
@@ -37,6 +34,39 @@ TEST(test_api_set_tempo_factor)
 
 	xmp_start_player(opaque, 44100, 0);
 	fail_unless(p->ord == 0, "didn't start at pattern 0");
+
+	ret = xmp_set_tempo_factor(opaque, 1.0);
+	fail_unless(ret == 0, "should set to 1.0");
+
+	/* Test xmp_set_tempo_factor's interactions with the current
+	 * playback time. Play a few frames so the time is non-zero. */
+	for (i = 0; i < 3; i++) {
+		xmp_play_frame(opaque);
+	}
+	xmp_get_frame_info(opaque, &prev);
+	ret = xmp_set_tempo_factor(opaque, 2.0);
+	fail_unless(ret == 0, "should set to 2.0");
+	xmp_get_frame_info(opaque, &info);
+	fail_unless(info.time == prev.time, "time should be the same prior to rescan");
+	fail_unless(info.total_time == prev.total_time, "total time should be same prior to rescan");
+	fail_unless(info.frame_time == prev.frame_time, "frame time should be same prior to rescan");
+	xmp_play_frame(opaque);
+	xmp_get_frame_info(opaque, &info);
+	fail_unless(info.total_time == prev.total_time, "total time should be same prior to rescan (2)");
+	fail_unless(info.frame_time == prev.frame_time, "frame time should be same prior to rescan (2)");
+	prev = info;
+	xmp_scan_module(opaque);
+	xmp_get_frame_info(opaque, &info);
+	fail_unless(info.time / 2 == prev.time, "time should be double after rescan");
+	fail_unless(info.total_time / 2 == prev.total_time, "total time should be double after rescan");
+	fail_unless(info.frame_time / 2== prev.frame_time, "frame time should be double after rescan");
+	ret = xmp_set_tempo_factor(opaque, 0.5);
+	fail_unless(ret == 0, "should set to 0.5");
+	xmp_scan_module(opaque);
+	xmp_get_frame_info(opaque, &info);
+	fail_unless(info.time == prev.time / 2, "time should be half after rescan");
+	fail_unless(info.total_time == prev.total_time / 2, "total time should be half after rescan");
+	fail_unless(info.frame_time == prev.frame_time / 2, "frame time should be half after rescan");
 
 	ret = xmp_set_tempo_factor(opaque, 0.0);
 	fail_unless(ret == -1, "didn't fail to set tempo factor to 0.0");
@@ -56,6 +86,15 @@ TEST(test_api_set_tempo_factor)
 	ret = xmp_set_tempo_factor(opaque, -NAN);
 	fail_unless(ret == -1, "didn't fail to set tempo factor to -NaN");
 #endif
+
+	/* Set oscillating BPMs to guarantee correct function at extremes. */
+	libxmp_free_scan(ctx);
+	new_event(ctx, 0, 0, 0, 0, 0, 0, FX_S3M_BPM, 0x21, FX_SPEED, 1);
+	new_event(ctx, 0, 1, 0, 0, 0, 0, FX_S3M_BPM, 0xff, FX_BREAK, 0);
+	m->mod.bpm = 255; /* Initial BPM */
+	libxmp_prepare_scan(ctx);
+	libxmp_scan_sequences(ctx);
+	xmp_restart_module(opaque);
 
 	/* It should always work with reasonable tempo factors. */
 	for (factor = 0.1; factor <= 2.0; factor += 0.1) {

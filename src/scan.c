@@ -783,6 +783,10 @@ int libxmp_scan_sequences(struct context_data *ctx)
 	}
 	m->num_sequences = seq;
 
+	/* Correct playback time calculation to match new base tempo factor. */
+	p->current_time = p->current_time * (m->time_factor / p->scan_time_factor);
+	p->scan_time_factor = m->time_factor;
+
 	/* Now place entry points in the public accessible array */
 	for (i = 0; i < m->num_sequences; i++) {
 		m->seq_data[i].entry_point = temp_ep[i];

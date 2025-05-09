@@ -520,7 +520,6 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 		if (fxp < min_bpm)
 			fxp = min_bpm;
 		p->bpm = fxp;
-		p->frame_time = m->time_factor * m->rrate / p->bpm;
 		break;
 	}
 
@@ -539,7 +538,6 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 				fxp = XMP_MIN_BPM;
 			p->bpm = fxp;
 		}
-		p->frame_time = m->time_factor * m->rrate / p->bpm;
 		break;
 	case FX_IT_ROWDELAY:
 		if (!f->rowdelay_set) {

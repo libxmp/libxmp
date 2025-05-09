@@ -1847,6 +1847,18 @@ void libxmp_player_set_fadeout(struct context_data *ctx, int chn)
 
 #endif
 
+/* Get frame time for calculation of the current playback time
+ * based on the most recent scan. This value should be used for
+ * playback time calculation ONLY. */
+static double libxmp_get_frame_time(struct context_data *ctx)
+{
+	struct player_data *p = &ctx->p;
+	struct module_data *m = &ctx->m;
+	if (p->bpm == 0)
+		return 0.0;
+	return p->scan_time_factor * m->rrate / p->bpm;
+}
+
 static void update_from_ord_info(struct context_data *ctx)
 {
 	struct player_data *p = &ctx->p;
@@ -1858,7 +1870,6 @@ static void update_from_ord_info(struct context_data *ctx)
 	p->bpm = oinfo->bpm;
 	p->gvol = oinfo->gvl;
 	p->current_time = oinfo->time;
-	p->frame_time = m->time_factor * m->rrate / p->bpm;
 
 #ifndef LIBXMP_CORE_PLAYER
 	p->st26_speed = oinfo->st26_speed;
@@ -2127,8 +2138,7 @@ int xmp_play_frame(xmp_context opaque)
 
 	f->rowdelay_set &= ~ROWDELAY_FIRST_FRAME;
 
-	p->frame_time = m->time_factor * m->rrate / p->bpm;
-	p->current_time += p->frame_time;
+	p->current_time += libxmp_get_frame_time(ctx);
 
 	libxmp_mixer_softmixer(ctx);
 
@@ -2276,7 +2286,7 @@ void xmp_get_frame_info(xmp_context opaque, struct xmp_frame_info *info)
 	info->speed = p->speed;
 	info->bpm = p->bpm;
 	info->total_time = p->scan[p->sequence].time;
-	info->frame_time = p->frame_time * 1000;
+	info->frame_time = (int)(libxmp_get_frame_time(ctx) * 1000.0);
 	info->time = p->current_time;
 	info->buffer = s->buffer;
 
