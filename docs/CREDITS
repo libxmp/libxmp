@@ -65,6 +65,9 @@ The Authors
   * numerous format loader fixes, improvements, and tests
   * stability fixes
 
+- Thomas Neumann <thomas@polycode.dk>
+  * multiple format loader fixes.
+
 - Francis Russell <francis@unchartedbackwaters.co.uk>
   * OctaMED tempo fixes
 

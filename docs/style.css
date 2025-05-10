@@ -34,7 +34,6 @@ h2 {
 	font-size:115%;
 }
 
-
 h3 {
 	font-size:105%;
 }
@@ -75,7 +74,6 @@ ul {
 	list-style-type: square;
 	color: #404040;
 }
-
 /*
 table {
 	margin-left: 2.5em;
@@ -95,7 +93,6 @@ thead {
 	background: #c0d0ff;
 }
 */
-
 .literal-block {
 	background-color: #e0e0e0;
 }
