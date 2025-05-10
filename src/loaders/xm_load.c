@@ -112,10 +112,21 @@ static int load_xm_pattern(struct module_data *m, int num, int version,
 
 	for (j = 0; j < r; j++) {
 		for (k = 0; k < mod->chn; k++) {
-			/*
-			if ((pat - patbuf) >= xph.datasize)
-				break;
-			*/
+			/* Some XMs have cleanly truncated patterns. See:
+			 * Balrog/f0rtify.xm; Decayer-9/purification.xm;
+			 * Falcon (PL)/eaten vinyl.xm; Headcrasher/microcosm.xm;
+			 * Jazztiz/ta-da-da-da.xm; Jisemdu/smile.xm;
+			 * Markus Plomgren/cool jazzy jeff!!!.xm;
+			 * Orange/optical.xm; Skyraver/spirit of life.xm;
+			 * Sonic (UK)'s atomic_subculture.xm, luvdup.xm,
+			 * phuture.xm; Teemu/speed.xm; Warhawk/anaconda.xm.
+			 */
+			if ((pat - patbuf) == (ptrdiff_t)xph.datasize) {
+				D_(D_WARN "early pattern %d end (row:%d/%d, ch:%d/%d)",
+				   num, j, r, k, mod->chn
+				);
+				goto early_pattern_end;
+			}
 
 			event = &EVENT(num, k, j);
 
@@ -307,7 +318,7 @@ static int load_xm_pattern(struct module_data *m, int num, int version,
 			event->vol = 0;
 		}
 	}
-
+early_pattern_end:
 	return 0;
 
 err:

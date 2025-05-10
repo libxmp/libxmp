@@ -304,7 +304,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  m15 m15_invalid m15_invalid2 m15_invalid3 m15_invalid4 \
 		  m15_invalid5 m15_invalid6 m15_orderquirk m15_short_rip \
 		  s3m s3m_adpcm s3m_schism s3m_stereo \
-		  xm102 xm_adpcm xm_xmlite xm_short xm_instsamples \
+		  xm102 xm_adpcm xm_xmlite xm_short xm_instsamples xm_pattrunc \
 		  xm_stereo xm_stereo_vorbis\
 		  it it_adpcm it_oldins it_schism it_invalid_fx it_stereo \
 		  669 \

@@ -21,6 +21,8 @@ Stable versions
 	- xmp_set_tempo_factor no longer alters frame time calculation for
 	  xmp_get_frame_info. Frame time is now updated to account for the
 	  new time factor after calling xmp_scan_module.
+	- Fix loading XMs with some types of harmless pattern truncation.
+	  See: Jazztiz/ta-da-da-da.xm, Sonic (UK)/phuture.xm, et al.
 	- Fix Poly Tracker pattern break hex parameter.
 	- Fix Digital Tracker 2.03 position jump effect for 4 channel DTMs.
 	- Fix pattern loop jump interactions with same row pattern jump/break:
