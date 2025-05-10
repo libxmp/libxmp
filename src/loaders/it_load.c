@@ -1002,7 +1002,7 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 			   uint8 *patbuf, HIO_HANDLE *f)
 {
 	struct xmp_module *mod = &m->mod;
-	struct xmp_event *event, dummy, lastevent[L_CHANNELS];
+	struct xmp_event *event, dummy, lastevent[L_CHANNELS], *event_base[L_CHANNELS];
 	uint8 mask[L_CHANNELS];
 	uint8 last_fxp[64];
 	uint8 *pos;
@@ -1021,6 +1021,11 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 
 	if (libxmp_alloc_tracks_in_pattern(mod, i) < 0) {
 		return -1;
+	}
+
+	/* fill event bases for this pattern */
+	for (c = 0; c < L_CHANNELS && c < m->mod.chn; c++) {
+		event_base[c] = m->mod.xxt[TRACK_NUM((i),(c))]->event;
 	}
 
 	memset(mask, 0, L_CHANNELS);
@@ -1055,7 +1060,11 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 		if (c >= mod->chn) {
 			event = &dummy;
 		} else {
-			event = &EVENT(i, c, r);
+			event = &(event_base[c][r]);
+		}
+
+		if ((mask[c] & 0x0f) == 0) {
+			goto second_nybble;
 		}
 
 		if (mask[c] & 0x01) {
@@ -1069,17 +1078,17 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 			 *                     but not available in the editor)
 			 */
 			switch (b) {
-			case 0xff:	/* key off */
-				b = XMP_KEY_OFF;
-				break;
-			case 0xfe:	/* cut */
-				b = XMP_KEY_CUT;
-				break;
-			default:
-				if (b > 119) {	/* fade */
-					b = XMP_KEY_FADE;
-				} else {
-					b++;	/* note */
+				case 0xff:	/* key off */
+					b = XMP_KEY_OFF;
+					break;
+				case 0xfe:	/* cut */
+					b = XMP_KEY_CUT;
+					break;
+				default:
+					if (b > 119) {	/* fade */
+						b = XMP_KEY_FADE;
+					} else {
+						b++;	/* note */
 				}
 			}
 			lastevent[c].note = event->note = b;
@@ -1114,6 +1123,11 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 				lastevent[c].fxp = event->fxp;
 			}
 			pat_len -= 2;
+		}
+
+second_nybble:
+		if ((mask[c] & 0xf0) == 0) {
+			continue;
 		}
 		if (mask[c] & 0x10) {
 			event->note = lastevent[c].note;
@@ -1400,6 +1414,9 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		}
 		pos = patbuf;
 
+		/* How do bits of mask[c] advance the file pointer? Bits 1, 2, and 4 advance 1 byte; bit 8 advances 2. */
+		static const uint8 adv[16] = {0, 1, 1, 2, 1, 2, 2, 3, 2, 3, 3, 4, 3, 4, 4, 5};
+
 		row = 0;
 		while (row < num_rows && --pat_len >= 0) {
 			int b = *(pos++);
@@ -1419,22 +1436,8 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 				pat_len--;
 			}
 
-			if (mask[c] & 0x01) {
-				pos++;
-				pat_len--;
-			}
-			if (mask[c] & 0x02) {
-				pos++;
-				pat_len--;
-			}
-			if (mask[c] & 0x04) {
-				pos++;
-				pat_len--;
-			}
-			if (mask[c] & 0x08) {
-				pos += 2;
-				pat_len -= 2;
-			}
+			pos += adv[mask[c] & 0x0f];
+			pat_len -= adv[mask[c] & 0x0f];
 		}
 	}
 
