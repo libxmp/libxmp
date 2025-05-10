@@ -531,7 +531,7 @@ void xmp_scan_module(xmp_context c)
   performed by `xmp_load_module()`_ and this function should be called only
   if `xmp_set_player()`_ is used to change player timing (with parameter
   ``XMP_PLAYER_VBLANK``) in libxmp 4.0.2 or older, or if
-  `xmp_set_tempo_factor`_ is used to change the base tempo factor.
+  `xmp_set_tempo_factor()`_ is used to change the base tempo factor.
 
   **Parameters:**
     :c: the player context handle.
@@ -713,7 +713,7 @@ void xmp_get_frame_info(xmp_context c, struct xmp_frame_info \*info)
       buffer size will be no larger than ``XMP_MAX_FRAMESIZE``.
       Fields ``time``, ``total_time``, and ``frame_time`` are based on the
       base tempo factor set when the module was last scanned (see
-      `xmp_set_tempo_factor`_ and `xmp_scan_module`_).
+      `xmp_set_tempo_factor()`_ and `xmp_scan_module()`_).
 
 .. _xmp_end_player():
 
@@ -814,8 +814,8 @@ int xmp_set_tempo_factor(xmp_context c, double val)
   roughly ``0.401373`` for Farandole Composer modules.
 
   This function does not recalculate the playback times returned by
-  `xmp_get_frame_info`_. To recalculate these times, call
-  `xmp_scan_module`_ after setting the tempo factor.
+  `xmp_get_frame_info()`_. To recalculate these times, call
+  `xmp_scan_module()`_ after setting the tempo factor.
 
   **Parameters:**
     :c: the player context handle.
