@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -118,6 +118,7 @@ struct local_data {
 	int realpat;
 	int last_pat;
 	int insnum;
+	int chn;
 
 	uint8 *patbuf;
 	size_t patbuf_alloc;
@@ -194,9 +195,12 @@ static void dtm_translate_effect(struct xmp_event *event,
 		break;
 
 	case 0xb:			/* position jump */
-		if (data->version_derived == DTM_V203) {
-			/* DT 2.03 and 2.04: break position is row 32 unless
-		 	 * followed by Dxx. Effect works in <=2.02. */
+		if (data->version_derived <= DTM_V203 && data->chn > 4) {
+			/* DT 2.04 and under: in 6 and 8 channel modules,
+			 * the break position is somewhere in the middle of
+			 * a pattern unless followed by a Dxx. This can also
+			 * do things like jump to position "255".
+			 * FIXME: try to more closely approximate this? */
 			event->f2t = FX_BREAK;
 			event->f2p = 0x32;
 
@@ -486,7 +490,7 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	}
 	data->patt_flag = 1;
 
-	mod->chn = hio_read16b(f);
+	data->chn = mod->chn = hio_read16b(f);
 	data->realpat = hio_read16b(f);
 	if (hio_read(ver, 1, 4, f) < 4) {
 		return -1;
@@ -517,7 +521,11 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 		data->version_derived = data->version << 8;
 		m->flow_mode = FLOW_MODE_DTM_19;
 	} else {
-		m->flow_mode = FLOW_MODE_DTM_203;
+		/* 6/8 channel mode's position jump bugs also affect its
+		 * interactions with pattern loop. (Very weakly) attempt
+		 * to support the bugs. */
+		m->flow_mode = data->version_derived <= DTM_V204 && mod->chn > 4 ?
+				FLOW_MODE_DTM_2015_6CH : FLOW_MODE_DTM_2015;
 	}
 
 	/* Sanity check */

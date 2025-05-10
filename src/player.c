@@ -1797,6 +1797,7 @@ static void next_row(struct context_data *ctx)
 
 	if (f->pbreak) {
 		f->pbreak = 0;
+		f->loop_dest = -1;
 
 		if (f->jump != -1) {
 			p->ord = f->jump - 1;

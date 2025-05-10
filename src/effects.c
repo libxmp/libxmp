@@ -364,10 +364,7 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 		}
 		break;
 	case FX_JUMP:		/* Order jump */
-		p->flow.pbreak = 1;
-		p->flow.jump = fxp;
-		/* effect B resets effect D in lower channels */
-		p->flow.jumpline = 0;
+		libxmp_process_pattern_jump(ctx, f, fxp);
 		break;
 	case FX_VOLSET:		/* Volume set */
 		SET(NEW_VOL);
@@ -377,8 +374,7 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 		}
 		break;
 	case FX_BREAK:		/* Pattern break */
-		p->flow.pbreak = 1;
-		p->flow.jumpline = 10 * MSN(fxp) + LSN(fxp);
+		libxmp_process_pattern_break(ctx, f, 10 * MSN(fxp) + LSN(fxp));
 		break;
 	case FX_EXTENDED:	/* Extended effect */
 		EFFECT_MEMORY_S3M(fxp);
@@ -572,12 +568,7 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 		xc->vol.fslide2 = -fxp;
 		break;
 	case FX_IT_BREAK:	/* Pattern break with hex parameter */
-		/* IT break is not applied if a lower channel looped (2.00+).
-		 * (Labyrinth of Zeux ZX_11.it "Raceway"). */
-		if (f->loop_dest < 0) {
-			p->flow.pbreak = 1;
-			p->flow.jumpline = fxp;
-		}
+		libxmp_process_pattern_break(ctx, f, fxp);
 		break;
 
 #endif
@@ -1121,15 +1112,7 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 	/* Archimedes (!Tracker, Digital Symphony, et al.) effects */
 
 	case FX_LINE_JUMP:	/* !Tracker and Digital Symphony "Line Jump" */
-		/* Jump to a line within the current order. In Digital Symphony
-		 * this can be combined with position jump (like pattern break)
-		 * and overrides the pattern break line in lower channels. */
-		if (p->flow.pbreak == 0) {
-			p->flow.pbreak = 1;
-			p->flow.jump = p->ord;
-		}
-		p->flow.jumpline = fxp;
-		p->flow.jump_in_pat = p->ord;
+		libxmp_process_line_jump(ctx, f, p->ord, fxp);
 		break;
 	case FX_RETRIG:		/* Retrigger with extended range */
 		goto fx_retrig;

@@ -531,37 +531,52 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
 			frame_count += (p1 & 0x0f) * speed;
 		}
 
-		/* IT break is not applied if a lower channel looped (2.00+).
-		 * (Labyrinth of Zeux ZX_11.it "Raceway"). */
-		if (f1 == FX_IT_BREAK && f.loop_dest < 0) {
-		    break_row = p1;
-		    last_row = 0;
+		if (f1 == FX_IT_BREAK || f2 == FX_IT_BREAK) {
+		    parm = (f1 == FX_IT_BREAK) ? p1 : p2;
+		    libxmp_process_pattern_break(ctx, &f, parm);
+		    /* TODO: fully replace these variables with f */
+		    if (f.pbreak) {
+			break_row = f.jumpline;
+			last_row = 0;
+		    }
 		}
 #endif
 
 		if (f1 == FX_JUMP || f2 == FX_JUMP) {
-		    ord2 = (f1 == FX_JUMP) ? p1 : p2;
-		    break_row = 0;
-		    last_row = 0;
+		    libxmp_process_pattern_jump(ctx, &f, (f1 == FX_JUMP ? p1 : p2));
+		    /* TODO: fully replace these variables with f */
+		    if (f.pbreak) {
+			ord2 = f.jump;
+			break_row = f.jumpline;
+			last_row = 0;
 
-		    /* prevent infinite loop, see OpenMPT PatLoop-Various.xm */
-		    inside_loop = 0;
+			/* prevent infinite loop, see OpenMPT PatLoop-Various.xm */
+			inside_loop = 0;
+		    }
+
 		}
 
 		if (f1 == FX_BREAK || f2 == FX_BREAK) {
 		    parm = (f1 == FX_BREAK) ? p1 : p2;
-		    break_row = 10 * MSN(parm) + LSN(parm);
-		    last_row = 0;
+		    parm = 10 * MSN(parm) + LSN(parm);
+		    libxmp_process_pattern_break(ctx, &f, parm);
+		    /* TODO: fully replace these variables with f */
+		    if (f.pbreak) {
+			break_row = f.jumpline;
+			last_row = 0;
+		    }
 		}
 
 #ifndef LIBXMP_CORE_PLAYER
 		/* Archimedes line jump */
 		if (f1 == FX_LINE_JUMP || f2 == FX_LINE_JUMP) {
+		    libxmp_process_line_jump(ctx, &f, ord,
+					     (f1 == FX_LINE_JUMP ? p1 : p2));
 		    /* Don't set order if preceded by jump or break. */
+		    /* TODO: fully replace these variables with f */
 		    if (last_row > 0)
 			ord2 = ord;
-		    parm = (f1 == FX_LINE_JUMP) ? p1 : p2;
-		    break_row = parm;
+		    break_row = f.jumpline;
 		    last_row = 0;
 		    line_jump = 1;
 		}

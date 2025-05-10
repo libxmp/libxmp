@@ -393,8 +393,10 @@ static void identify_tracker(struct module_data *m, struct it_file_header *ifh,
 
 			if (ifh->cwt < 0x104) {
 				m->flow_mode = FLOW_MODE_IT_100;
-			} else if (ifh->cwt < 0x210) {
+			} else if (ifh->cwt < 0x200) {
 				m->flow_mode = FLOW_MODE_IT_104;
+			} else if (ifh->cwt < 0x210) {
+				m->flow_mode = FLOW_MODE_IT_200;
 			}
 		}
 		break;
