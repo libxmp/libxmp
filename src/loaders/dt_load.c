@@ -582,7 +582,7 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 		}
 		mod->xxs[i].len = len;
 		mod->xxi[i].nsm = (mod->xxs[i].len > 0);
-		fine = buf[8];		/* finetune */
+		fine = (int8)(buf[8] << 4);		/* finetune */
 		mod->xxi[i].sub[0].vol = buf[9];
 		mod->xxi[i].sub[0].pan = 0x80;
 		repstart = readmem32b(buf + 10);

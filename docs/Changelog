@@ -24,6 +24,7 @@ Stable versions
 	- Fix loading XMs with some types of harmless pattern truncation.
 	  See: Jazztiz/ta-da-da-da.xm, Sonic (UK)/phuture.xm, et al.
 	- Fix Poly Tracker pattern break hex parameter.
+	- Fix Digital Tracker broken instrument finetune.
 	- Fix Digital Tracker 2.03 position jump effect for 4 channel DTMs.
 	- Fix pattern loop jump interactions with same row pattern jump/break:
 	  Scream Tracker 3.03b+; Impulse Tracker 1.00 to 1.06 IT;
