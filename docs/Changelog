@@ -1,7 +1,7 @@
 Stable versions
 ---------------
 
-4.6.3 (?):
+4.6.3 (20250511):
 	Changes by Alice Rowan:
 	- Fix crashes when xmp_set_position is used to set a negative position.
 	  Negative positions now correctly return -XMP_ERROR_INVALID.
