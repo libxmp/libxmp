@@ -13,6 +13,7 @@ MOD		Fast/Taketracker	xCHN, xxCH, TDZx
 MOD		His Master's Noise	-
 FLX		Flextrax		M.K., xCHN (no dsp effects)
 WOW		Mod's Grave		M.K.
+DMF		Software Visions	.M.K
 
 Amiga packed formats:
 
