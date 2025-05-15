@@ -297,7 +297,7 @@ PLAYER		= read_event scan loop period_amiga period_mod_range pan \
 		  it_noteoff_nosuck mdl_period mtm_tempo sample_sync
 
 LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
-		  mod_invalid mod_tdz3 mod_dt \
+		  mod_invalid mod_tdz3 mod_dt mod_svdmf \
 		  nst \
 		  ust \
 		  wow wow_extra \

@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -32,6 +32,7 @@
  * - Atari Octalyser CD61 and CD81
  * - Digital Tracker FA04, FA06 and FA08
  * - TakeTracker TDZ1, TDZ2, TDZ3, and TDZ4
+ * - Software Visions DMF (ModEdit M.K. with first 2108 bytes flipped)
  * - (unknown) NSMS, LARD
  *
  * The 'lite' version only recognizes Protracker M.K. and
@@ -62,6 +63,7 @@ struct mod_magic {
 #define TRACKER_MODSGRAVE	9
 #define TRACKER_SCREAMTRACKER3	10
 #define TRACKER_OPENMPT		11
+#define TRACKER_SOFTWAREVISIONS	12
 #define TRACKER_UNKNOWN_CONV	95
 #define TRACKER_CONVERTEDST	96
 #define TRACKER_CONVERTED	97
@@ -86,6 +88,7 @@ const struct mod_magic mod_magic[] = {
 	{"FA04", 1, TRACKER_DIGITALTRACKER, 4},	/* Atari Falcon */
 	{"FA06", 1, TRACKER_DIGITALTRACKER, 6},	/* Atari Falcon */
 	{"FA08", 1, TRACKER_DIGITALTRACKER, 8},	/* Atari Falcon */
+	{".M.K", 1, TRACKER_SOFTWAREVISIONS, 4},/* Software Visions DMF */
 	{"LARD", 1, TRACKER_UNKNOWN, 4},	/* in judgement_day_gvine.mod */
 	{"NSMS", 1, TRACKER_UNKNOWN, 4},	/* in Kingdom.mod */
 };
@@ -118,6 +121,17 @@ const struct format_loader libxmp_loader_mod = {
 };
 
 #ifndef LIBXMP_CORE_PLAYER
+static void flip_word_bytes(uint8 *buf, size_t bytes)
+{
+	size_t i;
+	uint8 t;
+	for (i = 0; i < bytes; i += 2) {
+		t = buf[i];
+		buf[i] = buf[i + 1];
+		buf[i + 1] = t;
+	}
+}
+
 static int validate_pattern(uint8 *buf)
 {
 	int i, j;
@@ -140,13 +154,14 @@ static int mod_test(HIO_HANDLE * f, char *t, const int start)
 {
 	int i;
 	char buf[4];
-	#ifndef LIBXMP_CORE_PLAYER
+#ifndef LIBXMP_CORE_PLAYER
 	uint8 pat_buf[1024];
 	int smp_size, num_pat;
 	long size;
 	int count;
 	int detected;
-	#endif
+	int id;
+#endif
 
 	hio_seek(f, start + 1080, SEEK_SET);
 	if (hio_read(buf, 1, 4, f) < 4) {
@@ -180,6 +195,8 @@ static int mod_test(HIO_HANDLE * f, char *t, const int start)
 	}
 
 	detected = mod_magic[i].flag;
+	id = mod_magic[i].id;
+	smp_size = 0;
 
 	/*
 	 * Sanity check to prevent loading NoiseRunner and other module
@@ -190,19 +207,22 @@ static int mod_test(HIO_HANDLE * f, char *t, const int start)
 	for (i = 0; i < 31; i++) {
 		uint8 x;
 
-		hio_seek(f, 22, SEEK_CUR);	/* Instrument name */
+		hio_read(pat_buf, 1, 30, f);
+		if (id == TRACKER_SOFTWAREVISIONS) {
+			flip_word_bytes(pat_buf + 22, 8);
+		}
 
-		/* OpenMPT can create mods with large samples */
-		hio_read16b(f);	/* sample size */
+		/* hio_seek(f, 22, SEEK_CUR);	 Instrument name */
+		smp_size += readmem16b(pat_buf + 22) << 1; /* sample size */
 
 		/* Chris Spiegel tells me that sandman.mod has 0x20 in finetune */
-		x = hio_read8(f);
+		x = pat_buf[24];
 		if (x & 0xf0 && x != 0x20)	/* test finetune */
 			return -1;
-		if (hio_read8(f) > 0x40)	/* test volume */
+		if (pat_buf[25] > 0x40)		/* test volume */
 			return -1;
-		hio_read16b(f);	/* loop start */
-		hio_read16b(f);	/* loop size */
+		/* hio_read16b(f);		 loop start */
+		/* hio_read16b(f);		 loop size */
 	}
 
 	/* The following checks are only relevant for filtering out atypical
@@ -221,15 +241,6 @@ static int mod_test(HIO_HANDLE * f, char *t, const int start)
 
 	/* get file size */
 	size = hio_size(f);
-	smp_size = 0;
-	hio_seek(f, start + 20, SEEK_SET);
-
-	/* get samples size */
-	for (i = 0; i < 31; i++) {
-		hio_seek(f, 22, SEEK_CUR);
-		smp_size += 2 * hio_read16b(f);	/* Length in 16-bit words */
-		hio_seek(f, 6, SEEK_CUR);
-	}
 
 	/* get number of patterns */
 	num_pat = 0;
@@ -485,48 +496,25 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
     mod->ins = 31;
     mod->smp = mod->ins;
     mod->chn = 0;
-    #ifndef LIBXMP_CORE_PLAYER
+#ifndef LIBXMP_CORE_PLAYER
     smp_size = 0;
-    #else
+#else
     m->quirk |= QUIRK_PROTRACK;
-    #endif
+#endif
     m->period_type = PERIOD_MODRNG;
 
-    hio_read(mh.name, 20, 1, f);
-    for (i = 0; i < 31; i++) {
-	hio_read(mh.ins[i].name, 22, 1, f);	/* Instrument name */
-	mh.ins[i].size = hio_read16b(f);	/* Length in 16-bit words */
-	mh.ins[i].finetune = hio_read8(f);	/* Finetune (signed nibble) */
-	mh.ins[i].volume = hio_read8(f);	/* Linear playback volume */
-	mh.ins[i].loop_start = hio_read16b(f);	/* Loop start in 16-bit words */
-	mh.ins[i].loop_size = hio_read16b(f);	/* Loop size in 16-bit words */
-
-	#ifndef LIBXMP_CORE_PLAYER
-	/* Mod's Grave WOW files are converted from 669s and have default
-	 * finetune and volume.
-	 */
-	if (mh.ins[i].size && (mh.ins[i].finetune != 0 || mh.ins[i].volume != 64))
-	    maybe_wow = 0;
-
-	smp_size += 2 * mh.ins[i].size;
-	#endif
+    if ((patbuf = (uint8 *) malloc(1084)) == NULL) {
+	return -1;
     }
-    mh.len = hio_read8(f);
-    mh.restart = hio_read8(f);
-    hio_read(mh.order, 128, 1, f);
+    if (hio_read(patbuf, 1, 1084, f) < 1084) {
+	D_(D_CRIT "read error in MOD header");
+	free(patbuf);
+	return -1;
+    }
     memset(magic, 0, sizeof(magic));
-    hio_read(magic, 1, 4, f);
-    if (hio_error(f)) {
-        return -1;
-    }
+    memcpy(magic, patbuf + 1080, 4);
 
 #ifndef LIBXMP_CORE_PLAYER
-    /* Mod's Grave WOW files always have a 0 restart byte; 6692WOW implements
-     * 669 repeating by inserting a pattern jump and ignores this byte.
-     */
-    if (mh.restart != 0)
-	maybe_wow = 0;
-
     for (i = 0; i < ARRAY_SIZE(mod_magic); i++) {
 	if (!(strncmp (magic, mod_magic[i].magic, 4))) {
 	    mod->chn = mod_magic[i].ch;
@@ -560,6 +548,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	} else if (!strncmp(magic + 1, "CHN", 3) && isdigit((unsigned char)*magic)) {
 	    mod->chn = *magic - '0';
 	} else {
+	    free(patbuf);
 	    return -1;
 	}
 #ifndef LIBXMP_CORE_PLAYER
@@ -568,6 +557,50 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	detected = 1;
 #endif
     }
+
+#ifndef LIBXMP_CORE_PLAYER
+    /* For unknown reasons, the first 2108 bytes of Software Visions DMF MODs
+     * (ModEdit M.K. used in Apocalypse Abyss and Software Visions Catalog)
+     * are word-flipped to little endian. */
+    if (tracker_id == TRACKER_SOFTWAREVISIONS) {
+	flip_word_bytes(patbuf, 1084);
+    }
+#endif
+
+    memcpy(mh.name, patbuf, 20);
+    for (i = 0; i < 31; i++) {
+	const uint8 *pos = patbuf + 20 + i * 30;
+
+	memcpy(mh.ins[i].name, pos, 22);		/* Instrument name */
+	mh.ins[i].size = readmem16b(pos + 22);		/* Length in 16-bit words */
+	mh.ins[i].finetune = pos[24];			/* Finetune (signed nibble) */
+	mh.ins[i].volume = pos[25];			/* Linear playback volume */
+	mh.ins[i].loop_start = readmem16b(pos + 26);	/* Loop start in 16-bit words */
+	mh.ins[i].loop_size = readmem16b(pos + 28);	/* Loop size in 16-bit words */
+
+#ifndef LIBXMP_CORE_PLAYER
+	/* Mod's Grave WOW files are converted from 669s and have default
+	 * finetune and volume.
+	 */
+	if (mh.ins[i].size && (mh.ins[i].finetune != 0 || mh.ins[i].volume != 64))
+	    maybe_wow = 0;
+
+	smp_size += 2 * mh.ins[i].size;
+#endif
+    }
+    mh.len = patbuf[950];
+    mh.restart = patbuf[951];
+    memcpy(mh.order, patbuf + 952, 128);
+    free(patbuf);
+
+#ifndef LIBXMP_CORE_PLAYER
+    /* Mod's Grave WOW files always have a 0 restart byte; 6692WOW implements
+     * 669 repeating by inserting a pattern jump and ignores this byte.
+     */
+    if (mh.restart != 0) {
+	maybe_wow = 0;
+    }
+#endif
 
     strncpy(mod->name, (char *) mh.name, 20);
 
@@ -744,18 +777,24 @@ skip_test:
 
     for (i = 0; i < mod->pat; i++) {
 	uint8 *mod_event;
+	int patlen = 64 * 4 * mod->chn;
 
 	if (libxmp_alloc_pattern_tracks(mod, i, 64) < 0) {
 	    free(patbuf);
 	    return -1;
 	}
 
-	if (hio_read(patbuf, 64 * 4 * mod->chn, 1, f) < 1) {
+	if (hio_read(patbuf, 1, patlen, f) < patlen) {
 	    free(patbuf);
 	    return -1;
 	}
 
 #ifndef LIBXMP_CORE_PLAYER
+	/* First pattern of Software Visions DMF is word flipped (see above). */
+	if (tracker_id == TRACKER_SOFTWAREVISIONS && i == 0) {
+		flip_word_bytes(patbuf, patlen); /* should be 1024 */
+	}
+
 	mod_event = patbuf;
 	for (j = 0; j < 64; j++) {
 	    int speed_row = 0;
@@ -961,6 +1000,9 @@ skip_test:
 	tracker = "Scream Tracker";
 	m->period_type = PERIOD_AMIGA;
 	break;
+    case TRACKER_SOFTWAREVISIONS: /* ModEdit variant */
+	tracker = "Software Visions DMF";
+	break;
     case TRACKER_CONVERTEDST:
     case TRACKER_CONVERTED:
 	tracker = "Converted";
@@ -985,7 +1027,7 @@ skip_test:
 	m->period_type = PERIOD_AMIGA;
     }
 
-    if (tracker_id == TRACKER_MODSGRAVE) {
+    if (tracker_id == TRACKER_MODSGRAVE || tracker_id == TRACKER_SOFTWAREVISIONS) {
 	snprintf(mod->type, XMP_NAME_SIZE, "%s", tracker);
     } else {
 	snprintf(mod->type, XMP_NAME_SIZE, "%s %s", tracker, magic);

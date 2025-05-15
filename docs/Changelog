@@ -1,6 +1,10 @@
 Stable versions
 ---------------
 
+4.6.4 (?):
+	Changes by Alice Rowan:
+	- Add support for Software Visions DMF (Apocalypse Abyss MOD variant).
+
 4.6.3 (20250511):
 	Changes by Alice Rowan:
 	- Fix crashes when xmp_set_position is used to set a negative position.
