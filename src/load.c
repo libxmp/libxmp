@@ -23,7 +23,6 @@
 #include <errno.h>
 
 #include "format.h"
-#include "list.h"
 #include "hio.h"
 #include "loaders/loader.h"
 

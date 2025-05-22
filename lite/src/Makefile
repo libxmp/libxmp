@@ -5,7 +5,7 @@ SRC_OBJS	= virtual.o format.o period.o player.o read_event.o \
 		  filetype.o hio.o smix.o memio.o rng.o win32.o
 
 SRC_DFILES	= Makefile $(SRC_OBJS:.o=.c) md5.c md5.h common.h effects.h \
-		  format.h lfo.h list.h mixer.h period.h player.h virtual.h \
+		  format.h lfo.h mixer.h period.h player.h virtual.h \
 		  precomp_lut.h hio.h callbackio.h memio.h mdataio.h tempfile.h \
 		  rng.h
 

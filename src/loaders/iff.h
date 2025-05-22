@@ -2,7 +2,6 @@
 #define LIBXMP_IFF_H
 
 #include "../hio.h"
-#include "../list.h"
 
 #define IFF_NOBUFFER 0x0001
 
@@ -21,12 +20,6 @@ struct iff_header {
 	char form[4];		/* FORM */
 	int len;		/* File length */
 	char id[4];		/* IFF type identifier */
-};
-
-struct iff_info {
-	char id[4];
-	int (*loader)(struct module_data *, int, HIO_HANDLE *, void *);
-	struct list_head list;
 };
 
 iff_handle libxmp_iff_new(void);

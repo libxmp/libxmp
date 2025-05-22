@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2022 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -28,8 +28,6 @@
 
 #include "prowizard/prowiz.h"
 #include "../tempfile.h"
-
-extern struct list_head *checked_format;
 
 static int pw_test(HIO_HANDLE *, char *, const int);
 static int pw_load(struct module_data *, HIO_HANDLE *, const int);
