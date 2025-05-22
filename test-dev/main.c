@@ -28,7 +28,7 @@
 #include <sys/wait.h>
 #endif
 #include "test.h"
-#include "../src/list.h"
+#include "list.h"
 
 
 struct test {
