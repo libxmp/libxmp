@@ -28,7 +28,7 @@
 
 #if !(defined(LIBXMP_NO_PROWIZARD) && defined(LIBXMP_NO_DEPACKERS))
 
-#if defined(_WIN32) || defined(__WATCOMC__)
+#if defined(_WIN32) || defined(_DOS) || defined(__OS2__) || defined(__EMX__)
 #include <io.h>
 #else
 #include <unistd.h>
