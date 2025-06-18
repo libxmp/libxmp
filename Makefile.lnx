@@ -1,0 +1,32 @@
+# Makefile for Linux using Watcom compiler.
+#
+# wmake -f Makefile.lnx
+# - builds the static library xmp_static.lib
+#
+# To disable module depacker functionality:
+#	wmake -f Makefile.lnx USE_DEPACKERS=0
+#
+# To disable ProWizard functionality:
+#	wmake -f Makefile.lnx USE_PROWIZARD=0
+#
+# To build the lite version of the library:
+#	wmake -f Makefile.lnx lite
+
+target = static
+
+USE_PROWIZARD	= 1
+USE_DEPACKERS	= 1
+
+CC = wcc386
+SYSTEM = linux
+
+CFLAGS = -zq -bt=linux -fp5 -fpi87 -mf -oeatxh -w4 -ei -zp8
+# newer OpenWatcom versions enable W303 by default.
+CFLAGS += -wcd=303
+# -5s  :  Pentium stack calling conventions.
+# -5r  :  Pentium register calling conventions.
+CFLAGS += -5s
+CFLAGS += -I"$(%WATCOM)/lh"
+CFLAGS += -DHAVE_PIPE -DHAVE_FORK -DHAVE_EXECVP -DHAVE_FORK
+
+!include watcom.mif

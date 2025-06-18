@@ -68,8 +68,13 @@ check-build: test/$(TESTNAME) .symbolic
 	$(CMD_CP) $(DLLNAME) test
 !endif
 
+!ifdef __UNIX__
+check: check-build .symbolic
+	cd test && ./$(TESTNAME)
+!else
 check: check-build .symbolic
 	cd test & $(TESTNAME)
+!endif
 
 clean: .symbolic
 	rm -f $(OBJS)

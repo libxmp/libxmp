@@ -31,8 +31,8 @@ LD_VERSCRIPT	= @LD_VERSCRIPT@
 SHELL		= /bin/sh
 
 DIST		= libxmp-$(VERSION)
-DFILES		= README INSTALL install-sh configure configure.ac config.sub config.guess  \
-		  Makefile.in Makefile.vc Makefile.dos Makefile.os2 Makefile.w32 watcom.mif \
+DFILES		= README INSTALL install-sh configure configure.ac config.sub config.guess Makefile.in  \
+		  Makefile.vc Makefile.dos Makefile.os2 Makefile.w32 Makefile.lnx watcom.mif  \
 		  CMakeLists.txt aclocal.m4 autogen.sh libxmp.map libxmp.pc.in libxmp-config.cmake \
 		  libxmp-config.cmake.autotools libxmp-config-version.cmake.autotools.in
 DDIRS		= docs include src loaders prowiz depackers lhasa lite test cmake m4

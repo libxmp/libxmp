@@ -320,16 +320,26 @@ check-build: test/$(TESTNAME) .symbolic
 	$(CMD_CP) $(DLLNAME) test
 !endif
 
+!ifdef __UNIX__
+check: check-build .symbolic
+	cd test && ./$(TESTNAME)
+!else
 check: check-build .symbolic
 	cd test & $(TESTNAME)
+!endif
 
 checklite-build: test/$(TESTNAME_LITE) .symbolic
 !ifneq target static
 	$(CMD_CP) $(DLLNAME_LITE) test
 !endif
 
+!ifdef __UNIX__
+check-lite: checklite-build .symbolic
+	cd test && ./$(TESTNAME_LITE)
+!else
 check-lite: checklite-build .symbolic
 	cd test & $(TESTNAME_LITE)
+!endif
 
 clean: .symbolic
 	rm -f src/*.obj
