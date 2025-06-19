@@ -1,0 +1,23 @@
+# Makefile for Linux using Watcom compiler.
+#
+# wmake -f Makefile.lnx
+# - builds the static library xmplite_static.lib
+#
+# To disable Impulse Tracker support :
+#	wmake -f Makefile.lnx DISABLE_IT=1
+#
+target = static
+
+CC = wcc386
+SYSTEM = linux
+
+CFLAGS = -zq -bt=linux -fp5 -fpi87 -mf -oeatxh -w4 -ei -zp8
+# newer OpenWatcom versions enable W303 by default.
+CFLAGS += -wcd=303
+# -5s  :  Pentium stack calling conventions.
+# -5r  :  Pentium register calling conventions.
+CFLAGS += -5s
+CFLAGS += -I"$(%WATCOM)/lh"
+#CFLAGS += -DHAVE_PIPE -DHAVE_FORK -DHAVE_EXECVP -DHAVE_FORK
+
+!include watcom.mif

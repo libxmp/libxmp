@@ -309,6 +309,25 @@ jobs:
         run: |
           wmake -f Makefile.dos distclean
 
+  watcom-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup OpenWatcom
+        uses: open-watcom/setup-watcom@v0
+        with:
+          version: "2.0"
+      - name: WMake Build (Linux)
+        run: |
+          wmake -f Makefile.lnx
+      - name: WMake check (Linux)
+        run: |
+          wmake -f Makefile.lnx check
+      - name: WMake distclean (Linux)
+        run: |
+          wmake -f Makefile.lnx distclean
+
   amiga:
     strategy:
        matrix:
