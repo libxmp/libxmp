@@ -173,6 +173,17 @@ static int execute_command(const char * const cmd[], FILE *t)
 		exit(errno);
 	}
 	close(fds[1]);
+
+	if ((p = fdopen(fds[0], "rb")) == NULL) {
+		D_(D_CRIT "failed fdopen");
+		close(fds[0]);
+		return -1;
+	}
+
+	while ((n = fread(buf, 1, BUFLEN, p)) > 0) {
+		fwrite(buf, 1, n, t);
+	}
+
 	wait(&status);
 	if (!WIFEXITED(status)) {
 		D_(D_CRIT "process failed (wstatus = %d)", status);
@@ -183,15 +194,6 @@ static int execute_command(const char * const cmd[], FILE *t)
 		D_(D_CRIT "process exited with status %d", WEXITSTATUS(status));
 		close(fds[0]);
 		return -1;
-	}
-	if ((p = fdopen(fds[0], "rb")) == NULL) {
-		D_(D_CRIT "failed fdopen");
-		close(fds[0]);
-		return -1;
-	}
-
-	while ((n = fread(buf, 1, BUFLEN, p)) > 0) {
-		fwrite(buf, 1, n, t);
 	}
 
 	fclose(p);
