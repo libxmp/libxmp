@@ -465,10 +465,10 @@ int libxmp_snprintf (char *, size_t, const char *, ...) LIBXMP_ATTRIB_PRINTF(3,4
 #define IS_AMIGA_MOD()	(IS_PLAYER_MODE_MOD() && IS_PERIOD_MODRNG())
 
 struct ord_data {
+	double time;			/* replay time (ms) at start of ord */
 	int speed;
 	int bpm;
 	int gvl;
-	int time; /* TODO: double */
 	int start_row;
 #ifndef LIBXMP_CORE_PLAYER
 	int st26_speed;
@@ -581,7 +581,7 @@ struct virt_channel {
 };
 
 struct scan_data {
-	int time;			/* replay time in ms */ /* TODO: double */
+	double time;			/* replay time in ms */
 	int row;
 	int ord;
 	int num;

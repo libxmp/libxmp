@@ -47,10 +47,10 @@
 #include "far_extras.h"
 #endif
 
-#define VBLANK_TIME_THRESHOLD	480000 /* 8 minutes */
+#define VBLANK_TIME_THRESHOLD	480000.0 /* 8 minutes */
 
 
-static int scan_module(struct context_data *ctx, int ep, int chain)
+static double scan_module(struct context_data *ctx, int ep, int chain)
 {
     struct player_data *p = &ctx->p;
     struct module_data *m = &ctx->m;
@@ -62,7 +62,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
     int orders_since_last_valid, any_valid;
     int gvl, bpm, speed, base_time, chn;
     int frame_count;
-    double time, start_time, time_calc;
+    double time, start_time;
     int inside_loop, line_jump;
     int pdelay = 0;
     struct flow_control f;
@@ -233,9 +233,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
             info->gvl = gvl;
             info->bpm = bpm;
             info->speed = speed;
-	    /* TODO: double ord_data::time */
-	    time_calc = time + m->time_factor * frame_count * base_time / bpm;
-            info->time = time_calc > (double)INT_MAX ? INT_MAX : (int)time_calc;
+	    info->time = time + m->time_factor * frame_count * base_time / bpm;
 #ifndef LIBXMP_CORE_PLAYER
             info->st26_speed = st26_speed;
 #endif
@@ -668,16 +666,14 @@ end_module:
     time -= start_time;
     frame_count += row_count * speed;
 
-    /* TODO: double scan_data::time */
-    time_calc = time + m->time_factor * frame_count * base_time / bpm;
-    return time_calc > (double)INT_MAX ? INT_MAX : (int)time_calc;
+    return time + m->time_factor * frame_count * base_time / bpm;
 }
 
 static void reset_scan_data(struct context_data *ctx)
 {
 	int i;
 	for (i = 0; i < XMP_MAX_MOD_LENGTH; i++) {
-		ctx->m.xxo_info[i].time = -1;
+		ctx->m.xxo_info[i].time = -1.0;
 	}
 	memset(ctx->p.sequence_control, NO_SEQUENCE, XMP_MAX_MOD_LENGTH);
 }
@@ -707,8 +703,8 @@ static void compare_vblank_scan(struct context_data *ctx)
 		m->quirk ^= QUIRK_NOBPM;
 		p->scan[0].time = scan_module(ctx, 0, 0);
 
-		D_(D_INFO "%-6s %dms", !HAS_QUIRK(QUIRK_NOBPM)?"VBlank":"CIA", scan_backup.time);
-		D_(D_INFO "%-6s %dms",  HAS_QUIRK(QUIRK_NOBPM)?"VBlank":"CIA", p->scan[0].time);
+		D_(D_INFO "%-6s %.2fms", !HAS_QUIRK(QUIRK_NOBPM)?"VBlank":"CIA", scan_backup.time);
+		D_(D_INFO "%-6s %.2fms",  HAS_QUIRK(QUIRK_NOBPM)?"VBlank":"CIA", p->scan[0].time);
 
 		if (p->scan[0].time >= scan_backup.time) {
 			m->quirk ^= QUIRK_NOBPM;
@@ -765,7 +761,7 @@ int libxmp_scan_sequences(struct context_data *ctx)
 	}
 #endif
 
-	if (p->scan[0].time < 0) {
+	if (p->scan[0].time < 0.0) {
 		D_(D_CRIT "scan was not able to find any valid orders");
 		return -1;
 	}
@@ -783,7 +779,7 @@ int libxmp_scan_sequences(struct context_data *ctx)
 			ep = i;
 			temp_ep[seq] = ep;
 			p->scan[seq].time = scan_module(ctx, ep, seq);
-			if (p->scan[seq].time > 0)
+			if (p->scan[seq].time > 0.0)
 				seq++;
 		} else {
 			break;
@@ -804,8 +800,12 @@ int libxmp_scan_sequences(struct context_data *ctx)
 
 	/* Now place entry points in the public accessible array */
 	for (i = 0; i < m->num_sequences; i++) {
+		/* API still uses integers for time... */
+		double time = p->scan[i].time;
+		CLAMP(time, 0.0, (double)INT_MAX);
+
 		m->seq_data[i].entry_point = temp_ep[i];
-		m->seq_data[i].duration = p->scan[i].time;
+		m->seq_data[i].duration = time;
 	}
 	/* Wipe the remaining entries so the player doesn't think they're
 	 * valid e.g. when handling end-of-module markers. */
