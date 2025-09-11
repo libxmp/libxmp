@@ -2261,6 +2261,8 @@ void xmp_get_frame_info(xmp_context opaque, struct xmp_frame_info *info)
 	struct mixer_data *s = &ctx->s;
 	struct module_data *m = &ctx->m;
 	struct xmp_module *mod = &m->mod;
+	double current_time;
+	double total_time;
 	int chn, i;
 
 	if (ctx->state < XMP_STATE_LOADED)
@@ -2282,13 +2284,19 @@ void xmp_get_frame_info(xmp_context opaque, struct xmp_frame_info *info)
 		info->num_rows = 0;
 	}
 
+	/* API still uses integers for time... */
+	current_time = p->current_time;
+	total_time = p->scan[p->sequence].time;
+	CLAMP(current_time, 0.0, (double)INT_MAX);
+	CLAMP(total_time, 0.0, (double)INT_MAX);
+
 	info->row = p->row;
 	info->frame = p->frame;
 	info->speed = p->speed;
 	info->bpm = p->bpm;
-	info->total_time = p->scan[p->sequence].time;
+	info->total_time = (int)total_time;
 	info->frame_time = (int)(libxmp_get_frame_time(ctx) * 1000.0);
-	info->time = p->current_time;
+	info->time = (int)current_time;
 	info->buffer = s->buffer;
 
 	info->total_size = XMP_MAX_FRAMESIZE;

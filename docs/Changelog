@@ -6,6 +6,8 @@ Stable versions
 	- Add support for Software Visions DMF (Apocalypse Abyss MOD variant).
 	- Replace kernel list helper in iff.c with custom list management
 	  to fix numerous otherwise unfixable KallistiOS redefinition warnings.
+	- All internal module time/duration calculations are now in doubles
+	  (fixes off-by-one module time on final tick of some modules).
 
 4.6.3 (20250511):
 	Changes by Alice Rowan:

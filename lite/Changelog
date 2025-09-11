@@ -1,6 +1,11 @@
 Stable versions
 ---------------
 
+4.6.4 (?):
+	Changes by Alice Rowan:
+	- All internal module time/duration calculations are now in doubles
+	  (fixes off-by-one module time on final tick of some modules).
+
 4.6.3 (20250511):
 	Changes by Alice Rowan:
 	- Fix crashes when xmp_set_position is used to set a negative position.
