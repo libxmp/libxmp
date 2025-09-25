@@ -1,6 +1,8 @@
 #ifndef XMP_HMN_EXTRAS_H
 #define XMP_HMN_EXTRAS_H
 
+#include "common.h"
+
 #define HMN_EXTRAS_MAGIC 0x041bc81a
 
 struct hmn_instrument_extras {
@@ -36,6 +38,8 @@ struct hmn_module_extras {
 	(HMN_MODULE_EXTRAS(x) != NULL && \
 	 HMN_MODULE_EXTRAS(x)->magic == HMN_EXTRAS_MAGIC)
 
+LIBXMP_BEGIN_DECLS
+
 void libxmp_hmn_play_extras(struct context_data *, struct channel_data *, int);
 void libxmp_hmn_set_arpeggio(struct channel_data *, int);
 int  libxmp_hmn_linear_bend(struct context_data *, struct channel_data *);
@@ -46,6 +50,8 @@ void libxmp_hmn_release_channel_extras(struct channel_data *);
 int  libxmp_hmn_new_module_extras(struct module_data *);
 void libxmp_hmn_release_module_extras(struct module_data *);
 void libxmp_hmn_extras_process_fx(struct context_data *, struct channel_data *, int, uint8, uint8, uint8, int);
+
+LIBXMP_END_DECLS
 
 #endif
 

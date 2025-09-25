@@ -22,6 +22,8 @@ struct iff_header {
 	char id[4];		/* IFF type identifier */
 };
 
+LIBXMP_BEGIN_DECLS
+
 iff_handle libxmp_iff_new(void);
 int	libxmp_iff_load(iff_handle, struct module_data *, HIO_HANDLE *, void *);
 /* int libxmp_iff_chunk(iff_handle, struct module_data *, HIO_HANDLE *, void *); */
@@ -32,5 +34,7 @@ void 	libxmp_iff_set_quirk(iff_handle, int);
 void 	libxmp_iff_release(iff_handle);
 /* int 	libxmp_iff_process(iff_handle, struct module_data *, char *, long,
 	HIO_HANDLE *, void *); */
+
+LIBXMP_END_DECLS
 
 #endif /* LIBXMP_IFF_H */

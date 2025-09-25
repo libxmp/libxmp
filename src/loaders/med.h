@@ -6,10 +6,6 @@
 
 #define MMD_INST_TYPES 9
 
-#ifdef DEBUG
-extern const char *const mmd_inst_type[];
-#endif
-
 #define MED_VER_210		0x0210
 #define MED_VER_300		0x0300
 #define MED_VER_320		0x0320
@@ -330,6 +326,11 @@ struct MMDDump {
     uint8 name[20];			/* name of the dump */
 };
 
+LIBXMP_BEGIN_DECLS
+
+#ifdef DEBUG
+extern const char *const mmd_inst_type[];
+#endif
 extern const int mmd_num_oct[6];
 
 void mmd_xlat_fx(struct xmp_event *, int, int, int, int);
@@ -343,5 +344,7 @@ int mmd_convert_tempo(int tempo, int bpm_on, int med_8ch);
 void mmd_set_bpm(struct module_data *, int, int, int, int);
 void mmd_info_text(HIO_HANDLE *, struct module_data *, int);
 int mmd_tracker_version(struct module_data *, int, int, struct MMD0exp *);
+
+LIBXMP_END_DECLS
 
 #endif /* LIBXMP_MED_H */

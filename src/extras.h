@@ -1,6 +1,10 @@
 #ifndef LIBXMP_EXTRAS_H
 #define LIBXMP_EXTRAS_H
 
+#include "common.h"
+
+LIBXMP_BEGIN_DECLS
+
 void libxmp_release_module_extras(struct context_data *);
 int  libxmp_new_channel_extras(struct context_data *, struct channel_data *);
 void libxmp_release_channel_extras(struct context_data *, struct channel_data *);
@@ -14,5 +18,7 @@ void libxmp_extras_process_fx(struct context_data *, struct channel_data *, int,
 
 /* FIXME */
 void libxmp_med_hold_hack(struct context_data *ctx, int, int, int);
+
+LIBXMP_END_DECLS
 
 #endif

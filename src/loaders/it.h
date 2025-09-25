@@ -190,9 +190,13 @@ struct it_sample_header {
 	uint8 vit;		/* Vibrato waveform */
 };
 
+LIBXMP_BEGIN_DECLS
+
 int itsex_decompress8(HIO_HANDLE *src, uint8 *dst, int len,
 		      uint8 *tmp, int tmplen, int it215);
 int itsex_decompress16(HIO_HANDLE *src, int16 *dst, int len,
 		       uint8 *tmp, int tmplen, int it215);
+
+LIBXMP_END_DECLS
 
 #endif /* LIBXMP_LOADERS_IT_H */

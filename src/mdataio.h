@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include "common.h"
 
+LIBXMP_BEGIN_DECLS
+
 static inline ptrdiff_t CAN_READ(MFILE *m)
 {
 	if (m->size >= 0)
@@ -120,5 +122,7 @@ static inline uint32 mread32b(MFILE *m, int *err)
 		return 0xffffffff;
 	}
 }
+
+LIBXMP_END_DECLS
 
 #endif

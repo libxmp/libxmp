@@ -24,6 +24,8 @@ typedef struct {
 	int noclose;
 } HIO_HANDLE;
 
+LIBXMP_BEGIN_DECLS
+
 int8	hio_read8s	(HIO_HANDLE *);
 uint8	hio_read8	(HIO_HANDLE *);
 uint16	hio_read16l	(HIO_HANDLE *);
@@ -47,5 +49,7 @@ int	hio_reopen_file	(FILE *, int, HIO_HANDLE *);
 int	hio_close	(HIO_HANDLE *);
 long	hio_size	(HIO_HANDLE *);
 const unsigned char *hio_get_underlying_memory(HIO_HANDLE *);
+
+LIBXMP_END_DECLS
 
 #endif

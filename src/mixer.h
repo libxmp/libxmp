@@ -1,6 +1,8 @@
 #ifndef LIBXMP_MIXER_H
 #define LIBXMP_MIXER_H
 
+#include "common.h"
+
 #define C4_PERIOD	428.0
 
 #define SMIX_NUMVOC	128	/* default number of softmixer voices */
@@ -71,6 +73,8 @@ struct mixer_voice {
 #endif
 };
 
+LIBXMP_BEGIN_DECLS
+
 int	libxmp_mixer_on		(struct context_data *, int, int, int);
 void	libxmp_mixer_off	(struct context_data *);
 void    libxmp_mixer_setvol	(struct context_data *, int, int);
@@ -88,5 +92,7 @@ void	libxmp_mixer_setperiod	(struct context_data *, int, double);
 void	libxmp_mixer_release	(struct context_data *, int, int);
 void	libxmp_mixer_reverse	(struct context_data *, int, int);
 int	libxmp_mixer_get_ticksize(int freq, double time_factor, double rrate, int bpm);
+
+LIBXMP_END_DECLS
 
 #endif /* LIBXMP_MIXER_H */
