@@ -4,6 +4,8 @@
 #include "../common.h"
 #include "../hio.h"
 
+LIBXMP_BEGIN_DECLS
+
 extern const struct depacker libxmp_depacker_zip;
 extern const struct depacker libxmp_depacker_lha;
 extern const struct depacker libxmp_depacker_gzip;
@@ -27,5 +29,7 @@ struct depacker {
 
 int	libxmp_decrunch		(HIO_HANDLE *h, const char *filename, char **temp);
 int	libxmp_exclude_match	(const char *);
+
+LIBXMP_END_DECLS
 
 #endif /* LIBXMP_DEPACKER_H */

@@ -26,6 +26,8 @@
 
 #define DEFPAN(x) (0x80 + ((x) - 0x80) * m->defpan / 100)
 
+LIBXMP_BEGIN_DECLS
+
 int	libxmp_init_instrument		(struct module_data *);
 int	libxmp_realloc_samples		(struct module_data *, int);
 int	libxmp_alloc_subinstrument	(struct xmp_module *, int, int);
@@ -70,5 +72,7 @@ extern const int	libxmp_arch_vol_table[];
     D_(D_WARN "Module title: \"%s\"", m->mod.name); \
     D_(D_WARN "Module type: %s", m->mod.type); \
 } while (0)
+
+LIBXMP_END_DECLS
 
 #endif

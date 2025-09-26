@@ -40,6 +40,8 @@ struct far_module_extras {
 	(FAR_MODULE_EXTRAS(x) != NULL && \
 	 FAR_MODULE_EXTRAS(x)->magic == FAR_EXTRAS_MAGIC)
 
+LIBXMP_BEGIN_DECLS
+
 int libxmp_far_translate_tempo(int, int, int, int *, int *, int *);
 
 void libxmp_far_play_extras(struct context_data *, struct channel_data *, int);
@@ -51,5 +53,6 @@ int  libxmp_far_new_module_extras(struct module_data *);
 void libxmp_far_release_module_extras(struct module_data *);
 void libxmp_far_extras_process_fx(struct context_data *, struct channel_data *, int, uint8, uint8, uint8, int);
 
-#endif
+LIBXMP_END_DECLS
 
+#endif

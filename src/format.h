@@ -4,6 +4,8 @@
 #include "common.h"
 #include "hio.h"
 
+LIBXMP_BEGIN_DECLS
+
 struct format_loader {
 	const char *name;
 	int (*test)(HIO_HANDLE *, char *, const int);
@@ -99,5 +101,7 @@ int pw_test_format(HIO_HANDLE *, char *, const int, struct xmp_test_info *);
 #else
 #define NUM_PW_FORMATS 0
 #endif
+
+LIBXMP_END_DECLS
 
 #endif /* LIBXMP_FORMAT_H */
