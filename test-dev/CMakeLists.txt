@@ -22,6 +22,7 @@ set(DEVTEST_SRC
     ../src/hio.c
     ../src/lfo.c
     ../src/load_helpers.c
+    ../src/path.c
     ../src/period.c
     ../src/memio.c
     ../src/dataio.c

@@ -6,6 +6,8 @@
 #include "../format.h"
 #include "../hio.h"
 
+struct libxmp_path; /* ../path.h */
+
 /* Sample flags */
 #define SAMPLE_FLAG_DIFF	0x0001	/* Differential */
 #define SAMPLE_FLAG_UNS		0x0002	/* Unsigned */
@@ -49,8 +51,8 @@ void	libxmp_set_xxh_defaults		(struct xmp_module *);
 void	libxmp_decode_protracker_event	(struct xmp_event *, const uint8 *);
 void	libxmp_decode_noisetracker_event(struct xmp_event *, const uint8 *);
 void	libxmp_disable_continue_fx	(struct xmp_event *);
-int	libxmp_check_filename_case	(const char *, const char *, char *, int);
-int	libxmp_find_instrument_file	(struct module_data *, char *, int, const char *);
+int	libxmp_check_filename_case	(struct libxmp_path *, const char *, const char *);
+int	libxmp_find_instrument_file	(struct module_data *, struct libxmp_path *, const char *);
 void	libxmp_set_type			(struct module_data *, const char *, ...);
 int	libxmp_load_sample		(struct module_data *, HIO_HANDLE *, int,
 					 struct xmp_sample *, const void *);

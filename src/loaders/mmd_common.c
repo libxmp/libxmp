@@ -28,6 +28,7 @@
 #include "med.h"
 #include "loader.h"
 #include "../med_extras.h"
+#include "../path.h"
 
 #ifdef DEBUG
 const char *const mmd_inst_type[] = {
@@ -989,7 +990,7 @@ int mmd_load_instrument(HIO_HANDLE *f, struct module_data *m, int i, int smp_idx
 int med_load_external_instrument(HIO_HANDLE *f, struct module_data *m, int i)
 {
 	struct xmp_module *mod = &m->mod;
-	char path[XMP_MAXPATH];
+	struct libxmp_path sp;
 	char ins_name[32];
 	HIO_HANDLE *s = NULL;
 
@@ -1001,10 +1002,13 @@ int med_load_external_instrument(HIO_HANDLE *f, struct module_data *m, int i)
 		mod->xxs[i].flg & XMP_SAMPLE_LOOP ? 'L' : ' ',
 		mod->xxi[i].sub[0].vol);
 
-	if (!libxmp_find_instrument_file(m, path, sizeof(path), ins_name))
+	libxmp_path_init(&sp);
+	if (libxmp_find_instrument_file(m, &sp, ins_name) != 0)
 		return 0;
 
-	if ((s = hio_open(path, "rb")) == NULL) {
+	s = hio_open(sp.path, "rb");
+	libxmp_path_free(&sp);
+	if (s == NULL) {
 		return 0;
 	}
 

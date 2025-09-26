@@ -28,6 +28,7 @@ XMP_SOURCES	= \
  ..\src\flow.c \
  ..\src\lfo.c \
  ..\src\rng.c \
+ ..\src\path.c \
 
 ALL_SOURCES	= $(SOURCES) $(TEST_SOURCES) $(XMP_SOURCES)
 

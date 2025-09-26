@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2021 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -27,6 +27,7 @@
  */
 
 #include "loader.h"
+#include "../path.h"
 
 static int mfp_test(HIO_HANDLE *, char *, const int);
 static int mfp_load(struct module_data *, HIO_HANDLE *, const int);
@@ -96,7 +97,7 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	struct xmp_module *mod = &m->mod;
 	int i, j, k, x, y;
 	struct xmp_event *event;
-	char smp_filename[XMP_MAXPATH];
+	struct libxmp_path sp;
 	HIO_HANDLE *s;
 	int size1 /*, size2*/;
 	int pat_addr, pat_table[128][4];
@@ -206,6 +207,8 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	/* Read samples */
 	D_(D_INFO "Loading samples: %d", mod->ins);
 
+	libxmp_path_init(&sp);
+
 	/* first check smp.filename */
 	if (strlen(m->basename) < 5 || m->basename[3] != '.') {
 		D_(D_CRIT "invalid filename %s", m->basename);
@@ -215,19 +218,30 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	m->basename[0] = 's';
 	m->basename[1] = 'm';
 	m->basename[2] = 'p';
-	snprintf(smp_filename, XMP_MAXPATH, "%s%s", m->dirname, m->basename);
-	if ((s = hio_open(smp_filename, "rb")) == NULL) {
+
+	if (libxmp_path_join(&sp, m->dirname, m->basename) != 0) {
+		D_(D_CRIT "failed to join path %s", m->basename);
+		goto err;
+	}
+
+	if ((s = hio_open(sp.path, "rb")) == NULL) {
 		/* handle .set filenames like in Kid Chaos*/
 		if (strchr(m->basename, '-')) {
-			char *p = strrchr(smp_filename, '-');
-			if (p != NULL)
-				strcpy(p, ".set");
+			char *p = strrchr(sp.path, '-');
+			if (p != NULL) {
+				size_t ppos = p - sp.path;
+				if (libxmp_path_suffix_at(&sp, ppos, ".set") != 0) {
+					D_(D_CRIT "failed to append .set");
+					goto err;
+				}
+			}
 		}
-		if ((s = hio_open(smp_filename, "rb")) == NULL) {
-			D_(D_CRIT "can't open sample file %s", smp_filename);
+		if ((s = hio_open(sp.path, "rb")) == NULL) {
+			D_(D_CRIT "can't open sample file %s", sp.path);
 			goto err;
 		}
 	}
+	libxmp_path_free(&sp);
 
 	for (i = 0; i < mod->ins; i++) {
 		if (libxmp_load_sample(m, s, SAMPLE_FLAG_FULLREP,
@@ -244,6 +258,7 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	return 0;
 
     err:
+	libxmp_path_free(&sp);
 	for (i = 0; i < mod->ins; i++) {
 		mod->xxi[i].nsm = 0;
 		memset(&mod->xxs[i], 0, sizeof(struct xmp_sample));

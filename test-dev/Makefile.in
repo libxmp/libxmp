@@ -659,6 +659,7 @@ TESTS		= $(READ_TESTS) \
 		  $(DEPACK_TESTS) \
 		  $(PROWIZARD_TESTS) \
 		  string_adjustment \
+		  path \
 		  $(LOADER_TESTS) \
 		  $(API_TESTS) \
 		  $(QUIRK_TESTS) \
@@ -692,7 +693,7 @@ SRC_PATH	= ../src
 
 TEST_INTERNAL	= md5.o win32.o hio.o load_helpers.o loaders/itsex.o dataio.o scan.o \
 		  loaders/sample.o loaders/common.o filetype.o period.o memio.o \
-		  depackers/xfnmatch.o far_extras.o flow.o lfo.o rng.o
+		  depackers/xfnmatch.o far_extras.o flow.o lfo.o rng.o path.o
 
 T_OBJS 		= $(addprefix $(TEST_PATH)/,$(TEST_OBJS)) \
 		  $(addprefix $(SRC_PATH)/,$(TEST_INTERNAL))

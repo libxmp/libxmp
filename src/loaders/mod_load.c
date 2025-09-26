@@ -42,6 +42,7 @@
 #include <ctype.h>
 #include "loader.h"
 #include "mod.h"
+#include "../path.h"
 
 #ifndef LIBXMP_CORE_PLAYER
 struct mod_magic {
@@ -1058,17 +1059,20 @@ skip_test:
 #else
 	if (ptsong) {
 	    HIO_HANDLE *s;
-	    char sn[XMP_MAXPATH];
+	    struct libxmp_path sp;
 	    char tmpname[32];
 	    const char *instname = mod->xxi[i].name;
 
 	    if (libxmp_copy_name_for_fopen(tmpname, instname, 32) != 0)
 		continue;
 
-	    if (!libxmp_find_instrument_file(m, sn, sizeof(sn), tmpname))
+	    libxmp_path_init(&sp);
+	    if (libxmp_find_instrument_file(m, &sp, tmpname) != 0)
 		continue;
 
-	    if ((s = hio_open(sn, "rb")) == NULL)
+	    s = hio_open(sp.path, "rb");
+	    libxmp_path_free(&sp);
+	    if (s == NULL)
 		continue;
 
 	    if (libxmp_load_sample(m, s, flags, &mod->xxs[i], NULL) < 0) {

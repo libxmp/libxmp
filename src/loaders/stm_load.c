@@ -21,6 +21,7 @@
  */
 
 #include "loader.h"
+#include "../path.h"
 #include "../period.h"
 
 #define STM_TYPE_SONG	0x01
@@ -397,17 +398,20 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 
 		if (sfh.type == STM_TYPE_SONG) {
 			HIO_HANDLE *s;
-			char sn[XMP_MAXPATH];
+			struct libxmp_path sp;
 			char tmpname[32];
 			const char *instname = mod->xxi[i].name;
 
 			if (libxmp_copy_name_for_fopen(tmpname, instname, 32) != 0)
 				continue;
 
-			if (!libxmp_find_instrument_file(m, sn, sizeof(sn), tmpname))
+			libxmp_path_init(&sp);
+			if (libxmp_find_instrument_file(m, &sp, tmpname) != 0)
 				continue;
 
-			if ((s = hio_open(sn, "rb")) == NULL)
+			s = hio_open(sp.path, "rb");
+			libxmp_path_free(&sp);
+			if (s == NULL)
 				continue;
 
 			if (libxmp_load_sample(m, s, SAMPLE_FLAG_UNS, &mod->xxs[i], NULL) < 0) {

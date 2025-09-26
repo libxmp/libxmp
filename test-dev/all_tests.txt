@@ -67,6 +67,7 @@ test_prowizard_zen
 test_prowizard_fuchs
 test_prowizard_starpack
 test_string_adjustment
+test_path
 test_loader_6chn
 test_loader_mod_adpcm4
 test_loader_mod_noterange

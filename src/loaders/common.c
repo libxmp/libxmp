@@ -29,6 +29,7 @@
 #include "../common.h"
 
 #include "xmp.h"
+#include "../path.h"
 #include "../period.h"
 #include "loader.h"
 
@@ -429,25 +430,28 @@ void libxmp_disable_continue_fx(struct xmp_event *event)
     /* case-insensitive file system: directly probe the file */\
     \
    !defined(HAVE_DIRENT) /* or, target does not have dirent. */
-int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
+int libxmp_check_filename_case(struct libxmp_path *sp, const char *dir, const char *name)
 {
-	char path[XMP_MAXPATH];
-	int ret;
+	struct libxmp_path tmp;
 
 	if (dir[0] == '\0')
 		dir = ".";
 
-	snprintf(path, sizeof(path), "%s/%s", dir, name);
-	if (! (libxmp_get_filetype(path) & XMP_FILETYPE_FILE))
-		return 0;
-	ret = snprintf(new_name, size, "%s", name);
-	return (ret < size);
+	libxmp_path_init(&tmp);
+	if (libxmp_path_join(&tmp, dir, name) < 0)
+		return -1;
+
+	if (! (libxmp_get_filetype(tmp.path) & XMP_FILETYPE_FILE)) {
+		libxmp_path_free(&tmp);
+		return -1;
+	}
+	libxmp_path_move(sp, &tmp);
+	return 0;
 }
 #else /* target has dirent */
-int libxmp_check_filename_case(const char *dir, const char *name, char *new_name, int size)
+int libxmp_check_filename_case(struct libxmp_path *sp, const char *dir, const char *name)
 {
-	int found = 0;
-	int ret = size;
+	int ret = -1;
 	DIR *dirp;
 	struct dirent *d;
 
@@ -456,19 +460,20 @@ int libxmp_check_filename_case(const char *dir, const char *name, char *new_name
 
 	dirp = opendir(dir);
 	if (dirp == NULL)
-		return 0;
+		return -1;
 
 	while ((d = readdir(dirp)) != NULL) {
 		if (!strcasecmp(d->d_name, name)) {
-			found = 1;
-			ret = snprintf(new_name, size, "%s", d->d_name);
-			break;
+			if (libxmp_path_join(sp, dir, name) == 0) {
+				ret = 0;
+				break;
+			}
 		}
 	}
 
 	closedir(dirp);
 
-	return found ? (ret < size) : 0;
+	return ret;
 }
 #endif
 
@@ -485,32 +490,28 @@ static const char *libxmp_get_instrument_path(struct module_data *m)
 	return NULL;
 }
 
-int libxmp_find_instrument_file(struct module_data *m, char *path_dest,
-				int path_dest_len, const char *ins_name)
+int libxmp_find_instrument_file(struct module_data *m, struct libxmp_path *sp,
+				const char *ins_name)
 {
 	const char *ins_path;
-	char name[256];
-	int ret;
 
 	ins_path = libxmp_get_instrument_path(m);
 	if (ins_path != NULL &&
-	    libxmp_check_filename_case(ins_path, ins_name, name, sizeof(name))) {
-		ret = snprintf(path_dest, path_dest_len, "%s/%s", ins_path, name);
-		path_dest[path_dest_len - 1] = '\0';
-		return (ret < path_dest_len);
+	    libxmp_check_filename_case(sp, ins_path, ins_name) == 0) {
+		D_(D_INFO "found: %s", sp->path);
+		return 0;
 	}
 
 	/* Try the module dir if the instrument path didn't work. */
 	if (m->dirname != NULL &&
-	    libxmp_check_filename_case(m->dirname, ins_name, name, sizeof(name))) {
-		ret = snprintf(path_dest, path_dest_len, "%s%s", m->dirname, name);
-		path_dest[path_dest_len - 1] = '\0';
-		return (ret < path_dest_len);
+	    libxmp_check_filename_case(sp, m->dirname, ins_name) == 0) {
+		D_(D_INFO "found: %s", sp->path);
+		return 0;
 	}
 
 	D_(D_WARN "instrument '%s' not found (ins_path: '%s') (m->dirname: '%s')",
 	   ins_name, ins_path ? ins_path : "NULL", m->dirname ? m->dirname : "NULL");
-	return 0;
+	return -1;
 }
 #endif /* LIBXMP_CORE_PLAYER */
 
