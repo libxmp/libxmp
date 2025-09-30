@@ -122,6 +122,13 @@ TEST_BIG_ENDIAN(WORDS_BIGENDIAN)
 if(WORDS_BIGENDIAN)
     add_definitions(-DWORDS_BIGENDIAN=1)
 endif()
+#  to mirror the AC_C_BIGENDIAN behavior of autoconf :
+if(APPLE AND CMAKE_OSX_ARCHITECTURES)
+    list(LENGTH CMAKE_OSX_ARCHITECTURES _num_arches)
+    if(_num_arches GREATER 1)
+        add_definitions(-DAC_APPLE_UNIVERSAL_BUILD=1)
+    endif()
+endif()
 
 
 cmake_push_check_state()
