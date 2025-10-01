@@ -28,6 +28,7 @@
 #ifndef LIBXMP_CORE_DISABLE_IT
 #include <math.h>
 #include "xmp.h"
+#include "player.h"
 #include "mixer.h"
 
 /*

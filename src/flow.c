@@ -21,6 +21,7 @@
  */
 
 #include "common.h"
+#include "player.h"
 
 /* Process a pattern loop effect with the parameter fxp. A parameter of 0
  * will set the loop target, and a parameter of 1-15 (most formats) or
