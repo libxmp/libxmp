@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4...3.10)
+cmake_minimum_required(VERSION 3.2...3.10)
 project(libxmplite VERSION 4.6.3 LANGUAGES C)
 
 set(LIBXMP_DEFINES)
@@ -7,7 +7,6 @@ set(LIBXMP_CFLAGS)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/libxmp-checks.cmake)
 include(GNUInstallDirs)
 
-# -fPIC thing
 if(NOT WIN32 AND NOT EMSCRIPTEN AND NOT VITA)
     option(LIBXMP_PIC   "Build the static library as position-independent" OFF)
 else()
@@ -73,7 +72,8 @@ if(BUILD_STATIC)
     target_compile_definitions(xmp_lite_static PRIVATE ${LIBXMP_DEFINES})
     target_compile_definitions(xmp_lite_static PUBLIC LIBXMP_STATIC)
     if(LIBXMP_PIC)
-        target_compile_options(xmp_lite_static PRIVATE -fPIC)
+        set_target_properties(xmp_lite_static PROPERTIES
+                         POSITION_INDEPENDENT_CODE TRUE)
     endif()
 
     target_include_directories(xmp_lite_static PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/libxmp-lite>")
