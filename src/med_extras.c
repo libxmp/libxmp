@@ -24,6 +24,7 @@
 #include "player.h"
 #include "virtual.h"
 #include "effects.h"
+#include "extras.h"
 #include "med_extras.h"
 
 #ifdef __SUNPRO_C
