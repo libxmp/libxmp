@@ -37,10 +37,6 @@
 #endif
 
 
-void libxmp_load_prologue(struct context_data *);
-void libxmp_load_epilogue(struct context_data *);
-int  libxmp_prepare_scan(struct context_data *);
-
 #ifndef LIBXMP_CORE_PLAYER
 #define BUFLEN 16384
 

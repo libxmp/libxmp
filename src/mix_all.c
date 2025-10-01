@@ -22,6 +22,7 @@
 
 #include "common.h"
 #include "mixer.h"
+#include "mix_all.h"
 #include "precomp_lut.h"
 
 #if defined(__cplusplus) && (__cplusplus >= 201402L)
@@ -798,3 +799,27 @@ MIXER(stereoout_stereo_16bit_spline_filter)
 }
 
 #endif
+
+const MIXER_FP libxmp_nearest_mixers[] = {
+	LIST_MIX_FUNCTIONS(nearest),
+
+#ifndef LIBXMP_CORE_DISABLE_IT
+	LIST_MIX_FUNCTIONS(nearest)
+#endif
+};
+
+const MIXER_FP libxmp_linear_mixers[] = {
+	LIST_MIX_FUNCTIONS(linear),
+
+#ifndef LIBXMP_CORE_DISABLE_IT
+	LIST_MIX_FUNCTIONS(linear_filter)
+#endif
+};
+
+const MIXER_FP libxmp_spline_mixers[] = {
+	LIST_MIX_FUNCTIONS(spline),
+
+#ifndef LIBXMP_CORE_DISABLE_IT
+	LIST_MIX_FUNCTIONS(spline_filter)
+#endif
+};

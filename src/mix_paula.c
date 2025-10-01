@@ -7,6 +7,7 @@
  */
 #include "virtual.h"
 #include "mixer.h"
+#include "mix_all.h"
 #include "paula.h"
 #include "precomp_blep.h"
 
@@ -161,5 +162,13 @@ MIXER(stereoout_mono_a500_filter)
 
 	LOOP { PAULA_SIMULATION(1); MIX_STEREO(); }
 }
+
+const MIXER_FP libxmp_a500_mixers[] = {
+	LIST_MIX_FUNCTIONS_PAULA(a500)
+};
+
+const MIXER_FP libxmp_a500led_mixers[] = {
+	LIST_MIX_FUNCTIONS_PAULA(a500_filter)
+};
 
 #endif /* LIBXMP_PAULA_SIMULATOR */

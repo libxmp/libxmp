@@ -58,7 +58,7 @@ static int gdm_test(HIO_HANDLE *f, char *t, const int start)
 
 
 
-void fix_effect(uint8 *fxt, uint8 *fxp)
+static void gdm_translate_effect(uint8 *fxt, uint8 *fxp)
 {
 	int h, l;
 	switch (*fxt) {
@@ -415,13 +415,13 @@ static int gdm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 						event->fxt = k & 0x1f;
 						event->fxp = hio_read8(f);
 						len--;
-						fix_effect(&event->fxt, &event->fxp);
+						gdm_translate_effect(&event->fxt, &event->fxp);
 						break;
 					case 1:
 						event->f2t = k & 0x1f;
 						event->f2p = hio_read8(f);
 						len--;
-						fix_effect(&event->f2t, &event->f2p);
+						gdm_translate_effect(&event->f2t, &event->f2p);
 						break;
 					case 2:
 						hio_read8(f);
