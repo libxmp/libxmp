@@ -50,7 +50,7 @@ static int num_tests = 0;
 
 #define add_test(x) _add_test(#x, _test_func_##x)
 
-void _add_test(const char *name, int (*func)(void))
+static void _add_test(const char *name, int (*func)(void))
 {
 	struct test *t;
 
@@ -65,7 +65,7 @@ void _add_test(const char *name, int (*func)(void))
 
 #ifdef FORK_TEST
 
-void init_colors(void)
+static void init_colors(void)
 {
 	if (isatty(STDOUT_FILENO)) {
 		color_fail = "\x1b[1;31m";
@@ -75,7 +75,7 @@ void init_colors(void)
 	}
 }
 
-int run_tests(void)
+static int run_tests(void)
 {
 	struct list_head *tmp;
 	int total, fail;
@@ -121,7 +121,7 @@ int run_tests(void)
 
 #else
 
-int run_test(int num)
+static int run_test(int num)
 {
 	struct list_head *tmp;
 	int i;

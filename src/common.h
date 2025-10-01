@@ -676,7 +676,11 @@ struct context_data {
 
 /* Prototypes */
 
+LIBXMP_BEGIN_DECLS
+
 char	*libxmp_adjust_string	(char *);
+void	libxmp_load_prologue	(struct context_data *); /* use in load only */
+void	libxmp_load_epilogue	(struct context_data *); /* use in load only */
 int	libxmp_prepare_scan	(struct context_data *);
 void	libxmp_free_scan	(struct context_data *);
 int	libxmp_scan_sequences	(struct context_data *);
@@ -712,5 +716,7 @@ struct xmp_sample *libxmp_get_sample(struct context_data *, int);
 
 char *libxmp_strdup(const char *);
 int libxmp_get_filetype (const char *);
+
+LIBXMP_END_DECLS
 
 #endif /* LIBXMP_COMMON_H */

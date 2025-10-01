@@ -12,6 +12,22 @@ AC_DEFUN([XMP_TRY_COMPILE],[
     CFLAGS="${oldcflags}"])
   AS_IF([test "x$$2" = xyes], [$5], [$6])])
 
+AC_DEFUN([AC_CHECK_DEFINED],[
+  AS_VAR_PUSHDEF([ac_var],[ac_cv_defined_$1])dnl
+  AC_CACHE_CHECK([for $1 defined], ac_var,
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
+    #ifdef $1
+    int ok;
+    #else
+    choke me
+    #endif
+  ]])],[AS_VAR_SET(ac_var, yes)],[AS_VAR_SET(ac_var, no)]))
+  AS_IF([test AS_VAR_GET(ac_var) != "no"], [$2], [$3])dnl
+  AS_VAR_POPDEF([ac_var])dnl
+])
+
+AC_CHECK_DEFINED(__cplusplus)
+
 XMP_TRY_COMPILE(whether compiler understands -Wall,
   ac_cv_c_flag_w_all,
   -Wall,[
@@ -41,6 +57,26 @@ XMP_TRY_COMPILE(whether compiler understands -Wwrite-strings,
   -Wwrite-strings,[
   int main(void){return 0;}],
   CFLAGS="${CFLAGS} -Wwrite-strings")
+
+if test "$ac_cv_defined___cplusplus" = "no"; then
+  XMP_TRY_COMPILE(whether compiler understands -Wdeclaration-after-statement,
+    ac_cv_c_flag_w_declaration_after_statement,
+    -Wdeclaration-after-statement,[
+    int main(void){return 0;}],
+    CFLAGS="${CFLAGS} -Wdeclaration-after-statement")
+
+  XMP_TRY_COMPILE(whether compiler understands -Wmissing-prototypes,
+    ac_cv_c_flag_w_missing_prototypes,
+    -Wmissing-prototypes,[
+    int main(void){return 0;}],
+    CFLAGS="${CFLAGS} -Wmissing-prototypes")
+
+  XMP_TRY_COMPILE(whether compiler understands -Wstrict-prototypes,
+    ac_cv_c_flag_w_strict_prototypes,
+    -Wstrict-prototypes,[
+    int main(void){return 0;}],
+    CFLAGS="${CFLAGS} -Wstrict-prototypes")
+fi
 
 AC_CHECK_LIB(m,pow)
 AC_CHECK_FUNCS(pipe popen mkstemp fnmatch fmemopen)

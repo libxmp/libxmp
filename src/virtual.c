@@ -21,6 +21,7 @@
  */
 
 #include "common.h"
+#include "player.h"
 #include "virtual.h"
 #include "mixer.h"
 
@@ -29,10 +30,6 @@
 #endif
 
 #define	FREE	-1
-
-/* For virt_pastnote() */
-void libxmp_player_set_release(struct context_data *, int);
-void libxmp_player_set_fadeout(struct context_data *, int);
 
 
 /* Get parent channel */

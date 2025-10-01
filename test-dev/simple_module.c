@@ -1,10 +1,8 @@
 /* Creates a simple module */
 
+#include "test.h"
 #include "../src/common.h"
 #include "../src/loaders/loader.h"
-
-void libxmp_load_prologue(struct context_data *);
-void libxmp_load_epilogue(struct context_data *);
 
 void create_simple_module(struct context_data *ctx, int ins, int pat)
 {

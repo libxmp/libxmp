@@ -64,6 +64,7 @@ cygwin* | *djgpp | emx* | mint* | amigaos* | aros* | morphos*)
 esac
 
 AC_CHECK_DEFINED(__clang__)
+AC_CHECK_DEFINED(__cplusplus)
 
 case "${host_os}" in
 dnl Skip this on platforms where it is just simply busted.
@@ -131,6 +132,26 @@ XMP_TRY_COMPILE(whether compiler understands -Wwrite-strings,
   -Wwrite-strings,[
   int main(void){return 0;}],
   CFLAGS="${CFLAGS} -Wwrite-strings")
+
+if test "$ac_cv_defined___cplusplus" = "no"; then
+  XMP_TRY_COMPILE(whether compiler understands -Wdeclaration-after-statement,
+    ac_cv_c_flag_w_declaration_after_statement,
+    -Wdeclaration-after-statement,[
+    int main(void){return 0;}],
+    CFLAGS="${CFLAGS} -Wdeclaration-after-statement")
+
+  XMP_TRY_COMPILE(whether compiler understands -Wmissing-prototypes,
+    ac_cv_c_flag_w_missing_prototypes,
+    -Wmissing-prototypes,[
+    int main(void){return 0;}],
+    CFLAGS="${CFLAGS} -Wmissing-prototypes")
+
+  XMP_TRY_COMPILE(whether compiler understands -Wstrict-prototypes,
+    ac_cv_c_flag_w_strict_prototypes,
+    -Wstrict-prototypes,[
+    int main(void){return 0;}],
+    CFLAGS="${CFLAGS} -Wstrict-prototypes")
+fi
 
 XMP_TRY_COMPILE(whether compiler understands -Wundef,
   ac_cv_c_flag_w_undef,

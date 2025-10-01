@@ -24,6 +24,7 @@
 #include "common.h"
 #include "virtual.h"
 #include "mixer.h"
+#include "mix_all.h"
 #include "period.h"
 #include "player.h"	/* for set_sample_end() */
 
@@ -56,14 +57,7 @@ struct loop_data
 	uint8 epilogue[LOOP_EPILOGUE * 2 /* 16-bit */ * 2 /* stereo */];
 };
 
-/* Mixers array index:
- *
- * bit 0: 0=8 bit sample, 1=16 bit sample
- * bit 1: 0=mono sample, 1=stereo sample
- * bit 2: 0=mono output, 1=stereo output
- * bit 3: 0=unfiltered, 1=filtered
- */
-
+/* See mix_all.h for a full explanation of these flags. */
 #define FLAG_16_BITS	0x01
 #define FLAG_STEREO	0x02
 #define FLAG_STEREOOUT	0x04
@@ -71,87 +65,6 @@ struct loop_data
 #define FLAG_ACTIVE	0x10
 /* #define FLAG_SYNTH	0x20 */
 #define FIDX_FLAGMASK	(FLAG_16_BITS | FLAG_STEREO | FLAG_STEREOOUT | FLAG_FILTER)
-
-#define MIX_FN(x) void libxmp_mix_##x(struct mixer_voice * LIBXMP_RESTRICT, \
-	int32 * LIBXMP_RESTRICT, int, int, int, int, int, int, int)
-
-#define DECLARE_MIX_FUNCTIONS(type) \
-	MIX_FN(monoout_mono_8bit_ ## type); \
-	MIX_FN(monoout_mono_16bit_ ## type); \
-	MIX_FN(monoout_stereo_8bit_ ## type); \
-	MIX_FN(monoout_stereo_16bit_ ## type); \
-	MIX_FN(stereoout_mono_8bit_ ## type); \
-	MIX_FN(stereoout_mono_16bit_ ## type); \
-	MIX_FN(stereoout_stereo_8bit_ ## type); \
-	MIX_FN(stereoout_stereo_16bit_ ## type)
-
-#define LIST_MIX_FUNCTIONS(type) \
-	libxmp_mix_monoout_mono_8bit_ ## type, \
-	libxmp_mix_monoout_mono_16bit_ ## type, \
-	libxmp_mix_monoout_stereo_8bit_ ## type, \
-	libxmp_mix_monoout_stereo_16bit_ ## type, \
-	libxmp_mix_stereoout_mono_8bit_ ## type, \
-	libxmp_mix_stereoout_mono_16bit_ ## type, \
-	libxmp_mix_stereoout_stereo_8bit_ ## type, \
-	libxmp_mix_stereoout_stereo_16bit_ ## type
-
-DECLARE_MIX_FUNCTIONS(nearest);
-DECLARE_MIX_FUNCTIONS(linear);
-DECLARE_MIX_FUNCTIONS(spline);
-
-#ifndef LIBXMP_CORE_DISABLE_IT
-DECLARE_MIX_FUNCTIONS(linear_filter);
-DECLARE_MIX_FUNCTIONS(spline_filter);
-#endif
-
-#ifdef LIBXMP_PAULA_SIMULATOR
-MIX_FN(monoout_mono_a500);
-MIX_FN(monoout_mono_a500_filter);
-MIX_FN(stereoout_mono_a500);
-MIX_FN(stereoout_mono_a500_filter);
-#endif
-
-typedef void (*MIX_FP) (struct mixer_voice* LIBXMP_RESTRICT, int32* LIBXMP_RESTRICT, int, int, int, int, int, int, int);
-
-static const MIX_FP nearest_mixers[] = {
-	LIST_MIX_FUNCTIONS(nearest),
-
-#ifndef LIBXMP_CORE_DISABLE_IT
-	LIST_MIX_FUNCTIONS(nearest)
-#endif
-};
-
-static const MIX_FP linear_mixers[] = {
-	LIST_MIX_FUNCTIONS(linear),
-
-#ifndef LIBXMP_CORE_DISABLE_IT
-	LIST_MIX_FUNCTIONS(linear_filter)
-#endif
-};
-
-static const MIX_FP spline_mixers[] = {
-	LIST_MIX_FUNCTIONS(spline),
-
-#ifndef LIBXMP_CORE_DISABLE_IT
-	LIST_MIX_FUNCTIONS(spline_filter)
-#endif
-};
-
-#ifdef LIBXMP_PAULA_SIMULATOR
-#define LIST_MIX_FUNCTIONS_PAULA(type) \
-	libxmp_mix_monoout_mono_ ## type, NULL, NULL, NULL, \
-	libxmp_mix_stereoout_mono_ ## type, NULL, NULL, NULL, \
-	NULL, NULL, NULL, NULL, \
-	NULL, NULL, NULL, NULL
-
-static const MIX_FP a500_mixers[] = {
-	LIST_MIX_FUNCTIONS_PAULA(a500)
-};
-
-static const MIX_FP a500led_mixers[] = {
-	LIST_MIX_FUNCTIONS_PAULA(a500_filter)
-};
-#endif
 
 
 /* Downmix 32bit samples to 8bit, signed or unsigned, mono or stereo output */
@@ -504,7 +417,7 @@ int libxmp_mixer_get_ticksize(int freq, double time_factor, double rrate, int bp
 }
 
 /* Prepare the mixer for the next tick */
-void libxmp_mixer_prepare(struct context_data *ctx)
+static void libxmp_mixer_prepare(struct context_data *ctx)
 {
 	struct player_data *p = &ctx->p;
 	struct module_data *m = &ctx->m;
@@ -543,30 +456,30 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 	int vol, vol_l, vol_r, voc, usmp;
 	int prev_l, prev_r = 0;
 	int32 *buf_pos;
-	MIX_FP  mix_fn;
-	const MIX_FP *mixerset;
+	MIXER_FP  mix_fn;
+	const MIXER_FP *mixerset;
 
 	switch (s->interp) {
 	case XMP_INTERP_NEAREST:
-		mixerset = nearest_mixers;
+		mixerset = libxmp_nearest_mixers;
 		break;
 	case XMP_INTERP_LINEAR:
-		mixerset = linear_mixers;
+		mixerset = libxmp_linear_mixers;
 		break;
 	case XMP_INTERP_SPLINE:
-		mixerset = spline_mixers;
+		mixerset = libxmp_spline_mixers;
 		break;
 	default:
-		mixerset = linear_mixers;
+		mixerset = libxmp_linear_mixers;
 	}
 
 #ifdef LIBXMP_PAULA_SIMULATOR
 	if (p->flags & XMP_FLAGS_A500) {
 		if (IS_AMIGA_MOD()) {
 			if (p->filter) {
-				mixerset = a500led_mixers;
+				mixerset = libxmp_a500led_mixers;
 			} else {
-				mixerset = a500_mixers;
+				mixerset = libxmp_a500_mixers;
 			}
 		}
 	}

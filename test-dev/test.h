@@ -40,7 +40,7 @@
 #define TEST_XM_SAMPLE_8BIT_STEREO	3
 #define TEST_XM_SAMPLE_16BIT_STEREO	4
 
-static inline int is_big_endian() {
+static inline int is_big_endian(void) {
 	uint16 w = 0x00ff;
 	return (*(char *)&w == 0x00);
 }
