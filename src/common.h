@@ -56,14 +56,6 @@
 #define LIBXMP_RESTRICT
 #endif
 
-#if defined(_MSC_VER) ||  defined(__WATCOMC__) || defined(__EMX__)
-#define XMP_MAXPATH _MAX_PATH
-#elif defined(PATH_MAX)
-#define XMP_MAXPATH  PATH_MAX
-#else
-#define XMP_MAXPATH  1024
-#endif
-
 #if defined(__MORPHOS__) || defined(__AROS__) || defined(__AMIGA__) \
  || defined(__amigaos__) || defined(__amigaos4__) || defined(AMIGA)
 #define LIBXMP_AMIGA	1
