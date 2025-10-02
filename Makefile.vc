@@ -56,6 +56,7 @@ OBJS	= \
  src\hmn_extras.obj \
  src\extras.obj \
  src\smix.obj \
+ src\path.obj \
  src\filetype.obj \
  src\memio.obj \
  src\tempfile.obj \

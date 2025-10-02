@@ -25,6 +25,7 @@ set(LIBXMP_SRC_LIST
     src/hmn_extras.c
     src/extras.c
     src/smix.c
+    src/path.c
     src/filetype.c
     src/memio.c
     src/tempfile.c

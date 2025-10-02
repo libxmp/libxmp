@@ -22,6 +22,7 @@
 
 #include "loader.h"
 #include "asif.h"
+#include "../path.h"
 
 
 static int mtp_test (HIO_HANDLE *, char *, const int);
@@ -182,16 +183,19 @@ static int mtp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	for (i = 0; i < mod->ins; i++) {
 		struct xmp_instrument *xxi = &mod->xxi[i];
 		HIO_HANDLE *s;
-		char filename[XMP_MAXPATH];
+		struct libxmp_path sp;
 		char tmpname[32];
 
 		if (libxmp_copy_name_for_fopen(tmpname, xxi->name, 32) != 0)
 			continue;
 
-		if (!libxmp_find_instrument_file(m, filename, sizeof(filename), tmpname))
+		libxmp_path_init(&sp);
+		if (libxmp_find_instrument_file(m, &sp, tmpname) != 0)
 			continue;
 
-		if ((s = hio_open(filename, "rb")) != NULL) {
+		s = hio_open(sp.path, "rb");
+		libxmp_path_free(&sp);
+		if (s != NULL) {
 			asif_load(m, s, i);
 			hio_close(s);
 		}

@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -22,6 +22,7 @@
 
 #include "loader.h"
 #include "mod.h"
+#include "../path.h"
 #include "../period.h"
 #include "../rng.h"
 
@@ -290,6 +291,15 @@ static int read_am_instrument(struct module_data *m, HIO_HANDLE *nt, int i)
 	return 0;
 }
 
+static HIO_HANDLE *flt_check_sample_file(struct libxmp_path *sp,
+					 size_t ext_pos, const char *ext)
+{
+	if (libxmp_path_suffix_at(sp, ext_pos, ext) != 0)
+		return NULL;
+
+	return hio_open(sp->path, "rb");
+}
+
 static int flt_load(struct module_data *m, HIO_HANDLE * f, const int start)
 {
 	struct xmp_module *mod = &m->mod;
@@ -298,7 +308,8 @@ static int flt_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	struct mod_header mh;
 	uint8 mod_event[4];
 	const char *tracker;
-	char filename[1024];
+	struct libxmp_path sp;
+	size_t sp_length;
 	char buf[16];
 	HIO_HANDLE *nt;
 	int am_synth;
@@ -307,19 +318,23 @@ static int flt_load(struct module_data *m, HIO_HANDLE * f, const int start)
 
 	/* See if we have the synth parameters file */
 	am_synth = 0;
-	snprintf(filename, 1024, "%s%s.NT", m->dirname, m->basename);
-	if ((nt = hio_open(filename, "rb")) == NULL) {
-		snprintf(filename, 1024, "%s%s.nt", m->dirname, m->basename);
-		if ((nt = hio_open(filename, "rb")) == NULL) {
-			snprintf(filename, 1024, "%s%s.AS", m->dirname,
-				 m->basename);
-			if ((nt = hio_open(filename, "rb")) == NULL) {
-				snprintf(filename, 1024, "%s%s.as", m->dirname,
-					 m->basename);
-				nt = hio_open(filename, "rb");
-			}
-		}
+	libxmp_path_init(&sp);
+	if (libxmp_path_join(&sp, m->dirname, m->basename) != 0) {
+		return -1;
 	}
+	sp_length = sp.length;
+
+	nt = flt_check_sample_file(&sp, sp_length, ".NT");
+	if (nt == NULL) {
+		nt = flt_check_sample_file(&sp, sp_length, ".nt");
+	}
+	if (nt == NULL) {
+		nt = flt_check_sample_file(&sp, sp_length, ".AS");
+	}
+	if (nt == NULL) {
+		nt = flt_check_sample_file(&sp, sp_length, ".as");
+	}
+	libxmp_path_free(&sp);
 
 	tracker = "Startrekker";
 
