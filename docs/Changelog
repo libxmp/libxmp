@@ -3,6 +3,7 @@ Stable versions
 
 4.6.4 (?):
 	Changes by Alice Rowan:
+	- Add support for Pack-Ice ("Ice!", "ICE!") depacking.
 	- Add support for Software Visions DMF (Apocalypse Abyss MOD variant).
 	- Replace kernel list helper in iff.c with custom list management
 	  to fix numerous otherwise unfixable KallistiOS redefinition warnings.

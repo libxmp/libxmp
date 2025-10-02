@@ -149,6 +149,8 @@ set(LIBXMP_SRC_LIST_DEPACKERS
     src/depackers/arc_unpack.c
     src/depackers/lzx.c
     src/depackers/lzx_unpack.c
+    src/depackers/ice.c
+    src/depackers/ice_unpack.c
     src/depackers/miniz_zip.c
     src/depackers/unzip.c
     src/depackers/gunzip.c

@@ -178,6 +178,8 @@ DEPACKER_OBJS	= \
  src\depackers\arc_unpack.obj \
  src\depackers\lzx.obj \
  src\depackers\lzx_unpack.obj \
+ src\depackers\ice.obj \
+ src\depackers\ice_unpack.obj \
  src\depackers\miniz_zip.obj \
  src\depackers\unzip.obj \
  src\depackers\gunzip.obj \

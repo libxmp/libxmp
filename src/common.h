@@ -233,6 +233,12 @@ static void __inline D_(const char *text, ...) {
 
 #endif	/* !_MSC_VER */
 
+#if defined(__GNUC__) || defined(__clang__)
+#define LIBXMP_ATTRIB_PRINTF(x,y) __attribute__((__format__(__printf__,x,y)))
+#else
+#define LIBXMP_ATTRIB_PRINTF(x,y)
+#endif
+
 #if defined(_WIN32) || defined(__WATCOMC__) /* in win32.c */
 #define USE_LIBXMP_SNPRINTF
 /* MSVC 2015+ has C99 compliant snprintf and vsnprintf implementations.
@@ -249,11 +255,6 @@ static void __inline D_(const char *text, ...) {
 #undef USE_LIBXMP_SNPRINTF
 #endif
 #ifdef USE_LIBXMP_SNPRINTF
-#if defined(__GNUC__) || defined(__clang__)
-#define LIBXMP_ATTRIB_PRINTF(x,y) __attribute__((__format__(__printf__,x,y)))
-#else
-#define LIBXMP_ATTRIB_PRINTF(x,y)
-#endif
 int libxmp_vsnprintf(char *, size_t, const char *, va_list) LIBXMP_ATTRIB_PRINTF(3,0);
 int libxmp_snprintf (char *, size_t, const char *, ...) LIBXMP_ATTRIB_PRINTF(3,4);
 #define snprintf  libxmp_snprintf
