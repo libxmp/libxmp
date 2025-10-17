@@ -239,7 +239,8 @@ int xmp_seek_time(xmp_context opaque, int time)
 	struct context_data *ctx = (struct context_data *)opaque;
 	struct player_data *p = &ctx->p;
 	struct module_data *m = &ctx->m;
-	int i, t;
+	double t;
+	int i;
 
 	if (ctx->state < XMP_STATE_PLAYING)
 		return -XMP_ERROR_STATE;
@@ -252,8 +253,12 @@ int xmp_seek_time(xmp_context opaque, int time)
 		if (libxmp_get_sequence(ctx, i) != p->sequence) {
 			continue;
 		}
+		/* TODO: using rounding to preserve compatibility with
+		 * the old (bad) int conversion here until this API
+		 * function can be fixed or replaced. */
 		t = m->xxo_info[i].time;
-		if (time >= t) {
+		CLAMP(t, 0.0, (double)INT_MAX);
+		if (time >= (int)t) {
 			set_position(ctx, i, 1);
 			break;
 		}

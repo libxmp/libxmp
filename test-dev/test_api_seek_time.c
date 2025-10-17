@@ -20,6 +20,37 @@ int pos_dlr[] = {
 	24, 24, 24, 24, 25, 25, 25, 25, 26, 26, 26, 27, 27
 };
 
+static void test_order_times(xmp_context opaque, const char *test)
+{
+	struct context_data *ctx = (struct context_data *)opaque;
+	struct module_data *m = &ctx->m;
+	char buf[128];
+	double time;
+	int ret, i;
+
+	/* Should be able to seek to the exact order time without issue.
+	 * For extremely long modules (longest.med), this won't seek to
+	 * the correct spot currently due to API limitations. */
+	for (i = 0; i < m->mod.len; i++) {
+		/* API expects rounded values due to having been
+		 * designed to handle int (rather than double). */
+		time = m->xxo_info[i].time;
+		CLAMP(time, 0.0, (double)INT_MAX);
+		ret = xmp_seek_time(opaque, (int)time);
+
+		/* Seek (but don't check) overflowed times and markers
+		 * so they get sanitized. */
+		if (time >= (double)INT_MAX ||
+		    m->mod.xxo[i] == XMP_MARK_SKIP ||
+		    m->mod.xxo[i] == XMP_MARK_END) {
+			continue;
+		}
+		snprintf(buf, sizeof(buf),
+			"time seek to %.6f failed in '%s' @ %d (got %d)",
+			time, test, i, ret);
+		fail_unless(ret == i, buf);
+	}
+}
 
 TEST(test_api_seek_time)
 {
@@ -37,6 +68,7 @@ TEST(test_api_seek_time)
 		ret = xmp_seek_time(ctx, i * 1000);
 		fail_unless(ret == pos_ode2ptk[i], "seek error");
 	}
+	test_order_times(ctx, "ode2ptk");
 
 	xmp_release_module(ctx);
 	xmp_free_context(ctx);
@@ -51,6 +83,18 @@ TEST(test_api_seek_time)
 		ret = xmp_seek_time(ctx, i * 1000);
 		fail_unless(ret == pos_dlr[i], "seek error");
 	}
+	test_order_times(ctx, "dans_la_rue");
+
+	xmp_release_module(ctx);
+	xmp_free_context(ctx);
+
+	/* Seek longest.med */
+
+	ctx = xmp_create_context();
+	xmp_load_module(ctx, "data/longest.med");
+	xmp_start_player(ctx, 8000, 0);
+
+	test_order_times(ctx, "longest.med");
 
 	xmp_release_module(ctx);
 	xmp_free_context(ctx);
