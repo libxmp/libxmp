@@ -301,7 +301,7 @@ add_subdirectory(docs)
 
 include(CMakePackageConfigHelpers)
 
-if(WIN32)
+if(WIN32 AND NOT MINGW)
     set(cmake_install_cmakdir "cmake")
     set(cmake_install_cmakdir_lite "cmake")
 else()
