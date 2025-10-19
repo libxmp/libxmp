@@ -174,7 +174,7 @@ endif()
 
 include(CMakePackageConfigHelpers)
 
-if(WIN32)
+if(WIN32 AND NOT MINGW)
     set(cmake_install_cmakdir "cmake")
 else()
     set(cmake_install_cmakdir "${CMAKE_INSTALL_LIBDIR}/cmake/libxmp-lite")
@@ -216,9 +216,9 @@ if(TARGET xmp_lite_static)
     )
 endif()
 install(FILES
-    libxmp-lite-config.cmake
-    "${CMAKE_CURRENT_BINARY_DIR}/libxmp-lite-config-version.cmake"
-    DESTINATION "${cmake_install_cmakdir}"
+        libxmp-lite-config.cmake
+        "${CMAKE_CURRENT_BINARY_DIR}/libxmp-lite-config-version.cmake"
+        DESTINATION "${cmake_install_cmakdir}"
 )
 install(FILES
         include/libxmp-lite/xmp.h
