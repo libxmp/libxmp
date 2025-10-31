@@ -68,6 +68,8 @@ static const struct depacker *const depacker_list[] = {
 	&libxmp_depacker_arc,
 	&libxmp_depacker_arcfs,
 	&libxmp_depacker_mmcmp,
+	&libxmp_depacker_ice1,
+	&libxmp_depacker_ice2,
 	&libxmp_depacker_lzx,
 	&libxmp_depacker_s404,
 	NULL
@@ -276,7 +278,7 @@ int libxmp_decrunch(HIO_HANDLE *h, const char *filename, char **temp)
 	*temp = NULL;
 
 	headersize = hio_read(b, 1, 1024, h);
-	if (headersize < 100) {	/* minimum valid file size */
+	if (headersize < 64) {	/* minimum valid file size */
 		return 0;
 	}
 

@@ -17,6 +17,8 @@ extern const struct depacker libxmp_depacker_sqsh;
 extern const struct depacker libxmp_depacker_arc;
 extern const struct depacker libxmp_depacker_arcfs;
 extern const struct depacker libxmp_depacker_mmcmp;
+extern const struct depacker libxmp_depacker_ice1;
+extern const struct depacker libxmp_depacker_ice2;
 extern const struct depacker libxmp_depacker_lzx;
 extern const struct depacker libxmp_depacker_s404;
 extern const struct depacker libxmp_depacker_xfd;
