@@ -56,6 +56,16 @@ typedef int64_t  ice_int64;
 #define ICE_MIN(a,b)		((a) < (b) ? (a) : (b))
 #endif
 
+#if defined(UINT64_C)
+#define ICE_UINT64_C(c) UINT64_C(c)
+#elif defined(_MSC_VER)
+#define ICE_UINT64_C(c) c ## ui64
+#elif defined(__LP64__) || defined(_LP64)
+#define ICE_UINT64_C(c) c ## UL
+#else
+#define ICE_UINT64_C(c) c ## ULL
+#endif
+
 /* clang (most recently tested: 20.x) makes really bad inlining decisions
  * in the unpacking code and needs to be encouraged to optimize things
  * correctly (up to 40% improvement measured).
