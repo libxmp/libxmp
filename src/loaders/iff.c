@@ -57,6 +57,7 @@ static int iff_process(iff_handle opaque, struct module_data *m, char *id, uint3
 	long pos;
 
 	pos = hio_tell(f);
+	D_(D_INFO "chunk offset: %ld", pos);
 
 	for (i = data->head; i; i = i->next) {
 		if (id && !memcmp(id, i->id, data->id_size)) {
@@ -115,7 +116,7 @@ static int iff_chunk(iff_handle opaque, struct module_data *m, HIO_HANDLE *f, vo
 	} else {
 		size = hio_read32b(f);
 	}
-	D_(D_INFO "size: %d", size);
+	D_(D_INFO "chunk size: %u", (unsigned)size);
 
 	if (hio_error(f)) {
 		/* IFF container issue--exit without error. */

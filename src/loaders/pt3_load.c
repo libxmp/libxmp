@@ -133,6 +133,7 @@ static int get_cmnt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *par
 static int get_ptdt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct local_data *data = (struct local_data *)parm;
+	long pos, pos2;
 
 	/* Sanity check */
 	if(data->has_ptdt) {
@@ -140,8 +141,30 @@ static int get_ptdt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *par
 	}
 	data->has_ptdt = 1;
 
+	pos = hio_tell(f);
 	ptdt_load(m, f, 0);
 
+	/* Check total loaded length.
+	 * NOTE: some Protracker 3.6 files lie about the length of the PTDT
+	 * chunk due to what appears to be a bug--files with samples of length
+	 * 64k or greater will be undercounted in the chunk length by 65536. */
+	pos2 = hio_tell(f);
+	if (pos < pos2) {
+		int adjust = 0;
+		int i;
+
+		for (i = 0; i < m->mod.smp; i++) {
+			if (m->mod.xxs[i].len >= 65536) {
+				adjust += 65536;
+			}
+		}
+		if (pos2 - pos - adjust < 0 ||
+		    pos2 - pos - adjust != (int64)size) {
+			D_(D_WARN "PTDT length check failed: "
+			   "length %ld - adjust %d != %u (report this)",
+			   pos2 - pos, adjust, (unsigned)size);
+		}
+	}
 	return 0;
 }
 
