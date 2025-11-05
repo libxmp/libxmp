@@ -78,7 +78,8 @@ static int iff_process(iff_handle opaque, struct module_data *m, char *id, uint3
 	}
 #endif
 	if (hio_seek(f, pos + size, SEEK_SET) < 0) {
-		return -1;
+		/* IFF container issue--exit without error. */
+		return 1;
 	}
 
 	return 0;
@@ -92,7 +93,7 @@ static int iff_chunk(iff_handle opaque, struct module_data *m, HIO_HANDLE *f, vo
 
 	D_(D_INFO "chunk id size: %d", data->id_size);
 	if (hio_read(id, 1, data->id_size, f) != data->id_size) {
-		(void)hio_error(f);	/* clear error flag */
+		/* End of file or IFF container issue--exit without error. */
 		return 1;
 	}
 	D_(D_INFO "chunk id: [%s]", id);
@@ -117,13 +118,15 @@ static int iff_chunk(iff_handle opaque, struct module_data *m, HIO_HANDLE *f, vo
 	D_(D_INFO "size: %d", size);
 
 	if (hio_error(f)) {
-		return -1;
+		/* IFF container issue--exit without error. */
+		return 1;
 	}
 
 	if (data->flags & IFF_CHUNK_ALIGN2) {
 		/* Sanity check */
 		if (size > 0xfffffffe) {
-			return -1;
+			/* IFF container issue--exit without error. */
+			return 1;
 		}
 		size = (size + 1) & ~1;
 	}
@@ -131,7 +134,8 @@ static int iff_chunk(iff_handle opaque, struct module_data *m, HIO_HANDLE *f, vo
 	if (data->flags & IFF_CHUNK_ALIGN4) {
 		/* Sanity check */
 		if (size > 0xfffffffc) {
-			return -1;
+			/* IFF container issue--exit without error. */
+			return 1;
 		}
 		size = (size + 3) & ~3;
 	}
@@ -175,6 +179,9 @@ int libxmp_iff_load(iff_handle opaque, struct module_data *m, HIO_HANDLE *f, voi
 			return -1;
 	}
 
+	/* Reached end of file, or there was an IFF structural issue.
+	 * Either way, clear the error flag to allow loading to continue. */
+	(void)hio_error(f);
 	return 0;
 }
 
