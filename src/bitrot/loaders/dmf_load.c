@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2021 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -134,7 +134,7 @@ static int unpack(uint8 *psample, uint8 *ibuf, uint8 *ibufmax, uint32 maxlen)
 	struct htree tree;
 	int i, actnode;
 	uint8 value, sign, delta = 0;
-	
+
 	memset(&tree, 0, sizeof(tree));
 	tree.ibuf = ibuf;
 	tree.ibufmax = ibufmax;
@@ -170,7 +170,7 @@ static int unpack(uint8 *psample, uint8 *ibuf, uint8 *ibufmax, uint32 maxlen)
  * IFF chunk handlers
  */
 
-static int get_sequ(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_sequ(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	int i;
@@ -188,7 +188,7 @@ static int get_sequ(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_patt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	int i, j, r, chn;
@@ -241,7 +241,7 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 
 				if (track_counter[j] == 0) {
 					b = hio_read8(f);
-		
+
 					if (b & 0x80)
 						track_counter[j] = hio_read8(f);
 					if (b & 0x40)
@@ -278,7 +278,7 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_smpi(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_smpi(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -297,7 +297,7 @@ static int get_smpi(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 
 		if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 			return -1;
-		
+
 		namelen = hio_read8(f);
 		x = namelen - hio_read(name, 1, namelen > 30 ? 30 : namelen, f);
 		libxmp_instrument_name(mod, i, name, namelen);
@@ -362,7 +362,7 @@ static void dynamic_buffer_free(struct dynamic_buffer* buf)
 	free(buf->data);
 }
 
-static int get_smpd(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_smpd(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -431,11 +431,11 @@ static int dmf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	hio_read(date, 3, 1, f);
 
 	m->c4rate = C4_NTSC_RATE;
-	
+
 	MODULE_INFO();
 	D_(D_INFO "Creation date: %02d/%02d/%04d", date[0],
 						date[1], 1900 + date[2]);
-	
+
 	handle = libxmp_iff_new();
 	if (handle == NULL)
 		return -1;

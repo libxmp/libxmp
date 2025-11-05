@@ -27,7 +27,7 @@
 
 struct iff_info {
 	char id[4];
-	int (*loader)(struct module_data *, int, HIO_HANDLE *, void *);
+	iff_loader loader;
 	struct iff_info *next;
 };
 
@@ -49,18 +49,18 @@ static void iff_append(struct iff_data *data, struct iff_info *i)
 	}
 }
 
-static int iff_process(iff_handle opaque, struct module_data *m, char *id, long size,
+static int iff_process(iff_handle opaque, struct module_data *m, char *id, uint32 size,
 		HIO_HANDLE *f, void *parm)
 {
 	struct iff_data *data = (struct iff_data *)opaque;
 	struct iff_info *i;
-	int pos;
+	long pos;
 
 	pos = hio_tell(f);
 
 	for (i = data->head; i; i = i->next) {
 		if (id && !memcmp(id, i->id, data->id_size)) {
-			D_(D_WARN "Load IFF chunk %s (%ld) @%d", id, size, pos);
+			D_(D_WARN "Load IFF chunk %s (%u) @%ld", id, (unsigned)size, pos);
 			if (size > IFF_MAX_CHUNK_SIZE) {
 				return -1;
 			}
@@ -71,8 +71,15 @@ static int iff_process(iff_handle opaque, struct module_data *m, char *id, long 
 		}
 	}
 
+#if LONG_MAX <= 2147483647L
+	/* TODO: hio_seek doesn't support 64-bit values. */
+	if (pos < 0 || pos + (int64)size > LONG_MAX) {
+		return 1;
+	}
+#endif
 	if (hio_seek(f, pos + size, SEEK_SET) < 0) {
-		return -1;
+		/* IFF container issue--exit without error. */
+		return 1;
 	}
 
 	return 0;
@@ -81,12 +88,12 @@ static int iff_process(iff_handle opaque, struct module_data *m, char *id, long 
 static int iff_chunk(iff_handle opaque, struct module_data *m, HIO_HANDLE *f, void *parm)
 {
 	struct iff_data *data = (struct iff_data *)opaque;
-	unsigned size;
+	uint32 size;
 	char id[17] = "";
 
 	D_(D_INFO "chunk id size: %d", data->id_size);
 	if (hio_read(id, 1, data->id_size, f) != data->id_size) {
-		(void)hio_error(f);	/* clear error flag */
+		/* End of file or IFF container issue--exit without error. */
 		return 1;
 	}
 	D_(D_INFO "chunk id: [%s]", id);
@@ -111,13 +118,15 @@ static int iff_chunk(iff_handle opaque, struct module_data *m, HIO_HANDLE *f, vo
 	D_(D_INFO "size: %d", size);
 
 	if (hio_error(f)) {
-		return -1;
+		/* IFF container issue--exit without error. */
+		return 1;
 	}
 
 	if (data->flags & IFF_CHUNK_ALIGN2) {
 		/* Sanity check */
 		if (size > 0xfffffffe) {
-			return -1;
+			/* IFF container issue--exit without error. */
+			return 1;
 		}
 		size = (size + 1) & ~1;
 	}
@@ -125,7 +134,8 @@ static int iff_chunk(iff_handle opaque, struct module_data *m, HIO_HANDLE *f, vo
 	if (data->flags & IFF_CHUNK_ALIGN4) {
 		/* Sanity check */
 		if (size > 0xfffffffc) {
-			return -1;
+			/* IFF container issue--exit without error. */
+			return 1;
 		}
 		size = (size + 3) & ~3;
 	}
@@ -169,11 +179,13 @@ int libxmp_iff_load(iff_handle opaque, struct module_data *m, HIO_HANDLE *f, voi
 			return -1;
 	}
 
+	/* Reached end of file, or there was an IFF structural issue.
+	 * Either way, clear the error flag to allow loading to continue. */
+	(void)hio_error(f);
 	return 0;
 }
 
-int libxmp_iff_register(iff_handle opaque, const char *id,
-	int (*loader)(struct module_data *, int, HIO_HANDLE *, void *))
+int libxmp_iff_register(iff_handle opaque, const char *id, iff_loader loader)
 {
 	struct iff_data *data = (struct iff_data *)opaque;
 	struct iff_info *f;

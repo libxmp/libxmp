@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2022 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -79,7 +79,7 @@ struct local_data {
 	int has_ptdt;
 };
 
-static int get_info(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_info(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -123,14 +123,14 @@ static int get_info(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_cmnt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_cmnt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
-	D_(D_INFO "Comment size: %d", size);
+	D_(D_INFO "Comment size: %u", (unsigned)size);
 
 	return 0;
 }
 
-static int get_ptdt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_ptdt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct local_data *data = (struct local_data *)parm;
 

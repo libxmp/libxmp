@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -180,7 +180,7 @@ static void fix_effect(struct xmp_event *e)
 	}
 }
 
-static int get_tinf(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_tinf(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct local_data *data = (struct local_data *)parm;
 	int x;
@@ -199,7 +199,7 @@ static int get_tinf(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_mvox(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_mvox(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -217,7 +217,7 @@ static int get_mvox(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_ster(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_ster(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -236,7 +236,7 @@ static int get_ster(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_mnam(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_mnam(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 
@@ -246,14 +246,14 @@ static int get_mnam(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_anam(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_anam(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	/*hio_read(m->author, 1, 32, f); */
 
 	return 0;
 }
 
-static int get_mlen(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_mlen(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	uint32 len;
@@ -268,7 +268,7 @@ static int get_mlen(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_pnum(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_pnum(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -285,7 +285,7 @@ static int get_pnum(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_plen(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_plen(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct local_data *data = (struct local_data *)parm;
 
@@ -295,7 +295,7 @@ static int get_plen(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_sequ(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_sequ(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 
@@ -306,7 +306,7 @@ static int get_sequ(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_patt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -358,7 +358,7 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_samp(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_samp(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;

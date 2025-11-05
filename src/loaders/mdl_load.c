@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2022 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -371,7 +371,7 @@ static int unpack_sample16(uint8 *t, uint8 *f, int len, int l)
  * IFF chunk handlers
  */
 
-static int get_chunk_in(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_chunk_in(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
     struct xmp_module *mod = &m->mod;
     struct local_data *data = (struct local_data *)parm;
@@ -418,7 +418,7 @@ static int get_chunk_in(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     return 0;
 }
 
-static int get_chunk_pa(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_chunk_pa(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
     struct xmp_module *mod = &m->mod;
     struct local_data *data = (struct local_data *)parm;
@@ -459,7 +459,7 @@ static int get_chunk_pa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     return 0;
 }
 
-static int get_chunk_p0(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_chunk_p0(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
     struct xmp_module *mod = &m->mod;
     struct local_data *data = (struct local_data *)parm;
@@ -497,7 +497,7 @@ static int get_chunk_p0(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     return 0;
 }
 
-static int get_chunk_tr(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_chunk_tr(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
     struct xmp_module *mod = &m->mod;
     struct local_data *data = (struct local_data *)parm;
@@ -637,7 +637,7 @@ static int get_chunk_tr(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     return -1;
 }
 
-static int get_chunk_ii(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_chunk_ii(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
     struct xmp_module *mod = &m->mod;
     struct local_data *data = (struct local_data *)parm;
@@ -729,7 +729,7 @@ static int get_chunk_ii(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     return 0;
 }
 
-static int get_chunk_is(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_chunk_is(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
     struct xmp_module *mod = &m->mod;
     struct local_data *data = (struct local_data *)parm;
@@ -813,7 +813,7 @@ static int get_chunk_is(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     return 0;
 }
 
-static int get_chunk_i0(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_chunk_i0(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
     struct xmp_module *mod = &m->mod;
     struct local_data *data = (struct local_data *)parm;
@@ -902,14 +902,14 @@ static int get_chunk_i0(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     return 0;
 }
 
-static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_chunk_sa(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
     struct xmp_module *mod = &m->mod;
     struct local_data *data = (struct local_data *)parm;
     int i, len, size_bound;
     uint8 *smpbuf = NULL, *buf;
     int smpbuf_alloc = -1;
-    int left = hio_size(f) - hio_tell(f);
+    long left = hio_size(f) - hio_tell(f);
 
     /* Sanity check */
     if (data->has_sa || !data->has_is || data->packinfo == NULL) {
@@ -918,7 +918,7 @@ static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     }
     data->has_sa = 1;
 
-    if (size < left)
+    if ((int64)size < left)
 	left = size;
 
     D_(D_INFO "Stored samples: %d", mod->smp);
@@ -951,7 +951,7 @@ static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 
 	/* Sanity check */
 	if (left < size_bound) {
-	    D_(D_CRIT "sample %d (pack=%d) requested >=%d bytes, only %d available",
+	    D_(D_CRIT "sample %d (pack=%d) requested >=%d bytes, only %ld available",
 		i, data->packinfo[i], size_bound, left);
 	    goto err2;
 	}
@@ -1032,7 +1032,7 @@ static int get_chunk_sa(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     return -1;
 }
 
-static int get_chunk_ve(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_chunk_ve(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
     struct local_data *data = (struct local_data *)parm;
     int i;
@@ -1063,7 +1063,7 @@ static int get_chunk_ve(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     return 0;
 }
 
-static int get_chunk_pe(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_chunk_pe(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
     struct local_data *data = (struct local_data *)parm;
     int i;
@@ -1094,7 +1094,7 @@ static int get_chunk_pe(struct module_data *m, int size, HIO_HANDLE *f, void *pa
     return 0;
 }
 
-static int get_chunk_fe(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_chunk_fe(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
     struct local_data *data = (struct local_data *)parm;
     int i;
