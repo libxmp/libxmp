@@ -9,6 +9,9 @@ Stable versions
 	  to fix numerous otherwise unfixable KallistiOS redefinition warnings.
 	- All internal module time/duration calculations are now in doubles
 	  (fixes off-by-one module time on final tick of some modules).
+	- IFF format loading is now more permissive toward errors in the IFF
+	  tag structure, fixing some broken modules that would load for 64-bit
+	  Linux builds but not for Windows.
 
 4.6.3 (20250511):
 	Changes by Alice Rowan:
