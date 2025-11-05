@@ -79,7 +79,7 @@ struct local_data {
 	int has_ptdt;
 };
 
-static int get_info(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_info(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -123,14 +123,14 @@ static int get_info(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_cmnt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_cmnt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
-	D_(D_INFO "Comment size: %d", size);
+	D_(D_INFO "Comment size: %u", (unsigned)size);
 
 	return 0;
 }
 
-static int get_ptdt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_ptdt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct local_data *data = (struct local_data *)parm;
 

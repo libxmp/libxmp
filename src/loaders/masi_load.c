@@ -95,7 +95,7 @@ static int masi_test(HIO_HANDLE *f, char *t, const int start)
 	if (hio_read8(f) != 0)
 		return -1;
 
-	if (hio_read32b(f) != MAGIC_FILE) 
+	if (hio_read32b(f) != MAGIC_FILE)
 		return -1;
 
 	hio_read32b(f);
@@ -120,12 +120,12 @@ struct local_data {
 	uint8 *pord;
 };
 
-static int get_sdft(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_sdft(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	return 0;
 }
 
-static int get_titl(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_titl(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	char buf[XMP_NAME_SIZE];
@@ -138,7 +138,7 @@ static int get_titl(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_dsmp_cnt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_dsmp_cnt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 
@@ -148,7 +148,7 @@ static int get_dsmp_cnt(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	return 0;
 }
 
-static int get_pbod_cnt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_pbod_cnt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -166,7 +166,7 @@ static int get_pbod_cnt(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 }
 
 
-static int get_dsmp(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_dsmp(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct xmp_instrument *xxi;
@@ -246,7 +246,7 @@ static uint8 convert_porta(uint8 param, int sinaria)
 	}
 }
 
-static int get_pbod(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_pbod(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -399,16 +399,16 @@ D_(D_CRIT "p%d r%d c%d: compressed event %02x %02x\n", i, r, chan, fxt, fxp);
 					break;
 				case 0x16:		/* vibrato waveform */
 					fxt = FX_EXTENDED;
-					fxp = (EX_VIBRATO_WF << 4) | (fxp & 0x0f); 
+					fxp = (EX_VIBRATO_WF << 4) | (fxp & 0x0f);
 					break;
 				case 0x17:		/* vibrato + vslide up */
 					fxt = FX_VIBRA_VSLIDE;
 					fxp >>= 4;
-					break;	
+					break;
 				case 0x18:		/* vibrato + vslide down */
 					fxt = FX_VIBRA_VSLIDE;
 					fxp = fxp & 0x0f;
-					break;	
+					break;
 
 				/* Tremolo */
 				case 0x1f:		/* tremolo */
@@ -417,7 +417,7 @@ D_(D_CRIT "p%d r%d c%d: compressed event %02x %02x\n", i, r, chan, fxt, fxp);
 					break;
 				case 0x20:		/* tremolo waveform */
 					fxt = FX_EXTENDED;
-					fxp = (EX_TREMOLO_WF << 4) | (fxp & 0x0f); 
+					fxp = (EX_TREMOLO_WF << 4) | (fxp & 0x0f);
 					break;
 
 				/* Sample commands */
@@ -430,15 +430,15 @@ D_(D_CRIT "p%d r%d c%d: compressed event %02x %02x\n", i, r, chan, fxt, fxp);
 					break;
 				case 0x2a:		/* retrig note */
 					fxt = FX_EXTENDED;
-					fxp = (EX_RETRIG << 4) | (fxp & 0x0f); 
+					fxp = (EX_RETRIG << 4) | (fxp & 0x0f);
 					break;
 				case 0x2b:		/* note cut */
 					fxt = FX_EXTENDED;
-					fxp = (EX_CUT << 4) | (fxp & 0x0f); 
+					fxp = (EX_CUT << 4) | (fxp & 0x0f);
 					break;
 				case 0x2c:		/* note delay */
 					fxt = FX_EXTENDED;
-					fxp = (EX_DELAY << 4) | (fxp & 0x0f); 
+					fxp = (EX_DELAY << 4) | (fxp & 0x0f);
 					break;
 
 				/* Position change */
@@ -455,11 +455,11 @@ D_(D_CRIT "p%d r%d c%d: compressed event %02x %02x\n", i, r, chan, fxt, fxp);
 					break;
 				case 0x35:		/* pattern loop */
 					fxt = FX_EXTENDED;
-					fxp = (EX_PATTERN_LOOP << 4) | (fxp & 0x0f); 
+					fxp = (EX_PATTERN_LOOP << 4) | (fxp & 0x0f);
 					break;
 				case 0x36:		/* pattern delay */
 					fxt = FX_EXTENDED;
-					fxp = (EX_PATT_DELAY << 4) | (fxp & 0x0f); 
+					fxp = (EX_PATT_DELAY << 4) | (fxp & 0x0f);
 					break;
 
 				/* Speed change */
@@ -476,11 +476,11 @@ D_(D_CRIT "p%d r%d c%d: compressed event %02x %02x\n", i, r, chan, fxt, fxp);
 					break;
 				case 0x48:		/* set finetune */
 					fxt = FX_EXTENDED;
-					fxp = (EX_FINETUNE << 4) | (fxp & 0x0f); 
+					fxp = (EX_FINETUNE << 4) | (fxp & 0x0f);
 					break;
 				case 0x49:		/* set pan */
 					fxt = FX_SETPAN;
-					fxp <<= 4; 
+					fxp <<= 4;
 					break;
 
 				default:
@@ -500,7 +500,7 @@ D_(D_CRIT "p%d r%d c%d: unknown effect %02x %02x\n", i, r, chan, fxt, fxp);
 	return 0;
 }
 
-static int get_song(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_song(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 
@@ -510,12 +510,13 @@ static int get_song(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int subchunk_oplh(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int subchunk_oplh(struct module_data *m, uint32 _size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
 	int first_order_chunk = INT_MAX;
 	int num_chunk, i;
+	int size = (int)_size;
 
 	/* First two bytes = Number of chunks that follow */
 	num_chunk = hio_read16l(f);
@@ -639,10 +640,11 @@ static int subchunk_oplh(struct module_data *m, int size, HIO_HANDLE *f, void *p
 }
 
 /* Sinaria channel panning table */
-static int subchunk_ppan(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int subchunk_ppan(struct module_data *m, uint32 _size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	int i;
+	int size = (int)_size;
 
 	for (i = 0; i < XMP_MAX_CHANNELS && size > 0; i++) {
 		struct xmp_channel *xxc = &mod->xxc[i];
@@ -669,10 +671,11 @@ static int subchunk_ppan(struct module_data *m, int size, HIO_HANDLE *f, void *p
 }
 
 /* Subchunk loader based on OpenMPT LoadPSM.cpp */
-static int get_song_2(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_song_2(struct module_data *m, uint32 _size, HIO_HANDLE *f, void *parm)
 {
 	uint32 magic;
 	char buf[20];
+	int size = (int)_size;
 
 	hio_read(buf, 1, 9, f);
 	hio_read16l(f);

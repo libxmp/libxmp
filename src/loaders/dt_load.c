@@ -329,15 +329,15 @@ static void dtm_translate_event(struct xmp_event *event, const uint8 *in,
 }
 
 
-static int get_d_t_(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_d_t_(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
-	int name_len = size - 14;
+	uint32 name_len = size - 14;
 	int b;
 
 	if (size < 14 || size > 142) {
-		D_(D_CRIT "invalid D.T. chunk length %d", size);
+		D_(D_CRIT "invalid D.T. chunk length %u", (unsigned)size);
 		return -1;
 	}
 
@@ -385,7 +385,7 @@ static int get_d_t_(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 		data->c2spd = 8400;
 	}
 
-	CLAMP(name_len, 0, XMP_NAME_SIZE);
+	name_len = MIN(name_len, XMP_NAME_SIZE);
 	hio_read(mod->name, name_len, 1, f);
 	libxmp_set_type(m, "Digital Tracker DTM");
 
@@ -394,7 +394,7 @@ static int get_d_t_(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_s_q_(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_s_q_(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	int i, maxpat;
@@ -424,7 +424,7 @@ static int get_s_q_(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_vers(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_vers(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct local_data *data = (struct local_data *)parm;
 
@@ -438,7 +438,7 @@ static int get_vers(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_sv19(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_sv19(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -478,7 +478,7 @@ static int get_sv19(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_patt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -541,7 +541,7 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_inst(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -699,7 +699,7 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_dapt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_dapt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -776,7 +776,7 @@ static int get_dapt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_dait(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_dait(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -808,13 +808,13 @@ static int get_dait(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_text(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_text(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	int skip_byte;
 	uint32 len;
 
 	if (size < 12 || (size & 1) || m->comment != NULL) {
-		D_(D_INFO "Ignoring TEXT chunk of length %d", size);
+		D_(D_INFO "Ignoring TEXT chunk of length %u", (unsigned)size);
 		return 0;
 	}
 	/*type	= */ hio_read16b(f);
@@ -830,7 +830,8 @@ static int get_text(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	}
 
 	if (len != (uint32)(size - 12 - skip_byte)) {
-		D_(D_INFO "Bad TEXT length (chunk %d, len %u)", size, (unsigned)len);
+		D_(D_INFO "Bad TEXT length (chunk %u, len %u)",
+		   (unsigned)size, (unsigned)len);
 		return 0;
 	}
 	if (len == 0) {

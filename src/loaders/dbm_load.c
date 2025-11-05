@@ -117,7 +117,7 @@ static void dbm_translate_effect(struct xmp_event *event, uint8 *fxt, uint8 *fxp
 	}
 }
 
-static int get_info(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_info(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -176,7 +176,7 @@ static int get_info(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return -1;
 }
 
-static int get_song(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_song(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -206,7 +206,7 @@ static int get_song(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_inst(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -215,7 +215,7 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	uint8 buffer[50];
 
 	/* Sanity check */
-	if (data->have_inst || size < 50 * mod->ins) {
+	if (data->have_inst || (int64)size < 50 * mod->ins) {
 		return -1;
 	}
 	data->have_inst = 1;
@@ -260,7 +260,7 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_patt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -353,7 +353,7 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_smpl(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_smpl(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -432,7 +432,7 @@ static int read_envelope(struct xmp_module *mod, struct dbm_envelope *env, HIO_H
 	return 0;
 }
 
-static int get_venv(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_venv(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -469,7 +469,7 @@ static int get_venv(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_penv(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_penv(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;

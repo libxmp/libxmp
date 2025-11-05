@@ -63,7 +63,7 @@ struct local_data {
 	int has_8smp;
 };
 
-static int get_emic(struct module_data *m, int size, HIO_HANDLE * f, void *parm)
+static int get_emic(struct module_data *m, uint32 size, HIO_HANDLE * f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -153,7 +153,7 @@ static int get_emic(struct module_data *m, int size, HIO_HANDLE * f, void *parm)
 	return 0;
 }
 
-static int get_patt(struct module_data *m, int size, HIO_HANDLE * f, void *parm)
+static int get_patt(struct module_data *m, uint32 size, HIO_HANDLE * f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -202,7 +202,7 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE * f, void *parm)
 	return 0;
 }
 
-static int get_8smp(struct module_data *m, int size, HIO_HANDLE * f, void *parm)
+static int get_8smp(struct module_data *m, uint32 size, HIO_HANDLE * f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
