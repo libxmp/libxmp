@@ -12,6 +12,8 @@ Stable versions
 	- IFF format loading is now more permissive toward errors in the IFF
 	  tag structure, fixing some broken modules that would load for 64-bit
 	  Linux builds but not for Windows.
+	- Fix sample name, restart position, note 0 loading, and pattern count
+	  calculation for Images Music System modules.
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 
