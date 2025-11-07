@@ -82,6 +82,9 @@ dnl Skip this on platforms where it is just simply busted.
 esac
 
 if test "${enable_static}" = yes; then
+  if test x"$AR" = x: || test  x"$RANLIB" = x: ; then
+     AC_MSG_ERROR([Build tools ar and/or ranlib not found.])
+  fi
   AC_SUBST(STATIC,static)
 fi
 if test "${enable_shared}" != no; then
