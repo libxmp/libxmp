@@ -5,6 +5,8 @@ Stable versions
 	Changes by Alice Rowan:
 	- All internal module time/duration calculations are now in doubles
 	  (fixes off-by-one module time on final tick of some modules).
+	Changes by Alice Rowan and ds-sloth:
+	- Minor Impulse Tracker loader performance improvements.
 
 4.6.3 (20250511):
 	Changes by Alice Rowan:
