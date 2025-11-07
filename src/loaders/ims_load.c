@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2022 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -43,10 +43,9 @@
 #include "../period.h"
 
 struct ims_instrument {
-    uint8 name[20];
-    int16 finetune;		/* Causes squeaks in beast-busters1! */
+    uint8 name[22];
     uint16 size;
-    uint8 unknown;
+    uint8 finetune;		/* Presumably finetune; unsupported */
     uint8 volume;
     uint16 loop_start;
     uint16 loop_size;
@@ -56,9 +55,9 @@ struct ims_header {
     uint8 title[20];
     struct ims_instrument ins[31];
     uint8 len;
-    uint8 zero;
+    uint8 restart;		/* Only non-zero in shadow_dancer-am5-3ch.ims */
     uint8 orders[128];
-    uint8 magic[4];
+    uint32 sample_offset;
 };
 
 
@@ -82,19 +81,24 @@ static int ims_test(HIO_HANDLE *f, char *t, const int start)
     hio_read(ih.title, 20, 1, f);
 
     for (i = 0; i < 31; i++) {
-	if (hio_read(ih.ins[i].name, 1, 20, f) < 20)
+	if (hio_read(ih.ins[i].name, 1, 22, f) < 22)
 	    return -1;
 
-	ih.ins[i].finetune = (int16)hio_read16b(f);
 	ih.ins[i].size = hio_read16b(f);
-	ih.ins[i].unknown = hio_read8(f);
+	ih.ins[i].finetune = hio_read8(f);
 	ih.ins[i].volume = hio_read8(f);
 	ih.ins[i].loop_start = hio_read16b(f);
 	ih.ins[i].loop_size = hio_read16b(f);
 
 	smp_size += ih.ins[i].size * 2;
 
-	if (libxmp_test_name(ih.ins[i].name, 20, 0) < 0)
+	if (libxmp_test_name(ih.ins[i].name, 22, 0) < 0)
+	    return -1;
+
+	/* "Note that the lack of finetuned periods in this table would also
+	 * most likely confirm that there is indeed no support for finetune in
+	 * this format." -Saga Musix */
+	if (ih.ins[i].finetune != 0)
 	    return -1;
 
 	if (ih.ins[i].volume > 0x40)
@@ -114,26 +118,29 @@ static int ims_test(HIO_HANDLE *f, char *t, const int start)
 	return -1;
 
     ih.len = hio_read8(f);
-    ih.zero = hio_read8(f);
+    ih.restart = hio_read8(f);
     hio_read(ih.orders, 128, 1, f);
-    if (hio_read(ih.magic, 4, 1, f) == 0)
-	return -1;
+    ih.sample_offset = hio_read32b(f);
 
-    if (ih.zero > 1)		/* not sure what this is */
-	return -1;
-
-    if (ih.magic[3] != 0x3c)
+    if (ih.restart >= ih.len)
 	return -1;
 
     if (ih.len > 0x7f)
 	return -1;
 
-    for (pat = i = 0; i < ih.len; i++)
+    /* Modules may contain patterns after the end of the module,
+     * same as regular MOD. (The Judge/redoctober-sub-docking.ims) */
+    for (pat = i = 0; i < 128; i++)
 	if (ih.orders[i] > pat)
 	    pat = ih.orders[i];
     pat++;
 
     if (pat > 0x7f || ih.len == 0 || ih.len > 0x7f)
+	return -1;
+
+    /* Sample offset should always be the first byte after the pattern data.
+     * Each pattern is 768 bytes and the header is 1084 bytes. */
+    if ((unsigned)pat * 0x300u + 0x43cu != ih.sample_offset)
 	return -1;
 
     hio_seek(f, start + 0, SEEK_SET);
@@ -161,10 +168,9 @@ static int ims_load(struct module_data *m, HIO_HANDLE *f, const int start)
     hio_read (ih.title, 20, 1, f);
 
     for (i = 0; i < 31; i++) {
-	hio_read (ih.ins[i].name, 20, 1, f);
-	ih.ins[i].finetune = (int16)hio_read16b(f);
+	hio_read (ih.ins[i].name, 22, 1, f);
 	ih.ins[i].size = hio_read16b(f);
-	ih.ins[i].unknown = hio_read8(f);
+	ih.ins[i].finetune = hio_read8(f);
 	ih.ins[i].volume = hio_read8(f);
 	ih.ins[i].loop_start = hio_read16b(f);
 	ih.ins[i].loop_size = hio_read16b(f);
@@ -174,14 +180,15 @@ static int ims_load(struct module_data *m, HIO_HANDLE *f, const int start)
     if (ih.len > 128) {
         return -1;
     }
-    ih.zero = hio_read8(f);
+    ih.restart = hio_read8(f);
     hio_read (ih.orders, 128, 1, f);
-    hio_read (ih.magic, 4, 1, f);
+    ih.sample_offset = hio_read32b(f);
 
+    mod->rst = ih.restart;
     mod->len = ih.len;
-    memcpy (mod->xxo, ih.orders, mod->len);
+    memcpy (mod->xxo, ih.orders, 128);
 
-    for (i = 0; i < mod->len; i++)
+    for (i = 0; i < 128; i++)
 	if (mod->xxo[i] > mod->pat)
 	    mod->pat = mod->xxo[i];
 
@@ -212,7 +219,7 @@ static int ims_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	xxs->lps = 2 * ih.ins[i].loop_start;
 	xxs->lpe = xxs->lps + 2 * ih.ins[i].loop_size;
 	xxs->flg = ih.ins[i].loop_size > 1 ? XMP_SAMPLE_LOOP : 0;
-	sub->fin = 0; /* ih.ins[i].finetune; */
+	sub->fin = (int8)ih.ins[i].finetune << 4;
 	sub->vol = ih.ins[i].volume;
 	sub->pan = 0x80;
 	sub->sid = i;
@@ -222,9 +229,9 @@ static int ims_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		xxi->nsm = 1;
 	}
 
-	libxmp_instrument_name(mod, i, ih.ins[i].name, 20);
+	libxmp_instrument_name(mod, i, ih.ins[i].name, 22);
 
-	D_(D_INFO "[%2X] %-20.20s %04x %04x %04x %c V%02x %+d",
+	D_(D_INFO "[%2X] %-22.22s %04x %04x %04x %c V%02x %+d",
 		i, xxi->name, xxs->len, xxs->lps, xxs->lpe,
 		ih.ins[i].loop_size > 1 ? 'L' : ' ', sub->vol, sub->fin >> 4);
     }
@@ -252,9 +259,10 @@ static int ims_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	     * ins
 	     *
 	     * 0x3f is a blank note.
+	     * 0x00 is "a valid period two octaves below middle-C" -Saga Musix
 	     */
 	    event->note = ims_event[0] & 0x3f;
-	    if (event->note != 0x00 && event->note != 0x3f)
+	    if (event->note != 0x3f)
 		event->note += xpo + 12;
 	    else
 		event->note = 0;
