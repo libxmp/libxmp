@@ -89,6 +89,9 @@ if test "${enable_static}" = yes; then
   if test "${enable_lite}" = yes; then
      STATIC="$STATIC static-lite"
   fi
+  if test x"$AR" = x: || test  x"$RANLIB" = x: ; then
+     AC_MSG_ERROR([Build tools ar and/or ranlib not found.])
+  fi
   AC_SUBST(STATIC)
 fi
 if test "${enable_shared}" != no; then
