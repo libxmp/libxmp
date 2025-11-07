@@ -1008,6 +1008,7 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 	uint8 mask[L_CHANNELS];
 	uint8 last_fxp[64];
 	uint8 *pos;
+	uint8 *end;
 
 	int r, c, pat_len, num_rows;
 	uint8 b;
@@ -1034,8 +1035,9 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 		return -1;
 	}
 	pos = patbuf;
+	end = patbuf + pat_len;
 
-	while (r < num_rows && --pat_len >= 0) {
+	while (r < num_rows && pos < end) {
 		b = *(pos++);
 		if (!b) {
 			r++;
@@ -1044,9 +1046,8 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 		c = (b - 1) & 63;
 
 		if (b & 0x80) {
-			if (pat_len < 1) break;
+			if (pos >= end) break;
 			mask[c] = *(pos++);
-			pat_len--;
 		}
 		/*
 		 * WARNING: we IGNORE events in disabled channels. Disabled
@@ -1060,8 +1061,11 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 			event = &EVENT(i, c, r);
 		}
 
+		if ((mask[c] & 0x0f) == 0) {
+			goto skip_packed_event;
+		}
 		if (mask[c] & 0x01) {
-			if (pat_len < 1) break;
+			if (pos >= end) break;
 			b = *(pos++);
 
 			/* From ittech.txt:
@@ -1085,23 +1089,20 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 				}
 			}
 			lastevent[c].note = event->note = b;
-			pat_len--;
 		}
 		if (mask[c] & 0x02) {
-			if (pat_len < 1) break;
+			if (pos >= end) break;
 			b = *(pos++);
 			lastevent[c].ins = event->ins = b;
-			pat_len--;
 		}
 		if (mask[c] & 0x04) {
-			if (pat_len < 1) break;
+			if (pos >= end) break;
 			b = *(pos++);
 			lastevent[c].vol = event->vol = b;
 			xlat_volfx(event);
-			pat_len--;
 		}
 		if (mask[c] & 0x08) {
-			if (pat_len < 2) break;
+			if (pos >= end - 1) break;
 			b = *(pos++);
 			if (b >= ARRAY_SIZE(fx)) {
 				D_(D_WARN "invalid effect %#02x", b);
@@ -1115,7 +1116,11 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 				lastevent[c].fxt = event->fxt;
 				lastevent[c].fxp = event->fxp;
 			}
-			pat_len -= 2;
+		}
+
+skip_packed_event:
+		if ((mask[c] & 0xf0) == 0) {
+			continue;
 		}
 		if (mask[c] & 0x10) {
 			event->note = lastevent[c].note;
@@ -1147,6 +1152,7 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	uint32 *pp_pat;		/* Pointers to patterns */
 	uint8 *patbuf = NULL;
 	uint8 *pos;
+	uint8 *end;
 	int new_fx, sample_mode;
 	int pat_before_smp = 0;
 	int is_mpt_116 = 0;
@@ -1401,9 +1407,14 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			goto err4;
 		}
 		pos = patbuf;
+		end = patbuf + pat_len;
 
 		row = 0;
-		while (row < num_rows && --pat_len >= 0) {
+		while (row < num_rows && pos < end) {
+			/* Bits 0, 1, 2 add 1 byte each. Bit 3 adds 2 bytes. */
+			static const int bytes_in_packed_event[16] = {
+				0, 1, 1, 2, 1, 2, 2, 3, 2, 3, 3, 4, 3, 4, 4, 5
+			};
 			int b = *(pos++);
 			if (b == 0) {
 				row++;
@@ -1416,27 +1427,13 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 				max_ch = c;
 
 			if (b & 0x80) {
-				if (pat_len < 1) break;
-				mask[c] = *(pos++);
-				pat_len--;
+				if (pos >= end) break;
+				/* The high nibble is not required to
+				 * calculate the event size. */
+				mask[c] = *(pos++) & 0x0f;
 			}
-
-			if (mask[c] & 0x01) {
-				pos++;
-				pat_len--;
-			}
-			if (mask[c] & 0x02) {
-				pos++;
-				pat_len--;
-			}
-			if (mask[c] & 0x04) {
-				pos++;
-				pat_len--;
-			}
-			if (mask[c] & 0x08) {
-				pos += 2;
-				pat_len -= 2;
-			}
+			/* Skip packed event */
+			pos += bytes_in_packed_event[mask[c]];
 		}
 	}
 
