@@ -345,7 +345,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  okt \
 		  ptm \
 		  pt36 \
-		  rtm \
+		  rtm rtm_misc \
 		  sfx \
 		  stim \
 		  stm stm_blankpat stm_v1 \

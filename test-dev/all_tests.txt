@@ -192,6 +192,7 @@ test_loader_okt
 test_loader_ptm
 test_loader_pt36
 test_loader_rtm
+test_loader_rtm_misc
 test_loader_sfx
 test_loader_stim
 test_loader_stm
