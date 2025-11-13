@@ -62,6 +62,7 @@ extern const struct format_loader libxmp_loader_far;
 extern const struct format_loader libxmp_loader_umx;
 extern const struct format_loader libxmp_loader_stim;
 extern const struct format_loader libxmp_loader_coco;
+extern const struct format_loader libxmp_loader_cocosong;
 extern const struct format_loader libxmp_loader_ims;
 extern const struct format_loader libxmp_loader_669;
 extern const struct format_loader libxmp_loader_fnk;
@@ -87,7 +88,7 @@ extern const struct format_loader libxmp_loader_stc;
 #endif /* LIBXMP_CORE_PLAYER */
 
 #ifndef LIBXMP_CORE_PLAYER
-#define NUM_FORMATS 52
+#define NUM_FORMATS 53
 #elif !defined(LIBXMP_CORE_DISABLE_IT)
 #define NUM_FORMATS 4
 #else

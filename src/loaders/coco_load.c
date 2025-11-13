@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2021 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -43,42 +43,56 @@ static int check_cr(uint8 *s, int n)
 
 static int coco_test(HIO_HANDLE *f, char *t, const int start)
 {
-	uint8 x, buf[20];
+	uint8 x, buf[32];
 	uint32 y;
 	int n, i;
 
-	x = hio_read8(f);
+	if (hio_read(buf, 1, 32, f) < 32)
+		return -1;
 
 	/* check number of channels */
-	if (x != 0x84 && x != 0x88)
+	x = buf[0] & 0x3f;
+	if (x != 0x04 && x != 0x08) {
+		D_(D_CRIT "not Coconizer: bad channel count %d", x);
 		return -1;
+	}
 
-	if (hio_read(buf, 1, 20, f) != 20)	/* read title */
+	if (check_cr(buf + 1, 20) != 0) {	/* check title */
+		D_(D_CRIT "not Coconizer: title doesn't contain 0x0d");
 		return -1;
-	if (check_cr(buf, 20) != 0)
-		return -1;
+	}
 
-	n = hio_read8(f);			/* instruments */
-	if (n <= 0 || n > 100)
+	n = buf[21];				/* instruments */
+	if (n <= 0 || n > 100) {
+		D_(D_CRIT "not Coconizer: bad instrument count %d", n);
 		return -1;
+	}
 
-	hio_read8(f);			/* sequences */
-	hio_read8(f);			/* patterns */
-
-	y = hio_read32l(f);
-	if (y < 64 || y > 0x00100000)	/* offset of sequence table */
+	y = readmem32l(buf + 24);
+	if (y < 64 || y > 0x00100000) {		/* offset of sequence table */
+		D_(D_CRIT "not Coconizer: bad sequence offset %08x", y);
 		return -1;
+	}
 
-	y = hio_read32l(f);			/* offset of patterns */
-	if (y < 64 || y > 0x00100000)
+	y = readmem32l(buf + 28);		/* offset of patterns */
+	if (y < 64 || y > 0x00100000) {
+		D_(D_CRIT "not Coconizer: bad patterns offset %08x", y);
 		return -1;
+	}
 
 	for (i = 0; i < n; i++) {
-		int ofs = hio_read32l(f);
-		int len = hio_read32l(f);
-		int vol = hio_read32l(f);
-		int lps = hio_read32l(f);
-		int lsz = hio_read32l(f);
+		int ofs, len, vol, lps, lsz;
+
+		if (hio_read(buf, 1, 32, f) < 32)
+			return -1;
+
+		ofs = readmem32l(buf + 0);
+		len = readmem32l(buf + 4);
+		vol = readmem32l(buf + 8);
+		lps = readmem32l(buf + 12);
+		lsz = readmem32l(buf + 16);
+		/* memcpy(name, buf + 20, 11); */
+		/* unused = buf[31]; */
 
 		if (ofs < 64 || ofs > 0x00100000)
 			return -1;
@@ -93,9 +107,6 @@ static int coco_test(HIO_HANDLE *f, char *t, const int start)
 
 		if (lps > 0 && lps + lsz - 1 > len)
 			return -1;
-
-		hio_read(buf, 1, 11, f);
-		hio_read8(f);	/* unused */
 	}
 
 	hio_seek(f, start + 1, SEEK_SET);

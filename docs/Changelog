@@ -5,6 +5,9 @@ Stable versions
 	Changes by Alice Rowan:
 	- Add support for Pack-Ice ("Ice!", "ICE!") depacking.
 	- Add support for Software Visions DMF (Apocalypse Abyss MOD variant).
+	- Add support for CoconizerSong variant of the Coconizer format.
+	  These are actually just RISC-OS 26-bit Relocatable Modules with a
+	  Coconizer module embedded inside of them.
 	- Replace kernel list helper in iff.c with custom list management
 	  to fix numerous otherwise unfixable KallistiOS redefinition warnings.
 	- All internal module time/duration calculations are now in doubles
