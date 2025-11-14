@@ -128,6 +128,7 @@ test_loader_asylum
 test_loader_chiptracker
 test_loader_coco
 test_loader_coco_patalign
+test_loader_cocosong
 test_loader_dbm
 test_loader_dbm_rows
 test_loader_dbm_penv

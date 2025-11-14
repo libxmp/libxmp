@@ -315,7 +315,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  arch \
 		  asylum \
 		  chiptracker \
-		  coco coco_patalign \
+		  coco coco_patalign cocosong \
 		  dbm dbm_rows dbm_penv dbm_venv \
 		  digi \
 		  dsmi dsmi_08 dsmi_09 dsmi_10 dsmi_10_trunc dsmi_11 dsmi_13 \
