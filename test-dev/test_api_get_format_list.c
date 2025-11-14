@@ -9,7 +9,7 @@ TEST(test_api_get_format_list)
 	fail_unless(list != 0, "returned NULL");
 
 	for (i = 0; list[i] != NULL; i++) {
-		fail_unless(*list[i] != 0, "empty format name");
+		fail_unless(*list[i] != NULL, "empty format name");
 	}
 
 	fail_unless(i == 95, "wrong number of formats");

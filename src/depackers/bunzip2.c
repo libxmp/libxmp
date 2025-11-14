@@ -359,7 +359,7 @@ static int read_huffman_data(struct bunzip_data *bd, struct bwdata *bw)
   // linearly, staying in cache more, so isn't as limited by DRAM access.)
   runPos = dbufCount = symCount = selector = 0;
   // Some unnecessary initializations to shut gcc up.
-  hufGroup = 0;
+  hufGroup = NULL;
   hh = 0;
 
   for (;;) {
@@ -714,9 +714,9 @@ static int decrunch_bzip2(HIO_HANDLE *in, void **out, long *outlen)
   output.buf_size = 0;
   output.buf_alloc = 0;
 
-  i = start_bunzip(&bd, in, 0, 0);
+  i = start_bunzip(&bd, in, NULL, 0);
   if (!i) {
-    i = write_bunzip_data(bd, bd->bwdata, &output, 0, 0);
+    i = write_bunzip_data(bd, bd->bwdata, &output, NULL, 0);
     if (i==RETVAL_LAST_BLOCK) {
       if (bd->bwdata[0].headerCRC==bd->totalCRC) i = 0;
       else i = RETVAL_DATA_ERROR;

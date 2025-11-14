@@ -37,7 +37,6 @@
 
 #include "loader.h"
 
-
 static int digi_test (HIO_HANDLE *, char *, const int);
 static int digi_load (struct module_data *, HIO_HANDLE *, const int);
 
@@ -86,11 +85,10 @@ struct digi_header {
     uint8 insname[31][30];	/* Instrument names */
 };
 
-
 static int digi_load(struct module_data *m, HIO_HANDLE *f, const int start)
 {
     struct xmp_module *mod = &m->mod;
-    struct xmp_event *event = 0;
+    struct xmp_event *event = NULL;
     struct digi_header dh;
     uint8 digi_event[4], chn_table[64];
     uint16 w;
