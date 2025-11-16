@@ -282,7 +282,7 @@ static int med3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	mask = hio_read32b(f);
 	for (i = 0; i < 32; i++, mask <<= 1) {
 		mod->xxi[i].sub[0].vol = mask & MASK ? hio_read8(f) : 0;
-		mod->xxi[i].sub[0].pan = 0x80;
+		mod->xxi[i].sub[0].pan = -1;
 		mod->xxi[i].sub[0].fin = 0;
 		mod->xxi[i].sub[0].sid = i;
 	}

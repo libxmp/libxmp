@@ -594,7 +594,7 @@ static int mmd_load_hybrid_instrument(HIO_HANDLE *f, struct module_data *m, int 
 	mmd_set_default_pitch_note(xxi, exp_smp, ver);
 	sub = &xxi->sub[0];
 
-	sub->pan = 0x80;
+	sub->pan = -1;
 	sub->vol = info.enable ? sample->svol : 0;
 	sub->xpo = info.sampletrans;
 	sub->sid = smp_idx;
@@ -620,7 +620,7 @@ static int mmd_load_hybrid_instrument(HIO_HANDLE *f, struct module_data *m, int 
 		if (j >= xxi->nsm || smp_idx >= mod->smp)
 			return -1;
 
-		sub->pan = 0x80;
+		sub->pan = -1;
 		sub->vol = info.enable ? 64 : 0;
 		sub->xpo = info.synthtrans;
 		sub->sid = smp_idx;
@@ -712,7 +712,7 @@ static int mmd_load_synth_instrument(HIO_HANDLE *f, struct module_data *m, int i
 		if (j >= xxi->nsm || smp_idx >= mod->smp)
 			return -1;
 
-		sub->pan = 0x80;
+		sub->pan = -1;
 		sub->vol = info.enable ? 64 : 0;
 		sub->xpo = info.synthtrans;
 		sub->sid = smp_idx;
@@ -765,7 +765,7 @@ static int mmd_load_sampled_instrument(HIO_HANDLE *f, struct module_data *m, int
 	sub = &xxi->sub[0];
 
 	sub->vol = info.enable ? sample->svol : 0;
-	sub->pan = 0x80;
+	sub->pan = -1;
 	sub->xpo = info.sampletrans;
 	sub->sid = smp_idx;
 	sub->fin = exp_smp->finetune << 4;
@@ -867,7 +867,7 @@ static int mmd_load_iffoct_instrument(HIO_HANDLE *f, struct module_data *m, int 
 		sub = &xxi->sub[j];
 
 		sub->vol = info.enable ? sample->svol : 0;
-		sub->pan = 0x80;
+		sub->pan = -1;
 		sub->xpo = info.sampletrans - 12;
 		sub->sid = smp_idx;
 		sub->fin = exp_smp->finetune << 4;

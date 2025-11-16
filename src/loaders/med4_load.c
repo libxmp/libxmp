@@ -205,7 +205,7 @@ static int med4_load_sampled_instrument(HIO_HANDLE *f, struct module_data *m,
 	sub = &xxi->sub[0];
 
 	sub->vol = temp_inst[i].volume;
-	sub->pan = 0x80;
+	sub->pan = -1;
 	sub->xpo = temp_inst[i].transpose;
 	sub->sid = *smp_idx;
 
@@ -348,7 +348,7 @@ static int med4_load_synth_instrument(HIO_HANDLE *f, struct module_data *m,
 
 		sub = &xxi->sub[0];
 
-		sub->pan = 0x80;
+		sub->pan = -1;
 		sub->vol = temp_inst[i].volume;
 		sub->xpo = temp_inst[i].transpose;
 		sub->sid = *smp_idx;
@@ -384,7 +384,7 @@ static int med4_load_synth_instrument(HIO_HANDLE *f, struct module_data *m,
 
 		sub = &xxi->sub[j];
 
-		sub->pan = 0x80;
+		sub->pan = -1;
 		sub->vol = 64;
 		sub->xpo = -24;
 		sub->sid = *smp_idx;

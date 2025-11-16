@@ -85,7 +85,7 @@ static int med2_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	hio_read8(f);		/* skip 0 */
 	for (i = 0; i < 31; i++) {
 		mod->xxi[i].sub[0].vol = hio_read8(f);
-		mod->xxi[i].sub[0].pan = 0x80;
+		mod->xxi[i].sub[0].pan = -1;
 		mod->xxi[i].sub[0].fin = 0;
 		mod->xxi[i].sub[0].sid = i;
 	}
