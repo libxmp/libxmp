@@ -164,7 +164,7 @@ static int mgt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		mod->xxi[i].sub[0].vol = hio_read16b(f) >> 4;
 		hio_read8(f);		/* vol L */
 		hio_read8(f);		/* vol R */
-		mod->xxi[i].sub[0].pan = 0x80;
+		mod->xxi[i].sub[0].pan = -1;
 		flags = hio_read8(f);
 		mod->xxs[i].flg = flags & 0x03 ? XMP_SAMPLE_LOOP : 0;
 		mod->xxs[i].flg |= flags & 0x02 ? XMP_SAMPLE_LOOP_BIDIR : 0;

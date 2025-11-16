@@ -172,7 +172,7 @@ static int mtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		sub->vol = mih.volume;
 		sub->fin = (int8)(mih.finetune << 4);
-		sub->pan = 0x80;
+		sub->pan = -1;
 		sub->sid = i;
 
 		libxmp_instrument_name(mod, i, mih.name, 22);

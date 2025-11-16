@@ -229,7 +229,7 @@ static int ptm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		}
 
 		sub->vol = pih.vol;
-		sub->pan = 0x80;
+		sub->pan = -1;
 		sub->sid = i;
 		pih.magic = 0;
 

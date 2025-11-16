@@ -276,7 +276,7 @@ static int ptdt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		mod->xxi[i].sub[0].fin = (int8)(mh.ins[i].finetune << 4);
 		mod->xxi[i].sub[0].vol = mh.ins[i].volume;
-		mod->xxi[i].sub[0].pan = 0x80;
+		mod->xxi[i].sub[0].pan = -1;
 		mod->xxi[i].sub[0].sid = i;
 		mod->xxi[i].rls = 0xfff;
 
