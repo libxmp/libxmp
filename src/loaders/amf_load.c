@@ -246,7 +246,7 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		mod->xxi[i].nsm = 1;
 		mod->xxi[i].sub[0].sid = i;
-		mod->xxi[i].sub[0].pan = 0x80;
+		mod->xxi[i].sub[0].pan = -1;
 
 		if (ver >= 0x0a) {
 			mod->xxs[i].len = hio_read32l(f);
