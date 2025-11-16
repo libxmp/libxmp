@@ -322,8 +322,6 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 				goto fx_volslide;
 		}
 
-		SET(VOL_SLIDE);
-
 		/* Skaven's 2nd reality (S3M) has volslide parameter D7 => pri
 		 * down. Other trackers only compute volumes if the other
 		 * parameter is 0, Fall from sky.xm has 2C => do nothing.
@@ -331,6 +329,7 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 		 * of Sounds.xm
 		 */
 		if (fxp) {
+			SET(VOL_SLIDE);
 			xc->vol.memory = fxp;
 			h = MSN(fxp);
 			l = LSN(fxp);
@@ -355,9 +354,9 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 			}
 		}
 		break;
-	case FX_VOLSLIDE_2:	/* Secondary volume slide */
-		SET(VOL_SLIDE_2);
+	case FX_VOLSLIDE_2:	/* Secondary volume slide (no memory) */
 		if (fxp) {
+			SET(VOL_SLIDE_2);
 			h = MSN(fxp);
 			l = LSN(fxp);
 			xc->vol.slide2 = h ? h : -l;

@@ -292,7 +292,7 @@ PLAYER		= read_event scan loop period_amiga period_mod_range pan \
 		  it_portamento_after_cut_fade it_portamento_after_cut_fade_cg \
 		  it_portamento_envelope_reset it_portamento_envelope_reset_cg \
 		  xm_portamento_envelope_reset xm_portamento_target \
-		  xm_keyoff_with_instrument \
+		  xm_keyoff_with_instrument xm_no_cxx_dxx_memory \
 		  xm_envelope_zero_loop xm_envelope_set_pos \
 		  ft2_note_noins_after_keyoff \
 		  ft2_note_noins_after_invalid_ins \
