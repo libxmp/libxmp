@@ -5,6 +5,7 @@ Stable versions
 	Changes by Alice Rowan:
 	- All internal module time/duration calculations are now in doubles
 	  (fixes off-by-one module time on final tick of some modules).
+	- Fix XM volume effects cxx/dxx accidentally having effects memory.
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 

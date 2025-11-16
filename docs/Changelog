@@ -14,6 +14,7 @@ Stable versions
 	  Linux builds but not for Windows.
 	- Fix sample name, restart position, note 0 loading, and pattern count
 	  calculation for Images Music System modules.
+	- Fix XM volume effects cxx/dxx accidentally having effects memory.
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 
