@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2021 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -225,7 +225,7 @@ static int coco_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		smp_ptr[i] = hio_read32l(f);
 		mod->xxs[i].len = hio_read32l(f);
 		mod->xxi[i].sub[0].vol = 0xff - hio_read32l(f);
-		mod->xxi[i].sub[0].pan = -1;
+		mod->xxi[i].sub[0].pan = NO_SAMPLE_PANNING;
 		mod->xxs[i].lps = hio_read32l(f);
 		mod->xxs[i].lpe = mod->xxs[i].lps + hio_read32l(f);
 		if (mod->xxs[i].lpe)

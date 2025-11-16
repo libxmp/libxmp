@@ -207,7 +207,7 @@ static int sfx_13_20_load(struct module_data *m, HIO_HANDLE *f, const int nins,
 		xxi->nsm = 1;
 		sub->vol = ins[i].volume;
 		sub->fin = (int8) (ins[i].finetune << 4);	/* unsure */
-		sub->pan = -1;
+		sub->pan = NO_SAMPLE_PANNING;
 		sub->sid = i;
 
 		libxmp_instrument_name(mod, i, ins[i].name, 22);

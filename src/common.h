@@ -446,6 +446,8 @@ int libxmp_snprintf (char *, size_t, const char *, ...) LIBXMP_ATTRIB_PRINTF(3,4
 #define XMP_MARK_SKIP		0xfe /* S3M/IT (QUIRK_MARKER) skip position */
 #define XMP_MARK_END		0xff /* S3M/IT (QUIRK_MARKER) end position */
 
+#define NO_SAMPLE_PANNING	-1	/* disable sample/instrument panning */
+
 #define IS_PLAYER_MODE_MOD()	(m->read_event_type == READ_EVENT_MOD)
 #define IS_PLAYER_MODE_FT2()	(m->read_event_type == READ_EVENT_FT2)
 #define IS_PLAYER_MODE_ST3()	(m->read_event_type == READ_EVENT_ST3)

@@ -115,7 +115,7 @@ static int get_emic(struct module_data *m, uint32 size, HIO_HANDLE * f, void *pa
 		hio_read32b(f);	/* ptr */
 
 		xxi->nsm = 1;
-		sub->pan = -1;
+		sub->pan = NO_SAMPLE_PANNING;
 		sub->sid = i;
 
 		D_(D_INFO "[%2X] %-20.20s %05x %05x %05x %c V%02x %+d",

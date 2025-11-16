@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -191,7 +191,7 @@ static int stim_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		mod->xxs[i].flg = si.loop_size > 1 ? XMP_SAMPLE_LOOP : 0;
 		mod->xxi[i].sub[0].fin = (int8) (si.finetune << 4);
 		mod->xxi[i].sub[0].vol = si.volume;
-		mod->xxi[i].sub[0].pan = -1;
+		mod->xxi[i].sub[0].pan = NO_SAMPLE_PANNING;
 		mod->xxi[i].sub[0].sid = i;
 		mod->xxi[i].rls = 0xfff;
 

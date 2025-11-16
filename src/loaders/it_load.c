@@ -557,7 +557,7 @@ static int load_old_it_instrument(struct xmp_instrument *xxi, HIO_HANDLE *f)
 			sub->dct =
 			    i1h.dnc ? XMP_INST_DCT_NOTE : XMP_INST_DCT_OFF;
 			sub->dca = XMP_INST_DCA_CUT;
-			sub->pan = -1;
+			sub->pan = NO_SAMPLE_PANNING;
 		}
 	}
 
@@ -706,7 +706,7 @@ static int load_new_it_instrument(struct xmp_instrument *xxi, HIO_HANDLE *f)
 			sub->nna = i2h.nna;
 			sub->dct = i2h.dct;
 			sub->dca = dca2nna[i2h.dca];
-			sub->pan = i2h.dfp & 0x80 ? -1 : i2h.dfp * 4;
+			sub->pan = i2h.dfp & 0x80 ? NO_SAMPLE_PANNING : i2h.dfp * 4;
 			sub->ifc = i2h.ifc;
 			sub->ifr = i2h.ifr;
 			sub->rvv = ((int)i2h.rp << 8) | i2h.rv;
@@ -869,7 +869,7 @@ static int load_it_sample(struct module_data *m, int i, int start,
 		/* Create an instrument for each sample */
 		mod->xxi[i].vol = 64;
 		mod->xxi[i].sub[0].vol = ish.vol;
-		mod->xxi[i].sub[0].pan = -1;
+		mod->xxi[i].sub[0].pan = NO_SAMPLE_PANNING;
 		mod->xxi[i].sub[0].sid = i;
 		mod->xxi[i].nsm = !!(xxs->len);
 		libxmp_instrument_name(mod, i, ish.name, 25);
@@ -913,7 +913,7 @@ static int load_it_sample(struct module_data *m, int i, int start,
 				if (ish.dfp & 0x80) {
 					sub->pan = (ish.dfp & 0x7f) * 4;
 				} else if (sample_mode) {
-					sub->pan = -1;
+					sub->pan = NO_SAMPLE_PANNING;
 				}
 			}
 		}

@@ -208,7 +208,7 @@ static int get_samp(struct module_data *m, uint32 size, HIO_HANDLE *f, void *par
 		sub->vol = hio_read16b(f);
 		data->mode[i] = hio_read16b(f);
 
-		sub->pan = -1;
+		sub->pan = NO_SAMPLE_PANNING;
 		sub->sid = j;
 
 		data->idx[j] = i;

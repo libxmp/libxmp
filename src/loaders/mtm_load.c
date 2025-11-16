@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -172,7 +172,7 @@ static int mtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		sub->vol = mih.volume;
 		sub->fin = (int8)(mih.finetune << 4);
-		sub->pan = -1;
+		sub->pan = NO_SAMPLE_PANNING;
 		sub->sid = i;
 
 		libxmp_instrument_name(mod, i, mih.name, 22);

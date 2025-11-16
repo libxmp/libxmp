@@ -312,7 +312,7 @@ static int get_smpi(struct module_data *m, uint32 size, HIO_HANDLE *f, void *par
 		c3spd = hio_read16l(f);
 		libxmp_c2spd_to_note(c3spd, &mod->xxi[i].sub[0].xpo, &mod->xxi[i].sub[0].fin);
 		mod->xxi[i].sub[0].vol = hio_read8(f);
-		mod->xxi[i].sub[0].pan = -1;
+		mod->xxi[i].sub[0].pan = NO_SAMPLE_PANNING;
 		mod->xxi[i].sub[0].sid = i;
 		flag = hio_read8(f);
 		mod->xxs[i].flg = flag & 0x01 ? XMP_SAMPLE_LOOP : 0;

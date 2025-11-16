@@ -657,7 +657,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		XMP_SAMPLE_LOOP : 0;
 	sub->fin = (int8)(mh.ins[i].finetune << 4);
 	sub->vol = mh.ins[i].volume;
-	sub->pan = -1;
+	sub->pan = NO_SAMPLE_PANNING;
 	sub->sid = i;
 	libxmp_instrument_name(mod, i, mh.ins[i].name, 22);
 

@@ -429,7 +429,7 @@ static int get_samp(struct module_data *m, uint32 size, HIO_HANDLE *f, void *par
 	hio_read32l(f);	/* 0x00000000 */
 
 	mod->xxi[i].sub[0].sid = i;
-	mod->xxi[i].sub[0].pan = -1;
+	mod->xxi[i].sub[0].pan = NO_SAMPLE_PANNING;
 
 	m->vol_table = libxmp_arch_vol_table;
 	m->volbase = 0xff;

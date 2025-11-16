@@ -279,7 +279,7 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			mod->xxs[i].lpe = 0;
 		mod->xxs[i].flg = mod->xxs[i].lpe > 0 ? XMP_SAMPLE_LOOP : 0;
 		mod->xxi[i].sub[0].vol = sfh.ins[i].volume;
-		mod->xxi[i].sub[0].pan = -1;
+		mod->xxi[i].sub[0].pan = NO_SAMPLE_PANNING;
 		mod->xxi[i].sub[0].sid = i;
 
 		if (mod->xxs[i].len > 0)
