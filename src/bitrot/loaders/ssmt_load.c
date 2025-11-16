@@ -93,7 +93,7 @@ static int mtp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		}
 		hio_read16l(f);		/* skip 2 reserved bytes */
 		mod->xxi[i].sub[0].vol = hio_read8(f) >> 2;
-		mod->xxi[i].sub[0].pan = 0x80;
+		mod->xxi[i].sub[0].pan = -1;
 		hio_seek(f, 5, SEEK_CUR);	/* skip 5 bytes */
 	}
 
@@ -205,7 +205,7 @@ static int mtp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		mod->xxs[i].lpe = 0;
 		mod->xxs[i].flg = mod->xxs[i].lpe > 0 ? XMP_SAMPLE_LOOP : 0;
 		mod->xxi[i].sub[0].fin = 0;
-		mod->xxi[i].sub[0].pan = 0x80;
+		mod->xxi[i].sub[0].pan = -1;
 #endif
 
 		D_(D_INFO "[%2X] %-22.22s %04x %04x %04x %c V%02x", i,

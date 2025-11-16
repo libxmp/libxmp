@@ -188,7 +188,7 @@ static int polly_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		mod->xxs[i].lps = 0;
 		mod->xxs[i].lpe = 0;
 		mod->xxs[i].flg = 0;
-		mod->xxi[i].sub[0].pan = 0x80;
+		mod->xxi[i].sub[0].pan = -1;
 		mod->xxi[i].sub[0].sid = i;
 		mod->xxi[i].nsm = !!(mod->xxs[i].len);
 		mod->xxi[i].rls = 0xfff;

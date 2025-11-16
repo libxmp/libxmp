@@ -91,7 +91,7 @@ int asif_load(struct module_data *m, HIO_HANDLE *f, int i)
 		
 			mod->xxi[i].nsm = 1;
 			mod->xxi[i].sub[0].vol = 0x40;
-			mod->xxi[i].sub[0].pan = 0x80;
+			mod->xxi[i].sub[0].pan = -1;
 			mod->xxi[i].sub[0].sid = i;
 
 			chunk++;

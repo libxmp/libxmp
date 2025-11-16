@@ -126,7 +126,7 @@ static int hsc_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	mod->xxi[i].nsm = 1;
 	mod->xxi[i].sub[0].vol = 0x40;
 	mod->xxi[i].sub[0].fin = (int8)sid[11] / 4;
-	mod->xxi[i].sub[0].pan = 0x80;
+	mod->xxi[i].sub[0].pan = -1;
 	mod->xxi[i].sub[0].xpo = 0;
 	mod->xxi[i].sub[0].sid = i;
 	mod->xxi[i].rls = LSN(sid[7]) * 32;	/* carrier release */

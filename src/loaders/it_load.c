@@ -869,7 +869,7 @@ static int load_it_sample(struct module_data *m, int i, int start,
 		/* Create an instrument for each sample */
 		mod->xxi[i].vol = 64;
 		mod->xxi[i].sub[0].vol = ish.vol;
-		mod->xxi[i].sub[0].pan = 0x80;
+		mod->xxi[i].sub[0].pan = -1;
 		mod->xxi[i].sub[0].sid = i;
 		mod->xxi[i].nsm = !!(xxs->len);
 		libxmp_instrument_name(mod, i, ish.name, 25);

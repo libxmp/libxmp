@@ -165,7 +165,7 @@ static int alm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	    hio_seek(s, 0, SEEK_SET);
 	}
 
-	mod->xxi[i].sub[0].pan = 0x80;
+	mod->xxi[i].sub[0].pan = -1;
 	mod->xxi[i].sub[0].vol = 0x40;
 	mod->xxi[i].sub[0].sid = i;
 

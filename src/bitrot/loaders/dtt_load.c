@@ -110,7 +110,7 @@ static int dtt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		hio_read8(f);			/* note */
 		mod->xxi[i].sub[0].vol = hio_read8(f) >> 1;
-		mod->xxi[i].sub[0].pan = 0x80;
+		mod->xxi[i].sub[0].pan = -1;
 		hio_read16l(f);			/* not used */
 		c2spd = hio_read32l(f);		/* period? */
 		hio_read32l(f);			/* sustain start */

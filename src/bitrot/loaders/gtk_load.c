@@ -184,7 +184,7 @@ static int gtk_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			hio_read16b(f);
 			hio_read16b(f);
 			mod->xxi[i].sub[0].vol = 0xff;
-			mod->xxi[i].sub[0].pan = 0x80;
+			mod->xxi[i].sub[0].pan = -1;
 			bits = 1;
 			c2spd = 8363;
 		} else {

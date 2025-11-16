@@ -83,7 +83,7 @@ int fcm_load(struct module_data *m, HIO_HANDLE *f)
 	mod->xxs[i].flg = fh.ins[i].loop_size > 1 ? XMP_SAMPLE_LOOP : 0;
 	mod->xxi[i].sub[0].fin = (int8)fh.ins[i].finetune << 4;
 	mod->xxi[i].sub[0].vol = fh.ins[i].volume;
-	mod->xxi[i].sub[0].pan = 0x80;
+	mod->xxi[i].sub[0].pan = -1;
 	mod->xxi[i].sub[0].sid = i;
 	mod->xxi[i].nsm = !!(mod->xxs[i].len);
 	mod->xxi[i].rls = 0xfff;
