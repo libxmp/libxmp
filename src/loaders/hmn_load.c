@@ -237,7 +237,7 @@ static int hmn_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			mod->xxi[i].sub[j].fin =
 					-(int8)(mh.ins[i].finetune << 3);
 			mod->xxi[i].sub[j].vol = mh.ins[i].volume;
-			mod->xxi[i].sub[j].pan = 0x80;
+			mod->xxi[i].sub[j].pan = -1;
 			mod->xxi[i].sub[j].sid = i;
 		}
 	}

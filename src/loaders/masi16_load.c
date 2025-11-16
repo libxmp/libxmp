@@ -323,7 +323,7 @@ static int masi16_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		finetune = buf[60];
 		sub->vol = buf[61];
 		c2spd = readmem16l(buf + 62);
-		sub->pan = 0x80;
+		sub->pan = -1;
 		sub->sid = num;
 		xxs->flg = flags & 0x80 ? XMP_SAMPLE_LOOP : 0;
 		xxs->flg |= flags & 0x20 ? XMP_SAMPLE_LOOP_BIDIR : 0;

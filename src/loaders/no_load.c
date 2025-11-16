@@ -291,7 +291,7 @@ static int no_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		mod->xxs[i].flg = mod->xxs[i].lpe > 0 ? XMP_SAMPLE_LOOP : 0;
 		mod->xxi[i].sub[0].fin = 0;
-		mod->xxi[i].sub[0].pan = 0x80;
+		mod->xxi[i].sub[0].pan = -1;
 		mod->xxi[i].sub[0].sid = i;
 
 		D_(D_INFO "[%2X] %-22.22s  %04x %04x %04x %c V%02x %5d",

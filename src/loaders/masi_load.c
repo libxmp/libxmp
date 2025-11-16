@@ -211,7 +211,7 @@ static int get_dsmp(struct module_data *m, uint32 size, HIO_HANDLE *f, void *par
 
 	sub->vol = hio_read8(f) / 2 + 1;
 	hio_read32l(f);
-	sub->pan = 0x80;
+	sub->pan = -1;
 	sub->sid = i;
 	srate = hio_read16l(f);
 
