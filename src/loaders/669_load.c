@@ -177,7 +177,7 @@ static int c669_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	xxs->flg = xxs->lpe ? XMP_SAMPLE_LOOP : 0;	/* 1 == Forward loop */
 
 	sub->vol = 0x40;
-	sub->pan = 0x80;
+	sub->pan = -1;
 	sub->sid = i;
 
 	if (xxs->len > 0)

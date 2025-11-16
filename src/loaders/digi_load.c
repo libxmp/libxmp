@@ -168,7 +168,7 @@ static int digi_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	mod->xxs[i].flg = mod->xxs[i].lpe > 0 ? XMP_SAMPLE_LOOP : 0;
 	mod->xxi[i].sub[0].vol = dh.vol[i];
 	mod->xxi[i].sub[0].fin = dh.fin[i];
-	mod->xxi[i].sub[0].pan = 0x80;
+	mod->xxi[i].sub[0].pan = -1;
 	mod->xxi[i].sub[0].sid = i;
 
 	if (mod->xxs[i].len > 0)

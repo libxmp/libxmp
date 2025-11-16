@@ -104,7 +104,7 @@ static int asylum_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		mod->xxi[i].sub[0].fin = (int8)(insbuf[22] << 4);
 		mod->xxi[i].sub[0].vol = insbuf[23];
 		mod->xxi[i].sub[0].xpo = (int8)insbuf[24];
-		mod->xxi[i].sub[0].pan = 0x80;
+		mod->xxi[i].sub[0].pan = -1;
 		mod->xxi[i].sub[0].sid = i;
 
 		mod->xxs[i].len = readmem32l(insbuf + 25);
