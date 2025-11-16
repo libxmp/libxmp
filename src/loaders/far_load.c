@@ -442,6 +442,7 @@ static int far_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	mod->xxs[i].flg |= fih.loopmode ? XMP_SAMPLE_LOOP : 0;
 	mod->xxi[i].sub[0].vol = 0xff; /* fih.volume; */
+	mod->xxi[i].sub[0].pan = -1;
 	mod->xxi[i].sub[0].sid = i;
 
 	libxmp_instrument_name(mod, i, fih.name, 32);
