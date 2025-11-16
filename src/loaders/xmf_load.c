@@ -314,6 +314,7 @@ static int xmf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		xxs->lpe = readmem24l(pos + 3);
 		xtra->c5spd = readmem16l(pos + 14);
 		sub->vol = pos[12];
+		sub->pan = -1;
 		sub->sid = i;
 
 		/* The Sound Blaster driver will only loop if both the

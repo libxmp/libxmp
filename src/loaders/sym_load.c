@@ -511,7 +511,7 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			    xtra->sue <= xxs->len && looplen > 2)
 				xxs->flg |= XMP_SAMPLE_SLOOP;
 			xxi->sub[0].vol = hio_read8(f);
-			xxi->sub[0].pan = 0x80;
+			xxi->sub[0].pan = -1;
 			/* finetune adjusted comparing DSym and S3M versions
 			 * of "inside out" */
 			xxi->sub[0].fin = (int8)(hio_read8(f) << 4);

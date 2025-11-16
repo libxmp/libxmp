@@ -191,7 +191,7 @@ static int stim_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		mod->xxs[i].flg = si.loop_size > 1 ? XMP_SAMPLE_LOOP : 0;
 		mod->xxi[i].sub[0].fin = (int8) (si.finetune << 4);
 		mod->xxi[i].sub[0].vol = si.volume;
-		mod->xxi[i].sub[0].pan = 0x80;
+		mod->xxi[i].sub[0].pan = -1;
 		mod->xxi[i].sub[0].sid = i;
 		mod->xxi[i].rls = 0xfff;
 

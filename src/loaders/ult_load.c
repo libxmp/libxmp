@@ -254,7 +254,7 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 /* TODO: Add logarithmic volume support */
 	mod->xxi[i].sub[0].vol = uih.volume;
-	mod->xxi[i].sub[0].pan = 0x80;
+	mod->xxi[i].sub[0].pan = -1;
 	mod->xxi[i].sub[0].sid = i;
 
 	libxmp_instrument_name(mod, i, uih.name, 24);
