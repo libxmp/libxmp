@@ -15,6 +15,9 @@ Stable versions
 	- Fix sample name, restart position, note 0 loading, and pattern count
 	  calculation for Images Music System modules.
 	- Fix XM volume effects cxx/dxx accidentally having effects memory.
+	- Correct default of sample default panning values to -1 (no default
+	  panning) for most module formats.
+	- Fix Galaxy Music System 4.0 sample default panning.
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 
