@@ -515,7 +515,7 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	    sub->sid = smp_num;
 	    sub->vol = is.vol;
-	    sub->pan = (is.flg & IMF_SAMPLE_DEFPAN) ? is.pan : -1;
+	    sub->pan = (is.flg & IMF_SAMPLE_DEFPAN) ? is.pan : NO_SAMPLE_PANNING;
 	    xxs->len = is.len;
 	    xxs->lps = is.lps;
 	    xxs->lpe = is.lpe;

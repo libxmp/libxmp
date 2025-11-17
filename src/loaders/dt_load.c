@@ -584,7 +584,7 @@ static int get_inst(struct module_data *m, uint32 size, HIO_HANDLE *f, void *par
 		mod->xxi[i].nsm = (mod->xxs[i].len > 0);
 		fine = (int8)(buf[8] << 4);		/* finetune */
 		mod->xxi[i].sub[0].vol = buf[9];
-		mod->xxi[i].sub[0].pan = 0x80;
+		mod->xxi[i].sub[0].pan = NO_SAMPLE_PANNING;
 		repstart = readmem32b(buf + 10);
 		replen = readmem32b(buf + 14);
 

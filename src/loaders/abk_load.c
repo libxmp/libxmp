@@ -565,7 +565,7 @@ static int abk_load(struct module_data *m, HIO_HANDLE *f, const int start)
 /*printf("%02x lps=%04x lpe=%04x\n", i,  mod->xxs[i].lps, mod->xxs[i].lpe);*/
 
         mod->xxi[i].sub[0].vol = ci[i].sample_volume;
-        mod->xxi[i].sub[0].pan = 0x80;
+        mod->xxi[i].sub[0].pan = NO_SAMPLE_PANNING;
         mod->xxi[i].sub[0].sid = i;
 
         libxmp_instrument_name(mod, i, (uint8*)ci[i].sample_name, 16);

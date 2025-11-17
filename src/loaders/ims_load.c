@@ -221,7 +221,7 @@ static int ims_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	xxs->flg = ih.ins[i].loop_size > 1 ? XMP_SAMPLE_LOOP : 0;
 	sub->fin = (int8)ih.ins[i].finetune << 4;
 	sub->vol = ih.ins[i].volume;
-	sub->pan = 0x80;
+	sub->pan = NO_SAMPLE_PANNING;
 	sub->sid = i;
 	//mod->xxi[i].rls = 0xfff;
 

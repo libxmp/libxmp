@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2021 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * This file is part of the Extended Module Player and is distributed
  * under the terms of the GNU Lesser General Public License. See COPYING.LIB
@@ -93,7 +93,7 @@ static int mtp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		}
 		hio_read16l(f);		/* skip 2 reserved bytes */
 		mod->xxi[i].sub[0].vol = hio_read8(f) >> 2;
-		mod->xxi[i].sub[0].pan = 0x80;
+		mod->xxi[i].sub[0].pan = NO_SAMPLE_PANNING;
 		hio_seek(f, 5, SEEK_CUR);	/* skip 5 bytes */
 	}
 
@@ -205,7 +205,7 @@ static int mtp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		mod->xxs[i].lpe = 0;
 		mod->xxs[i].flg = mod->xxs[i].lpe > 0 ? XMP_SAMPLE_LOOP : 0;
 		mod->xxi[i].sub[0].fin = 0;
-		mod->xxi[i].sub[0].pan = 0x80;
+		mod->xxi[i].sub[0].pan = NO_SAMPLE_PANNING;
 #endif
 
 		D_(D_INFO "[%2X] %-22.22s %04x %04x %04x %c V%02x", i,

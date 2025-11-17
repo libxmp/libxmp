@@ -256,7 +256,7 @@ static int get_inst(struct module_data *m, uint32 size, HIO_HANDLE *f, void *par
 
 	mod->xxi[i].sub[0].sid = i;
 	mod->xxi[i].vol = hio_read8(f);
-	mod->xxi[i].sub[0].pan = 0x80;
+	mod->xxi[i].sub[0].pan = NO_SAMPLE_PANNING;
 	mod->xxi[i].sub[0].vol = (hio_read16l(f) + 1) / 512;
 	flags = hio_read16l(f);
 	hio_read16l(f);			/* unknown - 0x0080 */

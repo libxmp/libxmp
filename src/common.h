@@ -290,7 +290,7 @@ int libxmp_snprintf (char *, size_t, const char *, ...) LIBXMP_ATTRIB_PRINTF(3,4
 #define QUIRK_VOLPDN	(1 << 9)	/* Set priority to volume slide down */
 #define QUIRK_UNISLD	(1 << 10)	/* Unified pitch slide/portamento */
 #define QUIRK_ITVPOR	(1 << 11)	/* Disable fine bends in IT vol fx */
-#define QUIRK_FTMOD	(1 << 12)	/* Flag for multichannel mods */
+/*#define QUIRK_FTMOD	(1 << 12)*/	/* Flag for multichannel mods */
 #define QUIRK_INVLOOP	(1 << 13)	/* Enable invert loop */
 /*#define QUIRK_MODRNG	(1 << 13)*/	/* Limit periods to MOD range */
 #define QUIRK_INSVOL	(1 << 14)	/* Use instrument volume */
@@ -445,6 +445,8 @@ int libxmp_snprintf (char *, size_t, const char *, ...) LIBXMP_ATTRIB_PRINTF(3,4
 
 #define XMP_MARK_SKIP		0xfe /* S3M/IT (QUIRK_MARKER) skip position */
 #define XMP_MARK_END		0xff /* S3M/IT (QUIRK_MARKER) end position */
+
+#define NO_SAMPLE_PANNING	-1	/* disable sample/instrument panning */
 
 #define IS_PLAYER_MODE_MOD()	(m->read_event_type == READ_EVENT_MOD)
 #define IS_PLAYER_MODE_FT2()	(m->read_event_type == READ_EVENT_FT2)

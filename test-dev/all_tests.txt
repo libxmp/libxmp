@@ -154,6 +154,7 @@ test_loader_far_fx
 test_loader_flt
 test_loader_flt8
 test_loader_fnk
+test_loader_gal4_smpl_setpan
 test_loader_gdm
 test_loader_gdm_fx
 test_loader_gdm_fx2

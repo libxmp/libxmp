@@ -525,12 +525,10 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 
 			/* No note */
 			if (sub != NULL) {
-				int pan = mod->xxc[chn].pan - 128;
 				xc->volume = sub->vol;
 
-				if (!HAS_QUIRK(QUIRK_FTMOD)) {
-					xc->pan.val = pan + ((sub->pan - 128) *
-						(128 - abs(pan))) / 128 + 128;
+				if (sub->pan >= 0) {
+					xc->pan.val = sub->pan;
 				}
 
 				xc->ins_fade = mod->xxi[xc->ins].rls;
@@ -588,12 +586,10 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 			/* Current instrument */
 			sub = get_subinstrument(ctx, xc->ins, key - 1);
 			if (sub != NULL) {
-				int pan = mod->xxc[chn].pan - 128;
 				xc->volume = sub->vol;
 
-				if (!HAS_QUIRK(QUIRK_FTMOD)) {
-					xc->pan.val = pan + ((sub->pan - 128) *
-						(128 - abs(pan))) / 128 + 128;
+				if (sub->pan >= 0) {
+					xc->pan.val = sub->pan;
 				}
 
 				xc->ins_fade = mod->xxi[xc->ins].rls;

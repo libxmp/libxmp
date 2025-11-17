@@ -325,6 +325,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  far far_fx \
 		  flt flt8 \
 		  fnk \
+		  gal4_smpl_setpan \
 		  gdm gdm_fx gdm_fx2 \
 		  hmn \
 		  ice \

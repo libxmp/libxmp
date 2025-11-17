@@ -564,7 +564,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		sub = &xxi->sub[0];
 
 		hio_seek(f, start + pp_ins[i] * 16, SEEK_SET);
-		sub->pan = 0x80;
+		sub->pan = NO_SAMPLE_PANNING;
 		sub->sid = i;
 
 		if (hio_read(buf, 1, 80, f) != 80) {

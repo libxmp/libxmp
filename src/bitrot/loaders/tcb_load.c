@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2021 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -153,7 +153,7 @@ static int tcb_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	for (i = 0; i < mod->ins; i++) {
 		mod->xxi[i].sub[0].vol = hio_read8(f) / 2;
-		mod->xxi[i].sub[0].pan = 0x80;
+		mod->xxi[i].sub[0].pan = NO_SAMPLE_PANNING;
 		unk1[i] = hio_read8(f);
 		unk2[i] = hio_read8(f);
 		unk3[i] = hio_read8(f);
@@ -176,7 +176,7 @@ static int tcb_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		mod->xxs[i].lpe = 0;
 		mod->xxs[i].flg = mod->xxs[i].lpe > 0 ? XMP_SAMPLE_LOOP : 0;
 		mod->xxi[i].sub[0].fin = 0;
-		mod->xxi[i].sub[0].pan = 0x80;
+		mod->xxi[i].sub[0].pan = NO_SAMPLE_PANNING;
 		mod->xxi[i].sub[0].sid = i;
 
 		D_(D_INFO "[%2X] %-8.8s  %04x %04x %04x %c "

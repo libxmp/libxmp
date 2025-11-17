@@ -704,7 +704,7 @@ static int get_chunk_ii(struct module_data *m, uint32 size, HIO_HANDLE *f, void 
 	    if (j == 0)
 		data->p_index[i] = x & 0x80 ? x & 0x3f : -1;
 	    if (~x & 0x40)
-		sub->pan = 0x80;
+		sub->pan = NO_SAMPLE_PANNING;
 
 	    x = hio_read16l(f);
 	    if (j == 0)
@@ -879,7 +879,7 @@ static int get_chunk_i0(struct module_data *m, uint32 size, HIO_HANDLE *f, void 
 	xxs->lpe = xxs->lps + xxs->lpe;
 
 	sub->vol = hio_read8(f);	/* Volume */
-	sub->pan = 0x80;
+	sub->pan = NO_SAMPLE_PANNING;
 
         m->xtra[i].c5spd = (double)c5spd;
 

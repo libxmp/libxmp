@@ -657,7 +657,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		XMP_SAMPLE_LOOP : 0;
 	sub->fin = (int8)(mh.ins[i].finetune << 4);
 	sub->vol = mh.ins[i].volume;
-	sub->pan = 0x80;
+	sub->pan = NO_SAMPLE_PANNING;
 	sub->sid = i;
 	libxmp_instrument_name(mod, i, mh.ins[i].name, 22);
 
@@ -1105,7 +1105,7 @@ skip_test:
     #ifdef LIBXMP_CORE_PLAYER
     if (mod->chn > 4) {
 	m->quirk &= ~QUIRK_PROTRACK;
-	m->quirk |= QUIRKS_FT2 | QUIRK_FTMOD;
+	m->quirk |= QUIRKS_FT2;
 	m->read_event_type = READ_EVENT_FT2;
 	m->period_type = PERIOD_AMIGA;
     }
@@ -1118,7 +1118,7 @@ skip_test:
 	m->read_event_type = READ_EVENT_ST3;
     } else if (tracker_id == TRACKER_FASTTRACKER || tracker_id == TRACKER_FASTTRACKER2 || tracker_id == TRACKER_TAKETRACKER || tracker_id == TRACKER_MODSGRAVE || mod->chn > 4) {
 	m->c4rate = C4_NTSC_RATE;
-	m->quirk |= QUIRKS_FT2 | QUIRK_FTMOD;
+	m->quirk |= QUIRKS_FT2;
 	m->read_event_type = READ_EVENT_FT2;
 	m->period_type = PERIOD_AMIGA;
     }
