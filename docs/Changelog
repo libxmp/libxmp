@@ -15,6 +15,9 @@ Stable versions
 	- Fix sample name, restart position, note 0 loading, and pattern count
 	  calculation for Images Music System modules.
 	- Fix XM volume effects cxx/dxx accidentally having effects memory.
+	- Fix Real Tracker RTM maximum pattern row count, various effects
+	  translations, initial panning and sample panning, sample base volume,
+	  non-delta coded samples, and instrument flags.
 	- Correct default of sample default panning values to -1 (no default
 	  panning) for most module formats.
 	- Fix Galaxy Music System 4.0 sample default panning.

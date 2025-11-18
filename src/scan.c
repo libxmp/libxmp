@@ -75,8 +75,9 @@ static double scan_module(struct context_data *ctx, int ep, int chain)
     int far_tempo_coarse, far_tempo_fine, far_tempo_mode;
 #endif
     /* was 255, but Global trash goes to 318.
+     * Real Tracker supports up to 999 rows, increasing again from 512.
      * Higher limit for MEDs, defiance.crybaby.5 has blocks with 2048+ rows. */
-    const int row_limit = IS_PLAYER_MODE_MED() ? 3200 : 512;
+    const int row_limit = IS_PLAYER_MODE_MED() ? 3200 : 1024;
 
     if (mod->len == 0)
 	return 0;

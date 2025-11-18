@@ -10,11 +10,12 @@ TEST(test_fuzzer_play_rtm_autovib)
 	 * be synchronized.
 	 *
 	 * This previously caused out-of-bounds array accesses in lfo.c.
+	 *
+	 * NOTE: hex edited to have initial panning values that match
+	 * libxmp's old misinterpreted values.
 	 */
-/* FIXME: reenable in rtm patch
 	compare_mixer_data(
 		"data/f/play_rtm_autovib_oob_depth_rate.rtm",
 		"data/f/play_rtm_autovib_oob_depth_rate.data");
-*/
 }
 END_TEST

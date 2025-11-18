@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -39,6 +39,8 @@ struct ObjectHeader {
 struct RTMMHeader {		/* Real Tracker Music Module */
 	char software[20];	/* software used for saving the module */
 	char composer[32];
+#define RTMM_FLAG_LINEAR_TABLE	(1 << 0)
+#define RTMM_FLAG_TRACK_NAMES	(1 << 1)
 	uint16 flags;		/* song flags */
 				/* bit 0 : linear table,
 				   bit 1 : track names present */
@@ -63,8 +65,8 @@ struct RTNDHeader {		/* Real Tracker Note Data */
 };
 
 struct EnvelopePoint {
-	long x;
-	long y;
+	int32 x;
+	int32 y;
 };
 
 struct Envelope {
@@ -73,12 +75,17 @@ struct Envelope {
 	uint8 sustain;
 	uint8 loopstart;
 	uint8 loopend;
+#define RTENV_FLAG_ENABLE	(1 << 0)
+#define RTENV_FLAG_SUSTAIN	(1 << 1)
+#define RTENV_FLAG_LOOP		(1 << 2)
 	uint16 flags;		/* bit 0 : enable envelope,
 				   bit 1 : sustain, bit 2 : loop */
 };
 
 struct RTINHeader {		/* Real Tracker Instrument */
 	uint8 nsample;
+#define RTIN_FLAG_DEFAULT_PAN	(1 << 0)
+#define RTIN_FLAG_MUTE_SAMPLES	(1 << 1)
 	uint16 flags;		/* bit 0 : default panning enabled
 				   bit 1 : mute samples */
 	uint8 table[120];	/* sample number for each note */
@@ -104,11 +111,15 @@ struct RTINHeader {		/* Real Tracker Instrument */
 };
 
 struct RTSMHeader {		/* Real Tracker Sample */
+#define RTSM_FLAG_16_BIT	(1 << 1)
+#define RTSM_FLAG_DELTA_CODING	(1 << 2)
 	uint16 flags;		/* bit 1 : 16 bits,
 				   bit 2 : delta encoded (always) */
 	uint8 basevolume;
 	uint8 defaultvolume;
 	uint32 length;
+#define RTSM_LOOP_ON		1
+#define RTSM_LOOP_BIDIR		2
 	uint8 loop;		/* =0:no loop, =1:forward loop,
 				   =2:bi-directional loop */
 	uint8 reserved[3];
@@ -148,6 +159,157 @@ static int rtm_test(HIO_HANDLE *f, char *t, const int start)
 
 
 #define MAX_SAMP 1024
+
+#define FX_NONE			0xff
+#define FX_EXTENDED_IT		0xfe
+#define FX_PORTA_UP_MOD		0xf1
+#define FX_PORTA_DN_MOD		0xf2
+#define FX_TONE_VSLIDE_MOD	0xf5
+#define FX_VIBRA_VSLIDE_MOD	0xf6
+#define FX_VOLSLIDE_MOD		0xfa
+
+/* MOD effects and S3M effects have separate effects memory.
+ *
+ * TODO: Axy/5xy/6xy have shared memory and dxy/kxy have shared memory.
+ * Additionally, dxy will set the Axy memory if the dxy slide is NOT fine,
+ * but Axy will never set the memory of dxy. Effects memory is positional,
+ * i.e. effect 1 and effect 2 of a given channel have their own memory slots.
+ * Simulating this would be a lot of work for a format that was barely used,
+ * so just strip "fine" effects from Axy/5xy/6xy and let the two sets share
+ * memory for now.
+ *
+ * TODO: 1xx has separate memory from fxx; 2xx has separate memory from exx.
+ */
+static const uint8 rtm_fx[41] = {
+	/* 0 */ FX_ARPEGGIO,		/* Arpeggio (MOD) */
+	/* 1 */ FX_PORTA_UP_MOD,	/* Portamento up (MOD) */
+	/* 2 */ FX_PORTA_DN_MOD,	/* Portamento down (MOD) */
+	/* 3 */ FX_TONEPORTA,		/* Toneporta */
+	/* 4 */ FX_VIBRATO,		/* Vibrato */
+	/* 5 */ FX_TONE_VSLIDE_MOD,	/* Toneporta + volume slide (MOD) */
+	/* 6 */ FX_VIBRA_VSLIDE_MOD,	/* Vibrato + volume slide (MOD) */
+	/* 7 */ FX_TREMOLO,		/* Tremolo */
+	/* 8 */ FX_SETPAN,		/* Set panning (S3M) */
+	/* 9 */ FX_OFFSET,		/* Sample offset */
+	/* A */ FX_VOLSLIDE_MOD,	/* Volume slide (MOD) */
+	/* B */ FX_JUMP,		/* Position jump */
+	/* C */ FX_VOLSET,		/* Set volume */
+	/* D */ FX_BREAK,		/* Pattern break */
+	/* E */ FX_EXTENDED,		/* Extended effects (MOD) */
+	/* F */ FX_SPEED,		/* Set speed/tempo */
+	/* G */ FX_GLOBALVOL,		/* Set global volume */
+	/* H */ FX_GVOL_SLIDE,		/* Global volume slide */
+	/* I */ FX_NONE,
+	/* J */ FX_NONE,
+	/* K */ FX_KEYOFF,		/* Key off */
+	/* L */ FX_ENVPOS,		/* Set volume envelope position */
+	/* M */ FX_NONE,		/* Select MIDI controller */
+	/* N */ FX_NONE,
+	/* O */ FX_NONE,
+	/* P */ FX_PANSLIDE,		/* Panning slide */
+	/* Q */ FX_NONE,
+	/* R */ FX_MULTI_RETRIG,	/* Retrig + volume slide */
+	/* S */ FX_EXTENDED_IT,		/* SA Set high sample offset */
+	/* T */ FX_TREMOR,		/* Tremor */
+	/* U */ FX_NONE,
+	/* V */ FX_NONE,		/* Set MIDI controller value */
+	/* W */ FX_NONE,
+	/* X */ FX_XF_PORTA,		/* Extra fine portamento */
+	/* Y */ FX_NONE,
+	/* Z */ FX_NONE,
+	/* d */ FX_VOLSLIDE,		/* Volume slide (S3M) */
+	/* f */ FX_PORTA_UP,		/* Portamento up (S3M) */
+	/* e */ FX_PORTA_DN,		/* Portamento down (S3M) */
+	/* k */ FX_VIBRA_VSLIDE,	/* Vibrato + volume slide (S3M) */
+	/* a */ FX_S3M_SPEED,		/* Set speed (S3M) */
+};
+
+static void rtm_translate_effect(uint8 *fxt, uint8 *fxp)
+{
+	if (*fxt >= ARRAY_SIZE(rtm_fx)) {
+		*fxt = *fxp = 0;
+		return;
+	}
+
+	*fxt = rtm_fx[*fxt];
+	switch (*fxt) {
+	case FX_NONE:
+		*fxt = *fxp = 0;
+		break;
+
+	case FX_SETPAN:				/* Set panning (S3M) */
+		if (*fxp == 0xa4) {
+			*fxt = FX_SURROUND;
+			*fxp = 1;
+		} else {
+			int p = ((int)*fxp) << 1;
+			*fxp = MIN(p, 255);
+		}
+		break;
+
+	case FX_VOLSLIDE_MOD:			/* Volume slide (MOD) */
+	case FX_TONE_VSLIDE_MOD:		/* Toneporta + volslide (MOD) */
+	case FX_VIBRA_VSLIDE_MOD:		/* Vibrato + volslide (MOD) */
+		/* TODO: this format has very strange memory quirks that
+		 * are not emulated, see above. */
+		*fxt &= 0x0f;
+		/* Disable fine effects */
+		if (LSN(*fxp) && MSN(*fxp)) {
+			*fxp &= 0xf0;
+		}
+		break;
+
+	case FX_PORTA_UP_MOD:			/* Portamento up (MOD) */
+	case FX_PORTA_DN_MOD:			/* Portamento down (MOD) */
+		/* TODO: 1xx has separate memory from fxx,
+		 * 2xx has separate memory from exx.
+		 * Clamp down values that would be interpreted as fine.
+		 * Values this high are essentially indistinguishable. */
+		*fxt &= 0x0f;
+		*fxp = MIN(*fxp, 0xdf);
+		break;
+
+	case FX_EXTENDED:			/* Extended effects (MOD) */
+		switch MSN(*fxp) {
+		case 0x0:			/* Not implemented */
+		case 0xf:
+			*fxt = *fxp = 0;
+			break;
+		case EX_VIBRATO_WF:		/* Set vibrato control */
+		case EX_TREMOLO_WF:		/* Set tremolo control */
+			/* TODO: 0=sine, 1=ramp-up, 2=ramp-down */
+			break;
+		}
+		break;
+
+	case FX_EXTENDED_IT:			/* Extended effects (IT) */
+		switch MSN(*fxp) {
+		case 0xa:			/* Set high sample offset */
+			*fxt = FX_HIOFFSET;
+			*fxp = LSN(*fxp);
+			break;
+		default:			/* Not implemented */
+			*fxt = *fxp = 0;
+			break;
+		}
+		break;
+	}
+}
+
+/* Convert Real Tracker -64..64 pan values into xmp 0..255 pan values. */
+static int rtm_convert_pan(int8 pan)
+{
+	int v = ((int)pan << 1) + 0x80;
+	CLAMP(v, 0, 255);
+	return v;
+}
+
+static int rtm_convert_envelope_flags(uint16 flags)
+{
+	/* RTM envelope flags are XM-compatible */
+	return flags & (RTENV_FLAG_ENABLE | RTENV_FLAG_SUSTAIN | RTENV_FLAG_LOOP);
+}
+
 
 static int read_object_header(HIO_HANDLE *f, struct ObjectHeader *h, const char *id)
 {
@@ -196,7 +358,7 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	tracker_name[20] = 0;
 	hio_read(composer, 1, 32, f);
 	composer[32] = 0;
-	rh.flags = hio_read16l(f);	/* bit 0: linear table, bit 1: track names */
+	rh.flags = hio_read16l(f);
 	rh.ntrack = hio_read8(f);
 	rh.ninstr = hio_read8(f);
 	rh.nposition = hio_read16l(f);
@@ -236,12 +398,12 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	mod->bpm = rh.tempo;
 
 	m->c4rate = C4_NTSC_RATE;
-	m->period_type = rh.flags & 0x01 ? PERIOD_LINEAR : PERIOD_AMIGA;
+	m->period_type = rh.flags & RTMM_FLAG_LINEAR_TABLE ? PERIOD_LINEAR : PERIOD_AMIGA;
 
 	MODULE_INFO();
 
 	for (i = 0; i < mod->chn; i++)
-		mod->xxc[i].pan = rh.panning[i] & 0xff;
+		mod->xxc[i].pan = rtm_convert_pan(rh.panning[i]);
 
 	if (libxmp_init_pattern(mod) < 0)
 		return -1;
@@ -266,13 +428,13 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		rp.datasize = hio_read32l(f);
 
 		/* Sanity check */
-		if (rp.ntrack > rh.ntrack || rp.nrows > 256) {
+		if (rp.ntrack > rh.ntrack || rp.nrows > 999) {
 			return -1;
 		}
 
 		offset += 42 + oh.headerSize + rp.datasize;
 
-		if (libxmp_alloc_pattern_tracks(mod, i, rp.nrows) < 0)
+		if (libxmp_alloc_pattern_tracks_long(mod, i, rp.nrows) < 0)
 			return -1;
 
 		for (r = 0; r < rp.nrows; r++) {
@@ -317,6 +479,11 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 					event->f2t = hio_read8(f);
 				if (c & 0x40)		/* read parameter 2 */
 					event->f2p = hio_read8(f);
+
+				if (c & 0x18)
+					rtm_translate_effect(&event->fxt, &event->fxp);
+				if (c & 0x60)
+					rtm_translate_effect(&event->f2t, &event->f2p);
 			}
 		}
 	}
@@ -347,14 +514,14 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		libxmp_instrument_name(mod, i, (uint8 *)oh.name, 32);
 
 		if (oh.headerSize == 0) {
-			D_(D_INFO "[%2X] %-26.26s %2d ", i,
+			D_(D_INFO "[%2X] %-32.32s %2d ", i,
 						xxi->name, xxi->nsm);
 			ri.nsample = 0;
 			continue;
 		}
 
 		ri.nsample = hio_read8(f);
-		ri.flags = hio_read16l(f);	/* bit 0 : default panning enabled */
+		ri.flags = hio_read16l(f);
 		if (hio_read(ri.table, 1, 120, f) != 120)
 			return -1;
 
@@ -371,7 +538,7 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		ri.volumeEnv.sustain = hio_read8(f);
 		ri.volumeEnv.loopstart = hio_read8(f);
 		ri.volumeEnv.loopend = hio_read8(f);
-		ri.volumeEnv.flags = hio_read16l(f); /* bit 0:enable 1:sus 2:loop */
+		ri.volumeEnv.flags = hio_read16l(f);
 
 		ri.panningEnv.npoint = hio_read8(f);
 
@@ -408,8 +575,9 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		}
 
 		xxi->nsm = ri.nsample;
+		xxi->vol = (~ri.flags & RTIN_FLAG_MUTE_SAMPLES) ? m->volbase : 0;
 
-		D_(D_INFO "[%2X] %-26.26s %2d", i, xxi->name, xxi->nsm);
+		D_(D_INFO "[%2X] %-32.32s %2d", i, xxi->name, xxi->nsm);
 
 		if (xxi->nsm > 16)
 			xxi->nsm = 16;
@@ -426,12 +594,12 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		xxi->aei.sus = ri.volumeEnv.sustain;
 		xxi->aei.lps = ri.volumeEnv.loopstart;
 		xxi->aei.lpe = ri.volumeEnv.loopend;
-		xxi->aei.flg = ri.volumeEnv.flags;
+		xxi->aei.flg = rtm_convert_envelope_flags(ri.volumeEnv.flags);
 		xxi->pei.npt = ri.panningEnv.npoint;
 		xxi->pei.sus = ri.panningEnv.sustain;
 		xxi->pei.lps = ri.panningEnv.loopstart;
 		xxi->pei.lpe = ri.panningEnv.loopend;
-		xxi->pei.flg = ri.panningEnv.flags;
+		xxi->pei.flg = rtm_convert_envelope_flags(ri.panningEnv.flags);
 
 		for (j = 0; j < xxi->aei.npt; j++) {
 			xxi->aei.data[j * 2 + 0] = ri.volumeEnv.point[j].x;
@@ -446,6 +614,7 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		for (j = 0; j < xxi->nsm; j++, smpnum++) {
 			struct xmp_subinstrument *sub = &xxi->sub[j];
 			struct xmp_sample *xxs;
+			int flags = 0;
 
 			if (read_object_header(f, &oh, "RTSM") < 0) {
 				D_(D_CRIT "Error reading sample %d", j);
@@ -465,8 +634,10 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 			libxmp_c2spd_to_note(rs.basefreq, &sub->xpo, &sub->fin);
 			sub->xpo += 48 - rs.basenote;
-			sub->vol = rs.defaultvolume * rs.basevolume / 0x40;
-			sub->pan = 0x80 + rs.panning * 2;
+			sub->vol = rs.defaultvolume;
+			sub->gvl = rs.basevolume;
+			sub->pan = (ri.flags & RTIN_FLAG_DEFAULT_PAN) ?
+				rtm_convert_pan(rs.panning) : -1;
 			/* Autovibrato oddities:
 			 * Wave:  TODO: 0 sine, 1 square, 2 ramp down, 3 ramp up
 			 *        All invalid values are also ramp up.
@@ -496,27 +667,35 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			xxs->lps = rs.loopbegin;
 			xxs->lpe = rs.loopend;
 
-			xxs->flg = 0;
-			if (rs.flags & 0x02) {
+			if (rs.flags & RTSM_FLAG_16_BIT) {
 				xxs->flg |= XMP_SAMPLE_16BIT;
 				xxs->len >>= 1;
 				xxs->lps >>= 1;
 				xxs->lpe >>= 1;
 			}
+			if (rs.flags & RTSM_FLAG_DELTA_CODING) {
+				flags |= SAMPLE_FLAG_DIFF;
+			}
+			/* Any non-zero enables looping */
+			if (rs.loop >= RTSM_LOOP_ON) {
+				xxs->flg |= XMP_SAMPLE_LOOP;
+			}
+			/* Only RTSM_LOOP_BIDIR enables; only works for GUS? */
+			if (rs.loop == RTSM_LOOP_BIDIR) {
+				xxs->flg |= XMP_SAMPLE_LOOP_BIDIR;
+			}
 
-			xxs->flg |= rs.loop & 0x03 ?  XMP_SAMPLE_LOOP : 0;
-			xxs->flg |= rs.loop == 2 ? XMP_SAMPLE_LOOP_BIDIR : 0;
-
-			D_(D_INFO "  [%1x] %05x%c%05x %05x %c "
-						"V%02x F%+04d P%02x R%+03d",
-				j, xxs->len,
+			D_(D_INFO "  [%1x] %-32.32s", j, xxs->name);
+			D_(D_INFO "      %05x%c%05x %05x %c "
+					"BV%02x V%02x F%+04d P%02x R%+03d",
+				xxs->len,
 				xxs->flg & XMP_SAMPLE_16BIT ? '+' : ' ',
 				xxs->lps, xxs->lpe,
 				xxs->flg & XMP_SAMPLE_LOOP_BIDIR ? 'B' :
 				xxs->flg & XMP_SAMPLE_LOOP ? 'L' : ' ',
-				sub->vol, sub->fin, sub->pan, sub->xpo);
+				sub->gvl, sub->vol, sub->fin, sub->pan, sub->xpo);
 
-			if (libxmp_load_sample(m, f, SAMPLE_FLAG_DIFF, xxs, NULL) < 0)
+			if (libxmp_load_sample(m, f, flags, xxs, NULL) < 0)
 				return -1;
 		}
 	}
@@ -525,7 +704,7 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	if (libxmp_realloc_samples(m, smpnum) < 0)
 		return -1;
 
-	m->quirk |= QUIRKS_FT2;
+	m->quirk |= QUIRKS_FT2 | QUIRK_INSVOL;
 	m->read_event_type = READ_EVENT_FT2;
 
 	return 0;
