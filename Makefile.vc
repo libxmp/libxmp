@@ -123,6 +123,7 @@ OBJS	= \
  src\loaders\chip_load.obj \
  src\loaders\abk_load.obj \
  src\loaders\coco_load.obj \
+ src\loaders\cocosong_load.obj \
  src\loaders\xmf_load.obj \
 
 PROWIZ_OBJS	= \

@@ -79,6 +79,7 @@ const struct format_loader *const format_loaders[NUM_FORMATS + 2] = {
 	&libxmp_loader_hmn,
 	&libxmp_loader_stim,
 	&libxmp_loader_coco,
+	&libxmp_loader_cocosong,
 	/* &libxmp_loader_mtp, */
 	&libxmp_loader_ims,
 	&libxmp_loader_669,
