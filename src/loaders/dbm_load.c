@@ -52,6 +52,13 @@ static int dbm_test(HIO_HANDLE * f, char *t, const int start)
 }
 
 
+#define DBM_INSTRUMENT_LOOP		(1 << 0)
+#define DBM_INSTRUMENT_LOOP_BIDIR	(1 << 1)
+
+#define DBM_SAMPLE_8BIT			(1 << 0)
+#define DBM_SAMPLE_16BIT		(1 << 1)
+#define DBM_SAMPLE_32BIT		(1 << 2)
+
 struct local_data {
 	int have_info;
 	int have_song;
@@ -209,6 +216,9 @@ static int get_song(struct module_data *m, uint32 size, HIO_HANDLE *f, void *par
 static int get_inst(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
+	struct xmp_instrument *xxi;
+	struct xmp_subinstrument *sub;
+	struct xmp_sample *xxs;
 	struct local_data *data = (struct local_data *)parm;
 	int i;
 	int c2spd, flags, snum;
@@ -223,38 +233,46 @@ static int get_inst(struct module_data *m, uint32 size, HIO_HANDLE *f, void *par
 	D_(D_INFO "Instruments: %d", mod->ins);
 
 	for (i = 0; i < mod->ins; i++) {
-		mod->xxi[i].nsm = 1;
+		xxi = &mod->xxi[i];
+
+		xxi->nsm = 1;
 		if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 			return -1;
 
-		if (hio_read(buffer, 30, 1, f) == 0)
+		if (hio_read(buffer, 1, 50, f) < 50)
 			return -1;
 
 		libxmp_instrument_name(mod, i, buffer, 30);
-		snum = hio_read16b(f);
+		snum = readmem16b(buffer + 30);
 		if (snum == 0 || snum > mod->smp) {
 			/* Skip remaining data for this instrument. */
-			hio_seek(f, 18, SEEK_CUR);
 			continue;
 		}
+		sub = &xxi->sub[0];
+		sub->sid = --snum;
+		xxs = &mod->xxs[sub->sid];
 
-		mod->xxi[i].sub[0].sid = --snum;
-		mod->xxi[i].sub[0].vol = hio_read16b(f);
-		c2spd = hio_read32b(f);
-		mod->xxs[snum].lps = hio_read32b(f);
-		mod->xxs[snum].lpe = mod->xxs[snum].lps + hio_read32b(f);
-		mod->xxi[i].sub[0].pan = 0x80 + (int16)hio_read16b(f);
-		if (mod->xxi[i].sub[0].pan > 0xff)
-			mod->xxi[i].sub[0].pan = 0xff;
-		flags = hio_read16b(f);
-		mod->xxs[snum].flg = flags & 0x03 ? XMP_SAMPLE_LOOP : 0;
-		mod->xxs[snum].flg |= flags & 0x02 ? XMP_SAMPLE_LOOP_BIDIR : 0;
+		sub->vol = readmem16b(buffer + 32);
+		c2spd = readmem32b(buffer + 34);
+		xxs->lps = readmem32b(buffer + 38);
+		xxs->lpe = xxs->lps + readmem32b(buffer + 42);
+		/* Format documentation incorrectly states pan is 0-255. */
+		sub->pan = 0x80 + (int16)readmem16b(buffer + 46);
+		flags = readmem16b(buffer + 48);
 
-		libxmp_c2spd_to_note(c2spd, &mod->xxi[i].sub[0].xpo, &mod->xxi[i].sub[0].fin);
+		if (flags & (DBM_INSTRUMENT_LOOP | DBM_INSTRUMENT_LOOP_BIDIR))
+			xxs->flg |= XMP_SAMPLE_LOOP;
+		if (flags & DBM_INSTRUMENT_LOOP_BIDIR)
+			xxs->flg |= XMP_SAMPLE_LOOP_BIDIR;
+
+		CLAMP(sub->vol, 0, 64);
+		CLAMP(sub->pan, 0, 255);
+
+		libxmp_c2spd_to_note(c2spd, &sub->xpo, &sub->fin);
 
 		D_(D_INFO "[%2X] %-30.30s #%02X V%02x P%02x %5d",
-			i, mod->xxi[i].name, snum,
-			mod->xxi[i].sub[0].vol, mod->xxi[i].sub[0].pan, c2spd);
+			i, xxi->name, snum,
+			sub->vol, sub->pan, c2spd);
 	}
 
 	return 0;
@@ -327,7 +345,11 @@ static int get_patt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *par
 
 			if ((n & 0x01) && (--sz >= 0)) {
 				x = hio_read8(f);
-				event->note = 13 + MSN(x) * 12 + LSN(x);
+				if (x == 0x1f) {
+					event->note = XMP_KEY_OFF;
+				} else {
+					event->note = 13 + MSN(x) * 12 + LSN(x);
+				}
 			}
 			if ((n & 0x02) && (--sz >= 0)) {
 				event->ins = hio_read8(f);
@@ -356,6 +378,7 @@ static int get_patt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *par
 static int get_smpl(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
+	struct xmp_sample *xxs;
 	struct local_data *data = (struct local_data *)parm;
 	int i, flags;
 
@@ -368,31 +391,42 @@ static int get_smpl(struct module_data *m, uint32 size, HIO_HANDLE *f, void *par
 	D_(D_INFO "Stored samples: %d", mod->smp);
 
 	for (i = 0; i < mod->smp; i++) {
+		xxs = &mod->xxs[i];
 		flags = hio_read32b(f);
-		mod->xxs[i].len = hio_read32b(f);
+		xxs->len = hio_read32b(f);
 
-		if (flags & 0x02) {
-			mod->xxs[i].flg |= XMP_SAMPLE_16BIT;
-		}
+		/* This seems to be roughly how DigiBooster 2.21 prioritizes
+		 * sample formats, with the caveat that it doesn't actually
+		 * support 32-bit samples. No flags set -> assumes 16-bit,
+		 * but don't support this (in case 3.0 is different...).
+		 */
+		if (flags & DBM_SAMPLE_8BIT) {
+			/* nop */
 
-		if (flags & 0x04) {	/* Skip 32-bit samples */
-			mod->xxs[i].len <<= 2;
-			hio_seek(f, mod->xxs[i].len, SEEK_CUR);
+		} else if (flags & DBM_SAMPLE_16BIT) {
+			xxs->flg |= XMP_SAMPLE_16BIT;
+
+		} else if (flags & DBM_SAMPLE_32BIT) {
+			/* Skip 32-bit samples */
+			hio_seek(f, (long)xxs->len << 2, SEEK_CUR);
 			continue;
+		} else {
+			D_(D_CRIT "unknown sample type %08x", flags);
+			return -1;
 		}
 
-		if (libxmp_load_sample(m, f, SAMPLE_FLAG_BIGEND, &mod->xxs[i], NULL) < 0)
+		if (libxmp_load_sample(m, f, SAMPLE_FLAG_BIGEND, xxs, NULL) < 0)
 			return -1;
 
-		if (mod->xxs[i].len == 0)
+		if (xxs->len == 0)
 			continue;
 
 		D_(D_INFO "[%2X] %08x %05x%c%05x %05x %c",
-			i, flags, mod->xxs[i].len,
-			mod->xxs[i].flg & XMP_SAMPLE_16BIT ? '+' : ' ',
-			mod->xxs[i].lps, mod->xxs[i].lpe,
-			mod->xxs[i].flg & XMP_SAMPLE_LOOP ?
-			(mod->xxs[i].flg & XMP_SAMPLE_LOOP_BIDIR ? 'B' : 'L') : ' ');
+			i, flags, xxs->len,
+			xxs->flg & XMP_SAMPLE_16BIT ? '+' : ' ',
+			xxs->lps, xxs->lpe,
+			xxs->flg & XMP_SAMPLE_LOOP ?
+			(xxs->flg & XMP_SAMPLE_LOOP_BIDIR ? 'B' : 'L') : ' ');
 
 	}
 
