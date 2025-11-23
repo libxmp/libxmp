@@ -297,7 +297,8 @@ PLAYER		= read_event scan loop period_amiga period_mod_range pan \
 		  ft2_note_noins_after_keyoff \
 		  ft2_note_noins_after_invalid_ins \
 		  invalid_period invalid_mod_length invalid_mod_channels \
-		  it_noteoff_nosuck mdl_period mtm_tempo sample_sync
+		  it_noteoff_nosuck mdl_period mtm_tempo sample_sync \
+		  far_weird_events
 
 LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  mod_invalid mod_tdz3 mod_dt mod_svdmf \

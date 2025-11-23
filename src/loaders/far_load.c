@@ -360,13 +360,24 @@ static int far_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		vol  = *pos++;
 		fxb  = *pos++;
 
-		if (note)
+		/* The instrument number is completely ignored if no note is
+		 * present; whatever note is playing will continue. */
+		if (note) {
 		    event->note = note + 48;
-		if (event->note || ins)
 		    event->ins = ins + 1;
+		}
 
-		if (vol >= 0x01 && vol <= 0x10)
+		if (vol >= 0x01 && vol <= 0x10) {
 		    event->vol = (vol - 1) * 16 + 1;
+		} else if (note || vol) {
+		    /* aurora.far contains note+ins without volume. Most are
+		     * after break positions, but one is played in order 16.
+		     * This is invalid and sets sets the volume to zero.
+		     * Volumes greater than 0x10 (f) also usually seem to be
+		     * treated as zero (OOB table read?).
+		     */
+		    event->vol = 1;
+		}
 
 		far_translate_effect(event, MSN(fxb), LSN(fxb), vol);
 	    }

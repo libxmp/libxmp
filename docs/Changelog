@@ -15,6 +15,7 @@ Stable versions
 	- Fix sample name, restart position, note 0 loading, and pattern count
 	  calculation for Images Music System modules.
 	- Fix XM volume effects cxx/dxx accidentally having effects memory.
+	- Fix FAR volume and note edge cases (Prescience/aurora.far pos. 16).
 	- Fix Real Tracker RTM maximum pattern row count, various effects
 	  translations, initial panning and sample panning, sample base volume,
 	  non-delta coded samples, and instrument flags.
