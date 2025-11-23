@@ -640,6 +640,7 @@ test_player_it_noteoff_nosuck
 test_player_mdl_period
 test_player_mtm_tempo
 test_player_sample_sync
+test_player_far_weird_events
 test_mixer_interpolation_default
 test_mixer_interpolation_loop
 test_mixer_bidi_sync
