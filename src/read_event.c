@@ -244,13 +244,11 @@ static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn
 	int new_swap_ins = 0;
 	int is_toneporta;
 	int is_retrig;
-	int use_ins_vol;
 
 	xc->flags = 0;
 	note = -1;
 	is_toneporta = 0;
 	is_retrig = 0;
-	use_ins_vol = 0;
 
 	if (IS_TONEPORTA(e->fxt) || IS_TONEPORTA(e->f2t)) {
 		is_toneporta = 1;
@@ -263,7 +261,6 @@ static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn
 
 	if (e->ins) {
 		int ins = e->ins - 1;
-		use_ins_vol = 1;
 		SET(NEW_INS);
 		xc->fadeout = 0x10000;	/* for painlace.mod pat 0 ch 3 echo */
 		xc->per_flags = 0;
@@ -283,20 +280,16 @@ static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn
 					xc->finetune = sub->fin;
 					xc->ins = ins;
 				}
+
+				/* Dennis Lindroos: instrument volume
+				 * is not used on split channels
+				 */
+				if (!xc->split && e->note != XMP_KEY_OFF) {
+					xc->volume = sub->vol;
+				}
 			}
 
-			if (is_toneporta) {
-				/* Get new instrument volume */
-				if (sub != NULL) {
-					/* Dennis Lindroos: instrument volume
-					 * is not used on split channels
-					 */
-					if (!xc->split) {
-						xc->volume = sub->vol;
-					}
-					use_ins_vol = 0;
-				}
-			} else {
+			if (!is_toneporta) {
 				xc->ins = ins;
 				xc->ins_fade = mod->xxi[ins].rls;
 			}
@@ -329,7 +322,6 @@ static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn
 
 		if (e->note == XMP_KEY_OFF) {
 			SET_NOTE(NOTE_RELEASE);
-			use_ins_vol = 0;
 		} else if (!is_toneporta && IS_VALID_NOTE(e->note - 1)) {
 			xc->key = e->note - 1;
 			RESET_NOTE(NOTE_END);
@@ -354,7 +346,6 @@ static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn
 				}
 			} else {
 				xc->flags = 0;
-				use_ins_vol = 0;
 				note = xc->key;
 			}
 		}
@@ -378,6 +369,8 @@ static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn
 		xc->smp = sub->sid;
 	}
 
+	/* sub is now the currently playing subinstrument, which may not be
+	 * related to e->ins if there is active toneporta! */
 	sub = get_subinstrument(ctx, xc->ins, xc->key);
 
 	set_effect_defaults(ctx, note, sub, xc, is_toneporta);
@@ -424,10 +417,6 @@ static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn
 			xc->offset.val += xc->offset.val2;
 		}
 		RESET(OFFSET);
-	}
-
-	if (use_ins_vol && !TEST(NEW_VOL) && !xc->split) {
-		xc->volume = sub->vol;
 	}
 
 	return 0;
