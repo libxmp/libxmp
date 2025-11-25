@@ -29,6 +29,7 @@
 
 #ifndef LIBXMP_CORE_PLAYER
 #include "med_extras.h"
+#include "loaders/med.h"
 #endif
 
 
@@ -1417,13 +1418,12 @@ static int read_event_med(struct context_data *ctx, struct xmp_event *e, int chn
 	struct xmp_subinstrument *sub;
 	int new_invalid_ins = 0;
 	int is_toneporta;
-	int use_ins_vol;
 	int finetune;
+	int tracker_version = MED_MODULE_EXTRAS(*m)->tracker_version;
 
 	xc->flags = 0;
 	note = -1;
 	is_toneporta = 0;
-	use_ins_vol = 0;
 
 	/* TODO: 5xy (FX_TONE_VSLIDE) can't initiate toneporta,
 	 * only continue an active one. It does not set the target
@@ -1438,21 +1438,13 @@ static int read_event_med(struct context_data *ctx, struct xmp_event *e, int chn
 
 	if (e->ins && e->note) {
 		int ins = e->ins - 1;
-		use_ins_vol = 1;
 		SET(NEW_INS);
 		xc->fadeout = 0x10000;
 		xc->offset.val = 0;
 		RESET_NOTE(NOTE_RELEASE|NOTE_FADEOUT);
 
 		if (IS_VALID_INSTRUMENT(ins)) {
-			if (is_toneporta) {
-				/* Get new instrument volume */
-				sub = get_subinstrument(ctx, ins, e->note - 1);
-				if (sub != NULL) {
-					xc->volume = sub->vol;
-					use_ins_vol = 0;
-				}
-			} else {
+			if (!is_toneporta) {
 				xxi = &mod->xxi[ins];
 				xc->ins = ins;
 				xc->ins_fade = xxi->rls;
@@ -1470,10 +1462,19 @@ static int read_event_med(struct context_data *ctx, struct xmp_event *e, int chn
 
 		MED_CHANNEL_EXTRAS(*xc)->arp = 0;
 		MED_CHANNEL_EXTRAS(*xc)->aidx = 0;
-	} else {
-		/* Hold */
-		if (e->ins && !e->note) {
-			use_ins_vol = 1;
+	}
+	if (e->ins) {
+		/* Hold symbols apply default volume from OctaMED 3.00 onward,
+		 * but they do not in older trackers. All events with a note
+		 * and an instrument apply default volume.
+		 */
+		if (IS_VALID_NOTE(e->note - 1) ||
+		    tracker_version >= MED_VER_OCTAMED_300) {
+			/* Get new instrument volume */
+			sub = get_subinstrument(ctx, e->ins - 1, e->note - 1);
+			if (sub != NULL) {
+				xc->volume = sub->vol;
+			}
 		}
 	}
 
@@ -1484,12 +1485,12 @@ static int read_event_med(struct context_data *ctx, struct xmp_event *e, int chn
 
 		if (e->note == XMP_KEY_OFF) {
 			SET_NOTE(NOTE_RELEASE);
-			use_ins_vol = 0;
 		} else if (e->note == XMP_KEY_CUT) {
 			SET_NOTE(NOTE_END);
 			xc->period = 0;
 			libxmp_virt_resetchannel(ctx, chn);
-		} else if (!is_toneporta && IS_VALID_INSTRUMENT(xc->ins) && IS_VALID_NOTE(e->note - 1)) {
+		} else if (!is_toneporta && IS_VALID_INSTRUMENT(xc->ins) &&
+			   IS_VALID_NOTE(e->note - 1)) {
 			struct xmp_instrument *xxi = &mod->xxi[xc->ins];
 
 			xc->key = e->note - 1;
@@ -1524,11 +1525,12 @@ static int read_event_med(struct context_data *ctx, struct xmp_event *e, int chn
 				}
 			} else {
 				xc->flags = 0;
-				use_ins_vol = 0;
 			}
 		}
 	}
 
+	/* sub is now the currently playing subinstrument, which may not be
+	 * related to e->ins if there is active toneporta! */
 	sub = get_subinstrument(ctx, xc->ins, xc->key);
 
 	/* Keep effect-set finetune if no instrument set */
@@ -1564,10 +1566,6 @@ static int read_event_med(struct context_data *ctx, struct xmp_event *e, int chn
 	if (note >= 0) {
 		xc->note = note;
 		libxmp_virt_voicepos(ctx, chn, xc->offset.val);
-	}
-
-	if (use_ins_vol && !TEST(NEW_VOL)) {
-		xc->volume = sub->vol;
 	}
 
 	return 0;
