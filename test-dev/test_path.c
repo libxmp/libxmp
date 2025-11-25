@@ -6,7 +6,7 @@
 #define test_move(dest, src, expected) \
 do { \
 	libxmp_path_move((dest), (src)); \
-	if ((expected) == NULL) { \
+	if (!(expected)) { \
 		fail_unless((dest)->path == NULL, "should be null"); \
 	} else { \
 		/* Silence nonsensical compiler warning */ \
@@ -32,7 +32,7 @@ do { \
 #define test_suffix_at(dest, ext_pos, ext, expected) \
 do { \
 	ret = libxmp_path_suffix_at((dest), (ext_pos), (ext)); \
-	if ((expected) == NULL) { \
+	if (!(expected)) { \
 		fail_unless(ret == -1, "ext pos should cause failure"); \
 	} else { \
 		/* Silence nonsensical compiler warning */ \
