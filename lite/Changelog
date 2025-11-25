@@ -8,7 +8,8 @@ Stable versions
 	- Fix XM volume effects cxx/dxx accidentally having effects memory.
 	- Correct default of sample default panning values to -1 (no default
 	  panning) for most module formats.
-	- Simplify read_event_mod sample default volume handling.
+	- Simplify read_event_mod, read_event_st3 sample default volume
+	  handling.
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 
