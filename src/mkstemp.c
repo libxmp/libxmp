@@ -3,6 +3,7 @@
 #endif
 
 #include "common.h"
+#include "tempfile.h"
 
 #if !(defined(LIBXMP_NO_PROWIZARD) && defined(LIBXMP_NO_DEPACKERS))
 

@@ -54,7 +54,6 @@
 #define close _close
 #define unlink _unlink
 #define umask _umask
-int mkstemp(char *);
 
 static int get_temp_dir(char *buf, size_t size)
 {
