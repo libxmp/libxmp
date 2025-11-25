@@ -594,6 +594,7 @@ test_player_med_instruments
 test_player_med_ss2defpitch
 test_player_med_synth
 test_player_med_synth_2
+test_player_med_synth_diff_speeds
 test_player_med_compat_tempo
 test_player_hmn_extras
 test_player_note_off_ft2

@@ -24,6 +24,7 @@ Stable versions
 	- Fix Galaxy Music System 4.0 sample default panning.
 	- Simplify read_event_mod, read_event_st3 sample default volume
 	  handling.
+	- Fix MED synthetic instrument waveform table speeds.
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 
