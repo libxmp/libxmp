@@ -25,6 +25,7 @@ Stable versions
 	- Simplify read_event_mod, read_event_st3 sample default volume
 	  handling.
 	- Fix MED synthetic instrument waveform table speeds.
+	- Fix MED module duration for modules using command 1E (pattern delay).
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 
