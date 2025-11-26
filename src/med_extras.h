@@ -47,6 +47,7 @@ struct med_module_extras {
 	uint32 magic;
 	uint8 **vol_table;	/* MED volume sequence table */
 	uint8 **wav_table;	/* MED waveform sequence table */
+	int tracker_version;	/* Detected tracker (see mmd_tracker_version) */
 };
 
 #define MED_INSTRUMENT_EXTRAS(x) ((struct med_instrument_extras *)(x).extra)

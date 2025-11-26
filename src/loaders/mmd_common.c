@@ -1107,7 +1107,7 @@ int mmd_tracker_version(struct module_data *m, int mmdver, int mmdc,
 	} else if (mmdver >= 2) {
 		medver = MED_VER_OCTAMED_500;
 	} else if (mmdver >= 1) {
-		medver = MED_VER_OCTAMED_400;
+		medver = MED_VER_OCTAMED_300;
 	} else if (mod->chn > 4) {
 		medver = MED_VER_OCTAMED_200;
 	} else if (s_ext_entrsz > 2) {		/* s_ext_entrsz == 4 */

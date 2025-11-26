@@ -90,6 +90,7 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	int playseq_offset;
 	int bpm_on, bpmlen, med_8ch, hexvol;
 	int max_lines;
+	int tracker_ver;
 	int retval = -1;
 
 	LOAD_INIT();
@@ -384,7 +385,7 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	mod->trk = mod->pat * mod->chn;
 
-	mmd_tracker_version(m, ver, 0, expdata_offset ? &expdata : NULL);
+	tracker_ver = mmd_tracker_version(m, ver, 0, expdata_offset ? &expdata : NULL);
 
 	MODULE_INFO();
 
@@ -458,6 +459,8 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	if (libxmp_med_new_module_extras(m) != 0)
 		goto err_cleanup;
+
+	MED_MODULE_EXTRAS(*m)->tracker_version = tracker_ver;
 
 	/*
 	 * Read and convert instruments and samples
