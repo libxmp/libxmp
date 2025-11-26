@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -122,6 +122,143 @@ int libxmp_med_linear_bend(struct context_data *ctx, struct channel_data *xc)
 }
 
 
+/* Hold/decay support functions.
+ *
+ * Hold/decay should only occur if the channel has a configured hold
+ * value (from instrument or an initial hold/decay command). If the
+ * decay is 0, the note volume is immediately set to 0 when hold ends.
+ *
+ * "Hold symbols" (instrument number with no note) sustain hold on
+ * occuring on the line PRIOR to them. Hold countdown begins on the
+ * last line with a hold symbol if present, otherwise immediately.
+ *
+ * TODO: MED bug: note delay doesn't delay the hold? It seems to play a
+ * fragment of the prior note before the new note starts in some cases.
+ * TODO: pre-OctaMED 3.00 FF2 note delay breaks hold entirely?
+ */
+
+void libxmp_med_set_hold_decay(struct context_data *ctx,
+			       struct channel_data *xc, int hold, int decay)
+{
+	if (!HAS_MED_CHANNEL_EXTRAS(*xc)) {
+		return;
+	}
+	if (hold <= 0) {
+		hold = decay = -1;
+	}
+	MED_CHANNEL_EXTRAS(*xc)->hold_active = (hold > 0);
+	MED_CHANNEL_EXTRAS(*xc)->hold_count = hold;
+	MED_CHANNEL_EXTRAS(*xc)->decay_value = decay;
+}
+
+/* OctaMED 3.00 onward: each individual retrigger increases the hold counter
+ * by the CURRENT TICK NUMBER if decay hasn't started, allowing very long holds.
+ * Presumably this was intended to be the retrigger delay instead.
+ *
+ * Example: Aftab Hussain/deep cover.mmd3 pos 36/block 30 ch.2 rows 60-64
+ * uses retrigger hold extension for a snare roll, but it doesn't rely
+ * on the extra long hold length bug.
+ */
+void libxmp_med_hold_retrigger(struct context_data *ctx, struct channel_data *xc)
+{
+	struct module_data *m = &ctx->m;
+
+	if (!HAS_MED_CHANNEL_EXTRAS(*xc)) {
+		return;
+	}
+	if (MED_MODULE_EXTRAS(*m)->tracker_version >= MED_VER_OCTAMED_300 &&
+	    MED_CHANNEL_EXTRAS(*xc)->hold_active) {
+		MED_CHANNEL_EXTRAS(*xc)->hold_count += ctx->p.frame;
+	}
+}
+
+/**
+ * Hack to get the next event in the pattern (for implementing hold symbols).
+ * This may not work as intended for injected events.
+ */
+static struct xmp_event *get_next_event(struct context_data *ctx, int chn)
+{
+	struct player_data *p = &ctx->p;
+	struct module_data *m = &ctx->m;
+	struct xmp_module *mod = &m->mod;
+	int pat = mod->xxo[p->ord];
+	int num_rows = mod->xxt[TRACK_NUM(pat, chn)]->rows;
+
+	if (p->row + 1 >= num_rows) {
+		return NULL;
+	}
+	return &EVENT(pat, chn, p->row + 1);
+}
+
+/* Should be called from read_event_med only. */
+void libxmp_med_check_hold_symbol(struct context_data *ctx,
+				  struct channel_data *xc, int chn)
+{
+	struct xmp_event *e;
+
+	MED_CHANNEL_EXTRAS(*xc)->hold_sustained = 0;
+
+	/* Hold/decay added in MED 3.00 / OctaMED 1.00 */
+	if (MED_MODULE_EXTRAS(ctx->m)->tracker_version < MED_VER_300)
+		return;
+	if (MED_CHANNEL_EXTRAS(*xc)->hold_count <= 0)
+		return;
+	if ((e = get_next_event(ctx, chn)) == NULL)
+		return;
+
+	/* No note + ins -> sustain hold. */
+	if (!IS_VALID_NOTE((int)e->note - 1) && e->ins != 0) {
+		MED_CHANNEL_EXTRAS(*xc)->hold_sustained = 1;
+		return;
+	}
+
+	/* Note + toneporta (3xx only, NOT 5xy) -> sustain hold. */
+	if (IS_VALID_NOTE((int)e->note - 1) &&
+	    (e->fxt == FX_TONEPORTA || e->f2t == FX_TONEPORTA)) {
+		MED_CHANNEL_EXTRAS(*xc)->hold_sustained = 1;
+	}
+}
+
+static void med_tick_hold_decay(struct context_data *ctx,
+				struct channel_data *xc,
+				struct med_module_extras *me,
+				struct med_channel_extras *ce)
+{
+	struct module_data *m = &ctx->m;
+	struct player_data *p = &ctx->p;
+
+	if (ce->hold_count == 0) {
+		/* Decay 0 = instant decay. */
+		int dec = ce->decay_value ? ce->decay_value : xc->volume;
+
+		xc->volume -= dec;
+		CLAMP(xc->volume, 0, m->volbase);
+
+		if (xc->volume == 0) {
+			/* End hold/decay once volume 0 is reached. */
+			ce->hold_count = ce->decay_value = -1;
+		}
+		/* Hold can't be sustained/increased after decay starts(?). */
+		ce->hold_active = 0;
+	}
+
+	/* From OctaMED 3.00 through Soundstudio v1, pattern delay (1Exx) on
+	 * a line with hold sustained will only sustain the hold for the first
+	 * execution of the row. In Soundstudio v2, the whole row sustains. */
+	if (ce->hold_sustained && me->tracker_version < MED_VER_OCTAMED_SS_2 &&
+	    p->frame >= p->speed) {
+		ce->hold_sustained = 0;
+	}
+
+	/* Hold is sustained if the NEXT row contains a sustain event.
+	 * MED probably actually decrements hold after effects processing;
+	 * using ce->hold_active as a hack to work around this. */
+	if (ce->hold_count > 0 && !ce->hold_sustained) {
+		ce->hold_count--;
+	}
+}
+
+
 void libxmp_med_play_extras(struct context_data *ctx, struct channel_data *xc, int chn)
 {
 	struct module_data *m = &ctx->m;
@@ -143,29 +280,7 @@ void libxmp_med_play_extras(struct context_data *ctx, struct channel_data *xc, i
 
 	/* Handle hold/decay */
 
-	/* on the first row of a held note, continue note if ce->hold is 2
-	 * (this is set after pre-fetching the next row and see if we
-	 * continue to hold. On remaining rows with hold on, we have the
-	 * FX_MED_HOLD effect and ce->hold set to 1. On the last row, see
-	 * if ce->hold_count is set (meaning that a note was held) and
-	 * ce->hold is 0 (meaning that it's not held anymore). Then
-	 * proceed with normal frame counting until decay.
-	 */
-
-	if (ce->hold_count) {		/* was held in the past */
-		if (!ce->hold && p->frame >= ie->hold) { /* but not now */
-			SET_NOTE(NOTE_FADEOUT);
-			ce->hold_count = 0;
-		}
-	} else if (ie->hold) {		/* has instrument hold */
-		if (p->frame >= ie->hold && ce->hold == 0) {
-			SET_NOTE(NOTE_FADEOUT);
-		}
-	}
-
-	if (p->frame == (p->speed - 1) && ce->hold != 2) {
-		ce->hold = 0;
-	}
+	med_tick_hold_decay(ctx, xc, me, ce);
 
 	/* Handle synth */
 
@@ -364,6 +479,7 @@ int libxmp_med_new_channel_extras(struct channel_data *xc)
 	if (xc->extra == NULL)
 		return -1;
 	MED_CHANNEL_EXTRAS((*xc))->magic = MED_EXTRAS_MAGIC;
+	MED_CHANNEL_EXTRAS((*xc))->hold_count = -1;
 
 	return 0;
 }
@@ -428,35 +544,15 @@ void libxmp_med_release_module_extras(struct module_data *m)
 void libxmp_med_extras_process_fx(struct context_data *ctx, struct channel_data *xc,
 		int chn, uint8 note, uint8 ins, uint8 fxt, uint8 fxp, int fnum)
 {
+	struct xmp_module *mod = &ctx->m.mod;
+
 	switch (fxt) {
 	case FX_MED_HOLD:
-		/* FIXME: */
-		break;
-	}
-	/* FIXME: remove hack that makes incorrect hold.med test data pass */
-	if (MED_CHANNEL_EXTRAS(*xc)->hold == 2)
-		MED_CHANNEL_EXTRAS(*xc)->hold = 1;
-}
-
-void libxmp_med_hold_hack(struct context_data *ctx, int pat, int chn, int row)
-{
-	struct module_data *m = &ctx->m;
-	struct xmp_module *mod = &m->mod;
-	const int num_rows = mod->xxt[TRACK_NUM(pat, chn)]->rows;
-
-	/* Hold/decay were added by MED 3.00 */
-	if (!HAS_MED_MODULE_EXTRAS(*m))
-		return;
-	if (MED_MODULE_EXTRAS(*m)->tracker_version < MED_VER_300)
-		return;
-
-	if (row + 1 < num_rows) {
-		struct player_data *p = &ctx->p;
-		struct xmp_event *event = &EVENT(pat, chn, row + 1);
-		struct channel_data *xc = &p->xc_data[chn];
-
-		if (event->note == 0 && event->ins != 0) {
-			MED_CHANNEL_EXTRAS(*xc)->hold = 2;
+		/* Command 08 is only valid beside a note+ins. */
+		if (IS_VALID_NOTE((int)note - 1) &&
+		    IS_VALID_INSTRUMENT((int)ins - 1)) {
+			libxmp_med_set_hold_decay(ctx, xc, LSN(fxp), MSN(fxp));
 		}
+		break;
 	}
 }

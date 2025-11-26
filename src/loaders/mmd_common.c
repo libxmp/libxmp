@@ -155,7 +155,7 @@ void mmd_xlat_fx(struct xmp_event *event, int bpm_on, int bpmlen, int med_8ch,
 		 * left half of the argument determines the decay and the
 		 * right half the hold.
 		 */
-		event->fxt = event->fxp = 0;
+		event->fxt = FX_MED_HOLD;
 		break;
 	case 0x09:
 		/* SECONDARY TEMPO 09
@@ -754,7 +754,7 @@ static int mmd_load_sampled_instrument(HIO_HANDLE *f, struct module_data *m, int
         if (libxmp_med_new_instrument_extras(xxi) != 0)
                 return -1;
 	MED_INSTRUMENT_EXTRAS(*xxi)->hold = exp_smp->hold;
-	xxi->rls = 0xfff - (exp_smp->decay << 4);
+	MED_INSTRUMENT_EXTRAS(*xxi)->decay = exp_smp->decay;
 
 	xxi->nsm = 1;
 	if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
@@ -853,7 +853,7 @@ static int mmd_load_iffoct_instrument(HIO_HANDLE *f, struct module_data *m, int 
 		return -1;
 
 	MED_INSTRUMENT_EXTRAS(*xxi)->hold = exp_smp->hold;
-	xxi->rls = 0xfff - (exp_smp->decay << 4);
+	MED_INSTRUMENT_EXTRAS(*xxi)->decay = exp_smp->decay;
 
 	xxi->nsm = num_oct;
 	if (libxmp_alloc_subinstrument(mod, i, num_oct) < 0)
