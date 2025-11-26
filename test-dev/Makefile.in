@@ -277,7 +277,7 @@ WRITE		= file_32bit_little_endian file_32bit_big_endian \
 
 PLAYER		= read_event scan loop period_amiga period_mod_range pan \
 		  med_extsample med_hold med_instruments med_ss2defpitch \
-		  med_synth med_synth_2 med_compat_tempo \
+		  med_synth med_synth_2 med_synth_diff_speeds med_compat_tempo \
 		  hmn_extras \
 		  note_off_ft2 note_off_it \
 		  virtual_channel nna_cut nna_cont nna_off nna_fade dct_note \
@@ -689,7 +689,8 @@ TESTS		= $(READ_TESTS) \
 
 TEST_NAMES	= $(addprefix test_,$(TESTS))
 
-MAIN_OBJS	= util.o main.o simple_module.o compare_mixer_data.o
+MAIN_OBJS	= util.o main.o simple_module.o compare_mixer_data.o \
+		  compare_med_synth_data.o
 TEST_OBJS	= $(MAIN_OBJS) $(TEST_NAMES:=.o)
 
 TEST_DFILES	= Makefile $(TEST_OBJS:.o=.c) test.h md5.h data

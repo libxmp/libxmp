@@ -88,6 +88,7 @@ void compare_mixer_data_no_rv(const char *, const char *);
 void compare_mixer_data_player_mode(const char *, const char *, int);
 void compare_mixer_samples(const char *, const char *, int, int, int, int, int);
 void compare_mixer_samples_ext(struct context_data *, const char *, int, int);
+void compare_med_synth_data(const char *, const char *);
 void convert_endian(unsigned char *, int);
 void create_simple_module(struct context_data *, int, int);
 void set_order(struct context_data *, int, int);

@@ -261,6 +261,10 @@ void libxmp_med_play_extras(struct context_data *ctx, struct channel_data *xc, i
 
 		ce->volume += ce->vv;
 		CLAMP(ce->volume, 0, 64);
+	}
+
+	if (ce->ws > 0 && ce->wc-- == 0) {
+		ce->wc = ce->ws - 1;
 
 		if (ce->ww > 0) {
 			ce->ww--;
