@@ -441,11 +441,6 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 				event->ins = pos[1] & 0x3f;
 
-				/* Decay */
-				if (event->ins && !event->note) {
-					event->f2t = FX_MED_HOLD;
-				}
-
 				event->fxt = pos[2];
 				event->fxp = pos[3];
 				mmd_xlat_fx(event, bpm_on, bpmlen,

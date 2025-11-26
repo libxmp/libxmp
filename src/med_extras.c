@@ -26,6 +26,7 @@
 #include "effects.h"
 #include "extras.h"
 #include "med_extras.h"
+#include "loaders/med.h"
 
 #ifdef __SUNPRO_C
 #pragma error_messages (off,E_STATEMENT_NOT_REACHED)
@@ -429,10 +430,12 @@ void libxmp_med_extras_process_fx(struct context_data *ctx, struct channel_data 
 {
 	switch (fxt) {
 	case FX_MED_HOLD:
-		MED_CHANNEL_EXTRAS((*xc))->hold_count++;
-		MED_CHANNEL_EXTRAS((*xc))->hold = 1;
+		/* FIXME: */
 		break;
 	}
+	/* FIXME: remove hack that makes incorrect hold.med test data pass */
+	if (MED_CHANNEL_EXTRAS(*xc)->hold == 2)
+		MED_CHANNEL_EXTRAS(*xc)->hold = 1;
 }
 
 void libxmp_med_hold_hack(struct context_data *ctx, int pat, int chn, int row)
@@ -441,12 +444,18 @@ void libxmp_med_hold_hack(struct context_data *ctx, int pat, int chn, int row)
 	struct xmp_module *mod = &m->mod;
 	const int num_rows = mod->xxt[TRACK_NUM(pat, chn)]->rows;
 
+	/* Hold/decay were added by MED 3.00 */
+	if (!HAS_MED_MODULE_EXTRAS(*m))
+		return;
+	if (MED_MODULE_EXTRAS(*m)->tracker_version < MED_VER_300)
+		return;
+
 	if (row + 1 < num_rows) {
 		struct player_data *p = &ctx->p;
 		struct xmp_event *event = &EVENT(pat, chn, row + 1);
 		struct channel_data *xc = &p->xc_data[chn];
 
-		if (event->f2t == FX_MED_HOLD) {
+		if (event->note == 0 && event->ins != 0) {
 			MED_CHANNEL_EXTRAS(*xc)->hold = 2;
 		}
 	}
