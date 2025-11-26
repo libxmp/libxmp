@@ -605,6 +605,16 @@ static double scan_module(struct context_data *ctx, int ep, int chain)
 			}
 		    }
 		}
+
+#ifndef LIBXMP_CORE_PLAYER
+		/* OctaMED pattern delay */
+		if (f1 == FX_PATT_DELAY) {
+		    pdelay += p1;
+		}
+		if (f2 == FX_PATT_DELAY) {
+		    pdelay += p2;
+		}
+#endif
 	    }
 
 	    if (pdelay > 0) {

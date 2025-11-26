@@ -56,7 +56,7 @@ EFFECTS		= 0_arpeggio 1_slide_up 2_slide_down \
 		  it_g00_nosuck it_l00_nosuck it_fine_vol_row_delay \
 		  far_slide far_toneporta far_retrig far_noteoffset \
 		  far_vibrato far_vibrato_per far_volslide far_tempo \
-		  med_retrig \
+		  med_retrig med_patt_delay \
 		  ult_tempo ult_toneporta
 
 PATLOOPS	= st301 st321 st301_breakjump st321_breakjump \
