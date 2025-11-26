@@ -77,7 +77,8 @@ void libxmp_med_reset_channel_extras(struct channel_data *);
 void libxmp_med_release_channel_extras(struct channel_data *);
 int  libxmp_med_new_module_extras(struct module_data *);
 void libxmp_med_release_module_extras(struct module_data *);
-void libxmp_med_extras_process_fx(struct context_data *, struct channel_data *, int, uint8, uint8, uint8, int);
+void libxmp_med_extras_process_fx(struct context_data *, struct channel_data *,
+				  int, uint8, uint8, uint8, uint8, int);
 
 LIBXMP_END_DECLS
 

@@ -51,7 +51,8 @@ void libxmp_far_reset_channel_extras(struct channel_data *);
 void libxmp_far_release_channel_extras(struct channel_data *);
 int  libxmp_far_new_module_extras(struct module_data *);
 void libxmp_far_release_module_extras(struct module_data *);
-void libxmp_far_extras_process_fx(struct context_data *, struct channel_data *, int, uint8, uint8, uint8, int);
+void libxmp_far_extras_process_fx(struct context_data *, struct channel_data *,
+				  int, uint8, uint8, uint8, uint8, int);
 
 LIBXMP_END_DECLS
 

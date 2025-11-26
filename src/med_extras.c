@@ -425,7 +425,7 @@ void libxmp_med_release_module_extras(struct module_data *m)
 }
 
 void libxmp_med_extras_process_fx(struct context_data *ctx, struct channel_data *xc,
-			int chn, uint8 note, uint8 fxt, uint8 fxp, int fnum)
+		int chn, uint8 note, uint8 ins, uint8 fxt, uint8 fxp, int fnum)
 {
 	switch (fxt) {
 	case FX_MED_HOLD:

@@ -18,7 +18,7 @@ struct hmn_channel_extras {
 	int datapos;		/* HMN waveform table pointer */
 	int volume;		/* HMN synth volume */
 };
- 
+
 struct hmn_module_extras {
 	uint32 magic;
 };
@@ -49,7 +49,8 @@ void libxmp_hmn_reset_channel_extras(struct channel_data *);
 void libxmp_hmn_release_channel_extras(struct channel_data *);
 int  libxmp_hmn_new_module_extras(struct module_data *);
 void libxmp_hmn_release_module_extras(struct module_data *);
-void libxmp_hmn_extras_process_fx(struct context_data *, struct channel_data *, int, uint8, uint8, uint8, int);
+void libxmp_hmn_extras_process_fx(struct context_data *, struct channel_data *,
+				  int, uint8, uint8, uint8, uint8, int);
 
 LIBXMP_END_DECLS
 
