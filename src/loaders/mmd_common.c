@@ -1073,20 +1073,31 @@ void mmd_info_text(HIO_HANDLE *f, struct module_data *m, int offset)
 /* Determine an approximate tracker version from an MMD module since, unlike
  * MED4, they don't store any useful tracker information. If expdata is not
  * present in the module, it should be passed as NULL.
+ *
+ * Other untested bits that may eventually be useful:
+ * - OctaMED 3.00 changed the order the block array and sample array are
+ *   written in. This might be more foolproof than the song name.
+ * - i_ext_entrsz: MED 3.20 + OctaMED 2.00 (already tested by s_ext_entrsz)
+ * - rgbtable: MED 3.20 + OctaMED 2.00 (already tested by s_ext_entrsz)
+ *   transition.med has s_ext_entrsz=4 but no rgbtable, though?
+ * - channel_split/n_info was added by OctaMED 2.00 (OctaMED only)? only saved
+ *   if the module was edited in score mode?
  */
 int mmd_tracker_version(struct module_data *m, int mmdver, int mmdc,
-	struct MMD0exp *expdata)
+			int med_8ch, struct MMD0exp *expdata)
 {
-	struct xmp_module *mod = &m->mod;
 	int soundstudio = 0;
 	int medver = 0;
 	int s_ext_entrsz = 0;
+	uint32 songnamelen = 0;
 	int mmdch = '0' + mmdver;
 
 	if (expdata) {
 		D_(D_INFO "expdata.s_ext_entrsz = %d", expdata->s_ext_entrsz);
 		D_(D_INFO "expdata.i_ext_entrsz = %d", expdata->i_ext_entrsz);
+		D_(D_INFO "expdata.songnamelen  = %u", (unsigned)expdata->songnamelen);
 		s_ext_entrsz = expdata->s_ext_entrsz;
+		songnamelen = expdata->songnamelen;
 	} else {
 		D_(D_INFO "expdata = NULL");
 	}
@@ -1106,15 +1117,22 @@ int mmd_tracker_version(struct module_data *m, int mmdver, int mmdc,
 		medver = MED_VER_OCTAMED_500;
 	} else if (mmdver >= 2) {
 		medver = MED_VER_OCTAMED_500;
+	} else if (songnamelen > 0) {		/* Added in OctaMED 3.00 */
+		medver = MED_VER_OCTAMED_300;
 	} else if (mmdver >= 1) {
 		medver = MED_VER_OCTAMED_300;
-	} else if (mod->chn > 4) {
-		medver = MED_VER_OCTAMED_200;
 	} else if (s_ext_entrsz > 2) {		/* s_ext_entrsz == 4 */
-		medver = MED_VER_320;
+		if (med_8ch) {
+			medver = MED_VER_OCTAMED_200;
+		} else {
+			medver = MED_VER_320;
+		}
 	} else if (expdata != NULL) {		/* s_ext_entrsz == 2 */
-		/* MED 3.00 and 3.10 i_ext_entrsz always 0? */
-		medver = MED_VER_300;
+		if (med_8ch) {
+			medver = MED_VER_OCTAMED_100;
+		} else {
+			medver = MED_VER_300;
+		}
 	} else {
 		medver = MED_VER_210;
 	}
