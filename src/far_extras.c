@@ -232,7 +232,7 @@ void libxmp_far_release_module_extras(struct module_data *m)
 }
 
 void libxmp_far_extras_process_fx(struct context_data *ctx, struct channel_data *xc,
-			   int chn, uint8 note, uint8 fxt, uint8 fxp, int fnum)
+		int chn, uint8 note, uint8 ins, uint8 fxt, uint8 fxp, int fnum)
 {
 	struct xmp_module *mod = &ctx->m.mod;
 	struct far_module_extras *me = FAR_MODULE_EXTRAS(ctx->m);

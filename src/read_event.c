@@ -1413,6 +1413,7 @@ static int read_event_med(struct context_data *ctx, struct xmp_event *e, int chn
 	struct xmp_module *mod = &m->mod;
 	struct channel_data *xc = &p->xc_data[chn];
 	int note;
+	struct xmp_instrument *xxi;
 	struct xmp_subinstrument *sub;
 	int new_invalid_ins = 0;
 	int is_toneporta;
@@ -1424,6 +1425,11 @@ static int read_event_med(struct context_data *ctx, struct xmp_event *e, int chn
 	is_toneporta = 0;
 	use_ins_vol = 0;
 
+	/* TODO: 5xy (FX_TONE_VSLIDE) can't initiate toneporta,
+	 * only continue an active one. It does not set the target
+	 * even on an active toneporta? Instrument sets hold/decay
+	 * if 5xy is present. For all intents and purposes, 5xy
+	 * should not be setting this, it seems? */
 	if (e->fxt == FX_TONEPORTA || e->fxt == FX_TONE_VSLIDE) {
 		is_toneporta = 1;
 	}
@@ -1447,8 +1453,15 @@ static int read_event_med(struct context_data *ctx, struct xmp_event *e, int chn
 					use_ins_vol = 0;
 				}
 			} else {
+				xxi = &mod->xxi[ins];
 				xc->ins = ins;
-				xc->ins_fade = mod->xxi[ins].rls;
+				xc->ins_fade = xxi->rls;
+
+				if (HAS_MED_INSTRUMENT_EXTRAS(*xxi)) {
+					libxmp_med_set_hold_decay(ctx, xc,
+						MED_INSTRUMENT_EXTRAS(*xxi)->hold,
+						MED_INSTRUMENT_EXTRAS(*xxi)->decay);
+				}
 			}
 		} else {
 			new_invalid_ins = 1;
@@ -1539,6 +1552,10 @@ static int read_event_med(struct context_data *ctx, struct xmp_event *e, int chn
 	libxmp_process_fx(ctx, xc, chn, e, 1);
 	libxmp_process_fx(ctx, xc, chn, e, 0);
 	set_period(ctx, note, sub, xc, is_toneporta);
+
+	/* Test next line for a hold symbol. Hold is set either by the
+	 * instrument or by command 08 Hold/Decay, so test after effects. */
+	libxmp_med_check_hold_symbol(ctx, xc, chn);
 
 	if (sub == NULL) {
 		return 0;

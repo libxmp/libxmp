@@ -12,6 +12,7 @@ struct med_instrument_extras {
 	int vtlen;		/* Volume table length */
 	int wtlen;		/* Waveform table length */
 	int hold;
+	int decay;
 };
 
 struct med_channel_extras {
@@ -35,8 +36,10 @@ struct med_channel_extras {
 	int vib_idx;		/* MED synth vibrato index */
 	int vib_wf;		/* MED synth vibrato waveform */
 	int volume;		/* MED synth note volume */
-	int hold;		/* MED note on hold flag */
-	int hold_count;		/* MED note on hold frame counter */
+	int hold_active;	/* MED hold is active? (hack) */
+	int hold_sustained;	/* MED hold currently sustained by an event? */
+	int hold_count;		/* MED hold remaining ticks counter */
+	int decay_value;	/* MED decay value */
 	int env_wav;		/* MED synth volume envelope waveform */
 	int env_idx;		/* MED synth volume envelope index */
 #define MED_SYNTH_ENV_LOOP (1 << 0)
@@ -47,6 +50,7 @@ struct med_module_extras {
 	uint32 magic;
 	uint8 **vol_table;	/* MED volume sequence table */
 	uint8 **wav_table;	/* MED waveform sequence table */
+	int tracker_version;	/* Detected tracker (see mmd_tracker_version) */
 };
 
 #define MED_INSTRUMENT_EXTRAS(x) ((struct med_instrument_extras *)(x).extra)
@@ -69,6 +73,9 @@ LIBXMP_BEGIN_DECLS
 int  libxmp_med_change_period(struct context_data *, struct channel_data *);
 int  libxmp_med_linear_bend(struct context_data *, struct channel_data *);
 int  libxmp_med_get_vibrato(struct channel_data *);
+void libxmp_med_set_hold_decay(struct context_data *, struct channel_data *, int, int);
+void libxmp_med_hold_retrigger(struct context_data *, struct channel_data *);
+void libxmp_med_check_hold_symbol(struct context_data *, struct channel_data *, int);
 void libxmp_med_play_extras(struct context_data *, struct channel_data *, int);
 int  libxmp_med_new_instrument_extras(struct xmp_instrument *);
 int  libxmp_med_new_channel_extras(struct channel_data *);
@@ -76,7 +83,8 @@ void libxmp_med_reset_channel_extras(struct channel_data *);
 void libxmp_med_release_channel_extras(struct channel_data *);
 int  libxmp_med_new_module_extras(struct module_data *);
 void libxmp_med_release_module_extras(struct module_data *);
-void libxmp_med_extras_process_fx(struct context_data *, struct channel_data *, int, uint8, uint8, uint8, int);
+void libxmp_med_extras_process_fx(struct context_data *, struct channel_data *,
+				  int, uint8, uint8, uint8, uint8, int);
 
 LIBXMP_END_DECLS
 

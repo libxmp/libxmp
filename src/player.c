@@ -45,6 +45,7 @@
 #include "mixer.h"
 #ifndef LIBXMP_CORE_PLAYER
 #include "extras.h"
+#include "med_extras.h"
 #endif
 
 /* Values for multi-retrig */
@@ -859,9 +860,6 @@ static inline void read_row(struct context_data *ctx, int pat, int row)
 			 */
 			if (!f->rowdelay_set || ((f->rowdelay_set & ROWDELAY_FIRST_FRAME) && f->rowdelay > 0)) {
 				libxmp_read_event(ctx, &ev, chn);
-#ifndef LIBXMP_CORE_PLAYER
-				libxmp_med_hold_hack(ctx, pat, chn, row);
-#endif
 			}
 		} else {
 			if (IS_PLAYER_MODE_IT()) {
@@ -1639,6 +1637,10 @@ static void play_channel(struct context_data *ctx, int chn)
 			if (xc->retrig.type < 0x10) {
 				/* don't retrig on cut */
 				libxmp_virt_voicepos(ctx, chn, 0);
+#ifndef LIBXMP_CORE_PLAYER
+				/* Retrigger increases hold counter */
+				libxmp_med_hold_retrigger(ctx, xc);
+#endif
 			} else {
 				SET_NOTE(NOTE_END);
 			}
