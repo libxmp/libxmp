@@ -381,7 +381,8 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	mod->trk = mod->pat * mod->chn;
 
-	tracker_ver = mmd_tracker_version(m, ver, mmdc, expdata_offset ? &expdata : NULL);
+	tracker_ver = mmd_tracker_version(m, ver, mmdc, med_8ch,
+					  expdata_offset ? &expdata : NULL);
 
 	MODULE_INFO();
 

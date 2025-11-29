@@ -9,6 +9,7 @@
 #define MED_VER_210		0x0210
 #define MED_VER_300		0x0300
 #define MED_VER_320		0x0320
+#define MED_VER_OCTAMED_100	0x1000
 #define MED_VER_OCTAMED_200	0x2000
 #define MED_VER_OCTAMED_300	0x3000
 #define MED_VER_OCTAMED_400	0x4000
@@ -344,7 +345,7 @@ int med_load_external_instrument(HIO_HANDLE *, struct module_data *, int);
 int mmd_convert_tempo(int tempo, int bpm_on, int med_8ch);
 void mmd_set_bpm(struct module_data *, int, int, int, int);
 void mmd_info_text(HIO_HANDLE *, struct module_data *, int);
-int mmd_tracker_version(struct module_data *, int, int, struct MMD0exp *);
+int mmd_tracker_version(struct module_data *, int, int, int, struct MMD0exp *);
 
 LIBXMP_END_DECLS
 
