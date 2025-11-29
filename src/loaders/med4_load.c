@@ -320,6 +320,8 @@ static int med4_load_synth_instrument(HIO_HANDLE *f, struct module_data *m,
 	if (libxmp_med_new_instrument_extras(xxi) != 0)
 		return -1;
 
+	MED_MODULE_EXTRAS(*m)->tracker_version = MED_VER_210;
+
 	xxi->nsm = synth.wforms;
 	if (libxmp_alloc_subinstrument(mod, i, synth.wforms) < 0)
 		return -1;
@@ -962,6 +964,7 @@ parse_iff:
 			size -= 4;
 			vermaj = (ver & 0xff00) >> 8;
 			vermin = (ver & 0xff);
+			MED_MODULE_EXTRAS(*m)->tracker_version = ver & 0xfff;
 			D_(D_INFO "MED Version: %d.%0d", vermaj, vermin);
 			break;
 		case MAGIC4('A','N','N','O'):

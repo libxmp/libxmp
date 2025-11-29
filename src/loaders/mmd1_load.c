@@ -91,6 +91,7 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	int annotxt_offset;
 	int bpm_on, bpmlen, med_8ch, hexvol;
 	int max_lines;
+	int tracker_ver;
 	int retval = -1;
 
 	LOAD_INIT();
@@ -380,7 +381,8 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	mod->trk = mod->pat * mod->chn;
 
-	mmd_tracker_version(m, ver, mmdc, expdata_offset ? &expdata : NULL);
+	tracker_ver = mmd_tracker_version(m, ver, mmdc, med_8ch,
+					  expdata_offset ? &expdata : NULL);
 
 	MODULE_INFO();
 
@@ -500,11 +502,6 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 					    (pos[1] >> 4) | ((pos[0] & 0x80) >> 3)
 					    | ((pos[0] & 0x40) >> 1);
 
-					/* Decay */
-					if (event->ins && !event->note) {
-						event->f2t = FX_MED_HOLD;
-					}
-
 					event->fxt = pos[1] & 0x0f;
 					event->fxp = pos[2];
 					mmd_xlat_fx(event, bpm_on, bpmlen,
@@ -519,6 +516,8 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	if (libxmp_med_new_module_extras(m))
 		goto err_cleanup;
+
+	MED_MODULE_EXTRAS(*m)->tracker_version = tracker_ver;
 
 	/*
 	 * Read and convert instruments and samples
