@@ -450,7 +450,11 @@ static void mmd_load_instrument_common(
 
 		info->length = instr->length;
 
-		if (ver >= 2 && expdata->s_ext_entrsz >= 18) {	/* MMD2+ long repeat */
+		/* OctaMED Soundstudio always loads these values but only uses
+		 * them in mixing mode (MMD3); prior versions ignore them.
+		 * MED Soundstudio 2 always uses these fields when found in
+		 * MMD0-2 modules, but can only save MMD3 modules. */
+		if (ver >= 3 && expdata->s_ext_entrsz >= 18) {
 			info->rep = exp_smp->long_repeat;
 			info->replen = exp_smp->long_replen;
 		} else {
@@ -1077,6 +1081,7 @@ void mmd_info_text(HIO_HANDLE *f, struct module_data *m, int offset)
  * Other untested bits that may eventually be useful:
  * - OctaMED 3.00 changed the order the block array and sample array are
  *   written in. This might be more foolproof than the song name.
+ * - InstrExt::finetune was "pad0" in OctaMED 2, should be non-zero only in 3+?
  * - i_ext_entrsz: MED 3.20 + OctaMED 2.00 (already tested by s_ext_entrsz)
  * - rgbtable: MED 3.20 + OctaMED 2.00 (already tested by s_ext_entrsz)
  *   transition.med has s_ext_entrsz=4 but no rgbtable, though?

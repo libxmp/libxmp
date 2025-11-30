@@ -481,15 +481,20 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		}
 
 		for (i = 0; i < mod->ins && i < expdata.s_ext_entries; i++) {
-			int skip = expdata.s_ext_entrsz - 4;
+			int skip = expdata.s_ext_entrsz;
 
 			D_(D_INFO "sample %d expsmp_offset = 0x%08lx", i, hio_tell(f));
 
-			exp_smp[i].hold = hio_read8(f);
-			exp_smp[i].decay = hio_read8(f);
-			exp_smp[i].suppress_midi_off = hio_read8(f);
-			exp_smp[i].finetune = hio_read8(f);
-
+			if (expdata.s_ext_entrsz >= 2) {	/* MED 3.00 / OctaMED V1 */
+				exp_smp[i].hold = hio_read8(f);
+				exp_smp[i].decay = hio_read8(f);
+				skip -= 2;
+			}
+			if (expdata.s_ext_entrsz >= 4) {	/* MED 3.20 / OctaMED V2 */
+				exp_smp[i].suppress_midi_off = hio_read8(f);
+				exp_smp[i].finetune = hio_read8(f);
+				skip -= 2;
+			}
 			if (expdata.s_ext_entrsz >= 8) {	/* Octamed V5 */
 				exp_smp[i].default_pitch = hio_read8(f);
 				exp_smp[i].instr_flags = hio_read8(f);

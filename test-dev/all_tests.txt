@@ -183,9 +183,12 @@ test_loader_med4_decvol
 test_loader_med4_song
 test_loader_mmd0
 test_loader_mmd0_compattempo
+test_loader_mmd0_longrepeat
+test_loader_mmd0_med300
+test_loader_mmdc
 test_loader_mmd1_longpat
 test_loader_mmd_iff3oct
-test_loader_mmdc
+test_loader_mmd2_longrepeat
 test_loader_mmd3
 test_loader_mmd3_stereo
 test_loader_mfp

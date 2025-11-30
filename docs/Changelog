@@ -32,6 +32,8 @@ Stable versions
 	- Fix MED hold/decay implementation and add support for command 8.
 	- Fix MED synthetic instrument waveform table speeds.
 	- Fix MED module duration for modules using command 1E (pattern delay).
+	- Fix MED loading of InstrExt data when s_ext_entrsz is 2.
+	- MED: only load long repeat fields for MMD3 modules.
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 
