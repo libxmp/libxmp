@@ -280,6 +280,7 @@ PLAYER		= read_event scan loop period_amiga period_mod_range pan \
 		  med_hold med_hold_2 med_hold_3xx med_hold_3xx_5xy \
 		  med_hold_1exx med_hold_1exx_ss2 med_hold_1f0x \
 		  med_hold_ff1_old med_hold_ff1_om300 \
+		  med_hold_default_volume med_hold_no_default_volume \
 		  med_synth med_synth_2 med_synth_diff_speeds med_compat_tempo \
 		  hmn_extras \
 		  note_off_ft2 note_off_it \
