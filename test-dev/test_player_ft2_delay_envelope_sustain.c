@@ -5,9 +5,6 @@
  * delayed keyoff with and without an instrument number; pattern 1
  * tests release reset; pattern 2 tests fadeout reset.
  *
- * FIXME: pat 0 rows 20-27, pat 1 rows 9-10 are affected by libxmp
- *        keyoff bugs unrelated to what this patch is testing.
- *
  * 00-0F: No instrument number: ED0 is ignored, ED1/ED2 with keyoff
  *        does not release sustain.
  * 14-24: Instrument number: ED0 is ignored, ED1/ED2 with keyoff

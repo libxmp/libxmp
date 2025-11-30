@@ -68,7 +68,7 @@ TEST(test_new_note_valid_ins_ft2)
 
 	xmp_play_frame(opaque);
 
-	/* Row 1: valid instrument with new note (FT2)
+	/* Row 2: valid instrument with new note (FT2)
 	 *
 	 * When a new valid instrument and a new note is set, FT2 plays
 	 * the new sample with the new instrument's default volume.

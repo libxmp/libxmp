@@ -37,7 +37,7 @@ TEST(test_porta_same_ins_ft2)
 	new_event(ctx, 0, 1, 0, 0,      0,     0, FX_VOLSET, SET_VOL,
 						  FX_SETPAN, SET_PAN);
 	new_event(ctx, 0, 2, 0, KEY_D4, INS_0, 0, FX_TONEPORTA, 4, 0, 0);
-	new_event(ctx, 0, 3, 0, 0,      INS_0, 0, 0x00, 0, 0, 0);
+	new_event(ctx, 0, 3, 0, 0,      INS_0, 0, 0x00, 0, 0, 0); /* FT2-only */
 	set_quirk(ctx, QUIRKS_FT2, READ_EVENT_FT2);
 
 	xmp_start_player(opaque, XMP_MIN_SRATE, 0);

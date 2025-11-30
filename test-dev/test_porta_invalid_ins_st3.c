@@ -1,6 +1,4 @@
-#include "test.h"
-#include "../src/mixer.h"
-#include "../src/virtual.h"
+#include "read_event_common.h"
 
 /*
 Case 3: Tone portamento
@@ -26,6 +24,7 @@ TEST(test_porta_invalid_ins_st3)
 	xmp_context opaque;
 	struct context_data *ctx;
 	struct player_data *p;
+	struct channel_data *xc;
 	struct mixer_voice *vi;
 	int voc;
 
@@ -33,39 +32,43 @@ TEST(test_porta_invalid_ins_st3)
 	ctx = (struct context_data *)opaque;
 	p = &ctx->p;
 
- 	create_simple_module(ctx, 2, 2);
-	set_instrument_volume(ctx, 0, 0, 22);
-	set_instrument_volume(ctx, 1, 0, 33);
-	new_event(ctx, 0, 0, 0, 60, 1, 44, 0x0f, 2, 0, 0);
-	new_event(ctx, 0, 1, 0, 50, 3,  0, 0x03, 4, 0, 0);
+	create_read_event_test_module(ctx, 2);
+	new_event(ctx, 0, 0, 0, KEY_C5, INS_0,     0, 0x00, 0, 0, 0);
+	new_event(ctx, 0, 1, 0, 0,      0,         0, FX_VOLSET, SET_VOL,
+						      FX_SETPAN, SET_PAN);
+	new_event(ctx, 0, 2, 0, KEY_D4, INS_INVAL, 0, FX_TONEPORTA, 4, 0, 0);
 	set_quirk(ctx, QUIRKS_ST3, READ_EVENT_ST3);
 
-	xmp_start_player(opaque, 44100, 0);
+	xmp_start_player(opaque, XMP_MIN_SRATE, 0);
 
 	/* Row 0 */
 	xmp_play_frame(opaque);
 
+	xc = &p->xc_data[0];
 	voc = map_channel(p, 0);
 	fail_unless(voc >= 0, "virtual map");
 	vi = &p->virt.voice_array[voc];
 
-	fail_unless(vi->note == 59, "set note");
-	fail_unless(vi->ins  ==  0, "set instrument");
-	fail_unless(vi->vol  == 43 * 16, "set volume");
-	fail_unless(vi->pos0 ==  0, "sample position");
+	check_new(xc, vi, KEY_C5, INS_0,
+		  INS_0_SUB_0_VOL, INS_0_SUB_0_PAN, INS_0_FADE, "row 0");
 
 	xmp_play_frame(opaque);
 
-	/* Row 1: invalid instrument with tone portamento (ST3)
+	/* Row 1: set non-default volume and pan */
+	xmp_play_frame(opaque);
+	check_on(xc, vi, KEY_C5, INS_0,
+		 SET_VOL, SET_PAN, INS_0_FADE, "row 1");
+
+	xmp_play_frame(opaque);
+
+	/* Row 2: invalid instrument with tone portamento (ST3)
 	 *
-	 * When a new valid instrument is played with tone portamento,
+	 * When a new invalid instrument is played with tone portamento,
 	 * ST3 keeps playing the current sample.
 	 */
 	xmp_play_frame(opaque);
-	fail_unless(vi->ins  ==  0, "not original instrument");
-	fail_unless(vi->note == 59, "not same note");
-	fail_unless(vi->vol  == 43 * 16, "not same volume");
-	fail_unless(vi->pos0 !=  0, "sample reset");
+	check_on(xc, vi, KEY_C5, INS_0,
+		 SET_VOL, SET_PAN, INS_0_FADE, "row 2");
 
 	xmp_release_module(opaque);
 	xmp_free_context(opaque);

@@ -90,7 +90,7 @@ TEST(test_new_note_invalid_ins_ft2)
 	/* Row 4 */
 	xmp_play_frame(opaque);
 	check_new(xc, vi, KEY_C5, INS_0,
-		  INS_0_SUB_0_VOL, INS_0_SUB_0_PAN, INS_0_FADE, "row 0");
+		  INS_0_SUB_0_VOL, INS_0_SUB_0_PAN, INS_0_FADE, "row 4");
 
 	xmp_play_frame(opaque);
 
