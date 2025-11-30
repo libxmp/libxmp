@@ -155,6 +155,8 @@ test_loader_far_fx
 test_loader_flt
 test_loader_flt8
 test_loader_fnk
+test_loader_fnk_fk08
+test_loader_fnk_smpl_setpan
 test_loader_gal4_smpl_setpan
 test_loader_gdm
 test_loader_gdm_fx
@@ -659,6 +661,7 @@ test_player_mdl_period
 test_player_mtm_tempo
 test_player_sample_sync
 test_player_far_weird_events
+test_player_fnk_note_vslide_cancel
 test_mixer_interpolation_default
 test_mixer_interpolation_loop
 test_mixer_bidi_sync

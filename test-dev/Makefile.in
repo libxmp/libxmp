@@ -302,7 +302,7 @@ PLAYER		= read_event scan loop period_amiga period_mod_range pan \
 		  ft2_note_noins_after_invalid_ins \
 		  invalid_period invalid_mod_length invalid_mod_channels \
 		  it_noteoff_nosuck mdl_period mtm_tempo sample_sync \
-		  far_weird_events
+		  far_weird_events fnk_note_vslide_cancel
 
 LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  mod_invalid mod_tdz3 mod_dt mod_svdmf \
@@ -329,7 +329,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  emod \
 		  far far_fx \
 		  flt flt8 \
-		  fnk \
+		  fnk fnk_fk08 fnk_smpl_setpan \
 		  gal4_smpl_setpan \
 		  gdm gdm_fx gdm_fx2 \
 		  hmn \
