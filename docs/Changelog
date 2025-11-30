@@ -21,6 +21,7 @@ Stable versions
 	  non-delta coded samples, and instrument flags.
 	- Correct default of sample default panning values to -1 (no default
 	  panning) for most module formats.
+	- Fix DigiBooster Pro note 0x1f (key off) and misc. other tidying.
 	- Fix Galaxy Music System 4.0 sample default panning.
 	- Fix Imago Orpheus IMF note 255 (no note, not key off).
 	- Simplify read_event_mod, read_event_st3 sample default volume

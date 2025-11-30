@@ -132,6 +132,7 @@ test_loader_dbm
 test_loader_dbm_rows
 test_loader_dbm_penv
 test_loader_dbm_venv
+test_loader_dbm_smpl_setpan
 test_loader_digi
 test_loader_dsmi
 test_loader_dsmi_08
