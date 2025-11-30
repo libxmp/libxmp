@@ -167,6 +167,7 @@ test_loader_ims_patnum
 test_loader_j2b
 test_loader_liq
 test_loader_liq_100
+test_loader_liq_smpl_setpan
 test_loader_liq_no
 test_loader_liq_no_fx
 test_loader_masi
