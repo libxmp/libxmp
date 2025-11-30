@@ -377,10 +377,12 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	    if (b & IMF_NI_FOLLOW) {
 		n = hio_read8(f);
 		switch (n) {
-		case 255:
-		case 160:	/* ?! */
+		case 255:	/* No note */
+		    n = 0;
+		    break;
+		case 160:	/* Key off */
 		    n = XMP_KEY_OFF;
-		    break;	/* Key off */
+		    break;
 		default:
 		    n = 13 + 12 * MSN (n) + LSN (n);
 		}
