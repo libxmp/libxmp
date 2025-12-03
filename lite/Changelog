@@ -10,6 +10,8 @@ Stable versions
 	  panning) for most module formats.
 	- Simplify read_event_mod, read_event_st3 sample default volume
 	  handling.
+	- Anticlick decay curves are now applied after IT note cut, DCA note
+	  cut, IT effect S70 (etc.), and API-requested position changes.
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 

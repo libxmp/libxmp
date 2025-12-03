@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -49,13 +49,37 @@ int libxmp_virt_getroot(struct context_data *ctx, int chn)
 	return vi->root;
 }
 
+static void do_virt_resetvoice(struct mixer_voice *vi)
+{
+#ifdef LIBXMP_PAULA_SIMULATOR
+	struct paula_state *paula;
+#endif
+	int anticlick_l, anticlick_r;
+	int flags;
+
+	/* Preserve anticlick decay state through note cut. */
+	anticlick_l = vi->sleft;
+	anticlick_r = vi->sright;
+	flags = vi->flags & ANTICLICK;
+#ifdef LIBXMP_PAULA_SIMULATOR
+	paula = vi->paula;
+#endif
+
+	memset(vi, 0, sizeof(struct mixer_voice));
+
+	vi->sleft = anticlick_l;
+	vi->sright = anticlick_r;
+	vi->flags = flags;
+#ifdef LIBXMP_PAULA_SIMULATOR
+	vi->paula = paula;
+#endif
+	vi->chn = vi->root = FREE;
+}
+
 void libxmp_virt_resetvoice(struct context_data *ctx, int voc, int mute)
 {
 	struct player_data *p = &ctx->p;
 	struct mixer_voice *vi = &p->virt.voice_array[voc];
-#ifdef LIBXMP_PAULA_SIMULATOR
-	struct paula_state *paula;
-#endif
 
 	if ((uint32)voc >= p->virt.maxvoc) {
 		return;
@@ -68,14 +92,8 @@ void libxmp_virt_resetvoice(struct context_data *ctx, int voc, int mute)
 	p->virt.virt_used--;
 	p->virt.virt_channel[vi->root].count--;
 	p->virt.virt_channel[vi->chn].map = FREE;
-#ifdef LIBXMP_PAULA_SIMULATOR
-	paula = vi->paula;
-#endif
-	memset(vi, 0, sizeof(struct mixer_voice));
-#ifdef LIBXMP_PAULA_SIMULATOR
-	vi->paula = paula;
-#endif
-	vi->chn = vi->root = FREE;
+
+	do_virt_resetvoice(vi);
 }
 
 /* virt_on (number of tracks) */
@@ -191,15 +209,7 @@ void libxmp_virt_reset(struct context_data *ctx)
 
 	for (i = 0; i < p->virt.maxvoc; i++) {
 		struct mixer_voice *vi = &p->virt.voice_array[i];
-#ifdef LIBXMP_PAULA_SIMULATOR
-		struct paula_state *paula = vi->paula;
-#endif
-		memset(vi, 0, sizeof(struct mixer_voice));
-#ifdef LIBXMP_PAULA_SIMULATOR
-		vi->paula = paula;
-#endif
-		vi->chn = FREE;
-		vi->root = FREE;
+		do_virt_resetvoice(vi);
 	}
 
 	for (i = 0; i < p->virt.virt_channels; i++) {
@@ -288,30 +298,12 @@ int libxmp_virt_mapchannel(struct context_data *ctx, int chn)
 void libxmp_virt_resetchannel(struct context_data *ctx, int chn)
 {
 	struct player_data *p = &ctx->p;
-	struct mixer_voice *vi;
-#ifdef LIBXMP_PAULA_SIMULATOR
-	struct paula_state *paula;
-#endif
 	int voc;
 
 	if ((voc = map_virt_channel(p, chn)) < 0)
 		return;
 
-	libxmp_mixer_setvol(ctx, voc, 0);
-
-	p->virt.virt_used--;
-	p->virt.virt_channel[p->virt.voice_array[voc].root].count--;
-	p->virt.virt_channel[chn].map = FREE;
-
-	vi = &p->virt.voice_array[voc];
-#ifdef LIBXMP_PAULA_SIMULATOR
-	paula = vi->paula;
-#endif
-	memset(vi, 0, sizeof(struct mixer_voice));
-#ifdef LIBXMP_PAULA_SIMULATOR
-	vi->paula = paula;
-#endif
-	vi->chn = vi->root = FREE;
+	libxmp_virt_resetvoice(ctx, voc, 1);
 }
 
 void libxmp_virt_setvol(struct context_data *ctx, int chn, int vol)

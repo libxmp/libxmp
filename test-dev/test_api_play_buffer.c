@@ -28,12 +28,13 @@ TEST(test_api_play_buffer)
 	ret = xmp_load_module(opaque, "data/storlek_03.it");
 	fail_unless(ret == 0, "module load error");
 
-	xmp_start_player(opaque, 8000, XMP_FORMAT_MONO);
-	xmp_set_player(opaque, XMP_PLAYER_INTERP, XMP_INTERP_LINEAR);
-
 #if 1
 	for (i = 0; vals[i] > 0; i++) {
-		xmp_restart_module(opaque);
+		/* Fully restart player to avoid stray anticlick decays.
+		 * (xmp_restart_module merely jumps playback to the start). */
+		xmp_start_player(opaque, 8000, XMP_FORMAT_MONO);
+		xmp_set_player(opaque, XMP_PLAYER_INTERP, XMP_INTERP_LINEAR);
+
 		size = 0;
 		buffer_size = vals[i];
 

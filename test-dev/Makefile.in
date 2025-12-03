@@ -261,7 +261,7 @@ MIXER_FUNCS_ALL	= $(addsuffix nearest,${MIXER_FUNCS}) \
 
 MIXER		= interpolation_default interpolation_loop bidi_sync \
 		  ${MIXER_FUNCS_ALL} downmix_8bit downmix_16bit \
-		  mpt116_preamp
+		  mpt116_preamp note_cut_ac
 
 READ		= file_32bit_little_endian file_32bit_big_endian \
 		  file_24bit_little_endian file_24bit_big_endian \

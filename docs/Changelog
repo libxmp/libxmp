@@ -34,6 +34,8 @@ Stable versions
 	- Fix MED module duration for modules using command 1E (pattern delay).
 	- Fix MED loading of InstrExt data when s_ext_entrsz is 2.
 	- MED: only load long repeat fields for MMD3 modules.
+	- Anticlick decay curves are now applied after IT note cut, DCA note
+	  cut, IT effect S70 (etc.), and API-requested position changes.
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 

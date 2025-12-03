@@ -705,6 +705,7 @@ test_mixer_stereoout_stereo_16bit_spline_filter
 test_mixer_downmix_8bit
 test_mixer_downmix_16bit
 test_mixer_mpt116_preamp
+test_mixer_note_cut_ac
 test_fuzzer_misc
 test_fuzzer_mod_no_null_terminator
 test_fuzzer_mod_no_valid_orders
