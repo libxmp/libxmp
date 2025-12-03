@@ -12,8 +12,8 @@
 #define TEST_IT_FILE "test.itz"
 #endif
 #define TEST_PLAY_TIME	4800
-#define TEST_MD5_IEEE	"0fb814a84db24a21d93851cbeebe2a98"
-#define TEST_MD5_X87	"97eb1ff2bb3ee8252133cdee90fb162d"
+#define TEST_MD5_IEEE	"3464d82e06b7f71763cf52abb37c3b36"
+#define TEST_MD5_X87	"2d5cfea801bc2367f8a397a0803b5823"
 
 #else /* !LIBXMP_CORE_DISABLE_IT */
 
