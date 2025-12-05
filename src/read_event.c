@@ -264,6 +264,8 @@ static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn
 		int ins = e->ins - 1;
 		SET(NEW_INS);
 		xc->fadeout = 0x10000;	/* for painlace.mod pat 0 ch 3 echo */
+		/* TODO: FunkTracker: instruments probably don't reset
+		 * effects, investigate: fnk_note_vslide_cancel.fnk */
 		xc->per_flags = 0;
 		xc->offset.val = 0;
 		RESET_NOTE(NOTE_RELEASE|NOTE_FADEOUT);
@@ -320,6 +322,10 @@ static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn
 
 	if (e->note) {
 		SET(NEW_NOTE);
+		/* FunkTracker - new notes cancel persistent volume slide.
+		 * Farandole Composer notes are always paired with volume,
+		 * so this doesn't notably affect it. */
+		RESET_PER(VOL_SLIDE);
 
 		if (e->note == XMP_KEY_OFF) {
 			SET_NOTE(NOTE_RELEASE);
@@ -383,7 +389,8 @@ static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn
 	if (e->vol) {
 		xc->volume = e->vol - 1;
 		SET(NEW_VOL);
-		RESET_PER(VOL_SLIDE); /* FIXME: should this be for FAR only? */
+		/* Farandole Composer - volume resets slide to volume. */
+		RESET_PER(VOL_SLIDE);
 	}
 
 	/* Secondary effect handled first */

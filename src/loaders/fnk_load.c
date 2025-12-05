@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2021 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -92,15 +92,20 @@ struct fnk_header {
 static void fnk_translate_event(struct xmp_event *event, const uint8 ev[3],
 				const struct fnk_header *ffh)
 {
-    switch (ev[0] >> 2) {
-    case 0x3f:
-    case 0x3e:
-    case 0x3d:
-	break;
-    default:
-	event->note = 37 + (ev[0] >> 2);
+    int note = ev[0] >> 2;
+
+    /* 0x3f - "null slot": load command only */
+    /* 0x3e - "sample-only slot": load instrument and command only */
+    /* 0x3d - "reload sample attrs": load instrument and command only,
+     *        TODO: naming seems completely backwards--this event is supposed
+     *        to NOT load most sample fields like volume/pan from the new ins
+     *        (fnk_smpl_setpan.fnk row 28 plays wrong)?
+     */
+    if (note < 0x3d) {
+	event->note = 37 + note;
+    }
+    if (note < 0x3f) {
 	event->ins = 1 + MSN(ev[1]) + ((ev[0] & 0x03) << 4);
-	event->vol = ffh->fih[event->ins - 1].volume;
     }
 
     switch (LSN(ev[1])) {
@@ -120,18 +125,28 @@ static void fnk_translate_event(struct xmp_event *event, const uint8 ev[3],
 	event->fxt = FX_PER_VIBRATO;
 	event->fxp = ev[2];
 	break;
+    /* TODO: 0x04 Vibrato Fanin */
+    /* TODO: 0x05 Vibrato Fanout */
     case 0x06:
+	/* TODO: this effect is implemented completely wrong -
+	 * supposed to be gXY -> every (X+1) ticks, increase by table[Y] */
 	event->fxt = FX_PER_VSLD_UP;
 	event->fxp = ev[2] << 1;
 	break;
     case 0x07:
+	/* TODO: this effect is implemented completely wrong -
+	 * supposed to be hXY -> every (X+1) ticks, decrease by table[Y] */
 	event->fxt = FX_PER_VSLD_DN;
 	event->fxp = ev[2] << 1;
 	break;
+    /* TODO: 0x08 volume porta */
+    /* TODO: 0x09 decaying reverb */
+    /* TODO: 0x0a tremolo */
     case 0x0b:
 	event->fxt = FX_ARPEGGIO;
 	event->fxp = ev[2];
 	break;
+    /* TODO: 0x0c sample offset */
     case 0x0d:
 	event->fxt = FX_VOLSET;
 	event->fxp = ev[2];
@@ -143,19 +158,32 @@ static void fnk_translate_event(struct xmp_event *event, const uint8 ev[3],
 	}
 
 	switch (MSN(ev[2])) {
+	/* TODO: 0x0 Misc Control */
 	case 0x1:
 	    event->fxt = FX_EXTENDED;
 	    event->fxp = (EX_CUT << 4) | LSN(ev[2]);
 	    break;
+	/* TODO: 0x2 Real Frequency Adjust ????? */
 	case 0x2:
 	    event->fxt = FX_EXTENDED;
 	    event->fxp = (EX_DELAY << 4) | LSN(ev[2]);
 	    break;
+	/* TODO: 0x3 Set Arpeggio Speed */
+	/* TODO: 0x4 Fine Port Up */
+	/* TODO: 0x5 Fine Port Down */
+	/* TODO: 0x6 Fine Volume Slide Up */
+	/* TODO: 0x7 Fine Volume Slide Down */
+	/* TODO: 0x8 Volume Crest */
+	/* TODO: 0x9 Volume Trough */
+	/* TODO: 0xa Set Master Volume */
+	/* TODO: 0xb Expand Loop */
+	/* TODO: 0xc Collapse Loop */
 	case 0xd:
 	    event->fxt = FX_EXTENDED;
 	    event->fxp = (EX_RETRIG << 4) | LSN(ev[2]);
 	    break;
 	case 0xe:
+	    /* TODO: This doesn't work on a line with note 0x3f? */
 	    event->fxt = FX_SETPAN;
 	    event->fxp = 8 + (LSN(ev[2]) << 4);
 	    break;
@@ -175,6 +203,7 @@ static int fnk_load(struct module_data *m, HIO_HANDLE *f, const int start)
     struct xmp_event *event;
     struct fnk_header ffh;
     uint8 ev[3];
+    int allow_panning = 1;
 
     LOAD_INIT();
 
@@ -236,6 +265,7 @@ static int fnk_load(struct module_data *m, HIO_HANDLE *f, const int start)
      * unreliable. It used to store the (GUS) sample memory requirement.
      */
     if (ffh.fmt[0] == 'F' && ffh.fmt[1] == '2') {
+	/* TODO: 16-bit sample precision (bit 0) */
 	if (((int8)ffh.info[3] >> 1) & 0x40)
 	    mod->bpm -= (ffh.info[3] >> 1) & 0x3f;
 	else
@@ -243,9 +273,18 @@ static int fnk_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	libxmp_set_type(m, "FunktrackerGOLD");
     } else if (ffh.fmt[0] == 'F' && (ffh.fmt[1] == 'v' || ffh.fmt[1] == 'k')) {
+	/* "Fk**" for fixed channeling or
+	 * "Fv**" for variable channeling
+	 *
+	 * Translated: Fk** has fixed 669 panning, Fv** has GUS panning.
+	 */
 	libxmp_set_type(m, "Funktracker");
+	if (ffh.fmt[1] == 'k') {
+	    allow_panning = 0;
+	}
     } else {
 	mod->chn = 8;
+	allow_panning = 0;
 	libxmp_set_type(m, "Funktracker DOS32");
     }
 
@@ -259,6 +298,7 @@ static int fnk_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		return -1;
     }
 
+    /* TODO: switch to time factor, verify whether or not this is DOS-only */
     mod->bpm = 4 * mod->bpm / 5;
     mod->trk = mod->chn * mod->pat;
 
@@ -280,6 +320,8 @@ static int fnk_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	mod->xxs[i].lps = ffh.fih[i].loop_start;
 	if (mod->xxs[i].lps == -1)
 	    mod->xxs[i].lps = 0;
+	/* TODO: GUS driver *only* seems to cut loop length by 64;
+	 * this needs further investigation. */
 	mod->xxs[i].lpe = ffh.fih[i].length;
 	mod->xxs[i].flg = ffh.fih[i].loop_start != -1 ? XMP_SAMPLE_LOOP : 0;
 	mod->xxi[i].sub[0].vol = ffh.fih[i].volume;
@@ -333,7 +375,7 @@ static int fnk_load(struct module_data *m, HIO_HANDLE *f, const int start)
     }
 
     for (i = 0; i < mod->chn; i++)
-	mod->xxc[i].pan = 0x80;
+	mod->xxc[i].pan = allow_panning ? 0x80 : DEFPAN((i % 2) * 0xff);
 
     m->volbase = 0xff;
     m->quirk = QUIRK_VSALL;
