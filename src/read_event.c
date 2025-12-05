@@ -445,11 +445,9 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 	struct module_data *m = &ctx->m;
 	struct xmp_module *mod = &m->mod;
 	struct channel_data *xc = &p->xc_data[chn];
-	int note, key, ins;
+	int note, key;
 	struct xmp_subinstrument *sub;
-	int new_invalid_ins;
 	int is_toneporta;
-	int use_ins_vol;
 	int k00 = 0;
 	struct xmp_event ev;
 
@@ -476,10 +474,7 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 	xc->flags = 0;
 	note = -1;
 	key = ev.note;
-	ins = ev.ins;
-	new_invalid_ins = 0;
 	is_toneporta = 0;
-	use_ins_vol = 0;
 
 	/* From the OpenMPT key_off.xm test case:
 	 * "Key off at tick 0 (K00) is very dodgy command. If there is a note
@@ -491,7 +486,7 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 		k00 = 1;
 		key = 0;
 
-		if (ins || ev.vol || ev.f2t) {
+		if (ev.ins || ev.vol || ev.f2t) {
 			if (IS_VALID_INSTRUMENT(xc->ins) &&
 			    ~mod->xxi[xc->ins].aei.flg & XMP_ENVELOPE_ON) {
 				SET_NOTE(NOTE_FADEOUT);
@@ -504,59 +499,31 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 		is_toneporta = 1;
 	}
 
+	/* Retain previous subinstrument for default volume. */
+	sub = get_subinstrument(ctx, xc->ins, xc->key);
+
 	/* Check instrument */
-
-	/* Ignore invalid instruments. The last instrument, invalid or
-	 * not, is preserved in channel data (see read_event() below).
-	 * Fixes stray delayed notes in forgotten_city.xm.
-	 */
-	if (ins > 0 && !IS_VALID_INSTRUMENT(ins - 1)) {
-		ins = 0;
-	}
-
-	/* FT2: Retrieve old instrument volume */
-	if (ins) {
-		if (key == 0 || key >= XMP_KEY_OFF) {
-			/* Previous instrument */
-			sub = get_subinstrument(ctx, xc->ins, xc->key);
-
-			/* No note */
-			if (sub != NULL) {
-				xc->volume = sub->vol;
-
-				if (sub->pan >= 0) {
-					xc->pan.val = sub->pan;
-				}
-
-				xc->ins_fade = mod->xxi[xc->ins].rls;
-				SET(NEW_VOL);
-			}
-		}
-	}
 
 	/* Do this regardless if the instrument is invalid or not -- unless
 	 * XM keyoff is used. Fixes xyce-dans_la_rue.xm chn 0 patterns 0E/0F and
 	 * chn 10 patterns 0D/0E, see https://github.com/libxmp/libxmp/issues/152
 	 * for details.
-         */
+	 * TODO: parts here are probably wrong and may be limited to not setting
+	 * fadeout if XMP_KEY_FADE. Some parts likely require valid note +
+	 * not toneporta. (This is speculation and needs to be verified.)
+	 */
 	if (ev.ins && key != XMP_KEY_FADE) {
 		SET(NEW_INS);
-		use_ins_vol = 1;
 		xc->per_flags = 0;
 
 		RESET_NOTE(NOTE_RELEASE|NOTE_SUSEXIT);
 		if (!k00) {
 			RESET_NOTE(NOTE_FADEOUT);
+			/* Ins+K00 doesn't reset this (ft2_k00_defaults.xm). */
+			xc->fadeout = 0x10000;
 		}
 
-		xc->fadeout = 0x10000;
-
-		if (IS_VALID_INSTRUMENT(ins - 1)) {
-			if (!is_toneporta)
-				xc->ins = ins - 1;
-		} else {
-			new_invalid_ins = 1;
-
+		if (!IS_VALID_INSTRUMENT(ev.ins - 1)) {
 			/* If no note is set FT2 doesn't cut on invalid
 			 * instruments (it keeps playing the previous one).
 			 * If a note is set it cuts the current sample.
@@ -571,31 +538,60 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 		xc->tremor.count = 0x20;
 	}
 
-	/* Check note */
-	if (ins) {
-		if (key > 0 && key < XMP_KEY_OFF) {
-			/* Retrieve volume when we have note */
+	/* Check subinstrument
+	 *
+	 * Only update the (sub)instrument if there's a valid note +
+	 * no toneporta/K00. Otherwise, keep the old (sub)instrument.
+	 * Lamb/forgotten city.xm relies heavily on quirks here.
+	 */
+	if (IS_VALID_NOTE(key - 1) && !is_toneporta) {
+		/* Note w/o instrument loads the last referenced instrument. */
+		int ins = ev.ins ? ev.ins : xc->old_ins;
 
-			/* and only if we have instrument, otherwise we're in
-			 * case 1: new note and no instrument
-			 */
+		/* Note + invalid instrument (either instrument number
+		 * or from memory) activates an invalid instrument
+		 * (test_player_ft2_note_noins_after_invalid_ins)
+		 * (test_player_ft2_note_off_after_invalid_ins).
+		 */
+		if (IS_VALID_INSTRUMENT(ins - 1)) {
+			xc->ins = ins - 1;
+		} else if (ins) {
+			xc->ins = -1;
+		}
+		sub = get_subinstrument(ctx, xc->ins, key - 1);
 
-			/* Current instrument */
-			sub = get_subinstrument(ctx, xc->ins, key - 1);
-			if (sub != NULL) {
-				xc->volume = sub->vol;
+		/* Only update on new instrument, not on instrument memory. */
+		if (ev.ins) {
+			/* test_player_ft2_instrument_fade_update */
+			xc->ins_fade = sub ? mod->xxi[xc->ins].rls :
+					0x80 /* FT2 default */ << 1 /* conv */;
+		}
 
-				if (sub->pan >= 0) {
-					xc->pan.val = sub->pan;
-				}
-
-				xc->ins_fade = mod->xxi[xc->ins].rls;
-			} else {
-				xc->volume = 0;
-			}
-			SET(NEW_VOL);
+		/* Playing with an active invalid sample cuts the channel:
+		 * invalid instrument, valid instrument with invalid subins, or
+		 * zero-length sample (test_player_ft2_invalid_ins_defaults).
+		 */
+		if (sub == NULL || !IS_VALID_SAMPLE(sub->sid)) {
+			libxmp_virt_resetchannel(ctx, chn);
 		}
 	}
+	if (ev.ins) {
+		/* On any line with an instrument, use the active subinstrument
+		 * for default volume and panning. Invalid instruments have
+		 * volume 0 panning 0x80 (test_player_ft2_invalid_ins_defaults).
+		 * Works on lines with K00 (test_player_ft2_k00_defaults).
+		 */
+		int pan = sub ? sub->pan : 0x80;
+
+		xc->volume = sub ? sub->vol : 0;
+		SET(NEW_VOL);
+
+		if (pan >= 0) {
+			xc->pan.val = pan;
+		}
+	}
+
+	/* Check note */
 
 	if (key) {
 		SET(NEW_NOTE);
@@ -632,7 +628,6 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 				} else {
 					SET_NOTE(NOTE_RELEASE);
 				}
-				use_ins_vol = 0;
 			} else {
 				SET_NOTE(NOTE_FADEOUT);
 			}
@@ -658,21 +653,6 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 			 * bakery remix.xm pos 1 ch 3)
 			 */
 		}
-
-		/* When a note with no instrument follows a line referencing
-		 * an invalid instrument, this cuts the currently playing note
-		 * (test_player_ft2_note_noins_after_invalid_ins).
-		 * This should not affect note off after an invalid instrument
-		 * (test_player_ft2_note_off_after_invalid_ins).
-		 */
-		if (IS_VALID_NOTE(key - 1) &&
-		    ev.ins == 0 && !IS_VALID_INSTRUMENT(xc->old_ins - 1)) {
-			new_invalid_ins = 1;
-		}
-
-		if (new_invalid_ins) {
-			libxmp_virt_resetchannel(ctx, chn);
-		}
 	}
 
 
@@ -684,11 +664,9 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 	 *  memory). The instrument number next it, however, is not affected
 	 *  and remains in the memory."
 	 */
-	sub = NULL;
 	if (IS_VALID_NOTE(key - 1)) {
 		int k = key - 1;
-		sub = get_subinstrument(ctx, xc->ins, k);
-		if (!new_invalid_ins && sub != NULL) {
+		if (sub != NULL) {
 			int transp = mod->xxi[xc->ins].map[k].xpo;
 			int k2 = k + sub->xpo + transp;
 			if (k2 < 12 || k2 > 130) {
@@ -709,7 +687,7 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 			}
 		}
 
-		if (!new_invalid_ins && sub != NULL) {
+		if (sub != NULL) {
 			int transp = mod->xxi[xc->ins].map[key].xpo;
 			int smp;
 
@@ -726,7 +704,6 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 			}
 		} else {
 			xc->flags = 0;
-			use_ins_vol = 0;
 		}
 	}
 
@@ -734,7 +711,7 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 
 	set_effect_defaults(ctx, note, sub, xc, is_toneporta);
 
-	if (ins && sub != NULL && !k00) {
+	if (ev.ins && sub != NULL && !k00) {
 		/* Reset envelopes on new instrument, see olympic.xm pos 10
 		 * But make sure we have an instrument set, see Letting go
 		 * pos 4 chn 20
@@ -786,10 +763,6 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 			 */
 			libxmp_virt_voicepos(ctx, chn, xc->offset.val);
 		}
-	}
-
-	if (use_ins_vol && !TEST(NEW_VOL)) {
-		xc->volume = sub->vol;
 	}
 
 	return 0;

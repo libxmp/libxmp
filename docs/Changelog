@@ -28,8 +28,8 @@ Stable versions
 	  most notes to play at slightly wrong volumes.
 	- Fix Galaxy Music System 4.0 sample default panning.
 	- Fix Imago Orpheus IMF note 255 (no note, not key off).
-	- Simplify read_event_mod, read_event_st3, read_event_med sample
-	  default volume handling.
+	- Simplify read_event_mod, read_event_st3, read_event_ft2,
+	  read_event_med sample default volume handling.
 	- MED "hold symbols" now apply the referenced instrument's default
 	  volume for modules from OctaMED 3.00+ and don't apply any default
 	  volume for modules from prior versions.
@@ -40,8 +40,23 @@ Stable versions
 	- MED: only load long repeat fields for MMD3 modules.
 	- Anticlick decay curves are now applied after IT note cut, DCA note
 	  cut, IT effect S70 (etc.), and API-requested position changes.
+	- XM: channel fade rate is only copied from the instrument on rows
+	  with note + ins. + no toneporta/K00.
+	- XM: zero-length samples cut the channel like invalid instruments.
 	- XM: do not cut on a no-instrument key off note if the preceding
 	  instrument was invalid.
+	- XM: previous instrument's sample default volume is now applied for
+	  invalid instrument numbers beside a key off note.
+	- XM: previous instrument's sample default panning is now applied for
+	  invalid instrument numbers.
+	- XM: apply default volume, panning, and instrument fade rate for
+	  active invalid instruments.
+	- XM: invalid instrument numbers now reset the envelope positions.
+	- XM: valid instrument numbers with no note no longer set xc->ins,
+	  which would cause notes to play with the wrong instrument envelopes
+	  and could cause subsequent no-note instruments or invalid
+	  instruments to apply the wrong instrument's volume/panning.
+	- XM: rows with an instrument number and K00 no longer reset fadeout.
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 

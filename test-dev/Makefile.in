@@ -298,9 +298,12 @@ PLAYER		= read_event scan loop period_amiga period_mod_range pan \
 		  xm_portamento_envelope_reset xm_portamento_target \
 		  xm_keyoff_with_instrument xm_no_cxx_dxx_memory \
 		  xm_envelope_zero_loop xm_envelope_set_pos \
+		  ft2_envelope_invalid_ins ft2_instrument_fade_update \
+		  ft2_invalid_ins_defaults ft2_k00_defaults \
+		  ft2_no_note_ins_envelope ft2_note_invalid_subins \
 		  ft2_note_noins_after_keyoff \
 		  ft2_note_noins_after_invalid_ins \
-		  ft2_note_off_after_invalid_ins \
+		  ft2_note_off_after_invalid_ins ft2_read_event \
 		  invalid_period invalid_mod_length invalid_mod_channels \
 		  it_noteoff_nosuck mdl_period mtm_tempo sample_sync \
 		  far_weird_events fnk_note_vslide_cancel
