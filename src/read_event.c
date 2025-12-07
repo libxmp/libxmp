@@ -659,7 +659,14 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 			 */
 		}
 
-		if (ev.ins == 0 && !IS_VALID_INSTRUMENT(xc->old_ins - 1)) {
+		/* When a note with no instrument follows a line referencing
+		 * an invalid instrument, this cuts the currently playing note
+		 * (test_player_ft2_note_noins_after_invalid_ins).
+		 * This should not affect note off after an invalid instrument
+		 * (test_player_ft2_note_off_after_invalid_ins).
+		 */
+		if (IS_VALID_NOTE(key - 1) &&
+		    ev.ins == 0 && !IS_VALID_INSTRUMENT(xc->old_ins - 1)) {
 			new_invalid_ins = 1;
 		}
 
