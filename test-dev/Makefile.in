@@ -695,7 +695,7 @@ TESTS		= $(READ_TESTS) \
 TEST_NAMES	= $(addprefix test_,$(TESTS))
 
 MAIN_OBJS	= util.o main.o simple_module.o compare_mixer_data.o \
-		  compare_med_synth_data.o
+		  compare_med_synth_data.o read_event_common.o
 TEST_OBJS	= $(MAIN_OBJS) $(TEST_NAMES:=.o)
 
 TEST_DFILES	= Makefile $(TEST_OBJS:.o=.c) test.h md5.h data
