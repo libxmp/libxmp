@@ -93,6 +93,7 @@ void convert_endian(unsigned char *, int);
 void create_simple_module(struct context_data *, int, int);
 void set_order(struct context_data *, int, int);
 void set_instrument_volume(struct context_data *, int, int, int);
+void set_instrument_panning(struct context_data *, int, int, int);
 void set_instrument_nna(struct context_data *, int, int, int, int, int);
 void set_instrument_envelope(struct context_data *, int, int, int, int);
 void set_instrument_envelope_loop(struct context_data *, int, int, int);

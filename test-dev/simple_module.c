@@ -8,7 +8,10 @@ void create_simple_module(struct context_data *ctx, int ins, int pat)
 {
 	struct module_data *m = &ctx->m;
 	struct xmp_module *mod = &m->mod;
-	int i;
+	struct xmp_instrument *xxi;
+	struct xmp_subinstrument *sub;
+	struct xmp_sample *xxs;
+	int i, j;
 
 	libxmp_load_prologue(ctx);
 
@@ -32,19 +35,27 @@ void create_simple_module(struct context_data *ctx, int ins, int pat)
 	libxmp_init_instrument(m);
 
 	for (i = 0; i < mod->ins; i++) {
-		mod->xxi[i].nsm = 1;
-		libxmp_alloc_subinstrument(mod, i, 1);
+		xxi = &mod->xxi[i];
 
-		mod->xxi[i].sub[0].pan = 0x80;
-		mod->xxi[i].sub[0].vol = 0x40;
-		mod->xxi[i].sub[0].sid = i;
+		/* Give each instrument two subinstruments mapped to the
+		 * same sample. By default, only the first will be used. */
+		xxi->nsm = 2;
+		libxmp_alloc_subinstrument(mod, i, 2);
 
-		mod->xxs[i].len = 10000;
-		mod->xxs[i].lps = 0;
-		mod->xxs[i].lpe = 10000;
-		mod->xxs[i].flg = XMP_SAMPLE_LOOP;
-		mod->xxs[i].data = (unsigned char *) calloc(1, 11000);
-		mod->xxs[i].data += 4;
+		for (j = 0; j < xxi->nsm; j++) {
+			sub = &xxi->sub[j];
+			sub->pan = -1;
+			sub->vol = 0x40;
+			sub->sid = i;
+		}
+
+		xxs = &mod->xxs[i];
+		xxs->len = 10000;
+		xxs->lps = 0;
+		xxs->lpe = 10000;
+		xxs->flg = XMP_SAMPLE_LOOP;
+		xxs->data = (unsigned char *) calloc(1, 11000);
+		xxs->data += 4;
 	}
 
 	/* End of module creation */
@@ -90,6 +101,14 @@ void set_instrument_volume(struct context_data *ctx, int ins, int sub, int vol)
 	struct xmp_module *mod = &m->mod;
 
 	mod->xxi[ins].sub[sub].vol = vol;
+}
+
+void set_instrument_panning(struct context_data *ctx, int ins, int sub, int pan)
+{
+	struct module_data *m = &ctx->m;
+	struct xmp_module *mod = &m->mod;
+
+	mod->xxi[ins].sub[sub].pan = pan;
 }
 
 void set_instrument_nna(struct context_data *ctx, int ins, int sub,
