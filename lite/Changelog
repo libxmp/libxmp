@@ -12,6 +12,8 @@ Stable versions
 	  handling.
 	- Anticlick decay curves are now applied after IT note cut, DCA note
 	  cut, IT effect S70 (etc.), and API-requested position changes.
+	- XM: do not cut on a no-instrument key off note if the preceding
+	  instrument was invalid.
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 
