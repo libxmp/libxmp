@@ -515,28 +515,7 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 	/* Retain previous subinstrument for default volume. */
 	sub = get_subinstrument(ctx, xc->ins, xc->key);
 
-	/* Check instrument */
-
-	/* TODO: finish removal of this block.
-	 */
-	if (ev.ins && key != XMP_KEY_FADE) {
-		SET(NEW_INS);
-		xc->per_flags = 0;
-
-		if (!IS_VALID_INSTRUMENT(ev.ins - 1)) {
-			/* If no note is set FT2 doesn't cut on invalid
-			 * instruments (it keeps playing the previous one).
-			 * If a note is set it cuts the current sample.
-			 */
-			xc->flags = 0;
-
-			if (is_toneporta) {
-				key = 0;
-			}
-		}
-	}
-
-	/* Check subinstrument
+	/* Check instrument
 	 *
 	 * Only update the (sub)instrument if there's a valid note +
 	 * no toneporta/K00. Otherwise, keep the old (sub)instrument.
@@ -574,16 +553,19 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 		}
 	}
 	if (ev.ins) {
+		int pan;
+		SET(NEW_INS);
+		xc->per_flags = 0; /* For posterity; not used by XM */
+
 		/* On any line with an instrument, use the active subinstrument
 		 * for default volume and panning. Invalid instruments have
 		 * volume 0 panning 0x80 (test_player_ft2_invalid_ins_defaults).
 		 * Works on lines with K00 (test_player_ft2_k00_defaults).
 		 */
-		int pan = sub ? sub->pan : 0x80;
-
 		xc->volume = sub ? sub->vol : 0;
 		SET(NEW_VOL);
 
+		pan = sub ? sub->pan : 0x80;
 		if (pan >= 0) {
 			xc->pan.val = pan;
 		}
