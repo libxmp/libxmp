@@ -1478,7 +1478,7 @@ static int read_event_med(struct context_data *ctx, struct xmp_event *e, int chn
 			libxmp_virt_resetchannel(ctx, chn);
 		} else if (!is_toneporta && IS_VALID_INSTRUMENT(xc->ins) &&
 			   IS_VALID_NOTE(e->note - 1)) {
-			struct xmp_instrument *xxi = &mod->xxi[xc->ins];
+			xxi = &mod->xxi[xc->ins];
 
 			xc->key = e->note - 1;
 			RESET_NOTE(NOTE_END);
