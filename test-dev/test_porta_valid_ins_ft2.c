@@ -79,7 +79,7 @@ TEST(test_porta_valid_ins_ft2)
 	 * This should still be using instrument 0 for volume/pan.
 	 */
 	xmp_play_frame(opaque);
-	check_on(xc, vi, KEY_C5, -1 /*FIXME: INS_0*/,
+	check_on(xc, vi, KEY_C5, INS_0,
 		 INS_0_SUB_0_VOL, INS_0_SUB_0_PAN, INS_0_FADE, "row 3");
 
 	xmp_play_frame(opaque);

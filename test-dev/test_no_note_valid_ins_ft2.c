@@ -93,27 +93,31 @@ TEST(test_no_note_valid_ins_ft2)
 	 * sets the volume to the old instrument's default volume.
 	 */
 	xmp_play_frame(opaque);
-	check_on(xc, vi, KEY_C5, -1 /*FIXME: INS_0*/,
+	check_on(xc, vi, KEY_C5, INS_0,
 		 INS_0_SUB_0_VOL, INS_0_SUB_0_PAN, INS_0_FADE, "row 2");
 
 	xmp_play_frame(opaque);
 
 	/* Row 3: set non-default volume and pan */
 	xmp_play_frame(opaque);
-	check_on(xc, vi, KEY_C5, -1 /*FIXME: INS_0*/,
+	check_on(xc, vi, KEY_C5, INS_0,
 		 SET_VOL, SET_PAN, INS_0_FADE, "row 3");
 
 	xmp_play_frame(opaque);
 
 	/* Row 4: valid instrument with key off (loaded as XMP_KEY_FADE) (FT2)
 	 *
-	 * This behaves the same as valid instrument with no note.
+	 * This behaves the same as same instrument with no note, except
+	 * it also acts like key off.
 	 */
 	xmp_play_frame(opaque);
-	check_on(xc, vi, KEY_C5, -1 /*FIXME: INS_0*/,
-		 -1 /*FIXME: INS_0_SUB_0_VOL*/, -1 /*FIXME: INS_0_SUB_0_PAN*/, -1 /*FIXME: INS_0_FADE*/, "row 4");
+	check_on(xc, vi, KEY_C5, INS_0,
+		 -1, INS_0_SUB_0_PAN, INS_0_FADE, "row 4");
 
+	fail_unless(xc->fadeout == 65536 - INS_0_FADE, "didn't start fade out");
+	fail_unless(vi->vol == 346, "didn't fade out");
 	xmp_play_frame(opaque);
+	fail_unless(vi->vol == 341, "didn't fade out");
 
 	xmp_release_module(opaque);
 	xmp_free_context(opaque);

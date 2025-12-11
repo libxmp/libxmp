@@ -45,6 +45,8 @@ TEST(test_new_note_invalid_ins_ft2)
 						      FX_SETPAN, SET_PAN);
 	new_event(ctx, 0, 2, 0, KEY_D4, INS_INVAL, 0, 0x00, 0, 0, 0);
 	new_event(ctx, 0, 3, 0, KEY_C4, 0,         0, 0x00, 0, 0, 0);
+	new_event(ctx, 0, 4, 0, KEY_C5, INS_0,     0, 0x00, 0, 0, 0);
+	new_event(ctx, 0, 5, 0, KEY_B5, INS_1,     0, 0x00, 0, 0, 0);
 	set_quirk(ctx, QUIRKS_FT2, READ_EVENT_FT2);
 
 	xmp_start_player(opaque, XMP_MIN_SRATE, 0);
@@ -82,6 +84,22 @@ TEST(test_new_note_invalid_ins_ft2)
 	/* Row 3: note without ins doesn't play after invalid ins (FT2) */
 	xmp_play_frame(opaque);
 	check_off(xc, vi, "row 3");
+
+	xmp_play_frame(opaque);
+
+	/* Row 4 */
+	xmp_play_frame(opaque);
+	check_new(xc, vi, KEY_C5, INS_0,
+		  INS_0_SUB_0_VOL, INS_0_SUB_0_PAN, INS_0_FADE, "row 0");
+
+	xmp_play_frame(opaque);
+
+	/* Row 5: invalid subinstrument with new note (FT2)
+	 *
+	 * An invalid subinstrument of a valid instrument also cuts.
+	 */
+	xmp_play_frame(opaque);
+	check_off(xc, vi, "row 5");
 
 	xmp_play_frame(opaque);
 

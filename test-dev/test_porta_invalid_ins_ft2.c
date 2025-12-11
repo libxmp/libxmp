@@ -70,7 +70,7 @@ TEST(test_porta_invalid_ins_ft2)
 	 */
 	xmp_play_frame(opaque);
 	check_on(xc, vi, KEY_C5, INS_0,
-	         INS_0_SUB_0_VOL, -1 /*FIXME: INS_0_SUB_0_PAN*/, INS_0_FADE, "row 2");
+	         INS_0_SUB_0_VOL, INS_0_SUB_0_PAN, INS_0_FADE, "row 2");
 
 	xmp_play_frame(opaque);
 
@@ -80,7 +80,7 @@ TEST(test_porta_invalid_ins_ft2)
 	 */
 	xmp_play_frame(opaque);
 	check_on(xc, vi, KEY_C5, INS_0,
-		 INS_0_SUB_0_VOL, -1 /*FIXME: INS_0_SUB_0_PAN*/, INS_0_FADE, "row 3");
+		 INS_0_SUB_0_VOL, INS_0_SUB_0_PAN, INS_0_FADE, "row 3");
 
 	xmp_play_frame(opaque);
 

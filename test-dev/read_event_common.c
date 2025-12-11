@@ -24,7 +24,10 @@ void create_read_event_test_module(struct context_data *ctx, int speed)
 	set_instrument_panning(ctx, 0, 1, INS_0_SUB_1_PAN);
 	set_instrument_fadeout(ctx, 0, INS_0_FADE);
 
-	/* Instrument 2 */
+	/* Instrument 2: map invalid subinstrument to B-5 */
+	xxi = &mod->xxi[1];
+	xxi->map[KEY_B5 - 1].ins = 2;
+
 	set_instrument_volume(ctx, 1, 0, INS_1_SUB_0_VOL);
 	set_instrument_panning(ctx, 1, 0, INS_1_SUB_0_PAN);
 	set_instrument_fadeout(ctx, 1, INS_1_FADE);
