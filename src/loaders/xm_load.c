@@ -190,13 +190,7 @@ static int load_xm_pattern(struct module_data *m, int num, int version,
 			}
 
 			if (event->note == 0x61) {
-				/* See OpenMPT keyoff+instr.xm test case */
-				if (event->fxt == 0x0e && MSN(event->fxp) == 0x0d) {
-					event->note = XMP_KEY_OFF;
-				} else {
-					event->note =
-					event->ins ? XMP_KEY_FADE : XMP_KEY_OFF;
-				}
+				event->note = event->ins ? XMP_KEY_FADE : XMP_KEY_OFF;
 			} else if (event->note > 0) {
 				event->note += 12;
 			}

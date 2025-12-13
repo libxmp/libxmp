@@ -823,43 +823,26 @@ static inline void read_row(struct context_data *ctx, int pat, int row)
 	struct xmp_module *mod = &m->mod;
 	struct player_data *p = &ctx->p;
 	struct flow_control *f = &p->flow;
-	struct xmp_event ev;
+	struct xmp_event *event;
+	struct xmp_event tmp;
 
 	for (chn = 0; chn < mod->chn; chn++) {
 		const int num_rows = mod->xxt[TRACK_NUM(pat, chn)]->rows;
 		if (row < num_rows) {
-			memcpy(&ev, &EVENT(pat, chn, row), sizeof(ev));
+			event = &EVENT(pat, chn, row);
 		} else {
-			memset(&ev, 0, sizeof(ev));
+			memset(&tmp, 0, sizeof(tmp));
+			event = &tmp;
 		}
 
-		if (ev.note == XMP_KEY_OFF) {
-			int env_on = 0;
-			int ins = ev.ins - 1;
-
-			if (IS_VALID_INSTRUMENT(ins) &&
-			    (mod->xxi[ins].aei.flg & XMP_ENVELOPE_ON)) {
-				env_on = 1;
-			}
-
-			if (ev.fxt == FX_EXTENDED && MSN(ev.fxp) == EX_DELAY) {
-				if (ev.ins && (LSN(ev.fxp) || env_on)) {
-					if (LSN(ev.fxp)) {
-						ev.note = 0;
-					}
-					ev.fxp = ev.fxt = 0;
-				}
-			}
-		}
-
-		if (check_delay(ctx, &ev, chn) == 0) {
+		if (check_delay(ctx, event, chn) == 0) {
 			/* rowdelay_set bit 1 is set only in the first tick of the row
 			 * event if the delay causes the tick count resets to 0. We test
 			 * it to read row events only in the start of the row. (see the
 			 * OpenMPT test case FineVolColSlide.it)
 			 */
 			if (!f->rowdelay_set || ((f->rowdelay_set & ROWDELAY_FIRST_FRAME) && f->rowdelay > 0)) {
-				libxmp_read_event(ctx, &ev, chn);
+				libxmp_read_event(ctx, event, chn);
 			}
 		} else {
 			if (IS_PLAYER_MODE_IT()) {
