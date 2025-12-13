@@ -233,7 +233,7 @@ static void set_period_ft2(struct context_data *ctx, int note,
 #define set_patch(ctx,chn,ins,smp,note) \
 	libxmp_virt_setpatch(ctx, chn, ins, smp, note, 0, 0, 0, 0)
 
-static int read_event_mod(struct context_data *ctx, struct xmp_event *e, int chn)
+static int read_event_mod(struct context_data *ctx, const struct xmp_event *e, int chn)
 {
 	struct player_data *p = &ctx->p;
 	struct module_data *m = &ctx->m;
@@ -439,7 +439,7 @@ static int sustain_check(struct xmp_envelope *env, int idx)
 		idx == env->data[env->sus << 1]);
 }
 
-static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn)
+static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, int chn)
 {
 	struct player_data *p = &ctx->p;
 	struct module_data *m = &ctx->m;
@@ -768,7 +768,7 @@ static int read_event_ft2(struct context_data *ctx, struct xmp_event *e, int chn
 	return 0;
 }
 
-static int read_event_st3(struct context_data *ctx, struct xmp_event *e, int chn)
+static int read_event_st3(struct context_data *ctx, const struct xmp_event *e, int chn)
 {
 	struct player_data *p = &ctx->p;
 	struct module_data *m = &ctx->m;
@@ -909,11 +909,6 @@ static inline void copy_channel(struct player_data *p, int to, int from)
 	}
 }
 
-static inline int has_note_event(struct xmp_event *e)
-{
-	return (e->note && e->note <= XMP_MAX_KEYS);
-}
-
 static int check_fadeout(struct context_data *ctx, struct channel_data *xc, int ins)
 {
 	struct xmp_instrument *xxi = libxmp_get_instrument(ctx, ins);
@@ -967,7 +962,7 @@ static int is_same_sid(struct context_data *ctx, int chn, int ins, int key)
 	return (s1 && s2 && s1->sid == s2->sid);
 }
 
-static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
+static int read_event_it(struct context_data *ctx, const struct xmp_event *e, int chn)
 {
 	struct player_data *p = &ctx->p;
 	struct module_data *m = &ctx->m;
@@ -1022,7 +1017,7 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 
 	/* Notes with unmapped instruments are ignored */
 	if (ev.ins) {
-		if (ev.ins <= mod->ins && has_note_event(&ev)) {
+		if (ev.ins <= mod->ins && IS_VALID_NOTE(ev.note - 1)) {
 			int ins = ev.ins - 1;
 			if (check_invalid_sample(ctx, ins, ev.note - 1)) {
 				candidate_ins = ins;
@@ -1030,7 +1025,7 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 			}
 		}
 	} else {
-		if (has_note_event(&ev)) {
+		if (IS_VALID_NOTE(ev.note - 1)) {
 			int ins = xc->old_ins - 1;
 			if (!IS_VALID_INSTRUMENT(ins)) {
 				new_invalid_ins = 1;
@@ -1394,7 +1389,7 @@ static int read_event_it(struct context_data *ctx, struct xmp_event *e, int chn)
 
 #ifndef LIBXMP_CORE_PLAYER
 
-static int read_event_med(struct context_data *ctx, struct xmp_event *e, int chn)
+static int read_event_med(struct context_data *ctx, const struct xmp_event *e, int chn)
 {
 	struct player_data *p = &ctx->p;
 	struct module_data *m = &ctx->m;
@@ -1560,7 +1555,7 @@ static int read_event_med(struct context_data *ctx, struct xmp_event *e, int chn
 
 #endif
 
-static int read_event_smix(struct context_data *ctx, struct xmp_event *e, int chn)
+static int read_event_smix(struct context_data *ctx, const struct xmp_event *e, int chn)
 {
 	struct player_data *p = &ctx->p;
 	struct smix_data *smix = &ctx->smix;
@@ -1654,7 +1649,7 @@ static int read_event_smix(struct context_data *ctx, struct xmp_event *e, int ch
 	return 0;
 }
 
-int libxmp_read_event(struct context_data *ctx, struct xmp_event *e, int chn)
+int libxmp_read_event(struct context_data *ctx, const struct xmp_event *e, int chn)
 {
 	struct player_data *p = &ctx->p;
 	struct module_data *m = &ctx->m;

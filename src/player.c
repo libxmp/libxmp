@@ -754,7 +754,7 @@ static void reset_channels(struct context_data *ctx)
 	}
 }
 
-static int check_delay(struct context_data *ctx, struct xmp_event *e, int chn)
+static int check_delay(struct context_data *ctx, const struct xmp_event *e, int chn)
 {
 	struct player_data *p = &ctx->p;
 	struct channel_data *xc = &p->xc_data[chn];
