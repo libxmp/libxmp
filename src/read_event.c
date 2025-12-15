@@ -448,6 +448,7 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 	int note, key;
 	struct xmp_subinstrument *sub;
 	int is_toneporta;
+	int is_delayed;
 	int k00 = 0;
 	struct xmp_event ev;
 
@@ -475,6 +476,23 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 	note = -1;
 	key = ev.note;
 	is_toneporta = 0;
+	is_delayed = 0;
+
+	/* Delay has a few bizarre hacks that need to be supported. */
+	if (ev.fxt == FX_EXTENDED && MSN(ev.fxp) == EX_DELAY && LSN(ev.fxp)) {
+		/* No note + delay -> note memory (ft2_delay_note_memory.xm).
+		 * Combined with ins# memory, effectively causes a retrigger. */
+		key = key ? key : xc->key + 1;
+
+		/* Key off + no ins# + delay + volume column pan -> ignore pan
+		 * (OpenMPT PanOff.xm) (ft2_delay_volume_column.xm).
+		 */
+		if (HAS_QUIRK(QUIRK_FT2BUGS) && key == XMP_KEY_OFF &&
+		    !ev.ins && ev.f2t == FX_SETPAN) {
+			ev.f2t = ev.f2p = 0;
+		}
+		is_delayed = 1;
+	}
 
 	/* From the OpenMPT key_off.xm test case:
 	 * "Key off at tick 0 (K00) is very dodgy command. If there is a note
@@ -504,24 +522,11 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 
 	/* Check instrument */
 
-	/* Do this regardless if the instrument is invalid or not -- unless
-	 * XM keyoff is used. Fixes xyce-dans_la_rue.xm chn 0 patterns 0E/0F and
-	 * chn 10 patterns 0D/0E, see https://github.com/libxmp/libxmp/issues/152
-	 * for details.
-	 * TODO: parts here are probably wrong and may be limited to not setting
-	 * fadeout if XMP_KEY_FADE. Some parts likely require valid note +
-	 * not toneporta. (This is speculation and needs to be verified.)
+	/* TODO: finish removal of this block.
 	 */
 	if (ev.ins && key != XMP_KEY_FADE) {
 		SET(NEW_INS);
 		xc->per_flags = 0;
-
-		RESET_NOTE(NOTE_RELEASE|NOTE_SUSEXIT);
-		if (!k00) {
-			RESET_NOTE(NOTE_FADEOUT);
-			/* Ins+K00 doesn't reset this (ft2_k00_defaults.xm). */
-			xc->fadeout = 0x10000;
-		}
 
 		if (!IS_VALID_INSTRUMENT(ev.ins - 1)) {
 			/* If no note is set FT2 doesn't cut on invalid
@@ -591,7 +596,7 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 		}
 	}
 
-	/* Check note */
+	/* Check key off/envelopes */
 
 	if (key) {
 		SET(NEW_NOTE);
@@ -599,7 +604,6 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 		if (key == XMP_KEY_OFF) {
 			int env_on = 0;
 			int vol_set = ev.vol != 0 || ev.fxt == FX_VOLSET;
-			int delay_fx = ev.fxt == FX_EXTENDED && ev.fxp == 0xd0;
 			struct xmp_envelope *env = NULL;
 
 			/* OpenMPT NoteOffVolume.xm:
@@ -618,7 +622,7 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 				}
 			}
 
-			if (env_on || (!vol_set && (!ev.ins || !delay_fx))) {
+			if (env_on || (!vol_set && !ev.ins)) {
 				if (sustain_check(env, xc->v_idx)) {
 					/* See OpenMPT EnvOff.xm. In certain
 					 * cases a release event is effective
@@ -631,17 +635,11 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 			} else {
 				SET_NOTE(NOTE_FADEOUT);
 			}
-
-			/* See OpenMPT keyoff+instr.xm, pattern 2 row 0x40 */
-			if (env_on && ev.fxt == FX_EXTENDED &&
-			    (ev.fxp >> 4) == EX_DELAY) {
-				/* See OpenMPT OffDelay.xm test case */
-				if ((ev.fxp & 0xf) != 0) {
-					RESET_NOTE(NOTE_RELEASE|NOTE_SUSEXIT);
-				}
-			}
 		} else if (key == XMP_KEY_FADE) {
 			/* Handle keyoff + instrument case (NoteOff2.xm) */
+			/* TODO: when an envelope is on sustain this is just
+			 * not how this works (ft2_delay_envelope_sustain.xm).
+			 */
 			SET_NOTE(NOTE_FADEOUT);
 		} else if (is_toneporta) {
 			/* set key to 0 so we can have the tone portamento from
@@ -655,6 +653,39 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 		}
 	}
 
+	if (is_delayed && !ev.ins && !ev.vol && !ev.f2t && key == XMP_KEY_OFF) {
+		/* HACK: if keyoff + noins + no volume column effect + delay
+		 * and no envelope, do not reset envelopes/release/fadeout
+		 * (ft2_delay_envelope_off.xm, ft2_delay_volume_column.xm).
+		 */
+		if (IS_VALID_INSTRUMENT(xc->ins)) {
+			if (~mod->xxi[xc->ins].aei.flg & XMP_ENVELOPE_ON) {
+				is_delayed = 0;
+			}
+		}
+	}
+	if ((ev.ins && key != XMP_KEY_FADE && !k00) || is_delayed) {
+		/* Reset release/fadeout for instrument numbers with no keyoff/K00
+		 * (xyce-dans_la_rue.xm chn 0 pat. 0E/0F, chn 10 pat. 0D/0E;
+		 * ft2_k00_defaults.xm; ft2_note_off_sustain.xm)
+		 * and on most delayed rows (ft2_delay_envelope_off.xm,
+		 * ft2_delay_envelope_on.xm, ft2_delay_envelope_sustain.xm).
+		 */
+		xc->fadeout = 0x10000;
+		RESET_NOTE(NOTE_FADEOUT);
+		RESET_NOTE(NOTE_RELEASE|NOTE_SUSEXIT);
+
+		if (sub != NULL) {
+			/* Only reset envelopes with a valid active instrument
+			 * (ft2_envelope_invalid_ins.xm)
+			 * (Ghidorah/olympic dance.xm pos 10)
+			 * (Jeroen Tel/letting go.xm pos 4 chn 20).
+			 */
+			reset_envelopes(ctx, xc);
+		}
+	}
+
+	/* Check note */
 
 	/* Check note range -- from the OpenMPT test NoteLimit.xm:
 	 * "I think one of the first things Fasttracker 2 does when parsing a
@@ -710,14 +741,6 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 	sub = get_subinstrument(ctx, xc->ins, xc->key);
 
 	set_effect_defaults(ctx, note, sub, xc, is_toneporta);
-
-	if (ev.ins && sub != NULL && !k00) {
-		/* Reset envelopes on new instrument, see olympic.xm pos 10
-		 * But make sure we have an instrument set, see Letting go
-		 * pos 4 chn 20
-		 */
-		reset_envelopes(ctx, xc);
-	}
 
 	/* Process new volume */
 	if (ev.vol) {

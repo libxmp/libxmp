@@ -21,10 +21,10 @@ TEST(test_effect_ed_delay)
 	new_event(ctx, 0, 3, 0, 63, 2,  0, 0, 0, 0x0e, 0xd3);
 	new_event(ctx, 0, 4, 0,  0, 0,  0, 0, 0,    0,    0);
 	new_event(ctx, 0, 5, 0,  0, 0,  0, 0, 0, 0x0e, 0xd1);
-	new_event(ctx, 0, 6, 0,  0, 0,  0, 0, 0, 0x0e, 0xd1);
-	new_event(ctx, 0, 7, 0,  0, 0,  0, 0, 0, 0x0e, 0xd0);
+	new_event(ctx, 0, 6, 0,  0, 0,  0, 0x0e, 0xd1, 0, 0);
+	new_event(ctx, 0, 7, 0,  0, 0,  0, 0x0e, 0xd0, 0, 0);
 	new_event(ctx, 0, 8, 0,  0, 3,  0, 0, 0,    0,    0);
-	new_event(ctx, 0, 9, 0,  0, 0,  0, 0, 0, 0x0e, 0xd1);
+	new_event(ctx, 0, 9, 0,  0, 0,  0, 0x0e, 0xd1, 0, 0);
 
 	xmp_start_player(opaque, 44100, 0);
 
@@ -90,9 +90,10 @@ TEST(test_effect_ed_delay)
 	fail_unless(vi->note == 61, "row 5 frame 1");
 	fail_unless(vi->pos0 !=  0, "sample position");
 
-	set_quirk(ctx, QUIRK_RTDELAY, READ_EVENT_FT2);
+	set_quirk(ctx, 0, READ_EVENT_FT2);
 
-	/* Row 6: in retrig mode */
+	/* Row 6: Fasttracker 2 delay has note memory, causing strange
+	 * knock-on effects such as retriggering (effect slot 1 only). */
 	xmp_play_frame(opaque);
 	fail_unless(vi->note == 61, "row 6 frame 0");
 	fail_unless(vi->pos0 !=  0, "sample position");

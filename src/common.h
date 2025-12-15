@@ -304,7 +304,7 @@ int libxmp_snprintf (char *, size_t, const char *, ...) LIBXMP_ATTRIB_PRINTF(3,4
 #define QUIRK_PRENV	(1 << 22)	/* Portamento resets envelope & fade */
 #define QUIRK_ITOLDFX	(1 << 23)	/* IT old effects mode */
 #define QUIRK_S3MRTG	(1 << 24)	/* S3M-style retrig when count == 0 */
-#define QUIRK_RTDELAY	(1 << 25)	/* Delay effect retrigs instrument */
+/*#define QUIRK_RTDELAY	(1 << 25)*/	/* Delay effect retrigs instrument */
 #define QUIRK_FT2BUGS	(1 << 26)	/* FT2 bug compatibility */
 #define QUIRK_MARKER	(1 << 27)	/* Patterns 0xfe and 0xff reserved */
 #define QUIRK_NOBPM	(1 << 28)	/* Adjust speed only, no BPM */
@@ -318,7 +318,7 @@ int libxmp_snprintf (char *, size_t, const char *, ...) LIBXMP_ATTRIB_PRINTF(3,4
 /* Format quirks */
 #define QUIRKS_ST3		(QUIRK_S3MLOOP | QUIRK_VOLPDN | QUIRK_FINEFX | \
 				 QUIRK_S3MRTG  | QUIRK_MARKER | QUIRK_RSTCHN )
-#define QUIRKS_FT2		(QUIRK_RTDELAY | QUIRK_FINEFX )
+#define QUIRKS_FT2		(QUIRK_FINEFX  )
 #define QUIRKS_IT		(QUIRK_S3MLOOP | QUIRK_FINEFX | QUIRK_VIBALL | \
 				 QUIRK_ENVFADE | QUIRK_ITVPOR | QUIRK_KEYOFF | \
 				 QUIRK_VIRTUAL | QUIRK_FILTER | QUIRK_RSTCHN | \

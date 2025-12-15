@@ -58,6 +58,7 @@ Stable versions
 	  instruments to apply the wrong instrument's volume/panning.
 	- XM: rows with an instrument number and K00 no longer reset fadeout.
 	- XM: apply QUIRK_FT2BUGS to Fasttracker II clone modules.
+	- XM: reimplement Fasttracker II note delay effect.
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 

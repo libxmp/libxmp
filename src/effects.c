@@ -267,20 +267,9 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 			break;
 		}
 	    fx_setpan:
-		/* From OpenMPT PanOff.xm:
-		 * "Another chapter of weird FT2 bugs: Note-Off + Note Delay
-		 *  + Volume Column Panning = Panning effect is ignored."
-		 */
-		if (!HAS_QUIRK(QUIRK_FT2BUGS)		/* If not FT2 */
-		    || fnum == 0			/* or not vol column */
-		    || e->note != XMP_KEY_OFF		/* or not keyoff */
-		    || e->fxt != FX_EXTENDED		/* or not delay */
-		    || MSN(e->fxp) != EX_DELAY) {
-			xc->pan.val = fxp;
-			xc->pan.surround = 0;
-		}
-		xc->rpv = 0;	/* storlek_20: set pan overrides random pan */
+		xc->pan.val = fxp;
 		xc->pan.surround = 0;
+		xc->rpv = 0;	/* storlek_20: set pan overrides random pan */
 		break;
 	case FX_OFFSET:		/* Set sample offset */
 		EFFECT_MEMORY(fxp, xc->offset.memory);

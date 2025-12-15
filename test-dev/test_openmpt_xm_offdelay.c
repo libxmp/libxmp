@@ -6,16 +6,10 @@
  all it does if there is an envelope. No fade out, no nothing.
 */
 
-/* Claudio's note -- I didn't implement the envelope retrigger thing, but
- * the test works nonetheless. Maybe I'm doing something wrong?
- */
-
 TEST(test_openmpt_xm_offdelay)
 {
-#if 0
 	compare_mixer_data(
 		"openmpt/xm/OffDelay.xm",
 		"openmpt/xm/OffDelay.data");
-#endif
 }
 END_TEST

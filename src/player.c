@@ -758,7 +758,6 @@ static int check_delay(struct context_data *ctx, const struct xmp_event *e, int 
 {
 	struct player_data *p = &ctx->p;
 	struct channel_data *xc = &p->xc_data[chn];
-	struct module_data *m = &ctx->m;
 
 	/* Tempo affects delay and must be computed first */
 	if ((e->fxt == FX_SPEED && e->fxp < 0x20) || e->fxt == FX_S3M_SPEED) {
@@ -802,15 +801,6 @@ static int check_delay(struct context_data *ctx, const struct xmp_event *e, int 
 
 	if (e->ins) {
 		xc->delayed_ins = e->ins;
-	}
-
-	if (HAS_QUIRK(QUIRK_RTDELAY)) {
-		if (e->vol == 0 && e->f2t == 0 && e->ins == 0 && e->note != XMP_KEY_OFF)
-			xc->delayed_event.vol = xc->volume + 1;
-		if (e->note == 0)
-			xc->delayed_event.note = xc->key + 1;
-		if (e->ins == 0)
-			xc->delayed_event.ins = xc->old_ins;
 	}
 
 	return 1;
