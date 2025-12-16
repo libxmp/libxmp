@@ -151,6 +151,68 @@ jobs:
           emcc test.c ../src/md5.c -o test.js -O3 -Wall -I../include -I../src -L../lib/ --embed-file test.itz -lxmp
           node test.js
 
+  bsd:
+    runs-on: ubuntu-latest
+    name: '${{ matrix.platform.name }} ${{ matrix.platform.os-version }}'
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        platform:
+          - { name: freebsd,  os: freebsd,  os-version: 14.3, os-arch: x86-64,
+              setup_cmd: 'sudo pkg update',
+              install_cmd: 'sudo pkg install -y cmake',
+            }
+          - { name: openbsd,  os: openbsd, os-version: 7.7,  os-arch: x86-64,
+              setup_cmd: 'sudo pkg_add -u',
+              install_cmd: 'sudo pkg_add cmake',
+            }
+          - { name: netbsd,   os: netbsd,  os-version: 10.1, os-arch: x86-64,
+              setup_cmd: 'export PATH="/usr/pkg/sbin:/usr/pkg/bin:/sbin:$PATH";export PKG_PATH="https://cdn.netBSD.org/pub/pkgsrc/packages/NetBSD/$(uname -p)/$(uname -r|cut -f "1 2" -d.)/All/";echo "PKG_PATH=$PKG_PATH";echo "uname -a -> \"$(uname -a)\"";sudo -E sysctl -w security.pax.aslr.enabled=0;sudo -E sysctl -w security.pax.aslr.global=0;sudo -E pkgin clean;sudo -E pkgin update',
+              install_cmd: 'sudo -E pkgin -y install cmake',
+            }
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build
+      uses: cross-platform-actions/action@v0.30.0
+      with:
+        operating_system: ${{ matrix.platform.os }}
+        architecture: ${{ matrix.platform.os-arch }}
+        version: ${{ matrix.platform.os-version }}
+        run: |
+          ${{ matrix.platform.setup_cmd }}
+          ${{ matrix.platform.install_cmd }}
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_SHARED=ON  \
+            -DBUILD_STATIC=OFF \
+            -DBUILD_LITE=ON    \
+            -DWITH_UNIT_TESTS=ON
+          cmake --build build
+          (cd build && ctest --output-on-failure)
+
+  haiku:
+    runs-on: ubuntu-latest
+    name: haiku
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build
+      uses: cross-platform-actions/action@v0.30.0
+      with:
+        operating_system: haiku
+        architecture: x86-64
+        version: r1beta5
+        run: |
+          pkgman install -y cmake
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_SHARED=ON  \
+            -DBUILD_STATIC=OFF \
+            -DBUILD_LITE=ON    \
+            -DWITH_UNIT_TESTS=ON
+          cmake --build build
+          (cd build && ctest --output-on-failure)
+
   macos:
     runs-on: macos-latest
     steps:
@@ -389,4 +451,3 @@ jobs:
         run: make check
       - name: Build and run regression tests
         run: (cd test-dev && make -j 3)
-
