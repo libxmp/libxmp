@@ -161,6 +161,8 @@ struct channel_data {
 	} retrig;
 
 	struct {
+#define TREMOR_SUPPRESS	0x40	/* Ignore tremor state until next update (FT2) */
+#define TREMOR_ON	0x80
 		uint8 up,down;	/* Tremor value */
 		uint8 count;	/* Tremor counter */
 		uint8 memory;	/* Tremor memory */

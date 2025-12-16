@@ -449,6 +449,7 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 	struct xmp_subinstrument *sub;
 	int is_toneporta;
 	int is_delayed;
+	int delay_reset_envelopes;
 	int k00 = 0;
 	struct xmp_event ev;
 
@@ -464,19 +465,12 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 
 	memcpy(&ev, e, sizeof (struct xmp_event));
 
-	/* From OpenMPT TremorReset.xm test case:
-	 * "Even if a tremor effect muted the sample on a previous row, volume
-	 *  commands should be able to override this effect."
-	 */
-	if (ev.vol) {
-		xc->tremor.count &= ~0x80;
-	}
-
 	xc->flags = 0;
 	note = -1;
 	key = ev.note;
 	is_toneporta = 0;
 	is_delayed = 0;
+	delay_reset_envelopes = 0;
 
 	/* Delay has a few bizarre hacks that need to be supported. */
 	if (ev.fxt == FX_EXTENDED && MSN(ev.fxp) == EX_DELAY && LSN(ev.fxp)) {
@@ -492,6 +486,7 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 			ev.f2t = ev.f2p = 0;
 		}
 		is_delayed = 1;
+		delay_reset_envelopes = 1;
 	}
 
 	/* From the OpenMPT key_off.xm test case:
@@ -539,8 +534,6 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 				key = 0;
 			}
 		}
-
-		xc->tremor.count = 0x20;
 	}
 
 	/* Check subinstrument
@@ -660,11 +653,11 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 		 */
 		if (IS_VALID_INSTRUMENT(xc->ins)) {
 			if (~mod->xxi[xc->ins].aei.flg & XMP_ENVELOPE_ON) {
-				is_delayed = 0;
+				delay_reset_envelopes = 0;
 			}
 		}
 	}
-	if ((ev.ins && key != XMP_KEY_FADE && !k00) || is_delayed) {
+	if ((ev.ins && key != XMP_KEY_FADE && !k00) || delay_reset_envelopes) {
 		/* Reset release/fadeout for instrument numbers with no keyoff/K00
 		 * (xyce-dans_la_rue.xm chn 0 pat. 0E/0F, chn 10 pat. 0D/0E;
 		 * ft2_k00_defaults.xm; ft2_note_off_sustain.xm)
@@ -683,6 +676,11 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 			 */
 			reset_envelopes(ctx, xc);
 		}
+	}
+	if ((ev.ins && key != XMP_KEY_FADE && !k00) || is_delayed) {
+		/* Tremor count resets with envelopes/release/fadeout, but
+		 * is unaffected by the keyoff hack (ft2_tremor_reset.xm). */
+		xc->tremor.count = TREMOR_SUPPRESS;
 	}
 
 	/* Check note */
@@ -759,6 +757,16 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 	libxmp_process_fx(ctx, xc, chn, &ev, 1);
 	libxmp_process_fx(ctx, xc, chn, &ev, 0);
 	set_period_ft2(ctx, note, sub, xc, is_toneporta);
+
+	if (TEST(NEW_VOL)) {
+		/* Tremor is reset by ins# without keyoff or by delay rows.
+		 * Other events that set volume (volume column/Cxx, keyoff+ins#)
+		 * also temporarily override tremor, but don't reset it.
+		 * (Tremor likely just overwrites the channel volume in FT2.)
+		 * (ft2_tremor_reset.xm, OpenMPT TremorRecover.xm)
+		 */
+		xc->tremor.count |= TREMOR_SUPPRESS;
+	}
 
 	if (sub == NULL) {
 		return 0;
