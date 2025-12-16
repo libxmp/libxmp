@@ -190,13 +190,7 @@ static int load_xm_pattern(struct module_data *m, int num, int version,
 			}
 
 			if (event->note == 0x61) {
-				/* See OpenMPT keyoff+instr.xm test case */
-				if (event->fxt == 0x0e && MSN(event->fxp) == 0x0d) {
-					event->note = XMP_KEY_OFF;
-				} else {
-					event->note =
-					event->ins ? XMP_KEY_FADE : XMP_KEY_OFF;
-				}
+				event->note = event->ins ? XMP_KEY_FADE : XMP_KEY_OFF;
 			} else if (event->note > 0) {
 				event->note += 12;
 			}
@@ -875,13 +869,15 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			break;
 	}
 
-	/* OpenMPT accurately emulates weird FT2 bugs */
 	if (!strncmp(tracker_name, "FastTracker v2.00", 17)) {
 		m->quirk |= QUIRK_FT2BUGS;
 #ifndef LIBXMP_CORE_PLAYER
 		claims_ft2 = 1;
 #endif
+	} else if (!strncmp(tracker_name, "Fasttracker II clone", 20)) {
+		m->quirk |= QUIRK_FT2BUGS;
 	} else if (!strncmp(tracker_name, "OpenMPT ", 8)) {
+		/* OpenMPT accurately emulates weird FT2 bugs */
 		m->quirk |= QUIRK_FT2BUGS;
 	}
 #ifndef LIBXMP_CORE_PLAYER
