@@ -59,6 +59,10 @@ Stable versions
 	- XM: rows with an instrument number and K00 no longer reset fadeout.
 	- XM: apply QUIRK_FT2BUGS to Fasttracker II clone modules.
 	- XM: reimplement Fasttracker II note delay effect.
+	- XM: FT2 tremor now resets on all delay rows, does not reset on
+	  instrument number + K00 rows, and is suppressed by instrument default
+	  volume and Cxx in cases where it is not reset. FT2 tremor no longer
+	  updates on note delay events before the delayed event is processed.
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 

@@ -665,9 +665,7 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 		EFFECT_MEMORY(fxp, xc->tremor.memory);
 		xc->tremor.up = MSN(fxp);
 		xc->tremor.down = LSN(fxp);
-		if (IS_PLAYER_MODE_FT2()) {
-			xc->tremor.count |= 0x80;
-		} else {
+		if (!IS_PLAYER_MODE_FT2()) {
 			if (xc->tremor.up == 0) {
 				xc->tremor.up++;
 			}

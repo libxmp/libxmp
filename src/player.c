@@ -835,6 +835,13 @@ static inline void read_row(struct context_data *ctx, int pat, int row)
 				libxmp_read_event(ctx, event, chn);
 			}
 		} else {
+			struct channel_data *xc = &p->xc_data[chn];
+
+			if (IS_PLAYER_MODE_FT2()) {
+				/* Tremor only updates on ticks after effects
+				 * are processed (ft2_tremor_delay.xm). */
+				RESET(TREMOR);
+			}
 			if (IS_PLAYER_MODE_IT()) {
 				/* Reset flags. See SlideDelay.it */
 				p->xc_data[chn].flags = 0;
@@ -869,23 +876,21 @@ static int tremor_ft2(struct context_data *ctx, int chn, int finalvol)
 	struct player_data *p = &ctx->p;
 	struct channel_data *xc = &p->xc_data[chn];
 
-	if (xc->tremor.count & 0x80) {
-		if (TEST(TREMOR) && p->frame != 0) {
-			xc->tremor.count &= ~0x20;
-			if (xc->tremor.count == 0x80) {
-				/* end of down cycle, set up counter for up  */
-				xc->tremor.count = xc->tremor.up | 0xc0;
-			} else if (xc->tremor.count == 0xc0) {
-				/* end of up cycle, set up counter for down */
-				xc->tremor.count = xc->tremor.down | 0x80;
-			} else {
-				xc->tremor.count--;
-			}
+	if (TEST(TREMOR) && p->frame != 0) {
+		xc->tremor.count &= ~TREMOR_SUPPRESS;
+		if (xc->tremor.count == 0) {
+			/* end of down cycle, set up counter for up  */
+			xc->tremor.count = xc->tremor.up | TREMOR_ON;
+		} else if (xc->tremor.count == TREMOR_ON) {
+			/* end of up cycle, set up counter for down */
+			xc->tremor.count = xc->tremor.down;
+		} else {
+			xc->tremor.count--;
 		}
+	}
 
-		if ((xc->tremor.count & 0xe0) == 0x80) {
-			finalvol = 0;
-		}
+	if ((xc->tremor.count & (TREMOR_ON | TREMOR_SUPPRESS)) == 0) {
+		finalvol = 0;
 	}
 
 	return finalvol;
@@ -899,15 +904,15 @@ static int tremor_s3m(struct context_data *ctx, int chn, int finalvol)
 	if (TEST(TREMOR)) {
 		if (xc->tremor.count == 0) {
 			/* end of down cycle, set up counter for up  */
-			xc->tremor.count = xc->tremor.up | 0x80;
-		} else if (xc->tremor.count == 0x80) {
+			xc->tremor.count = xc->tremor.up | TREMOR_ON;
+		} else if (xc->tremor.count == TREMOR_ON) {
 			/* end of up cycle, set up counter for down */
 			xc->tremor.count = xc->tremor.down;
 		}
 
 		xc->tremor.count--;
 
-		if (~xc->tremor.count & 0x80) {
+		if (~xc->tremor.count & TREMOR_ON) {
 			finalvol = 0;
 		}
 	}
