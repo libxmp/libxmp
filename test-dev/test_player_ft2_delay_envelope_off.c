@@ -11,7 +11,7 @@
  *
  * 00-03: Delay with no note/no ins# is equivalent to delay with note.
  *        Both reset fadeout and retrigger the sample.
- * 04-07: Delay with keyoff/no ins#/no volume column sets fadeout + cuts
+ * 04-07: Delay with keyoff/no ins#/no volume column resets fadeout + cuts
  *        volume to 0. EC1 is used for comparison but this doesn't test
  *        the fadeout reset portion very well.
  * 08-0B: Delay with no note and an ins# is equivalent to delay with a

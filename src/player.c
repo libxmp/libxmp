@@ -817,12 +817,20 @@ static inline void read_row(struct context_data *ctx, int pat, int row)
 	struct xmp_event tmp;
 
 	for (chn = 0; chn < mod->chn; chn++) {
+		struct channel_data *xc = &p->xc_data[chn];
 		const int num_rows = mod->xxt[TRACK_NUM(pat, chn)]->rows;
 		if (row < num_rows) {
 			event = &EVENT(pat, chn, row);
 		} else {
 			memset(&tmp, 0, sizeof(tmp));
 			event = &tmp;
+		}
+
+		if (IS_PLAYER_MODE_FT2()) {
+			/* Reset Kxx, even if delayed (ft2_kxx.xm). */
+			xc->keyoff = 0;
+			/* Reset tremor, even if delayed (ft2_tremor_delay.xm). */
+			RESET(TREMOR);
 		}
 
 		if (check_delay(ctx, event, chn) == 0) {
@@ -835,13 +843,6 @@ static inline void read_row(struct context_data *ctx, int pat, int row)
 				libxmp_read_event(ctx, event, chn);
 			}
 		} else {
-			struct channel_data *xc = &p->xc_data[chn];
-
-			if (IS_PLAYER_MODE_FT2()) {
-				/* Tremor only updates on ticks after effects
-				 * are processed (ft2_tremor_delay.xm). */
-				RESET(TREMOR);
-			}
 			if (IS_PLAYER_MODE_IT()) {
 				/* Reset flags. See SlideDelay.it */
 				p->xc_data[chn].flags = 0;
@@ -920,6 +921,42 @@ static int tremor_s3m(struct context_data *ctx, int chn, int finalvol)
 	return finalvol;
 }
 
+/* Handle delayed keyoff effects. This should only be performed once on
+ * the tick where Kxx activates (ft2_note_off_fade.xm).
+ */
+static void delayed_keyoff(struct context_data *ctx, int chn)
+{
+	struct player_data *p = &ctx->p;
+	struct module_data *m = &ctx->m;
+	struct channel_data *xc = &p->xc_data[chn];
+	struct xmp_instrument *instrument;
+
+	instrument = libxmp_get_instrument(ctx, xc->ins);
+
+	switch (m->read_event_type) {
+	case READ_EVENT_FT2:
+		/* Ignore if frame>=speed (ft2_kxx.xm). */
+		if (p->frame >= p->speed) {
+			break;
+		}
+		/* See read_event_ft2 for more notes on keyoff. */
+		if (instrument->aei.flg & XMP_ENVELOPE_ON) {
+			SET_NOTE(NOTE_RELEASE);
+		} else {
+			xc->volume = 0;
+		}
+		SET_NOTE(NOTE_FADEOUT);
+		break;
+
+	default:
+		/* TODO: compatibility for old behavior (see process_volume)
+		 * until keyoff can be tested everywhere else.
+		 * Orpheus: keyoff clears the note, xx>speed works with delay.
+		 * RT2: keyoff clears the note, xx>speed acts like 0. */
+		SET_NOTE(NOTE_RELEASE);
+	}
+}
+
 /*
  * Update channel data
  */
@@ -954,7 +991,8 @@ static void process_volume(struct context_data *ctx, int chn, int act)
 				fade = 1;
 			}
 		}
-	} else {
+	} else if (!IS_PLAYER_MODE_FT2()) {
+		/* TODO: FT2 doesn't do this. check other formats. */
 		if (~instrument->aei.flg & XMP_ENVELOPE_ON) {
 			if (TEST_NOTE(NOTE_ENV_RELEASE)) {
 				xc->fadeout = 0;
@@ -1639,7 +1677,7 @@ static void play_channel(struct context_data *ctx, int chn)
 	/* Do keyoff */
 	if (xc->keyoff) {
 		if (--xc->keyoff == 0)
-			SET_NOTE(NOTE_RELEASE);
+			delayed_keyoff(ctx, chn);
 	}
 
 	libxmp_virt_release(ctx, chn, TEST_NOTE(NOTE_SAMPLE_RELEASE));

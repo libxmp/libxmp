@@ -33,9 +33,8 @@
  *        (Tremor continues one row later due to using EDx.)
  * 3A-3D: ins# + delay + keyoff resets the tremor state.
  *        (Tremor continues one row later due to using EDx.)
- * 3E-43: keyoff + noins + novc + delay resets the tremor state, unlike the
- *        envelopes, release, and fadeout, which have a weird hack for this
- *        specific case. (Tremor continues one row later due to using EDx.)
+ * 3E-43: keyoff + noins + novc + delay resets the tremor state.
+ *        (Tremor continues one row later due to using EDx.)
  */
 
 TEST(test_player_ft2_tremor_reset)
