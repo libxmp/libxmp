@@ -6,23 +6,20 @@
 
 #ifndef LIBXMP_CORE_DISABLE_IT
 
-#ifdef LIBXMP_NO_DEPACKERS
-#define TEST_IT_FILE "test.it"
-#else
-#define TEST_IT_FILE "test.itz"
+#define TEST_IT_FILE		"test.it"
+#ifndef LIBXMP_NO_DEPACKERS
+#define TEST_ITZ_FILE		"test.itz"
 #endif
-#define TEST_PLAY_TIME	4800
-#define TEST_MD5_IEEE	"3464d82e06b7f71763cf52abb37c3b36"
-#define TEST_MD5_X87	"2d5cfea801bc2367f8a397a0803b5823"
-
-#else /* !LIBXMP_CORE_DISABLE_IT */
-
-#define TEST_IT_FILE	"test.xm"
-#define TEST_PLAY_TIME	8000
-#define TEST_MD5_IEEE	"089e2fcddb8989d04d5004876d642139"
-#define TEST_MD5_X87	"089e2fcddb8989d04d5004876d642139"
+#define TEST_IT_PLAYTIME	4800
+#define TEST_IT_MD5_IEEE	"3464d82e06b7f71763cf52abb37c3b36"
+#define TEST_IT_MD5_X87 	"2d5cfea801bc2367f8a397a0803b5823"
 
 #endif
+
+#define TEST_XM_FILE		"test.xm"
+#define TEST_XM_PLAYTIME	8000
+#define TEST_XM_MD5_IEEE	"7cece79ea1d96b6e35bccceecf73883a"
+#define TEST_XM_MD5_X87 	"7cece79ea1d96b6e35bccceecf73883a"
 
 static inline int is_big_endian(void) {
 	unsigned short w = 0x00ff;
@@ -43,15 +40,20 @@ static void convert_endian(unsigned char *p, int l)
 	}
 }
 
-static int compare_md5(const unsigned char *d, const char *digest)
+static void print_md5(const unsigned char *d)
 {
 	int i;
 
-	/*
-	for (i = 0; i < 16 ; i++)
-		printf("%02x", d[i]);
 	printf("\n");
-	*/
+	for (i = 0; i < 16 ; i++) {
+		printf("%02x", d[i]);
+	}
+	printf(" ");
+}
+
+static int compare_md5(const unsigned char *d, const char *digest)
+{
+	int i;
 
 	for (i = 0; i < 16 && *digest; i++, digest += 2) {
 		char hex[3];
@@ -66,7 +68,7 @@ static int compare_md5(const unsigned char *d, const char *digest)
 	return 0;
 }
 
-int main(void)
+static int run_test(const char *file, const char *md5_ieee, const char *md5_x87, int playtime)
 {
 	int ret;
 	xmp_context c;
@@ -76,17 +78,19 @@ int main(void)
 	MD5_CTX ctx;
 
 	c = xmp_create_context();
-	if (c == NULL)
+	if (c == NULL) {
+		printf("failed creating context\n");
 		goto err;
+	}
 
-	ret = xmp_load_module(c, TEST_IT_FILE);
+	ret = xmp_load_module(c, file);
 	if (ret != 0) {
 		printf("can't load module\n");
 		goto err;
 	}
 
 	xmp_get_frame_info(c, &info);
-	if (info.total_time != TEST_PLAY_TIME) {
+	if (info.total_time != playtime) {
 		printf("estimated replay time error: %d\n", info.total_time);
 		goto err;
 	}
@@ -119,13 +123,14 @@ int main(void)
 	}
 
 	MD5Final(digest, &ctx);
+	print_md5(digest);
 
 	/*
 	  x87 floating point results in a very slightly different output from
 	  SSE and other floating point implementations, so check two hashes.
 	 */
-	if (compare_md5(digest, TEST_MD5_IEEE) < 0 &&
-	    compare_md5(digest, TEST_MD5_X87) < 0) {
+	if (compare_md5(digest, md5_ieee) < 0 &&
+	    compare_md5(digest, md5_x87) < 0) {
 		printf("rendering error\n");
 		goto err;
 	}
@@ -139,7 +144,7 @@ int main(void)
 
 	xmp_release_module(c);
 	xmp_free_context(c);
-	exit(0);
+	return 0;
 
     err:
 	printf(" fail\n");
@@ -147,5 +152,25 @@ int main(void)
 		xmp_release_module(c);
 		xmp_free_context(c);
 	}
-	exit(1);
+	return -1;
+}
+
+int main(void)
+{
+	int errors = 0;
+
+#ifdef TEST_IT_FILE
+	printf("TESTING %s:\n", TEST_IT_FILE);
+	errors += run_test(TEST_IT_FILE, TEST_IT_MD5_IEEE, TEST_IT_MD5_X87, TEST_IT_PLAYTIME);
+#endif
+#ifdef TEST_ITZ_FILE
+	printf("TESTING %s:\n", TEST_ITZ_FILE);
+	errors += run_test(TEST_ITZ_FILE, TEST_IT_MD5_IEEE, TEST_IT_MD5_X87, TEST_IT_PLAYTIME);
+#endif
+#ifdef TEST_XM_FILE
+	printf("TESTING %s:\n", TEST_XM_FILE);
+	errors += run_test(TEST_XM_FILE, TEST_XM_MD5_IEEE, TEST_XM_MD5_X87, TEST_XM_PLAYTIME);
+#endif
+
+	return errors;
 }
