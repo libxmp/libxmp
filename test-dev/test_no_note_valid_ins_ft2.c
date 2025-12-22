@@ -61,7 +61,7 @@ TEST(test_no_note_valid_ins_ft2)
 	new_event(ctx, 0, 2, 0, 0,            INS_1, 0, 0x00, 0, 0, 0);
 	new_event(ctx, 0, 3, 0, 0,            0,     0, FX_VOLSET, SET_VOL,
 							FX_SETPAN, SET_PAN);
-	new_event(ctx, 0, 4, 0, XMP_KEY_FADE, INS_1, 0, 0x00, 0, 0, 0);
+	new_event(ctx, 0, 4, 0, XMP_KEY_OFF,  INS_1, 0, 0x00, 0, 0, 0);
 	set_quirk(ctx, QUIRKS_FT2, READ_EVENT_FT2);
 
 	xmp_start_player(opaque, XMP_MIN_SRATE, 0);
@@ -105,7 +105,7 @@ TEST(test_no_note_valid_ins_ft2)
 
 	xmp_play_frame(opaque);
 
-	/* Row 4: valid instrument with key off (loaded as XMP_KEY_FADE) (FT2)
+	/* Row 4: valid instrument with key off (FT2)
 	 *
 	 * This behaves the same as same instrument with no note, except
 	 * it also acts like key off.

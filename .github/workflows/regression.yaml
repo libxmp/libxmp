@@ -13,7 +13,7 @@ jobs:
       - name: CMake configure
         run: |
           mkdir build
-          cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
+          cmake . -DCMAKE_BUILD_TYPE=Release -DWITH_UNIT_TESTS=ON -B build
       - name: CMake build
         run: |
           cmake --build build --target all -- -j 3
@@ -46,7 +46,7 @@ jobs:
       - name: CMake configure
         run: |
           mkdir build
-          CC=clang cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
+          CC=clang cmake . -DCMAKE_BUILD_TYPE=Release -DWITH_UNIT_TESTS=ON -B build
       - name: CMake build
         run: |
           cmake --build build --target all -- -j 3
@@ -81,7 +81,7 @@ jobs:
         run: |
           export CFLAGS="-flto"
           export LDFLAGS="-flto"
-          cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
+          cmake . -DCMAKE_BUILD_TYPE=Release -DWITH_UNIT_TESTS=ON -B build
       - name: CMake build
         run: |
           cmake --build build --target all -- -j 3
@@ -123,7 +123,7 @@ jobs:
       - name: CMake configure
         run: |
           source ../emsdk/emsdk_env.sh
-          emcmake cmake . -DCMAKE_BUILD_TYPE=Debug -B build
+          emcmake cmake . -DCMAKE_BUILD_TYPE=Release -B build
       - name: CMake build
         run: |
           source ../emsdk/emsdk_env.sh
@@ -132,7 +132,7 @@ jobs:
         run: |
           source ../emsdk/emsdk_env.sh
           cd test
-          emcc test.c ../src/md5.c -o test.js -O3 -Wall -I../include -I../src -L../build/ --embed-file test.itz -lxmp
+          emcc test.c ../src/md5.c -o test.js -O3 -Wall -I../include -I../src -L../build/ --embed-file test.xm --embed-file test.it --embed-file test.itz -lxmp
           node test.js
           rm test.js
       - name: Create and run Autotools configure script
@@ -148,7 +148,7 @@ jobs:
         run: |
           source ../emsdk/emsdk_env.sh
           cd test
-          emcc test.c ../src/md5.c -o test.js -O3 -Wall -I../include -I../src -L../lib/ --embed-file test.itz -lxmp
+          emcc test.c ../src/md5.c -o test.js -O3 -Wall -I../include -I../src -L../lib/ --embed-file test.xm --embed-file test.it --embed-file test.itz -lxmp
           node test.js
 
   bsd:
@@ -222,7 +222,7 @@ jobs:
         run: brew install autoconf
       - name: CMake configure for Intel
         run: |
-          cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
+          cmake . -DCMAKE_BUILD_TYPE=Release -DWITH_UNIT_TESTS=ON -B build
       - name: CMake build for Intel
         run: |
           cmake --build build --target all -- -j 4
@@ -232,7 +232,7 @@ jobs:
           ctest --output-on-failure
       - name: CMake configure for M1
         run: |
-          cmake . -DCMAKE_OSX_ARCHITECTURES="arm64" -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=OFF -B build-m1
+          cmake . -DCMAKE_OSX_ARCHITECTURES="arm64" -DCMAKE_BUILD_TYPE=Release -DWITH_UNIT_TESTS=OFF -B build-m1
       - name: CMake build for M1
         run: |
           cmake --build build-m1 --target all
@@ -264,7 +264,7 @@ jobs:
         uses: actions/checkout@v4
       - name: CMake configure
         run: |
-          cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build ${{ matrix.cmakeflags }}
+          cmake . -DCMAKE_BUILD_TYPE=Release -DWITH_UNIT_TESTS=ON -B build ${{ matrix.cmakeflags }}
       - name: CMake build
         run: |
           cmake --build build --config Debug --target ALL_BUILD
@@ -325,7 +325,7 @@ jobs:
         run: (cd test-dev && make distclean) && make distclean
       - name: CMake configure
         run: |
-          cmake . -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DWITH_UNIT_TESTS=ON -B build
+          cmake . -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DWITH_UNIT_TESTS=ON -B build
       - name: CMake build
         run: |
           cmake --build build --target all -- -j 3

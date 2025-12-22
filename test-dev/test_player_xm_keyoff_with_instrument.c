@@ -44,8 +44,8 @@ TEST(test_player_xm_keyoff_with_instrument)
 	new_event(ctx, 0, 0, 0, 60, 1, 0, FX_SPEED, 2, 0, 0);
 	new_event(ctx, 0, 1, 0, 0, 0, 0, FX_VOLSLIDE, 8, 0, 0);
 	new_event(ctx, 0, 2, 0, 0, 0, 0, FX_VOLSLIDE, 8, 0, 0);
-	new_event(ctx, 0, 3, 0, XMP_KEY_FADE, 1, 0, 0, 0, 0, 0);
-	new_event(ctx, 0, 40, 0, XMP_KEY_FADE, 2, 0, 0, 0, 0, 0);
+	new_event(ctx, 0, 3, 0, XMP_KEY_OFF, 1, 0, 0, 0, 0, 0);
+	new_event(ctx, 0, 40, 0, XMP_KEY_OFF, 2, 0, 0, 0, 0, 0);
 	set_quirk(ctx, QUIRKS_FT2, READ_EVENT_FT2);
 
 	xmp_start_player(opaque, 44100, 0);

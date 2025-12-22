@@ -35,6 +35,17 @@ Stable versions
 	  instrument number + K00 rows, and is suppressed by instrument default
 	  volume and Cxx in cases where it is not reset. FT2 tremor no longer
 	  updates on note delay events before the delayed event is processed.
+	- XM: load all keyoff notes as XMP_KEY_OFF (fixes keyoff + ins rows).
+	- XM: keyoff without delay always initiates fadeout, even if there is
+	  if there is a volume envelope. The old implementation would sometimes
+	  delay the start of fadeout.
+	- XM: keyoff without volume envelope sets the channel volume to 0
+	  instead of setting fadeout to 0. This is now performed on the tick
+	  where keyoff takes effect only (fixes volume effects not cancelling
+	  the volume cut when they should have).
+	- XM: fix volume column set volume effects resetting fadeout
+	  (fixes Comic Bakery Remix position 35).
+	- XM: fix Kxx persisting between rows and pattern delay interaction.
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 
