@@ -46,6 +46,7 @@ Stable versions
 	- XM: fix volume column set volume effects resetting fadeout
 	  (fixes Comic Bakery Remix position 35).
 	- XM: fix Kxx persisting between rows and pattern delay interaction.
+	- XM: fix note without ins# resetting fadeout position and state.
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 

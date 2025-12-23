@@ -1,10 +1,13 @@
 #include "test.h"
 
 /*
-When a note is issued with no instrument after a keyoff event, it should
-be played [if instrument has no envelope]
+When the current playing instrument does not have a volume envelope,
+keyoff cuts the volume to 0 (in addition to starting fadeout, as usual).
+The playing note (or a new note) can be restored by setting the volume
+again. In this example, fadeout is NOT reset, and the channel continues
+to fade out.
 
-Last Battle.xm:
+Cave Story - Last Battle.xm (position 11, channel 2):
 
   00 D#4 02 .. ...
   01 ... .. .. ...

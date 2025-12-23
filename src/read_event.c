@@ -595,7 +595,9 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 		 * (xyce-dans_la_rue.xm chn 0 pat. 0E/0F, chn 10 pat. 0D/0E;
 		 * ft2_k00_defaults.xm; ft2_note_off_sustain.xm), and on
 		 * delayed rows (ft2_delay_envelope_*.xm, ft2_note_off_fade.xm,
-		 * OpenMPT NoteOff.xm).
+		 * OpenMPT NoteOff.xm). Other cases like note w/o ins# don't
+		 * reset fadeout (Cave Story - Last Battle.xm pos 11 chn 2,
+		 * ft2_note_no_fadeout_reset.xm).
 		 */
 		xc->fadeout = 0x10000;
 		RESET_NOTE(NOTE_FADEOUT);
@@ -641,14 +643,7 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 
 	if (IS_VALID_NOTE(key - 1) && !is_toneporta) {
 		xc->key = --key;
-		xc->fadeout = 0x10000;
 		RESET_NOTE(NOTE_END);
-
-		if (sub != NULL) {
-			if (~mod->xxi[xc->ins].aei.flg & XMP_ENVELOPE_ON) {
-				RESET_NOTE(NOTE_RELEASE|NOTE_FADEOUT);
-			}
-		}
 
 		if (sub != NULL) {
 			int transp = mod->xxi[xc->ins].map[key].xpo;
