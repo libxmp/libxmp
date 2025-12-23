@@ -78,6 +78,7 @@ Stable versions
 	- XM: fix Kxx persisting between rows and pattern delay interaction.
 	- XM: fix note without ins# resetting fadeout position and state.
 	- XM: detect more Modplug Tracker XMs via large unused instruments.
+	- XM: handle out-of-range notes more closely to FT2.
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 

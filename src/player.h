@@ -270,6 +270,7 @@ struct channel_data {
 
 	struct xmp_event delayed_event;
 	int delayed_ins;	/* IT save instrument emulation */
+	int key_memory;		/* Previous key (XM) */
 
 	int info_period;	/* Period */
 	int info_pitchbend;	/* Linear pitchbend */
