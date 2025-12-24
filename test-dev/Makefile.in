@@ -58,7 +58,7 @@ EFFECTS		= 0_arpeggio 1_slide_up 2_slide_down \
 		  far_vibrato far_vibrato_per far_volslide far_tempo \
 		  med_retrig med_patt_delay \
 		  ult_tempo ult_toneporta \
-		  finefx_imf
+		  finefx_ft2 finefx_imf
 
 PATLOOPS	= st301 st321 st301_breakjump st321_breakjump \
 		  it100 it104 it210 it100_breakjump it200_breakjump \

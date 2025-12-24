@@ -12,6 +12,7 @@ Stable versions
 	  default volume handling.
 	- Anticlick decay curves are now applied after IT note cut, DCA note
 	  cut, IT effect S70 (etc.), and API-requested position changes.
+	- XM, MOD: remove QUIRK_FINEFX from QUIRKS_FT2.
 	- XM: channel fade rate is only copied from the instrument on rows
 	  with note + ins. + no toneporta/K00.
 	- XM: zero-length samples cut the channel like invalid instruments.

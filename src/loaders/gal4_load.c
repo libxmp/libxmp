@@ -481,7 +481,9 @@ static int gal4_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		mod->xxc[i].pan = 0x80;
 	}
 
-	m->quirk |= QUIRKS_FT2;
+	/* TODO: JJ2 1.20 shareware does not support fine slides from
+	 * converted XMs. Should be tested with converted S3Ms, though. */
+	m->quirk |= QUIRK_FINEFX;
 	m->read_event_type = READ_EVENT_FT2;
 
 	return 0;
