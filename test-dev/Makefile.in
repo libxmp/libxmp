@@ -51,13 +51,14 @@ EFFECTS		= 0_arpeggio 1_slide_up 2_slide_down \
 		  it_smooth_macro reverse line_jump \
 		  pastnote_cut pastnote_off pastnote_fade \
 		  set_nna_cut set_nna_cont set_nna_off set_nna_fade \
-		  note_slide note_slide_retrig \
+		  note_slide note_slide_retrig imf_fine_porta \
 		  persistent_slide persistent_vslide persistent_vibrato \
 		  it_g00_nosuck it_l00_nosuck it_fine_vol_row_delay \
 		  far_slide far_toneporta far_retrig far_noteoffset \
 		  far_vibrato far_vibrato_per far_volslide far_tempo \
 		  med_retrig med_patt_delay \
-		  ult_tempo ult_toneporta
+		  ult_tempo ult_toneporta \
+		  finefx_imf
 
 PATLOOPS	= st301 st321 st301_breakjump st321_breakjump \
 		  it100 it104 it210 it100_breakjump it200_breakjump \

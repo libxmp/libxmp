@@ -132,8 +132,6 @@ static int imf_test(HIO_HANDLE *f, char *t, const int start)
 }
 
 #define NONE 0xff
-#define FX_IMF_FPORTA_UP 0xfe
-#define FX_IMF_FPORTA_DN 0xfd
 
 
 /* Effect conversion table */
@@ -189,20 +187,6 @@ static void xlat_fx (int c, uint8 *fxt, uint8 *fxp)
     }
 
     switch (*fxt = fx[*fxt]) {
-    case FX_IMF_FPORTA_UP:
-	*fxt = FX_PORTA_UP;
-	if (*fxp < 0x30)
-	    *fxp = LSN (*fxp >> 2) | 0xe0;
-	else
-	    *fxp = LSN (*fxp >> 4) | 0xf0;
-	break;
-    case FX_IMF_FPORTA_DN:
-	*fxt = FX_PORTA_DN;
-	if (*fxp < 0x30)
-	    *fxp = LSN (*fxp >> 2) | 0xe0;
-	else
-	    *fxp = LSN (*fxp >> 4) | 0xf0;
-	break;
     case FX_EXTENDED:			/* Extended effects */
 	switch (h) {
 	case 0x1:			/* Set filter */
@@ -566,7 +550,7 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
     }
 
     m->c4rate = C4_NTSC_RATE;
-    m->quirk |= QUIRK_FILTER | QUIRKS_ST3 | QUIRK_ARPMEM;
+    m->quirk |= QUIRK_FILTER | QUIRK_MARKER | QUIRK_RSTCHN | QUIRK_ARPMEM;
     m->flow_mode = FLOW_MODE_ORPHEUS;
     m->read_event_type = READ_EVENT_ST3;
 
