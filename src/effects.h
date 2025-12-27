@@ -124,6 +124,10 @@
 #define FX_VIBRATO2	0x92
 #define FX_MED_RETRIG	0x93
 
+/* IMF effects */
+#define FX_IMF_FPORTA_DN 0x9a	/* IMF 1/16th fine porta down, 1xx/2xx mem */
+#define FX_IMF_FPORTA_UP 0x9b	/* IMF 1/16th fine porta up, 1xx/2xx mem */
+
 /* PTM effects */
 #define FX_NSLIDE_DN	0x9c	/* IMF/PTM note slide down */
 #define FX_NSLIDE_UP	0x9d	/* IMF/PTM note slide up */

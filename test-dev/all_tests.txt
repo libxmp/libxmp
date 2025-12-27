@@ -376,6 +376,7 @@ test_effect_set_nna_off
 test_effect_set_nna_fade
 test_effect_note_slide
 test_effect_note_slide_retrig
+test_effect_imf_fine_porta
 test_effect_persistent_slide
 test_effect_persistent_vslide
 test_effect_persistent_vibrato
@@ -394,6 +395,7 @@ test_effect_med_retrig
 test_effect_med_patt_delay
 test_effect_ult_tempo
 test_effect_ult_toneporta
+test_effect_finefx_imf
 test_effect_pattern_loop_st301
 test_effect_pattern_loop_st321
 test_effect_pattern_loop_st301_breakjump

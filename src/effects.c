@@ -323,7 +323,13 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 			h = MSN(fxp);
 			l = LSN(fxp);
 			if (fxp) {
-				if (HAS_QUIRK(QUIRK_VOLPDN)) {
+				/* Imago Orpheus uses (x - y).
+				 * TODO: a less hacky way of detecting this
+				 * (READ_EVENT_ORPHEUS or quirk) would be nice.
+				 * (test_effect_finefx_imf) */
+				if (m->flow_mode == FLOW_MODE_ORPHEUS) {
+					xc->vol.slide = h - l;
+				} else if (HAS_QUIRK(QUIRK_VOLPDN)) {
 					xc->vol.slide = l ? -l : h;
 				} else {
 					xc->vol.slide = h ? h : -l;
@@ -915,6 +921,20 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 			h = MSN(fxp);
 			l = LSN(fxp);
 			xc->vol.fslide = h ? h : -l;
+		}
+		break;
+	case FX_IMF_FPORTA_DN:	/* IMF 1/16th precision fine slide down */
+		EFFECT_MEMORY(fxp, xc->freq.memory);
+		if (fxp != 0) {
+			SET(FINE_BEND);
+			xc->freq.fslide = 0.0625 * fxp;
+		}
+		break;
+	case FX_IMF_FPORTA_UP:	/* IMF 1/16th precision fine slide up */
+		EFFECT_MEMORY(fxp, xc->freq.memory);
+		if (fxp != 0) {
+			SET(FINE_BEND);
+			xc->freq.fslide = -0.0625 * fxp;
 		}
 		break;
 	case FX_NSLIDE_DN:
