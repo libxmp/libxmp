@@ -28,8 +28,7 @@
 #define STM_TYPE_MODULE	0x02
 
 struct stm_instrument_header {
-	uint8 name[12];		/* ASCIIZ instrument name */
-	uint8 id;		/* Id=0 */
+	uint8 name[13];		/* Instrument name in 8.3 format (ASCIIZ) */
 	uint8 idisk;		/* Instrument disk */
 	uint16 rsvd1;		/* Reserved */
 	uint16 length;		/* Sample length */
@@ -158,12 +157,18 @@ static const uint8 fx[16] = {
 	FX_NONE
 };
 
+static int tempo_2_bpm(uint8 tempo) {
+	static uint16 slowdowns[18] = { 140, 50, 25, 15, 10, 7, 6, 4, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1 };
+
+	return 5 * (50 - ((slowdowns[MSN(tempo)] * LSN(tempo)) >> 4)) / 2;
+}
+
 static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 {
 	struct xmp_module *mod = &m->mod;
 	struct xmp_event *event;
 	struct stm_file_header sfh;
-	uint8 b;
+	uint8 b, tempo;
 	uint16 version;
 	int blank_pattern = 0;
 	int stored_patterns;
@@ -195,7 +200,12 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		hio_read(sfh.sub.v2.rsvd2, 13, 1, f);	/* Reserved */
 		mod->chn = 4;
 		mod->pat = sfh.sub.v2.patterns;
-		mod->spd = (version < 221) ? LSN(sfh.sub.v2.tempo / 10) : MSN(sfh.sub.v2.tempo);
+		tempo = sfh.sub.v2.tempo;
+		if (version < 221)
+			tempo = (tempo / 10 << 4) + tempo % 10;
+
+		mod->bpm = tempo_2_bpm(tempo);
+		mod->spd = MSN(tempo);
 		mod->ins = 31;
 		mod->len = (version == 200) ? 64 : 128;
 	} else {
@@ -226,14 +236,18 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		hio_seek(f, sfh.sub.v1.skip, SEEK_CUR);	/* Skip bytes */
 		mod->chn = sfh.sub.v1.channels;
 		mod->pat = sfh.sub.v1.patnum;
-		mod->spd = (version != 100) ? LSN(sfh.sub.v1.tempo / 10) : LSN(sfh.sub.v1.tempo);
+		tempo = sfh.sub.v1.tempo;
+		if (version != 100)
+			tempo = (tempo / 10 << 4) + tempo % 10;
+
+		mod->bpm = tempo_2_bpm(tempo);
+		mod->spd = MSN(tempo);
 		mod->ins = sfh.sub.v1.insnum;
 		mod->len = sfh.sub.v1.ordnum;
 	}
 
 	for (i = 0; i < mod->ins; i++) {
-		hio_read(sfh.ins[i].name, 12, 1, f);	/* Instrument name */
-		sfh.ins[i].id = hio_read8(f);		/* Id=0 */
+		hio_read(sfh.ins[i].name, 13, 1, f);	/* Instrument name */
 		sfh.ins[i].idisk = hio_read8(f);	/* Instrument disk */
 		sfh.ins[i].rsvd1 = hio_read16l(f);	/* Reserved */
 		sfh.ins[i].length = hio_read16l(f);	/* Sample length */
@@ -377,7 +391,13 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 				event->fxp = hio_read8(f);
 				switch (event->fxt) {
 				case FX_SPEED:
-					event->fxp = (version < 221) ? LSN(event->fxp / 10) : MSN(event->fxp);
+					if (version < 221)
+						event->fxp = (event->fxp / 10 << 4) + event->fxp % 10;
+
+					event->f2t = FX_S3M_BPM;
+					event->f2p = tempo_2_bpm(event->fxp);
+					event->fxt = FX_S3M_SPEED;
+					event->fxp = MSN(event->fxp);
 					break;
 				case FX_NONE:
 					event->fxp = event->fxt = 0;
