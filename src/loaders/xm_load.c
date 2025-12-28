@@ -458,7 +458,8 @@ static int oggdec(struct module_data *m, HIO_HANDLE *f, struct xmp_sample *xxs, 
 }
 #endif
 
-static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
+static int load_instruments(struct module_data *m, int version,
+			    int *mpt_ins_headers, HIO_HANDLE *f)
 {
 	struct xmp_module *mod = &m->mod;
 	struct xm_instrument_header xih;
@@ -468,6 +469,8 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 	long total_sample_size;
 	int i, j;
 	uint8 buf[208];
+
+	(void)mpt_ins_headers; /* unused in LIBXMP_CORE_PLAYER */
 
 	D_(D_INFO "Instruments: %d", mod->ins);
 
@@ -512,6 +515,14 @@ static int load_instruments(struct module_data *m, int version, HIO_HANDLE *f)
 			D_(D_CRIT "instrument %d: samples:%d sample header size:%d", i + 1, xih.samples, xih.sh_size);
 			return -1;
 		}
+
+#ifndef LIBXMP_CORE_PLAYER
+		/* Yet another Modplug Tracker tell: it saves huge zero-filled
+		 * instrument headers for unused instruments. */
+		if (xih.size == 0x107 && xih.samples == 0 && xih.sh_size == 0) {
+			*mpt_ins_headers = 1;
+		}
+#endif
 
 		libxmp_instrument_name(mod, i, xih.name, 22);
 
@@ -778,10 +789,14 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	char tracker_name[21];
 #ifndef LIBXMP_CORE_PLAYER
 	int claims_ft2 = 0;
+	int is_mpt_old = 0;
 	int is_mpt_116 = 0;
 #endif
+	int mpt_ins_headers = 0;
 	int len;
 	uint8 buf[80];
+
+	(void)mpt_ins_headers; /* unused in LIBXMP_CORE_PLAYER */
 
 	LOAD_INIT();
 
@@ -900,7 +915,7 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	if (!strncmp(tracker_name, "FastTracker v 2.00", 18)) {
 		strcpy(tracker_name, "old ModPlug Tracker");
 		m->quirk &= ~QUIRK_FT2BUGS;
-		is_mpt_116 = 1;
+		is_mpt_old = 1;
 	}
 
 	libxmp_set_type(m, "%s XM %d.%02d", tracker_name, xfh.version >> 8, xfh.version & 0xff);
@@ -917,7 +932,7 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 
 	/* XM 1.02/1.03 has a different patterns and instruments order */
 	if (xfh.version <= 0x0103) {
-		if (load_instruments(m, xfh.version, f) < 0) {
+		if (load_instruments(m, xfh.version, &mpt_ins_headers, f) < 0) {
 			return -1;
 		}
 		if (load_patterns(m, xfh.version, f) < 0) {
@@ -927,7 +942,7 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		if (load_patterns(m, xfh.version, f) < 0) {
 			return -1;
 		}
-		if (load_instruments(m, xfh.version, f) < 0) {
+		if (load_instruments(m, xfh.version, &mpt_ins_headers, f) < 0) {
 			return -1;
 		}
 	}
@@ -1003,10 +1018,15 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			break;
 	}
 
+	if (claims_ft2 && mpt_ins_headers) {
+		is_mpt_116 = 1;
+	}
+
 	if (is_mpt_116) {
 		libxmp_set_type(m, "ModPlug Tracker 1.16 XM %d.%02d",
 				xfh.version >> 8, xfh.version & 0xff);
-
+	}
+	if (is_mpt_116 || is_mpt_old) {
 		m->quirk &= ~QUIRK_FT2BUGS;
 		m->flow_mode = FLOW_MODE_MPT_116;
 		m->mvolbase = 48;

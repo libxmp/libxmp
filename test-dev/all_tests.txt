@@ -112,6 +112,7 @@ test_loader_xm_adpcm
 test_loader_xm_xmlite
 test_loader_xm_short
 test_loader_xm_instsamples
+test_loader_xm_mptinst
 test_loader_xm_pattrunc
 test_loader_xm_stereo
 test_loader_xm_stereo_vorbis
