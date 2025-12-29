@@ -704,7 +704,7 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	if (libxmp_realloc_samples(m, smpnum) < 0)
 		return -1;
 
-	m->quirk |= QUIRKS_FT2 | QUIRK_INSVOL;
+	m->quirk |= QUIRK_FINEFX | QUIRK_INSVOL;
 	m->read_event_type = READ_EVENT_FT2;
 
 	return 0;

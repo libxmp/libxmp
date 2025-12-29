@@ -397,7 +397,9 @@ static int gal5_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		mod->xxc[i].pan = data.chn_pan[i] * 2;
 	}
 
-	m->quirk |= QUIRKS_FT2;
+	/* TODO: JJ2 1.24 Secret Files shareware does not support fine slides
+	 * from converted XMs. Should be tested with converted S3Ms, though. */
+	m->quirk |= QUIRK_FINEFX;
 	m->read_event_type = READ_EVENT_FT2;
 
 	return 0;

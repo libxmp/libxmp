@@ -1245,7 +1245,7 @@ static int mdl_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     free(data.packinfo);
 
-    m->quirk |= QUIRKS_FT2 | QUIRK_KEYOFF;
+    m->quirk |= QUIRK_FINEFX | QUIRK_KEYOFF;
     m->read_event_type = READ_EVENT_FT2;
 
     return retval;
