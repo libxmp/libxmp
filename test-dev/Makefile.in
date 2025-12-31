@@ -304,6 +304,7 @@ PLAYER		= read_event scan loop period_amiga period_mod_range pan \
 		  ft2_delay_note_memory ft2_delay_volume_column \
 		  ft2_envelope_invalid_ins ft2_envelope_reset \
 		  ft2_instrument_fade_update ft2_invalid_ins_defaults \
+		  ft2_invalid_porta_target \
 		  ft2_k00_defaults ft2_k00_is_note_off ft2_kxx \
 		  ft2_no_note_ins_envelope ft2_note_invalid_subins \
 		  ft2_note_no_fadeout_reset ft2_note_noins_after_keyoff \

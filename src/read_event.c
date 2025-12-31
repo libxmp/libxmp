@@ -202,12 +202,19 @@ static void set_period(struct context_data *ctx, int note,
  *  portamento target is valid until a new target is specified by combining a
  *  note and a portamento effect."
  */
-static void set_period_ft2(struct context_data *ctx, int note,
+static void set_period_ft2(struct context_data *ctx, int key, int note,
 				struct xmp_subinstrument *sub,
 				struct channel_data *xc, int is_toneporta)
 {
-	if (note > 0 && is_toneporta) {
-		xc->porta.target = libxmp_note_to_period(ctx, note, xc->finetune,
+	if (IS_VALID_NOTE(key - 1) && is_toneporta) {
+		/* Toneporta target updates even for invalid instruments, using
+		 * the default transpose +0 (ft2_invalid_porta_target.xm). */
+		int n = key - 1;
+		if (sub != NULL) {
+			n += ctx->m.mod.xxi[xc->ins].map[key - 1].xpo;
+			n += sub->xpo;
+		}
+		xc->porta.target = libxmp_note_to_period(ctx, n, xc->finetune,
 								xc->per_adj);
 	}
 	if (sub != NULL && note >= 0) {
@@ -592,18 +599,13 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 					0x80 /* FT2 default */ << 1 /* conv */;
 		}
 
-		/* TODO: toneporta target should update even if sub == NULL.
-		 * offset needs to be verified, too (may be irrelevant). */
-		if (sub != NULL) {
-			note = xc->note;
-		}
-
 		/* Send note even if the current sample is invalid.
 		 * Playing with an active invalid sample cuts the channel:
 		 * invalid instrument, valid instrument with invalid subins, or
 		 * zero-length sample (test_player_ft2_invalid_ins_defaults).
 		 */
 		set_patch(ctx, chn, xc->ins, xc->smp, xc->note);
+		note = xc->note;
 	}
 
 	/* Check key off/envelopes */
@@ -675,7 +677,7 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 	/* Secondary effect handled first */
 	libxmp_process_fx(ctx, xc, chn, &ev, 1);
 	libxmp_process_fx(ctx, xc, chn, &ev, 0);
-	set_period_ft2(ctx, note, sub, xc, is_toneporta);
+	set_period_ft2(ctx, key, note, sub, xc, is_toneporta);
 
 	if (TEST(NEW_VOL)) {
 		/* Tremor is reset by ins# without keyoff or by delay rows.
