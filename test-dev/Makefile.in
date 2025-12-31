@@ -308,8 +308,8 @@ PLAYER		= read_event scan loop period_amiga period_mod_range pan \
 		  ft2_no_note_ins_envelope ft2_note_invalid_subins \
 		  ft2_note_no_fadeout_reset ft2_note_noins_after_keyoff \
 		  ft2_note_noins_after_invalid_ins \
-		  ft2_note_off_after_invalid_ins \
-		  ft2_note_off_fade ft2_note_off_sustain ft2_read_event \
+		  ft2_note_off_after_invalid_ins ft2_note_off_fade \
+		  ft2_note_off_sustain ft2_note_range ft2_read_event \
 		  ft2_tremor_delay ft2_tremor_reset ft2_volume_fadeout \
 		  invalid_period invalid_mod_length invalid_mod_channels \
 		  it_noteoff_nosuck mdl_period mtm_tempo sample_sync \

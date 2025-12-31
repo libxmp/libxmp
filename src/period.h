@@ -16,6 +16,9 @@
 #define MAX_PERIOD_L	0x1e00
 #define MIN_NOTE_MOD	48
 #define MAX_NOTE_MOD	83
+#define FT2_NOTE_BN1	11		/* FT2 B-(-1) */
+#define FT2_NOTE_C0	12		/* FT2 C-0 */
+#define FT2_NOTE_AS9	130		/* FT2 A#9 */
 
 LIBXMP_BEGIN_DECLS
 
