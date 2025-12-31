@@ -79,6 +79,7 @@ Stable versions
 	- XM: fix note without ins# resetting fadeout position and state.
 	- XM: detect more Modplug Tracker XMs via large unused instruments.
 	- XM: handle out-of-range notes more closely to FT2.
+	- XM: fix setting toneporta target with an active invalid instrument.
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 
