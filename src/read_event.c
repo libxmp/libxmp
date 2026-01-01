@@ -689,30 +689,23 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 		xc->tremor.count |= TREMOR_SUPPRESS;
 	}
 
-	if (sub == NULL) {
-		return 0;
-	}
-
 	if (note >= 0) {
-		/* From the OpenMPT test cases (3xx-no-old-samp.xm):
-		 * "An offset effect that points beyond the sample end should
-		 *  stop playback on this channel."
-		 *
-		 * ... except in Skale Tracker (and possibly others), so make this a
-		 *  FastTracker2 quirk. See Armada Tanks game.it (actually an XM).
-		 *  Reported by Vladislav Suschikh.
+		/* Sample offset requires valid note + 9xx + !toneporta
+		 * (Decibelter/Cosmic 'Wegian Mamas.xm pattern 4 channel 8).
+		 * In FT2, memory is set ONLY in these cases, and offsets past
+		 * the end of the sample cut. (Skale Tracker is different, so
+		 * limit this to QUIRK_FT2BUGS; reported by Vladislav Suschikh.)
+		 * (ft2_offset_memory.xm, OpenMPT 3xx-no-old-samp.xm/porta-offset.xm)
 		 */
-		if (HAS_QUIRK(QUIRK_FT2BUGS) && xc->offset.val >= mod->xxs[sub->sid].len) {
-			libxmp_virt_resetchannel(ctx, chn);
-		} else {
+		if (HAS_QUIRK(QUIRK_FT2BUGS) && TEST(OFFSET)) {
+			xc->offset.memory = (xc->offset.val & 0xff00) >> 8;
 
-			/* (From Decibelter - Cosmic 'Wegian Mamas.xm p04 ch7)
-			 * We retrigger the sample only if we have a new note
-			 * without tone portamento, otherwise we won't play
-			 * sweeps and loops correctly.
-			 */
-			libxmp_virt_voicepos(ctx, chn, xc->offset.val);
+			if (!IS_VALID_SAMPLE(xc->smp) ||
+			    xc->offset.val >= mod->xxs[xc->smp].len) {
+				libxmp_virt_resetchannel(ctx, chn);
+			}
 		}
+		libxmp_virt_voicepos(ctx, chn, xc->offset.val);
 	}
 
 	return 0;

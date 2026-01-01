@@ -297,16 +297,6 @@ static int load_xm_pattern(struct module_data *m, int num, int version,
 						event->f2p = 0xff;
 					}
 				}
-
-				/* From OpenMPT porta-offset.xm:
-				* "If there is a portamento command next to an offset
-				*  command, the offset command is ignored completely. In
-				*  particular, the offset parameter is not memorized."
-				*/
-				if (event->fxt == FX_OFFSET
-				&& event->f2t == FX_TONEPORTA) {
-					event->fxt = event->fxp = 0;
-				}
 				break;
 			}
 			event->vol = 0;
