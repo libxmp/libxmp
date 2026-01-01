@@ -272,7 +272,13 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 		xc->rpv = 0;	/* storlek_20: set pan overrides random pan */
 		break;
 	case FX_OFFSET:		/* Set sample offset */
-		EFFECT_MEMORY(fxp, xc->offset.memory);
+		if (HAS_QUIRK(QUIRK_FT2BUGS)) {
+			/* FT2: only set memory when offset activates, see
+			 * read_event_ft2 (ft2_offset_memory.xm). */
+			fxp = fxp ? fxp : xc->offset.memory;
+		} else {
+			EFFECT_MEMORY(fxp, xc->offset.memory);
+		}
 		SET(OFFSET);
 		if (note) {
 			xc->offset.val &= xc->offset.val & ~0xffff;
