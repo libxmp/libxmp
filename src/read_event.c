@@ -163,6 +163,23 @@ static void set_effect_defaults(struct context_data *ctx, int note,
 	xc->arpeggio.size = 1;
 }
 
+static void set_channel_volume(struct channel_data *xc, int vol)
+{
+	if (vol >= 0) {
+		xc->volume = vol;
+		SET(NEW_VOL);
+	}
+}
+
+static void set_channel_pan(struct channel_data *xc, int pan)
+{
+	/* TODO: LIQ supports surround for default panning. */
+	if (pan >= 0) {
+		xc->pan.val = pan;
+		xc->pan.surround = 0;
+	}
+}
+
 /* From OpenMPT PortaTarget.mod:
  * "A new note (with no portamento command next to it) does not reset the
  *  portamento target. That is, if a previous portamento has not finished yet,
@@ -508,11 +525,15 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 
 	/* Check instrument
 	 *
-	 * Only update the (sub)instrument if there's a valid note +
-	 * no toneporta/K00. Otherwise, keep the old (sub)instrument.
+	 * Only update instrument/sample on new valid note + no toneporta/K00.
 	 * Lamb/forgotten city.xm relies heavily on quirks here.
 	 */
+	if (ev.ins) {
+		SET(NEW_INS);
+		xc->per_flags = 0; /* For posterity; not used by XM */
+	}
 	if (IS_VALID_NOTE(key - 1) && !is_toneporta) {
+		struct xmp_instrument *xxi = NULL;
 		/* Note w/o instrument loads the last referenced instrument. */
 		int ins = ev.ins ? ev.ins : xc->old_ins;
 		int smp = -1;
@@ -522,23 +543,28 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 		 * out-of-range transposition checks (ft2_note_range.xm). */
 		xc->key_memory = key;
 
-		/* FT2 seems to not have the concept of an "invalid" instrument:
-		 * there are 128 instruments with 16 samples each. The unused
-		 * instruments/samples all have default transpose 0, fadeout
-		 * 0x80, volume 0, panning 0x80, no envelopes, etc. FT2
-		 * activates/plays unused instruments/samples like any other;
-		 * because they do not have sample data, this cuts the channel.
+		/* Unused instruments have fade 0x80, no envelopes, no vibrato.
+		 * Unused samples have volume 0, pan 0x80, transpose 0, no data.
 		 * libxmp represents unused/invalid instruments/samples as -1.
 		 * (test_player_ft2_note_noins_after_invalid_ins)
 		 * (test_player_ft2_note_off_after_invalid_ins)
 		 */
 		if (IS_VALID_INSTRUMENT(ins - 1)) {
+			xxi = &mod->xxi[ins - 1];
 			sub = get_subinstrument(ctx, ins - 1, key - 1);
 			if (sub) {
-				n += mod->xxi[ins - 1].map[key - 1].xpo;
+				n += xxi->map[key - 1].xpo;
 				n += sub->xpo;
 				smp = sub->sid;
 			}
+		}
+		/* TODO: out-of-range notes update envelopes, no ins.# req. */
+
+		/* Fade update requires ins.# (ft2_instrument_fade_update.xm).
+		 * Out-of-range notes update (ft2_note_range_instrument_fade.xm). */
+		if (ev.ins) {
+			xc->ins_fade = xxi ? xxi->rls :
+					0x80 /* FT2 default */ << 1 /* conv */;
 		}
 
 		/* Valid notes update the instrument, sample, key, and note.
@@ -561,25 +587,6 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 	 * is equivalent to FT2 retaining the previous instrument/sample. */
 	sub = get_subinstrument(ctx, xc->ins, xc->key);
 
-	if (ev.ins) {
-		int pan;
-		SET(NEW_INS);
-		xc->per_flags = 0; /* For posterity; not used by XM */
-
-		/* On any line with an instrument, use the active subinstrument
-		 * for default volume and panning. Invalid instruments have
-		 * volume 0 panning 0x80 (test_player_ft2_invalid_ins_defaults).
-		 * Works on lines with K00 (test_player_ft2_k00_defaults).
-		 */
-		xc->volume = sub ? sub->vol : 0;
-		SET(NEW_VOL);
-
-		pan = sub ? sub->pan : 0x80;
-		if (pan >= 0) {
-			xc->pan.val = pan;
-		}
-	}
-
 	/* Check note
 	 *
 	 * Do not send a new note for toneporta (Quazar/funky stars.xm pos 5
@@ -590,14 +597,6 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 	}
 	if (IS_VALID_NOTE(key - 1) && !is_toneporta) {
 		RESET_NOTE(NOTE_END);
-
-		/* Only update on new instrument, not on instrument memory. */
-		/* TODO: probably relocate to defaults, check for note >= 0 */
-		if (ev.ins) {
-			/* test_player_ft2_instrument_fade_update */
-			xc->ins_fade = sub ? mod->xxi[xc->ins].rls :
-					0x80 /* FT2 default */ << 1 /* conv */;
-		}
 
 		/* Send note even if the current sample is invalid.
 		 * Playing with an active invalid sample cuts the channel:
@@ -627,11 +626,10 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 			} else {
 				SET_NOTE(NOTE_RELEASE);
 			}
-		} else if (!ev.ins) {
+		} else {
 			/* No volume envelope -> cut volume to 0
 			 * (ft2_note_off_fade.xm, OpenMPT NoteOffVolume.xm). */
-			xc->volume = 0;
-			SET(NEW_VOL);
+			set_channel_volume(xc, 0);
 		}
 
 		/* Keyoff always begins fadeout (ft2_note_off_fade.xm). */
@@ -663,13 +661,20 @@ static int read_event_ft2(struct context_data *ctx, const struct xmp_event *e, i
 		xc->tremor.count = TREMOR_SUPPRESS;
 	}
 
+	/* TODO: this function needs checking, probably split. */
 	set_effect_defaults(ctx, note, sub, xc, is_toneporta);
 
-	/* Process new volume */
-	if (ev.vol) {
-		xc->volume = ev.vol - 1;
-		SET(NEW_VOL);
+	if (ev.ins) {
+		/* Any ins.#: use active sample for defaults. Invalid samples
+		 * have volume 0 panning 0x80 (ft2_invalid_ins_defaults.xm).
+		 * Works on lines with K00 (ft2_k00_defaults.xm).
+		 */
+		set_channel_volume(xc, sub ? sub->vol : 0);
+		set_channel_pan(xc, sub ? sub->pan : 0x80);
 	}
+
+	/* Process new volume */
+	set_channel_volume(xc, ev.vol - 1);
 
 	/* FT2: always reset sample offset */
 	xc->offset.val = 0;

@@ -311,6 +311,7 @@ PLAYER		= read_event scan loop period_amiga period_mod_range pan \
 		  ft2_note_noins_after_invalid_ins \
 		  ft2_note_off_after_invalid_ins ft2_note_off_fade \
 		  ft2_note_off_sustain ft2_note_range \
+		  ft2_note_range_instrument_fade \
 		  ft2_offset_memory ft2_read_event \
 		  ft2_tremor_delay ft2_tremor_reset ft2_volume_fadeout \
 		  invalid_period invalid_mod_length invalid_mod_channels \
