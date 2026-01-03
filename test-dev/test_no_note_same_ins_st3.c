@@ -108,7 +108,7 @@ TEST(test_no_note_same_ins_st3)
 	/* Row 5 */
 	xmp_play_frame(opaque);
 	check_on(xc, vi, KEY_B5, INS_0,
-		 -1 /* FIXME: INS_0_SUB_1_VOL */, -1 /* FIXME: INS_0_SUB_1_PAN */, INS_0_FADE, "row 5");
+		 INS_0_SUB_1_VOL, INS_0_SUB_1_PAN, INS_0_FADE, "row 5");
 
 	xmp_play_frame(opaque);
 

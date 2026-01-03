@@ -286,6 +286,9 @@ static int read_event_mod(struct context_data *ctx, const struct xmp_event *e, i
 
 	/* Check instrument */
 
+	if (IS_VALID_NOTE(e->note - 1) && !is_toneporta) {
+		xc->key = e->note - 1;
+	}
 	if (e->ins) {
 		int ins = e->ins - 1;
 		SET(NEW_INS);
@@ -297,7 +300,7 @@ static int read_event_mod(struct context_data *ctx, const struct xmp_event *e, i
 		RESET_NOTE(NOTE_RELEASE|NOTE_FADEOUT);
 
 		if (IS_VALID_INSTRUMENT(ins)) {
-			sub = get_subinstrument(ctx, ins, e->note - 1);
+			sub = get_subinstrument(ctx, ins, xc->key);
 
 			if (sub != NULL) {
 				new_swap_ins = 1;
@@ -357,7 +360,6 @@ static int read_event_mod(struct context_data *ctx, const struct xmp_event *e, i
 		if (e->note == XMP_KEY_OFF) {
 			SET_NOTE(NOTE_RELEASE);
 		} else if (!is_toneporta && IS_VALID_NOTE(e->note - 1)) {
-			xc->key = e->note - 1;
 			RESET_NOTE(NOTE_END);
 
 			sub = get_subinstrument(ctx, xc->ins, xc->key);
@@ -744,6 +746,9 @@ static int read_event_st3(struct context_data *ctx, const struct xmp_event *e, i
 
 	/* Check instrument */
 
+	if (IS_VALID_NOTE(e->note - 1) && !is_toneporta) {
+		xc->key = e->note - 1;
+	}
 	if (e->ins) {
 		int ins = e->ins - 1;
 		SET(NEW_INS);
@@ -762,7 +767,7 @@ static int read_event_st3(struct context_data *ctx, const struct xmp_event *e, i
 			}
 
 			/* Get new instrument volume */
-			sub = get_subinstrument(ctx, ins, e->note - 1);
+			sub = get_subinstrument(ctx, ins, xc->key);
 			if (sub != NULL && e->note != XMP_KEY_OFF) {
 				set_channel_volume(xc, sub->vol);
 				set_channel_pan(xc, sub->pan);
@@ -788,7 +793,6 @@ static int read_event_st3(struct context_data *ctx, const struct xmp_event *e, i
 				xc->offset.val = 0;
 			}
 		} else if (IS_VALID_NOTE(e->note - 1)) {
-			xc->key = e->note - 1;
 			RESET_NOTE(NOTE_END);
 
 			sub = get_subinstrument(ctx, xc->ins, xc->key);
