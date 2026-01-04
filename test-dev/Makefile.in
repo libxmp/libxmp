@@ -315,8 +315,14 @@ PLAYER		= read_event scan loop period_amiga period_mod_range pan \
 		  ft2_offset_memory ft2_read_event \
 		  ft2_tremor_delay ft2_tremor_reset ft2_volume_fadeout \
 		  invalid_period invalid_mod_length invalid_mod_channels \
-		  it_noteoff_nosuck mdl_period mtm_tempo sample_sync \
-		  far_weird_events fnk_note_vslide_cancel
+		  it_noteoff_nosuck sample_sync \
+		  dbm_sample_default_pan \
+		  far_weird_events \
+		  fnk_note_vslide_cancel fnk_sample_default_pan \
+		  imf_sample_default_pan \
+		  liq_sample_default_pan \
+		  mdl_period \
+		  mtm_tempo \
 
 LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  mod_invalid mod_tdz3 mod_dt mod_svdmf \

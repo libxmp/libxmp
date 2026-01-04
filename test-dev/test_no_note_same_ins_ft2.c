@@ -24,18 +24,9 @@ OldVol  = Don't play sample, set old default volume
 Cont    = Continue playing sample
 Cut     = Stop playing sample
 
-  * Protracker 1.3/2.3 switches to new sample in the line after the new
-    instrument event. The new instrument is not played from start (i.e. a
-    short transient sample may not be played). This behaviour is NOT
-    emulated by the current version of xmp.
-
-    00 C-2 03 A0F  <=  Play instrument 03 and slide volume down
-    01 --- 02 000  <=  Set volume of instrument 02, playing instrument 03
-    02 --- 00 000  <=  Switch to instrument 02 (weird!)
-
-    00 C-2 03 000  <=  Play instrument 03
-    01 A-3 02 308  <=  Start portamento with instrument 03
-    02 --- 00 xxx  <=  Switch to instrument 02 (weird!)
+  * Protracker 1.3/2.3 queues sample changes immediately, but they don't take
+    effect until the current playing sample completes its loop. This is
+    supported by libxmp, as it shouldn't significantly hurt PT3 compatibility.
 
   # Don't reset envelope.
 
@@ -59,9 +50,14 @@ TEST(test_no_note_same_ins_ft2)
 	new_event(ctx, 0, 1, 0, 0,            0,     0, FX_VOLSET, SET_VOL,
 							FX_SETPAN, SET_PAN);
 	new_event(ctx, 0, 2, 0, 0,            INS_0, 0, 0x00, 0, 0, 0);
-	new_event(ctx, 0, 3, 0, 0,            0,     0, FX_VOLSET, SET_VOL,
+	new_event(ctx, 0, 3, 0, KEY_B5,       INS_0, 0, 0x00, 0, 0, 0);
+	new_event(ctx, 0, 4, 0, 0,            0,     0, FX_VOLSET, SET_VOL,
 							FX_SETPAN, SET_PAN);
-	new_event(ctx, 0, 4, 0, XMP_KEY_OFF,  INS_0, 0, 0x00, 0, 0, 0);
+	new_event(ctx, 0, 5, 0, 0,            INS_0, 0, 0x00, 0, 0, 0);
+	new_event(ctx, 0, 6, 0, KEY_C5,       INS_0, 0, 0x00, 0, 0, 0);
+	new_event(ctx, 0, 7, 0, 0,            0,     0, FX_VOLSET, SET_VOL,
+							FX_SETPAN, SET_PAN);
+	new_event(ctx, 0, 8, 0, XMP_KEY_OFF,  INS_0, 0, 0x00, 0, 0, 0);
 	set_quirk(ctx, QUIRKS_FT2, READ_EVENT_FT2);
 
 	xmp_start_player(opaque, XMP_MIN_SRATE, 0);
@@ -98,21 +94,50 @@ TEST(test_no_note_same_ins_ft2)
 
 	xmp_play_frame(opaque);
 
-	/* Row 3: set non-default volume and pan */
+	/* Row 3: same, except subinstrument 1 (FT2) */
+	xmp_play_frame(opaque);
+	check_new(xc, vi, KEY_B5, INS_0,
+		  INS_0_SUB_1_VOL, INS_0_SUB_1_PAN, INS_0_FADE, "row 3");
+
+	xmp_play_frame(opaque);
+
+	/* Row 4: set non-default volume and pan */
+	xmp_play_frame(opaque);
+	check_on(xc, vi, KEY_B5, INS_0,
+		 SET_VOL, SET_PAN, INS_0_FADE, "row 4");
+
+	xmp_play_frame(opaque);
+
+	/* Row 5 */
+	xmp_play_frame(opaque);
+	check_on(xc, vi, KEY_B5, INS_0,
+		 INS_0_SUB_1_VOL, INS_0_SUB_1_PAN, INS_0_FADE, "row 5");
+
+	xmp_play_frame(opaque);
+
+	/* Row 6 */
+	xmp_play_frame(opaque);
+	check_new(xc, vi, KEY_C5, INS_0,
+		  INS_0_SUB_0_VOL, INS_0_SUB_0_PAN, INS_0_FADE, "row 6");
+
+	xmp_play_frame(opaque);
+
+	/* Row 7: set non-default volume and pan */
+	/* FIXME: move to test_keyoff_same_ins_ft2.c */
 	xmp_play_frame(opaque);
 	check_on(xc, vi, KEY_C5, INS_0,
-		 SET_VOL, SET_PAN, INS_0_FADE, "row 3");
+		 SET_VOL, SET_PAN, INS_0_FADE, "row 7");
 
 	xmp_play_frame(opaque);
 
-	/* Row 4: same instrument with key off (FT2)
+	/* Row 8: same instrument with key off (FT2)
 	 *
 	 * This behaves the same as same instrument with no note, except
 	 * it also acts like key off.
 	 */
 	xmp_play_frame(opaque);
 	check_on(xc, vi, KEY_C5, INS_0,
-		 -1, INS_0_SUB_0_PAN, INS_0_FADE, "row 4");
+		 -1, INS_0_SUB_0_PAN, INS_0_FADE, "row 8");
 
 	fail_unless(xc->fadeout == 65536 - INS_0_FADE, "didn't start fade out");
 	fail_unless(vi->vol == 346, "didn't fade out");

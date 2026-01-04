@@ -24,18 +24,9 @@ OldVol  = Don't play sample, set old default volume
 Cont    = Continue playing sample
 Cut     = Stop playing sample
 
-  * Protracker 1.3/2.3 switches to new sample in the line after the new
-    instrument event. The new instrument is not played from start (i.e. a
-    short transient sample may not be played). This behaviour is NOT
-    emulated by the current version of xmp.
-
-    00 C-2 03 A0F  <=  Play instrument 03 and slide volume down
-    01 --- 02 000  <=  Set volume of instrument 02, playing instrument 03
-    02 --- 00 000  <=  Switch to instrument 02 (weird!)
-
-    00 C-2 03 000  <=  Play instrument 03
-    01 A-3 02 308  <=  Start portamento with instrument 03
-    02 --- 00 xxx  <=  Switch to instrument 02 (weird!)
+  * Protracker 1.3/2.3 queues sample changes immediately, but they don't take
+    effect until the current playing sample completes its loop. This is
+    supported by libxmp, as it shouldn't significantly hurt PT3 compatibility.
 
   # Don't reset envelope.
 
@@ -99,6 +90,7 @@ TEST(test_no_note_invalid_ins_ft2)
 	xmp_play_frame(opaque);
 
 	/* Row 3: set non-default volume and pan */
+	/* FIXME: move to test_keyoff_invalid_ins_ft2.c */
 	xmp_play_frame(opaque);
 	check_on(xc, vi, KEY_C5, INS_0,
 		 SET_VOL, SET_PAN, INS_0_FADE, "row 3");

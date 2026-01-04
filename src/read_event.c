@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -173,7 +173,9 @@ static void set_channel_volume(struct channel_data *xc, int vol)
 
 static void set_channel_pan(struct channel_data *xc, int pan)
 {
-	/* TODO: LIQ supports surround for default panning. */
+	/* TODO: LIQ supports surround for default panning, unclear if it works.
+	 * TODO: Imago Orpheus only temporarily sets channel panning for
+	 *       instrument numbers with no note. */
 	if (pan >= 0) {
 		xc->pan.val = pan;
 		xc->pan.surround = 0;
@@ -312,7 +314,8 @@ static int read_event_mod(struct context_data *ctx, const struct xmp_event *e, i
 				 * is not used on split channels
 				 */
 				if (!xc->split && e->note != XMP_KEY_OFF) {
-					xc->volume = sub->vol;
+					set_channel_volume(xc, sub->vol);
+					set_channel_pan(xc, sub->pan);
 				}
 			}
 
@@ -410,9 +413,8 @@ static int read_event_mod(struct context_data *ctx, const struct xmp_event *e, i
 	}
 
 	/* Process new volume */
+	set_channel_volume(xc, e->vol - 1);
 	if (e->vol) {
-		xc->volume = e->vol - 1;
-		SET(NEW_VOL);
 		/* Farandole Composer - volume resets slide to volume. */
 		RESET_PER(VOL_SLIDE);
 	}
@@ -762,7 +764,8 @@ static int read_event_st3(struct context_data *ctx, const struct xmp_event *e, i
 			/* Get new instrument volume */
 			sub = get_subinstrument(ctx, ins, e->note - 1);
 			if (sub != NULL && e->note != XMP_KEY_OFF) {
-				xc->volume = sub->vol;
+				set_channel_volume(xc, sub->vol);
+				set_channel_pan(xc, sub->pan);
 			}
 		} else {
 			/* Ignore invalid instruments */
@@ -821,10 +824,7 @@ static int read_event_st3(struct context_data *ctx, const struct xmp_event *e, i
 	}
 
 	/* Process new volume */
-	if (e->vol) {
-		xc->volume = e->vol - 1;
-		SET(NEW_VOL);
-	}
+	set_channel_volume(xc, e->vol - 1);
 
 	/* Secondary effect handled first */
 	libxmp_process_fx(ctx, xc, chn, e, 1);
@@ -1284,10 +1284,7 @@ static int read_event_it(struct context_data *ctx, const struct xmp_event *e, in
 	if (sub != NULL) {
 		if (note >= 0) {
 			/* Reset pan, see OpenMPT PanReset.it */
-			if (sub->pan >= 0) {
-				xc->pan.val = sub->pan;
-				xc->pan.surround = 0;
-			}
+			set_channel_pan(xc, sub->pan);
 
 			if (TEST_NOTE(NOTE_CUT)) {
 				reset_envelopes(ctx, xc);
@@ -1301,8 +1298,7 @@ static int read_event_it(struct context_data *ctx, const struct xmp_event *e, in
 	/* Process new volume */
 	if (ev.vol && (!TEST_NOTE(NOTE_CUT) || ev.ins != 0)) {
 		/* Do this even for XMP_KEY_OFF (see OpenMPT NoteOffInstr.it row 4). */
-		xc->volume = ev.vol - 1;
-		SET(NEW_VOL);
+		set_channel_volume(xc, ev.vol - 1);
 	}
 
 	/* IT: always reset sample offset */
@@ -1403,7 +1399,7 @@ static int read_event_med(struct context_data *ctx, const struct xmp_event *e, i
 			/* Get new instrument volume */
 			sub = get_subinstrument(ctx, e->ins - 1, e->note - 1);
 			if (sub != NULL) {
-				xc->volume = sub->vol;
+				set_channel_volume(xc, sub->vol);
 			}
 		}
 	}
@@ -1475,10 +1471,7 @@ static int read_event_med(struct context_data *ctx, const struct xmp_event *e, i
 	}
 
 	/* Process new volume */
-	if (e->vol) {
-		xc->volume = e->vol - 1;
-		SET(NEW_VOL);
-	}
+	set_channel_volume(xc, e->vol - 1);
 
 	/* Secondary effect handled first */
 	libxmp_process_fx(ctx, xc, chn, e, 1);
@@ -1589,7 +1582,7 @@ static int read_event_smix(struct context_data *ctx, const struct xmp_event *e, 
 		reset_envelopes(ctx, xc);
 	}
 
-	xc->volume = e->vol - 1;
+	set_channel_volume(xc, e->vol - 1);
 
 	xc->note = note;
 	libxmp_virt_voicepos(ctx, chn, xc->offset.val);

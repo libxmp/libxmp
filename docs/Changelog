@@ -21,14 +21,18 @@ Stable versions
 	  non-delta coded samples, and instrument flags.
 	- Correct default of sample default panning values to -1 (no default
 	  panning) for most module formats.
+	- Fix DigiBooster Pro sample default panning.
 	- Fix DigiBooster Pro note 0x1f (key off) and misc. other tidying.
+	- Fix Funktracker sample default panning.
 	- Fix FunkTracker Fk** and DOS32 initial channel panning.
 	- Fix FunkTracker notes 0x3d (partial fix) and 0x3e.
 	- Fix FunkTracker injecting sample default volume into events, causing
 	  most notes to play at slightly wrong volumes.
 	- Fix Galaxy Music System 4.0 sample default panning.
+	- Fix Imago Orpheus IMF sample default panning.
 	- Fix Imago Orpheus IMF note 255 (no note, not key off).
 	- Fix Imago Orpheus IMF Ixx/Jxx/Kxx/Lxx memory, Axy when x and y != 0.
+	- Fix Liquid Tracker LIQ sample default panning.
 	- Simplify read_event_mod, read_event_st3, read_event_ft2,
 	  read_event_med sample default volume handling.
 	- MED "hold symbols" now apply the referenced instrument's default
