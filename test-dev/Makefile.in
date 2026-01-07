@@ -296,12 +296,14 @@ PLAYER		= read_event scan loop period_amiga period_mod_range pan \
 		  it_portamento_after_keyoff it_portamento_after_keyoff_cg \
 		  it_portamento_after_cut_fade it_portamento_after_cut_fade_cg \
 		  it_portamento_envelope_reset it_portamento_envelope_reset_cg \
+		  it_double_toneporta mpt_it_double_toneporta \
 		  xm_portamento_envelope_reset xm_portamento_target \
 		  xm_keyoff_with_instrument xm_no_cxx_dxx_memory \
 		  xm_envelope_zero_loop xm_envelope_set_pos \
 		  ft2_delay_defaults ft2_delay_envelope_off \
 		  ft2_delay_envelope_on ft2_delay_envelope_sustain \
 		  ft2_delay_note_memory ft2_delay_volume_column \
+		  ft2_double_toneporta \
 		  ft2_envelope_invalid_ins ft2_envelope_reset \
 		  ft2_instrument_fade_update ft2_invalid_ins_defaults \
 		  ft2_invalid_porta_target \
@@ -314,6 +316,8 @@ PLAYER		= read_event scan loop period_amiga period_mod_range pan \
 		  ft2_note_range_instrument_fade \
 		  ft2_offset_memory ft2_read_event \
 		  ft2_tremor_delay ft2_tremor_reset ft2_volume_fadeout \
+		  mpt_xm_double_toneporta mt2_xm_double_toneporta \
+		  rstst_double_toneporta \
 		  invalid_period invalid_mod_length invalid_mod_channels \
 		  it_noteoff_nosuck sample_sync \
 		  dbm_sample_default_pan \
@@ -323,6 +327,8 @@ PLAYER		= read_event scan loop period_amiga period_mod_range pan \
 		  liq_sample_default_pan \
 		  mdl_period \
 		  mtm_tempo \
+		  ult_double_toneporta \
+		  xmf_double_toneporta \
 
 LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  mod_invalid mod_tdz3 mod_dt mod_svdmf \

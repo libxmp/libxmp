@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -229,7 +229,7 @@ static void xlat_volfx(struct xmp_event *event)
 		}
 		event->f2t = FX_SETPAN;
 	} else if (b >= 193 && b <= 202) {	/* G */
-		uint8 val[10] = {
+		static const uint8 val[10] = {
 			0x00, 0x01, 0x04, 0x08, 0x10,
 			0x20, 0x40, 0x60, 0x80, 0xff
 		};

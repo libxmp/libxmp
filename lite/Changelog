@@ -51,6 +51,9 @@ Stable versions
 	- XM: handle out-of-range notes more closely to FT2.
 	- XM: fix setting toneporta target with an active invalid instrument.
 	- XM: implement FT2-style offset effect memory (QUIRK_FT2BUGS only).
+	- Sum toneporta rates when toneporta is present in both effects slots
+	  in an event; FT2 bug emulation for double toneporta now zeroes the
+	  parameter of 3xx in the player instead of using a loader hack.
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 
