@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -474,11 +474,6 @@ static int mmd1_load(struct module_data *m, HIO_HANDLE *f, const int start)
 						event->note = 0;
 
 					event->ins = pos[1] & 0x3f;
-
-					/* Decay */
-					if (event->ins && !event->note) {
-						event->f2t = FX_MED_HOLD;
-					}
 
 					event->fxt = pos[2];
 					event->fxp = pos[3];
