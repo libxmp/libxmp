@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -52,6 +52,14 @@
 		EFFECT_MEMORY__((p), (m)); \
 	} \
 } while (0)
+
+#define EFFECT_MEMORY_GET(p, m) do { \
+	if (HAS_QUIRK(QUIRK_ST3BUGS)) { \
+		(p) = xc->vol.memory; \
+	} else { \
+		(p) = (m); \
+	} \
+} while(0)
 
 #define EFFECT_MEMORY_SETONLY(p, m) do { \
 	EFFECT_MEMORY__((p), (m)); \
@@ -217,7 +225,7 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 		if (fxp != 0) {
 			if (HAS_QUIRK(QUIRK_UNISLD)) /* IT compatible Gxx off */
 				xc->freq.memory = fxp;
-			xc->porta.slide = fxp;
+			xc->porta.slide += fxp;
 		}
 
 		if (HAS_QUIRK(QUIRK_IGSTPOR)) {
@@ -247,6 +255,8 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 		break;
 
 	case FX_TONE_VSLIDE:	/* Toneporta + vol slide */
+		EFFECT_MEMORY_GET(l, xc->porta.memory);
+		xc->porta.slide += l;
 		if (!IS_VALID_INSTRUMENT(xc->ins))
 			break;
 		do_toneporta(ctx, xc, note);

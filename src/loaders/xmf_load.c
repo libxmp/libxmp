@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 2023-2025 Alice Rowan <petrifiedrowan@gmail.com>
+ * Copyright (C) 2023-2026 Alice Rowan <petrifiedrowan@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -175,6 +175,9 @@ static void xmf_translate_effect(struct xmp_event *event, uint8 effect, uint8 pa
 		break;
 
 	case 0x03:			/* tone portamento */
+		xmf_insert_effect(event, FX_ULT_TPORTA, param, chn);
+		break;
+
 	case 0x04:			/* vibrato */
 	case 0x0c:			/* set volume */
 	case 0x0d:			/* break */
@@ -184,7 +187,7 @@ static void xmf_translate_effect(struct xmp_event *event, uint8 effect, uint8 pa
 	case 0x05:			/* volume slide + tone portamento */
 	case 0x06:			/* volume slide + vibrato */
 		if (effect == 0x05) {
-			xmf_insert_effect(event, FX_TONEPORTA, 0, chn ^ 1);
+			xmf_insert_effect(event, FX_ULT_TPORTA, 0, chn ^ 1);
 		}
 		if (effect == 0x06) {
 			xmf_insert_effect(event, FX_VIBRATO, 0, chn ^ 1);

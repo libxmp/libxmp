@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -275,28 +275,6 @@ static int load_xm_pattern(struct module_data *m, int num, int version,
 			case 0x0f:	/* Tone portamento */
 				event->f2t = FX_TONEPORTA;
 				event->f2p = (event->vol - 0xf0) << 4;
-
-				/* From OpenMPT TonePortamentoMemory.xm:
-				* "Another nice bug (...) is the combination of both
-				*  portamento commands (Mx and 3xx) in the same cell:
-				*  The 3xx parameter is ignored completely, and the Mx
-				*  parameter is doubled. (M2 3FF is the same as M4 000)
-				*/
-				if (event->fxt == FX_TONEPORTA
-				|| event->fxt == FX_TONE_VSLIDE) {
-					if (event->fxt == FX_TONEPORTA) {
-						event->fxt = 0;
-					} else {
-						event->fxt = FX_VOLSLIDE;
-					}
-					event->fxp = 0;
-
-					if (event->f2p < 0x80) {
-						event->f2p <<= 1;
-					} else {
-						event->f2p = 0xff;
-					}
-				}
 				break;
 			}
 			event->vol = 0;
