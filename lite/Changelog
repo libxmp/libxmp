@@ -54,6 +54,7 @@ Stable versions
 	- Sum toneporta rates when toneporta is present in both effects slots
 	  in an event; FT2 bug emulation for double toneporta now zeroes the
 	  parameter of 3xx in the player instead of using a loader hack.
+	- Fix time tracking bugs in some complex pattern loop cases.
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 

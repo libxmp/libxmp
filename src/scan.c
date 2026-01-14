@@ -57,13 +57,13 @@ static double scan_module(struct context_data *ctx, int ep, int chain)
     const struct xmp_module *mod = &m->mod;
     const struct xmp_track *tracks[XMP_MAX_CHANNELS];
     const struct xmp_event *event;
-    int parm, gvol_memory, f1, f2, p1, p2, ord, ord2;
-    int row, last_row, break_row, row_count, row_count_total;
+    int parm, gvol_memory, f1, f2, p1, p2, ord;
+    int row, last_row, row_count, row_count_total;
     int orders_since_last_valid, any_valid;
     int gvl, bpm, speed, base_time, chn;
     int frame_count;
     double time, start_time;
-    int inside_loop, line_jump;
+    int inside_loop;
     int pdelay = 0;
     struct flow_control f;
     struct pattern_loop loop[XMP_MAX_CHANNELS];
@@ -101,7 +101,9 @@ static double scan_module(struct context_data *ctx, int ep, int chain)
     f.loop_start = -1;
     f.loop_count = 0;
     f.loop_active_num = 0;
-    line_jump = 0;
+    f.jump = -1;
+    f.jumpline = 0;
+    f.jump_in_pat = 0; /* line jump */
 
     gvl = mod->gvl;
     bpm = mod->bpm;
@@ -139,10 +141,9 @@ static double scan_module(struct context_data *ctx, int ep, int chain)
      * CM: Fixed by using different "sequences" for each loop or subsong.
      *     Each sequence has its entry point. Sequences don't overlap.
      */
-    ord2 = -1;
     ord = ep - 1;
 
-    gvol_memory = break_row = row_count = row_count_total = frame_count = 0;
+    gvol_memory = row_count = row_count_total = frame_count = 0;
     orders_since_last_valid = any_valid = 0;
     start_time = time = 0.0;
     inside_loop = 0;
@@ -205,8 +206,8 @@ static double scan_module(struct context_data *ctx, int ep, int chain)
 	    continue;
 	}
 
-        if (break_row >= mod->xxp[pat]->rows) {
-            break_row = 0;
+        if (f.jumpline >= mod->xxp[pat]->rows) {
+            f.jumpline = 0;
         }
 
 	/* Changing patterns may reset loop vars. */
@@ -220,7 +221,7 @@ static double scan_module(struct context_data *ctx, int ep, int chain)
 	}
 
         /* Loops can cross pattern boundaries, so check if we're not looping */
-        if (m->scan_cnt[ord][break_row] && !inside_loop) {
+        if (m->scan_cnt[ord][f.jumpline] && !inside_loop) {
             break;
         }
 
@@ -245,7 +246,7 @@ static double scan_module(struct context_data *ctx, int ep, int chain)
 		start_time = time + m->time_factor * frame_count * base_time / bpm;
 	    }
 
-	    info->start_row = break_row;
+	    info->start_row = f.jumpline;
 	}
 
 	/* Get tracks in advance to speed up the event parsing loop. */
@@ -254,7 +255,7 @@ static double scan_module(struct context_data *ctx, int ep, int chain)
 	}
 
 	last_row = mod->xxp[pat]->rows;
-	for (row = break_row, break_row = 0; row < last_row; row++, row_count++, row_count_total++) {
+	for (row = f.jumpline, f.jumpline = 0; row < last_row; row++, row_count++, row_count_total++) {
 	    /* Prevent crashes caused by large softmixer frames */
 	    if (bpm < XMP_MIN_BPM) {
 	        bpm = XMP_MIN_BPM;
@@ -278,7 +279,7 @@ static double scan_module(struct context_data *ctx, int ep, int chain)
 		goto end_module;
 	    }
 
-	    if (!f.loop_active_num && !line_jump && m->scan_cnt[ord][row]) {
+	    if (!f.loop_active_num && !f.jump_in_pat && m->scan_cnt[ord][row]) {
 		row_count--;
 		goto end_module;
 	    }
@@ -294,7 +295,7 @@ static double scan_module(struct context_data *ctx, int ep, int chain)
 	    }
 
 	    pdelay = 0;
-	    line_jump = 0;
+	    f.jump_in_pat = 0;
 
 	    for (chn = 0; chn < mod->chn; chn++) {
 		if (row >= tracks[chn]->rows)
@@ -533,22 +534,12 @@ static double scan_module(struct context_data *ctx, int ep, int chain)
 		if (f1 == FX_IT_BREAK || f2 == FX_IT_BREAK) {
 		    parm = (f1 == FX_IT_BREAK) ? p1 : p2;
 		    libxmp_process_pattern_break(ctx, &f, parm);
-		    /* TODO: fully replace these variables with f */
-		    if (f.pbreak) {
-			break_row = f.jumpline;
-			last_row = 0;
-		    }
 		}
 #endif
 
 		if (f1 == FX_JUMP || f2 == FX_JUMP) {
 		    libxmp_process_pattern_jump(ctx, &f, (f1 == FX_JUMP ? p1 : p2));
-		    /* TODO: fully replace these variables with f */
 		    if (f.pbreak) {
-			ord2 = f.jump;
-			break_row = f.jumpline;
-			last_row = 0;
-
 			/* prevent infinite loop, see OpenMPT PatLoop-Various.xm */
 			inside_loop = 0;
 		    }
@@ -559,11 +550,6 @@ static double scan_module(struct context_data *ctx, int ep, int chain)
 		    parm = (f1 == FX_BREAK) ? p1 : p2;
 		    parm = 10 * MSN(parm) + LSN(parm);
 		    libxmp_process_pattern_break(ctx, &f, parm);
-		    /* TODO: fully replace these variables with f */
-		    if (f.pbreak) {
-			break_row = f.jumpline;
-			last_row = 0;
-		    }
 		}
 
 #ifndef LIBXMP_CORE_PLAYER
@@ -571,13 +557,6 @@ static double scan_module(struct context_data *ctx, int ep, int chain)
 		if (f1 == FX_LINE_JUMP || f2 == FX_LINE_JUMP) {
 		    libxmp_process_line_jump(ctx, &f, ord,
 					     (f1 == FX_LINE_JUMP ? p1 : p2));
-		    /* Don't set order if preceded by jump or break. */
-		    /* TODO: fully replace these variables with f */
-		    if (last_row > 0)
-			ord2 = ord;
-		    break_row = f.jumpline;
-		    last_row = 0;
-		    line_jump = 1;
 		}
 #endif
 
@@ -591,10 +570,7 @@ static double scan_module(struct context_data *ctx, int ep, int chain)
 		    }
 
 		    if ((parm >> 4) == EX_PATTERN_LOOP) {
-			/* QUIRK_FT2BUGS may set break_row */
-			f.jumpline = break_row;
 			libxmp_process_pattern_loop(ctx, &f, chn, row, LSN(parm));
-			break_row = f.jumpline;
 
 			/* Attempt to detect the inside of a loop.
 			 * TODO: this won't detect all cases. */
@@ -628,6 +604,11 @@ static double scan_module(struct context_data *ctx, int ep, int chain)
 		f.loop_dest = -1;
 	    }
 
+	    if (f.pbreak) {
+		f.pbreak = 0;
+		last_row = 0;
+	    }
+
 #ifndef LIBXMP_CORE_PLAYER
 	    if (st26_speed) {
 	        frame_count += row_count * speed;
@@ -642,20 +623,20 @@ static double scan_module(struct context_data *ctx, int ep, int chain)
 #endif
 	}
 
-	if (break_row && pdelay) {
-	    break_row++;
+	if (f.jumpline && pdelay) {
+	    f.jumpline++;
 	}
 
-	if (ord2 >= 0) {
-	    ord = ord2 - 1;
-	    ord2 = -1;
+	if (f.jump >= 0) {
+	    ord = f.jump - 1;
+	    f.jump = -1;
 	}
 
 	frame_count += row_count * speed;
 	row_count_total = 0;
 	row_count = 0;
     }
-    row = break_row;
+    row = f.jumpline;
 
 end_module:
 
