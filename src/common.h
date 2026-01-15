@@ -556,7 +556,6 @@ struct flow_control {
 	int loop_start;		/* Global loop target for S3M et al. */
 	int loop_count;		/* Global loop count for S3M et al. */
 	int loop_active_num;	/* Number of active loops for scan */
-	int jump_in_pat;
 
 	struct pattern_loop *loop;
 

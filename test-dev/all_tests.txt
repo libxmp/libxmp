@@ -398,6 +398,7 @@ test_effect_ult_tempo
 test_effect_ult_toneporta
 test_effect_finefx_ft2
 test_effect_finefx_imf
+test_effect_pattern_jump_it_samepos
 test_effect_pattern_loop_st301
 test_effect_pattern_loop_st321
 test_effect_pattern_loop_st301_breakjump
