@@ -92,6 +92,7 @@ Stable versions
 	- XMF: toneporta is identical to Ultra Tracker toneporta (slightly
 	  affects max.xmf pos 13+, but the notes are out-of-tune either way).
 	- Fix time tracking bugs in some complex pattern loop cases.
+	- Fix time tracking bugs when Bxx+Dxx jumps within the same position.
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 

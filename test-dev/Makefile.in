@@ -60,6 +60,8 @@ EFFECTS		= 0_arpeggio 1_slide_up 2_slide_down \
 		  ult_tempo ult_toneporta \
 		  finefx_ft2 finefx_imf
 
+PATJUMPS	= it_samepos
+
 PATLOOPS	= st301 st321 st301_breakjump st321_breakjump \
 		  it100 it104 it210 it100_breakjump it200_breakjump \
 		  mpt_it mpt_xm mpt_s3m \
@@ -657,6 +659,7 @@ DEPACK_TESTS	= $(addprefix depack_,$(DEPACKERS))
 PROWIZARD_TESTS	= $(addprefix prowizard_,$(PROWIZARD))
 
 EFFECT_TESTS	= $(addprefix effect_,$(EFFECTS))
+PATJUMP_TESTS	= $(addprefix effect_pattern_jump_,$(PATJUMPS))
 PATLOOP_TESTS	= $(addprefix effect_pattern_loop_,$(PATLOOPS))
 
 SEQUENCER_TESTS	= prev_order_start prev_order_skip prev_order_start_seq \
@@ -705,6 +708,7 @@ TESTS		= $(READ_TESTS) \
 		  $(CASE3_TESTS) \
 		  $(NNA_TESTS) \
 		  $(EFFECT_TESTS) \
+		  $(PATJUMP_TESTS) \
 		  $(PATLOOP_TESTS) \
 		  $(SEQUENCER_TESTS) \
 		  $(STORLEK_TESTS) \

@@ -1728,7 +1728,7 @@ static void inject_event(struct context_data *ctx)
  * Sequencing
  */
 
-static void next_order(struct context_data *ctx)
+static void next_order(struct context_data *ctx, int last_ord)
 {
 	struct player_data *p = &ctx->p;
 	struct flow_control *f = &p->flow;
@@ -1759,17 +1759,18 @@ static void next_order(struct context_data *ctx)
 			/* This might be a marker, so delay updating global
 			 * volume until an actual pattern is found */
 			reset_gvol = 1;
+			/* Module restart should always reset the play time. */
+			last_ord = -1;
 		}
 	} while (mod->xxo[p->ord] >= mod->pat);
 
 	if (reset_gvol)
 		p->gvol = m->xxo_info[p->ord].gvl;
 
-#ifndef LIBXMP_CORE_PLAYER
-	/* Archimedes line jump -- don't reset time tracking. */
-	if (f->jump_in_pat != p->ord)
-#endif
-	p->current_time = m->xxo_info[p->ord].time;
+	/* Bxx+Dxx within same position, Archimedes line jump,
+	 * etc. should not reset time tracking. */
+	if (last_ord != p->ord)
+		p->current_time = m->xxo_info[p->ord].time;
 
 	f->num_rows = mod->xxp[mod->xxo[p->ord]]->rows;
 	if (f->jumpline >= f->num_rows)
@@ -1792,8 +1793,6 @@ static void next_order(struct context_data *ctx)
 	}
 
 #ifndef LIBXMP_CORE_PLAYER
-	f->jump_in_pat = -1;
-
 	/* Reset persistent effects at new pattern */
 	if (HAS_QUIRK(QUIRK_PERPAT)) {
 		int chn;
@@ -1808,6 +1807,7 @@ static void next_row(struct context_data *ctx)
 {
 	struct player_data *p = &ctx->p;
 	struct flow_control *f = &p->flow;
+	int last_ord = p->ord;
 
 	p->frame = 0;
 	f->delay = 0;
@@ -1822,7 +1822,7 @@ static void next_row(struct context_data *ctx)
 			f->jump = -1;
 		}
 
-		next_order(ctx);
+		next_order(ctx, last_ord);
 	} else {
 		if (f->rowdelay == 0) {
 			p->row++;
@@ -1838,7 +1838,7 @@ static void next_row(struct context_data *ctx)
 
 		/* check end of pattern */
 		if (p->row >= f->num_rows) {
-			next_order(ctx);
+			next_order(ctx, last_ord);
 		}
 	}
 }
@@ -1909,9 +1909,6 @@ void libxmp_reset_flow(struct context_data *ctx)
 	f->delay = 0;
 	f->rowdelay = 0;
 	f->rowdelay_set = 0;
-#ifndef LIBXMP_CORE_PLAYER
-	f->jump_in_pat = -1;
-#endif
 }
 
 int xmp_start_player(xmp_context opaque, int rate, int format)
@@ -2102,7 +2099,7 @@ int xmp_play_frame(xmp_context opaque)
 			p->ord = start - 1;
 		}
 
-		next_order(ctx);
+		next_order(ctx, -1);
 
 		update_from_ord_info(ctx);
 

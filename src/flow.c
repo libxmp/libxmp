@@ -188,6 +188,5 @@ void libxmp_process_line_jump(struct context_data *ctx,
 		f->jump = ord;
 	}
 	f->jumpline = fxp;
-	f->jump_in_pat = ord;
 #endif
 }

@@ -103,7 +103,6 @@ static double scan_module(struct context_data *ctx, int ep, int chain)
     f.loop_active_num = 0;
     f.jump = -1;
     f.jumpline = 0;
-    f.jump_in_pat = 0; /* line jump */
 
     gvl = mod->gvl;
     bpm = mod->bpm;
@@ -279,7 +278,7 @@ static double scan_module(struct context_data *ctx, int ep, int chain)
 		goto end_module;
 	    }
 
-	    if (!f.loop_active_num && !f.jump_in_pat && m->scan_cnt[ord][row]) {
+	    if (!f.loop_active_num && m->scan_cnt[ord][row]) {
 		row_count--;
 		goto end_module;
 	    }
@@ -295,7 +294,6 @@ static double scan_module(struct context_data *ctx, int ep, int chain)
 	    }
 
 	    pdelay = 0;
-	    f.jump_in_pat = 0;
 
 	    for (chn = 0; chn < mod->chn; chn++) {
 		if (row >= tracks[chn]->rows)
