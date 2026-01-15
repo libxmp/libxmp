@@ -94,7 +94,7 @@ struct ice_state
 };
 
 #if (defined(__GNUC__) || defined(__clang__)) && !defined(ICE_DEBUG)
-#define debug(...)
+#define debug(fmt, args...)
 #else
 ICE_ATTRIB_PRINTF(1,2)
 static inline void debug(const char *fmt, ...)
