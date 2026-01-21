@@ -56,6 +56,7 @@ Stable versions
 	  parameter of 3xx in the player instead of using a loader hack.
 	- Fix time tracking bugs in some complex pattern loop cases.
 	- Fix time tracking bugs when Bxx+Dxx jumps within the same position.
+	- S3M/IT: Cxx followed by Byy on the same row now jumps to pos Y row X.
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 

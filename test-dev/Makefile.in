@@ -60,7 +60,16 @@ EFFECTS		= 0_arpeggio 1_slide_up 2_slide_down \
 		  ult_tempo ult_toneporta \
 		  finefx_ft2 finefx_imf
 
-PATJUMPS	= it_samepos
+PATJUMPS	= st2_break st3_break \
+		  ft2_break \
+		  it_break it_samepos it_samepos_2 \
+		  dt19_break \
+		  liq_break liq_break_no \
+		  mpt_break_it mpt_break_xm mpt_break_s3m \
+		  mtm_break \
+		  octalyser_break \
+		  ptm_break \
+		  skale_break
 
 PATLOOPS	= st301 st321 st301_breakjump st321_breakjump \
 		  it100 it104 it210 it100_breakjump it200_breakjump \

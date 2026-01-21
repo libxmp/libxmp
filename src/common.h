@@ -340,6 +340,9 @@ int libxmp_snprintf (char *, size_t, const char *, ...) LIBXMP_ATTRIB_PRINTF(3,4
 #define FLOW_LOOP_UNSET_JUMP	(1 << 12) /* E6x jump cancels prior Bxx on same row (S3M) */
 #define FLOW_LOOP_SHARED_BREAK	(1 << 13) /* E6x overrides prior Dxx dest on same row (LIQ) */
 /*#define FLOW_LOOP_TICK_0_JUMP */	  /* Loop jump shortens row to one tick (DTM) */
+#define FLOW_JUMP_THEN_BREAK	(1 << 29) /* TODO: Bxx Dxx jumps, then breaks (IMF, TT) */
+#define FLOW_JUMP_QUEUED	(1 << 30) /* TODO: Jump queues next position (ST2) */
+#define FLOW_JUMP_NO_ROW_SET	(1 << 31) /* Jump doesn't set break row to 0 (ST3/IT) */
 
 #define HAS_FLOW_MODE(x)	(m->flow_mode & (x))
 
@@ -353,11 +356,17 @@ int libxmp_snprintf (char *, size_t, const char *, ...) LIBXMP_ATTRIB_PRINTF(3,4
  * 3.01b has a bug where the end advancement sets the target to the same line
  * instead of the next line; there's no way to make use of this without getting
  * stuck, so it's not simulated.
+ * ST2 has an entirely different behavior for pattern jump where, instead of
+ * immediately jumping, it queues the next position to be loaded after a break
+ * or the end of the current pattern.
  */
+#define FLOW_MODE_ST2		(FLOW_JUMP_QUEUED)
 #define FLOW_MODE_ST3_301	(FLOW_LOOP_GLOBAL | FLOW_LOOP_PATTERN_RESET | \
-				 FLOW_LOOP_END_ADVANCES | FLOW_LOOP_INIT_SAMEROW)
+				 FLOW_LOOP_END_ADVANCES | FLOW_LOOP_INIT_SAMEROW | \
+				 FLOW_JUMP_NO_ROW_SET)
 #define FLOW_MODE_ST3_321	(FLOW_LOOP_GLOBAL | FLOW_LOOP_PATTERN_RESET | \
-				 FLOW_LOOP_END_ADVANCES | FLOW_LOOP_NO_BREAK_JUMP)
+				 FLOW_LOOP_END_ADVANCES | FLOW_LOOP_NO_BREAK_JUMP | \
+				 FLOW_JUMP_NO_ROW_SET)
 
 /* Impulse Tracker. Not clear if anything relies on the old behavior types.
  * IT loops were global pre-1.04, and loop jumps override any prior break/jump.
@@ -365,21 +374,27 @@ int libxmp_snprintf (char *, size_t, const char *, ...) LIBXMP_ATTRIB_PRINTF(3,4
  * IT 2.10+ reintroduced ST3's loop target advancement.
  */
 #define FLOW_MODE_IT_100	(FLOW_LOOP_GLOBAL | \
-				 FLOW_LOOP_UNSET_BREAK | FLOW_LOOP_UNSET_JUMP)
-#define FLOW_MODE_IT_104	(FLOW_LOOP_UNSET_BREAK | FLOW_LOOP_UNSET_JUMP)
+				 FLOW_LOOP_UNSET_BREAK | FLOW_LOOP_UNSET_JUMP | \
+				 FLOW_JUMP_NO_ROW_SET)
+#define FLOW_MODE_IT_104	(FLOW_LOOP_UNSET_BREAK | FLOW_LOOP_UNSET_JUMP | \
+				 FLOW_JUMP_NO_ROW_SET)
 #define FLOW_MODE_IT_200	(FLOW_MODE_IT_104 | FLOW_LOOP_DELAY_BREAK)
 #define FLOW_MODE_IT_210	(FLOW_MODE_IT_200 | FLOW_LOOP_END_ADVANCES)
 
 /* Modplug Tracker/early OpenMPT */
-#define FLOW_MODE_MPT_116	(FLOW_LOOP_ONE_AT_A_TIME | FLOW_LOOP_NO_BREAK_JUMP)
+#define FLOW_MODE_MPT_116	(FLOW_LOOP_ONE_AT_A_TIME | FLOW_LOOP_NO_BREAK_JUMP | \
+				 FLOW_JUMP_NO_ROW_SET)
 
 /* Imago Orpheus. Pattern Jump actually does not reset target/count, but all
  * other forms of pattern change do. Unclear if anything relies on it.
  * An XAx jump will set the destination row of a prior Txx jump.
  * An XAx jump will cancel a prior Uxx break on the same row.
+ * Txx unsets a prior Uxx (normal); Txx followed by Uyy jumps and then
+ * breaks to the next pattern after position X.
  */
 #define FLOW_MODE_ORPHEUS	(FLOW_LOOP_PATTERN_RESET | \
-				 FLOW_LOOP_SHARED_BREAK | FLOW_LOOP_UNSET_BREAK)
+				 FLOW_LOOP_SHARED_BREAK | FLOW_LOOP_UNSET_BREAK | \
+				 FLOW_JUMP_THEN_BREAK)
 
 /* Liquid Tracker uses generic MOD loops with an added behavior where
  * the end of a loop will cancel any other jump in the row that preceded it.

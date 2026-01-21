@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -314,7 +314,7 @@ static int ptm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 				switch (event->fxt) {
 				case 0x0d:	/* Break (hex parameter) */
-					event->fxp = FX_IT_BREAK;
+					event->fxt = FX_IT_BREAK;
 					break;
 				case 0x0e:	/* Extended effect */
 					if (MSN(event->fxp) == 0x8) {	/* Pan set */
@@ -376,9 +376,12 @@ static int ptm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	m->quirk |= QUIRKS_ST3;
 	/* Has none of ST3's loop quirks; loop jumps unset prior breaks.
-	 * TODO: there is an obscure bug where loop jumps take precedence over
-	 * position jumps *ONLY WHEN THE PLAYER IS AT SPEED 1*.
-	 * TODO: jumps are always to row 0. */
+	 * TODO: pattern jump is handled every tick, causing some strange bugs:
+	 * - At speed 1, loop jump unsets position jump (FLOW_LOOP_UNSET_JUMP),
+	 *   but at higher speeds, position jump overwrites the loop jump.
+	 * - At speed 1, Bxx Dyy jumps to pattern X at row Y, but at higher
+	 *   speeds, position jump overwrites the break row with 0.
+	 */
 	m->flow_mode = FLOW_LOOP_GLOBAL | FLOW_LOOP_UNSET_BREAK;
 	m->read_event_type = READ_EVENT_ST3;
 

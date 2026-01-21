@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -986,6 +986,7 @@ skip_test:
 	if (detected) {
 		m->flow_mode = FLOW_MODE_OCTALYSER;
 	}
+	/* TODO: hexadecimal pattern break parameter. */
 	break;
     case TRACKER_DIGITALTRACKER:
 	tracker = "Digital Tracker";
