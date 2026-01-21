@@ -24,12 +24,18 @@ test-dev/xmpchk
 
 # VC++ files
 /.vs
-/.vscode
 *.exp
 *.lib
 *.suo
 *.ncb
 Makefile.vc.tmp
+
+# VSCode/clangd files
+/.cache
+/.clangd
+/.vscode
+*.code-workspace
+compile_commands.json
 
 # Module formats
 *.mod
