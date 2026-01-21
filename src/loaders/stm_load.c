@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -376,6 +376,10 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 				event->fxt = fx[LSN(b)];
 				event->fxp = hio_read8(f);
 				switch (event->fxt) {
+				case FX_BREAK:
+					/* ST2 always breaks to row 0 */
+					event->fxp = 0;
+					break;
 				case FX_SPEED:
 					event->fxp = (version < 221) ? LSN(event->fxp / 10) : MSN(event->fxp);
 					break;
@@ -427,6 +431,7 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	}
 
 	m->quirk |= QUIRK_VSALL | QUIRKS_ST3;
+	m->flow_mode = FLOW_MODE_ST2;
 	m->read_event_type = READ_EVENT_ST3;
 
 	return 0;

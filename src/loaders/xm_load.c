@@ -886,6 +886,12 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		is_mpt_old = 1;
 	}
 
+	if (!strcmp(tracker_name, "Skale Tracker") ||
+	    !strcmp(tracker_name, "Sk@le Tracker")) {
+		/* Skale Tracker allows Dxx Byy to jump to row X. */
+		m->flow_mode |= FLOW_JUMP_NO_ROW_SET;
+	}
+
 	libxmp_set_type(m, "%s XM %d.%02d", tracker_name, xfh.version >> 8, xfh.version & 0xff);
 #else
 	libxmp_set_type(m, tracker_name);

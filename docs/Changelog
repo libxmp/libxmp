@@ -93,6 +93,11 @@ Stable versions
 	  affects max.xmf pos 13+, but the notes are out-of-tune either way).
 	- Fix time tracking bugs in some complex pattern loop cases.
 	- Fix time tracking bugs when Bxx+Dxx jumps within the same position.
+	- Dxx (S3M/IT: Cxx) followed by Byy on the same row now jumps to pos Y
+	  row X for S3M, IT, ModPlug XM, and Skale Tracker XM modules.
+	- MTM: fix pattern break hex parameter.
+	- PTM: actually fix pattern break hex parameter.
+	- STM: always use 0 for pattern break parameter (ST2 ignores it).
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 

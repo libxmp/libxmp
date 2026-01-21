@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -149,8 +149,11 @@ void libxmp_process_pattern_jump(struct context_data *ctx,
 
 	f->pbreak = 1;
 	f->jump = fxp;
-	/* effect B resets effect D in lower channels */
-	f->jumpline = 0;
+	if (!HAS_FLOW_MODE(FLOW_JUMP_NO_ROW_SET)) {
+		/* Effect B resets effect D in lower channels.
+		 * This does not apply to ST3, IT, ModPlug. */
+		f->jumpline = 0;
+	}
 }
 
 /* Process a pattern break effect with the parameter fxp.

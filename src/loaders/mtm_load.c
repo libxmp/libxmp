@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -218,6 +218,11 @@ static int mtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			e->fxp = d[2];
 			if (e->fxt > FX_SPEED) {
 				e->fxt = e->fxp = 0;
+			}
+
+			/* Break is hex (Sybaris/odyssey.mtm pos 14, 30). */
+			if (e->fxt == FX_BREAK) {
+				e->fxt = FX_IT_BREAK;
 			}
 
 			/* See tempo mode detection below. */
