@@ -122,6 +122,7 @@ test_loader_it_oldins
 test_loader_it_schism
 test_loader_it_invalid_fx
 test_loader_it_stereo
+test_loader_it_mutepan
 test_loader_669
 test_loader_abk
 test_loader_arch

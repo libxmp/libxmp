@@ -352,6 +352,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  xm102 xm_adpcm xm_xmlite xm_short xm_instsamples xm_mptinst \
 		  xm_pattrunc xm_stereo xm_stereo_vorbis\
 		  it it_adpcm it_oldins it_schism it_invalid_fx it_stereo \
+		  it_mutepan \
 		  669 \
 		  abk \
 		  arch \
