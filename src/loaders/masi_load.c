@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -211,7 +211,7 @@ static int get_dsmp(struct module_data *m, uint32 size, HIO_HANDLE *f, void *par
 
 	sub->vol = hio_read8(f) / 2 + 1;
 	hio_read32l(f);
-	sub->pan = NO_SAMPLE_PANNING;
+	sub->pan = XMP_INST_NO_DEFAULT_PAN;
 	sub->sid = i;
 	srate = hio_read16l(f);
 

@@ -229,7 +229,7 @@ static int ptm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		}
 
 		sub->vol = pih.vol;
-		sub->pan = NO_SAMPLE_PANNING;
+		sub->pan = XMP_INST_NO_DEFAULT_PAN;
 		sub->sid = i;
 		pih.magic = 0;
 

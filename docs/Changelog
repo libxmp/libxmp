@@ -3,6 +3,8 @@ Stable versions
 
 4.7.0 (?):
 	Changes by Alice Rowan:
+	- New API define: XMP_INST_NO_DEFAULT_PAN for xmp_subinstrument::pan
+	- New API defines: XMP_MARK_SKIP and XMP_MARK_END for xmp_module::xxo
 	- Add support for Pack-Ice ("Ice!", "ICE!") depacking.
 	- Add support for Software Visions DMF (Apocalypse Abyss MOD variant).
 	- Replace kernel list helper in iff.c with custom list management

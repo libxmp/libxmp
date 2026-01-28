@@ -197,6 +197,7 @@ struct xmp_envelope {
 struct xmp_subinstrument {
 	int vol;			/* Default volume */
 	int gvl;			/* Global volume */
+#define XMP_INST_NO_DEFAULT_PAN	-1
 	int pan;			/* Pan */
 	int xpo;			/* Transpose */
 	int fin;			/* Finetune */
@@ -285,6 +286,9 @@ struct xmp_module {
 	struct xmp_instrument *xxi;	/* Instruments */
 	struct xmp_sample *xxs;		/* Samples */
 	struct xmp_channel xxc[XMP_MAX_CHANNELS]; /* Channel info */
+
+#define XMP_MARK_SKIP		0xfe	/* S3M/IT-only: skip position */
+#define XMP_MARK_END		0xff	/* S3M/IT-only: end position */
 	unsigned char xxo[XMP_MAX_MOD_LENGTH];	/* Orders */
 };
 

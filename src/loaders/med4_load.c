@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -205,7 +205,7 @@ static int med4_load_sampled_instrument(HIO_HANDLE *f, struct module_data *m,
 	sub = &xxi->sub[0];
 
 	sub->vol = temp_inst[i].volume;
-	sub->pan = NO_SAMPLE_PANNING;
+	sub->pan = XMP_INST_NO_DEFAULT_PAN;
 	sub->xpo = temp_inst[i].transpose;
 	sub->sid = *smp_idx;
 
@@ -350,7 +350,7 @@ static int med4_load_synth_instrument(HIO_HANDLE *f, struct module_data *m,
 
 		sub = &xxi->sub[0];
 
-		sub->pan = NO_SAMPLE_PANNING;
+		sub->pan = XMP_INST_NO_DEFAULT_PAN;
 		sub->vol = temp_inst[i].volume;
 		sub->xpo = temp_inst[i].transpose;
 		sub->sid = *smp_idx;
@@ -386,7 +386,7 @@ static int med4_load_synth_instrument(HIO_HANDLE *f, struct module_data *m,
 
 		sub = &xxi->sub[j];
 
-		sub->pan = NO_SAMPLE_PANNING;
+		sub->pan = XMP_INST_NO_DEFAULT_PAN;
 		sub->vol = 64;
 		sub->xpo = -24;
 		sub->sid = *smp_idx;

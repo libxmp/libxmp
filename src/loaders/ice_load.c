@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -139,7 +139,7 @@ static int ice_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		xxs->flg = ih.ins[i].loop_size > 1 ? XMP_SAMPLE_LOOP : 0;
 		xxi->sub[0].vol = ih.ins[i].volume;
 		/* xxi->sub[0].fin = (int8)(ih.ins[i].finetune << 4); */
-		xxi->sub[0].pan = NO_SAMPLE_PANNING;
+		xxi->sub[0].pan = XMP_INST_NO_DEFAULT_PAN;
 		xxi->sub[0].sid = i;
 
 		if (xxs->len > 0)
