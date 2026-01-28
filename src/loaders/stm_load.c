@@ -24,12 +24,15 @@
 #include "../path.h"
 #include "../period.h"
 
+/* STM tempo is calculated based on the mix buffer size, which requires knowing
+ * the mix rate of ST2. This is the highest mix rate in released versions. */
+#define STM_MIX_RATE	23863
+
 #define STM_TYPE_SONG	0x01
 #define STM_TYPE_MODULE	0x02
 
 struct stm_instrument_header {
-	uint8 name[12];		/* ASCIIZ instrument name */
-	uint8 id;		/* Id=0 */
+	uint8 name[13];		/* Instrument name in 8.3 format (ASCIIZ) */
 	uint8 idisk;		/* Instrument disk */
 	uint16 rsvd1;		/* Reserved */
 	uint16 length;		/* Sample length */
@@ -158,6 +161,49 @@ static const uint8 fx[16] = {
 	FX_NONE
 };
 
+/* Following cs127's research fairly closely here out of necessity. Notes:
+ * - maximum effective BPM is 125.
+ * - divisor may be negative.
+ * - the potentially negative quotient of this division may be modified,
+ *   thus the mix rate can not be optimized out.
+ * - TODO: tempo effects take effect the next tick, not the current tick.
+ * - TODO: tempos 1E, 1F, and 05-0F result in BPMs lower than XMP_MIN_BPM.
+ */
+static int stm_calculate_bpm(int spd, int tempo_factor)
+{
+	static const uint8 speed_factor[16] = {
+		140, 50, 25, 15, 10, 7, 6, 4, 3, 3, 2, 2, 2, 2, 1, 1
+	};
+	int divisor = 50 - (((int)speed_factor[spd] * tempo_factor) >> 4);
+	int tick_frames;
+
+	/* Safety check; 0 should not be possible */
+	tick_frames = divisor ? STM_MIX_RATE / divisor : -1;
+	tick_frames = (unsigned)tick_frames & 0xffffu;
+
+	/* TODO: BPMs can be non-integer. */
+	return (STM_MIX_RATE * 5 + (tick_frames /*round*/)) / (tick_frames * 2);
+}
+
+static void stm_convert_tempo(int *spd, int *bpm, unsigned tempo, int version)
+{
+	if (version >= 221) {
+		*spd = MSN(tempo);
+		*bpm = stm_calculate_bpm(*spd, LSN(tempo));
+	} else if (version >= 110) {
+		/* TODO: ST <2.2 behavior unclear. ST 2.2+ imports higher
+		 * speeds (effect speed is modulo 16) and then reads the
+		 * speed factor table out-of-bounds. */
+		*spd = tempo / 10;
+		*bpm = stm_calculate_bpm(MIN(*spd, 15), tempo % 10);
+	} else {
+		*spd = tempo;
+		*bpm = 125;
+	}
+	*spd = MAX(*spd, 1);
+	*bpm = MAX(*bpm, XMP_MIN_BPM);
+}
+
 static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 {
 	struct xmp_module *mod = &m->mod;
@@ -167,6 +213,7 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	uint16 version;
 	int blank_pattern = 0;
 	int stored_patterns;
+	int spd, bpm;
 	int i, j, k;
 
 	LOAD_INIT();
@@ -195,7 +242,8 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		hio_read(sfh.sub.v2.rsvd2, 13, 1, f);	/* Reserved */
 		mod->chn = 4;
 		mod->pat = sfh.sub.v2.patterns;
-		mod->spd = (version < 221) ? LSN(sfh.sub.v2.tempo / 10) : MSN(sfh.sub.v2.tempo);
+
+		stm_convert_tempo(&mod->spd, &mod->bpm, sfh.sub.v2.tempo, version);
 		mod->ins = 31;
 		mod->len = (version == 200) ? 64 : 128;
 	} else {
@@ -226,14 +274,14 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		hio_seek(f, sfh.sub.v1.skip, SEEK_CUR);	/* Skip bytes */
 		mod->chn = sfh.sub.v1.channels;
 		mod->pat = sfh.sub.v1.patnum;
-		mod->spd = (version != 100) ? LSN(sfh.sub.v1.tempo / 10) : LSN(sfh.sub.v1.tempo);
+
+		stm_convert_tempo(&mod->spd, &mod->bpm, sfh.sub.v1.tempo, version);
 		mod->ins = sfh.sub.v1.insnum;
 		mod->len = sfh.sub.v1.ordnum;
 	}
 
 	for (i = 0; i < mod->ins; i++) {
-		hio_read(sfh.ins[i].name, 12, 1, f);	/* Instrument name */
-		sfh.ins[i].id = hio_read8(f);		/* Id=0 */
+		hio_read(sfh.ins[i].name, 13, 1, f);	/* Instrument name */
 		sfh.ins[i].idisk = hio_read8(f);	/* Instrument disk */
 		sfh.ins[i].rsvd1 = hio_read16l(f);	/* Reserved */
 		sfh.ins[i].length = hio_read16l(f);	/* Sample length */
@@ -381,7 +429,19 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 					event->fxp = 0;
 					break;
 				case FX_SPEED:
-					event->fxp = (version < 221) ? LSN(event->fxp / 10) : MSN(event->fxp);
+					if (event->fxp) {
+						stm_convert_tempo(&spd, &bpm,
+							event->fxp, version);
+						event->fxt = FX_S3M_SPEED;
+						event->fxp = spd;
+						if (version >= 110) {
+							event->f2t = FX_S3M_BPM;
+							event->f2p = bpm;
+						}
+					} else {
+						/* A00 is a no-op */
+						event->fxt = event->fxp = 0;
+					}
 					break;
 				case FX_NONE:
 					event->fxp = event->fxt = 0;

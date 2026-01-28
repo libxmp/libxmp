@@ -391,7 +391,7 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  rtm rtm_misc \
 		  sfx \
 		  stim \
-		  stm stm_blankpat stm_v1 \
+		  stm stm_blankpat stm_v1 stm_tempo_v22 \
 		  stx \
 		  sym sym_4096pat sym_fx sym_lzwquirk \
 		  ult \
