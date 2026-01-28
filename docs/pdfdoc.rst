@@ -1,4 +1,4 @@
-Libxmp 4.6 API documentation
+Libxmp 4.7 API documentation
 ============================
 
 .. contents:: `Contents`

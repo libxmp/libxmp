@@ -1,7 +1,7 @@
 Stable versions
 ---------------
 
-4.6.4 (?):
+4.7.0 (?):
 	Changes by Alice Rowan:
 	- Add support for Pack-Ice ("Ice!", "ICE!") depacking.
 	- Add support for Software Visions DMF (Apocalypse Abyss MOD variant).
