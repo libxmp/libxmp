@@ -654,6 +654,7 @@ struct mixer_data {
 	int dsp;		/* dsp effect flags */
 	char *buffer;		/* output buffer */
 	int32 *buf32;		/* temporary buffer for 32 bit samples */
+	int total_size;		/* allocated samples (not frames) in buffers */
 	int numvoc;		/* default softmixer voices number */
 	int ticksize;
 	int dtright;		/* anticlick control, right channel */

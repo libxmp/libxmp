@@ -19,7 +19,7 @@ TEST(test_api_start_player)
 	fail_unless(state == XMP_STATE_LOADED, "state error");
 
 	fail_unless(XMP_MIN_SRATE == 4000, "min sample rate value");
-	fail_unless(XMP_MAX_SRATE == 49170, "max sample rate value");
+	fail_unless(XMP_MAX_SRATE == 768000, "max sample rate value");
 
 	/* valid sampling rates */
 	ret = xmp_start_player(ctx, XMP_MIN_SRATE, 0);

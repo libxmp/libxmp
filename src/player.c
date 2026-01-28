@@ -2313,7 +2313,7 @@ void xmp_get_frame_info(xmp_context opaque, struct xmp_frame_info *info)
 	info->time = (int)current_time;
 	info->buffer = s->buffer;
 
-	info->total_size = XMP_MAX_FRAMESIZE;
+	info->total_size = s->total_size;
 	info->buffer_size = s->ticksize;
 	if (~s->format & XMP_FORMAT_MONO) {
 		info->buffer_size *= 2;

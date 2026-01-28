@@ -607,8 +607,8 @@ int xmp_set_tempo_factor(xmp_context opaque, double val)
 	 * change during playback, so repeat these checks in the mixer. */
 	ticksize = libxmp_mixer_get_ticksize(s->freq, val, m->rrate, p->bpm);
 
-	/* ticksize is in frames, XMP_MAX_FRAMESIZE is in frames * 2. */
-	if (ticksize < 0 || ticksize > (XMP_MAX_FRAMESIZE / 2)) {
+	/* ticksize is in frames, s->total_size is in frames * 2. */
+	if (ticksize < 0 || ticksize > (s->total_size / 2)) {
 		return -1;
 	}
 	m->time_factor = val;
