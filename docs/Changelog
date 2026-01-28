@@ -100,6 +100,9 @@ Stable versions
 	- PTM: actually fix pattern break hex parameter.
 	- STM: always use 0 for pattern break parameter (ST2 ignores it).
 	- STM: import ST2 tempo values as both speed and BPM.
+	- GDM: don't zero channel volume for muted channels.
+	- Fix xmp_start_player not unmuting non-muted channels (regression
+	  introduced in 4.5.0).
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 

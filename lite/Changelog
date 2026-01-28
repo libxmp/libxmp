@@ -58,6 +58,8 @@ Stable versions
 	- Fix time tracking bugs when Bxx+Dxx jumps within the same position.
 	- S3M/IT: Cxx followed by Byy on the same row now jumps to pos Y row X.
 	- IT: fix importing channel initial panning for muted channels.
+	- Fix xmp_start_player not unmuting non-muted channels (regression
+	  introduced in 4.5.0).
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 
