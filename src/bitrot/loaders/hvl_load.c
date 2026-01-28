@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * This file is part of the Extended Module Player and is distributed
  * under the terms of the GNU Lesser General Public License. See COPYING.LIB
@@ -453,7 +453,7 @@ static int hvl_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		mod->xxi[i].sub[0].vol = 64;
 		mod->xxi[i].sub[0].sid = wave;
-		mod->xxi[i].sub[0].pan = NO_SAMPLE_PANNING;
+		mod->xxi[i].sub[0].pan = XMP_INST_NO_DEFAULT_PAN;
 		mod->xxi[i].sub[0].xpo = (3-wavelen) * 12 - 1;
 		/*mod->xxi[i].sub[0].vde = vibdep;
 		  mod->xxi[i].sub[0].vra = vibspd; */

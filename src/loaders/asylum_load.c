@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2021 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -104,7 +104,7 @@ static int asylum_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		mod->xxi[i].sub[0].fin = (int8)(insbuf[22] << 4);
 		mod->xxi[i].sub[0].vol = insbuf[23];
 		mod->xxi[i].sub[0].xpo = (int8)insbuf[24];
-		mod->xxi[i].sub[0].pan = NO_SAMPLE_PANNING;
+		mod->xxi[i].sub[0].pan = XMP_INST_NO_DEFAULT_PAN;
 		mod->xxi[i].sub[0].sid = i;
 
 		mod->xxs[i].len = readmem32l(insbuf + 25);

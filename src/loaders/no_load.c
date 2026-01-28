@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -291,7 +291,7 @@ static int no_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		mod->xxs[i].flg = mod->xxs[i].lpe > 0 ? XMP_SAMPLE_LOOP : 0;
 		mod->xxi[i].sub[0].fin = 0;
-		mod->xxi[i].sub[0].pan = NO_SAMPLE_PANNING;
+		mod->xxi[i].sub[0].pan = XMP_INST_NO_DEFAULT_PAN;
 		mod->xxi[i].sub[0].sid = i;
 
 		D_(D_INFO "[%2X] %-22.22s  %04x %04x %04x %c V%02x %5d",

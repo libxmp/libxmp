@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -709,7 +709,7 @@ next_pattern:
 	sub->vol = li.vol;
 	sub->gvl = li.gvl;
 	/* TODO: 66 = surround */
-	sub->pan = (li.pan <= 64) ? MIN(li.pan * 4, 255) : NO_SAMPLE_PANNING;
+	sub->pan = (li.pan <= 64) ? MIN(li.pan * 4, 255) : XMP_INST_NO_DEFAULT_PAN;
 	sub->sid = i;
 
 	libxmp_instrument_name(mod, i, li.name, 30);

@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -698,13 +698,13 @@ static int get_chunk_ii(struct module_data *m, uint32 size, HIO_HANDLE *f, void 
 	    if (~x & 0x40)
 		sub->vol = 0xff;
 
-	    mod->xxi[i].sub[j].pan = hio_read8(f) << 1;
+	    sub->pan = hio_read8(f) << 1;
 
 	    x = hio_read8(f);		/* Pan envelope */
 	    if (j == 0)
 		data->p_index[i] = x & 0x80 ? x & 0x3f : -1;
 	    if (~x & 0x40)
-		sub->pan = NO_SAMPLE_PANNING;
+		sub->pan = XMP_INST_NO_DEFAULT_PAN;
 
 	    x = hio_read16l(f);
 	    if (j == 0)
@@ -879,7 +879,7 @@ static int get_chunk_i0(struct module_data *m, uint32 size, HIO_HANDLE *f, void 
 	xxs->lpe = xxs->lps + xxs->lpe;
 
 	sub->vol = hio_read8(f);	/* Volume */
-	sub->pan = NO_SAMPLE_PANNING;
+	sub->pan = XMP_INST_NO_DEFAULT_PAN;
 
         m->xtra[i].c5spd = (double)c5spd;
 

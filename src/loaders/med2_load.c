@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -85,7 +85,7 @@ static int med2_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	hio_read8(f);		/* skip 0 */
 	for (i = 0; i < 31; i++) {
 		mod->xxi[i].sub[0].vol = hio_read8(f);
-		mod->xxi[i].sub[0].pan = NO_SAMPLE_PANNING;
+		mod->xxi[i].sub[0].pan = XMP_INST_NO_DEFAULT_PAN;
 		mod->xxi[i].sub[0].fin = 0;
 		mod->xxi[i].sub[0].sid = i;
 	}

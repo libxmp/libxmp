@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -323,7 +323,7 @@ static int masi16_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		finetune = buf[60];
 		sub->vol = buf[61];
 		c2spd = readmem16l(buf + 62);
-		sub->pan = NO_SAMPLE_PANNING;
+		sub->pan = XMP_INST_NO_DEFAULT_PAN;
 		sub->sid = num;
 		xxs->flg = flags & 0x80 ? XMP_SAMPLE_LOOP : 0;
 		xxs->flg |= flags & 0x20 ? XMP_SAMPLE_LOOP_BIDIR : 0;

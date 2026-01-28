@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -115,7 +115,7 @@ static int get_emic(struct module_data *m, uint32 size, HIO_HANDLE * f, void *pa
 		hio_read32b(f);	/* ptr */
 
 		xxi->nsm = 1;
-		sub->pan = NO_SAMPLE_PANNING;
+		sub->pan = XMP_INST_NO_DEFAULT_PAN;
 		sub->sid = i;
 
 		D_(D_INFO "[%2X] %-20.20s %05x %05x %05x %c V%02x %+d",

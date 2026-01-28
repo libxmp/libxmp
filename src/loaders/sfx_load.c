@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -207,7 +207,7 @@ static int sfx_13_20_load(struct module_data *m, HIO_HANDLE *f, const int nins,
 		xxi->nsm = 1;
 		sub->vol = ins[i].volume;
 		sub->fin = (int8) (ins[i].finetune << 4);	/* unsure */
-		sub->pan = NO_SAMPLE_PANNING;
+		sub->pan = XMP_INST_NO_DEFAULT_PAN;
 		sub->sid = i;
 
 		libxmp_instrument_name(mod, i, ins[i].name, 22);

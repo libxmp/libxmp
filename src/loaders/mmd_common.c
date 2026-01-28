@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -598,7 +598,7 @@ static int mmd_load_hybrid_instrument(HIO_HANDLE *f, struct module_data *m, int 
 	mmd_set_default_pitch_note(xxi, exp_smp, ver);
 	sub = &xxi->sub[0];
 
-	sub->pan = NO_SAMPLE_PANNING;
+	sub->pan = XMP_INST_NO_DEFAULT_PAN;
 	sub->vol = info.enable ? sample->svol : 0;
 	sub->xpo = info.sampletrans;
 	sub->sid = smp_idx;
@@ -624,7 +624,7 @@ static int mmd_load_hybrid_instrument(HIO_HANDLE *f, struct module_data *m, int 
 		if (j >= xxi->nsm || smp_idx >= mod->smp)
 			return -1;
 
-		sub->pan = NO_SAMPLE_PANNING;
+		sub->pan = XMP_INST_NO_DEFAULT_PAN;
 		sub->vol = info.enable ? 64 : 0;
 		sub->xpo = info.synthtrans;
 		sub->sid = smp_idx;
@@ -716,7 +716,7 @@ static int mmd_load_synth_instrument(HIO_HANDLE *f, struct module_data *m, int i
 		if (j >= xxi->nsm || smp_idx >= mod->smp)
 			return -1;
 
-		sub->pan = NO_SAMPLE_PANNING;
+		sub->pan = XMP_INST_NO_DEFAULT_PAN;
 		sub->vol = info.enable ? 64 : 0;
 		sub->xpo = info.synthtrans;
 		sub->sid = smp_idx;
@@ -769,7 +769,7 @@ static int mmd_load_sampled_instrument(HIO_HANDLE *f, struct module_data *m, int
 	sub = &xxi->sub[0];
 
 	sub->vol = info.enable ? sample->svol : 0;
-	sub->pan = NO_SAMPLE_PANNING;
+	sub->pan = XMP_INST_NO_DEFAULT_PAN;
 	sub->xpo = info.sampletrans;
 	sub->sid = smp_idx;
 	sub->fin = exp_smp->finetune << 4;
@@ -871,7 +871,7 @@ static int mmd_load_iffoct_instrument(HIO_HANDLE *f, struct module_data *m, int 
 		sub = &xxi->sub[j];
 
 		sub->vol = info.enable ? sample->svol : 0;
-		sub->pan = NO_SAMPLE_PANNING;
+		sub->pan = XMP_INST_NO_DEFAULT_PAN;
 		sub->xpo = info.sampletrans - 12;
 		sub->sid = smp_idx;
 		sub->fin = exp_smp->finetune << 4;

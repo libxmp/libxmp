@@ -269,8 +269,10 @@ static int gdm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		pan = hio_read8(f);
 
 		mod->xxi[i].sub[0].vol = vol > 0x40 ? 0x40 : vol;
-		mod->xxi[i].sub[0].pan = pan > 15 ? NO_SAMPLE_PANNING : 0x80 + (pan - 8) * 16;
-		libxmp_c2spd_to_note(c4spd, &mod->xxi[i].sub[0].xpo, &mod->xxi[i].sub[0].fin);
+		mod->xxi[i].sub[0].pan = pan > 15 ? XMP_INST_NO_DEFAULT_PAN :
+						    0x80 + (pan - 8) * 16;
+		libxmp_c2spd_to_note(c4spd, &mod->xxi[i].sub[0].xpo,
+					    &mod->xxi[i].sub[0].fin);
 
 		mod->xxi[i].sub[0].sid = i;
 		mod->xxs[i].flg = 0;
