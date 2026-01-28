@@ -349,7 +349,7 @@ static int no_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			return -1;
 	}
 
-	m->quirk |= QUIRK_FINEFX | QUIRK_RTONCE;
+	m->quirk |= QUIRKS_LIQUID;
 	m->flow_mode = FLOW_MODE_LIQUID;
 	m->read_event_type = READ_EVENT_ST3;
 

@@ -1095,6 +1095,14 @@ int xmp_set_player(xmp_context c, int param, int val)
           XMP_MODE_FT2          /* Play using FT2 bug emulation */
           XMP_MODE_IT           /* Play using IT quirks */
           XMP_MODE_ITSMP        /* Play using IT sample mode quirks */
+          XMP_MODE_MPT_MOD      /* Play using MPT quirks (MOD) */
+          XMP_MODE_MPT_S3M      /* Play using MPT quirks (S3M) */
+          XMP_MODE_MPT_XM       /* Play using MPT quirks (XM) */
+          XMP_MODE_MPT_IT       /* Play using MPT quirks (IT) */
+          XMP_MODE_MPT_ITSMP    /* Play using MPT quirks (IT smp. mode) */
+          XMP_MODE_LIQUID       /* Play using Liquid Tracker quirks */
+          XMP_MODE_LIQUID_S3M   /* Play using Liquid Tracker S3M quirks */
+          XMP_MODE_ORPHEUS      /* Play using Imago Orpheus quirks */
 
       By default, formats similar to S3M such as PTM or IMF will use S3M
       replayer (without Scream Tracker 3 quirks/bug emulation), and formats
