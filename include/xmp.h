@@ -115,6 +115,14 @@ extern "C" {
 #define XMP_MODE_FT2		8	/* Play using FT2 bug emulation */
 #define XMP_MODE_IT		9	/* Play using IT quirks */
 #define XMP_MODE_ITSMP		10	/* Play using IT sample mode quirks */
+#define XMP_MODE_MPT_MOD	11	/* Play using ModPlug quirks (MOD) */
+#define XMP_MODE_MPT_S3M	12	/* Play using ModPlug quirks (S3M) */
+#define XMP_MODE_MPT_XM		13	/* Play using ModPlug quirks (XM) */
+#define XMP_MODE_MPT_IT		14	/* Play using ModPlug quirks (IT) */
+#define XMP_MODE_MPT_ITSMP	15	/* Play using ModPlug quirks (IT) */
+#define XMP_MODE_LIQUID		16	/* Play using Liquid Tracker quirks */
+#define XMP_MODE_LIQUID_S3M	17	/* Play using Liquid Tracker S3M quirks */
+#define XMP_MODE_ORPHEUS	18	/* Play using Imago Orpheus quirks */
 
 /* mixer types */
 #define XMP_MIXER_STANDARD	0	/* Standard mixer */
