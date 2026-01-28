@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -209,7 +209,6 @@ static int gdm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	for (i = 0; i < 32; i++) {
 		if (panmap[i] == 255) {
 			panmap[i] = 8;
-			mod->xxc[i].vol = 0;
 			mod->xxc[i].flg |= XMP_CHANNEL_MUTE;
 		} else if (panmap[i] == 16) {
 			panmap[i] = 8;
