@@ -1246,8 +1246,9 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	for (i = 0; i < 64; i++) {
 		struct xmp_channel *xxc = &mod->xxc[i];
+		int pan = ifh.chpan[i] & 0x7f;
 
-		if (ifh.chpan[i] == 100) {	/* Surround -> center */
+		if (pan == 100) {		/* Surround -> center */
 			xxc->flg |= XMP_CHANNEL_SURROUND;
 		}
 
@@ -1256,7 +1257,7 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		}
 
 		if (ifh.flags & IT_STEREO) {
-			xxc->pan = (int)ifh.chpan[i] * 0x80 >> 5;
+			xxc->pan = pan * 0x80 >> 5;
 			if (xxc->pan > 0xff)
 				xxc->pan = 0xff;
 		} else {

@@ -95,9 +95,11 @@ Stable versions
 	- Fix time tracking bugs when Bxx+Dxx jumps within the same position.
 	- Dxx (S3M/IT: Cxx) followed by Byy on the same row now jumps to pos Y
 	  row X for S3M, IT, ModPlug XM, and Skale Tracker XM modules.
+	- IT: fix importing channel initial panning for muted channels.
 	- MTM: fix pattern break hex parameter.
 	- PTM: actually fix pattern break hex parameter.
 	- STM: always use 0 for pattern break parameter (ST2 ignores it).
+	- STM: import ST2 tempo values as both speed and BPM.
 	Changes by Alice Rowan and ds-sloth:
 	- Minor Impulse Tracker loader performance improvements.
 
