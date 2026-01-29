@@ -267,7 +267,7 @@ jobs:
           cmake . -DCMAKE_BUILD_TYPE=Release -DWITH_UNIT_TESTS=ON -B build ${{ matrix.cmakeflags }}
       - name: CMake build
         run: |
-          cmake --build build --config Debug --target ALL_BUILD
+          cmake --build build --target ALL_BUILD
       - name: CMake checks
         run: |
           cd build
