@@ -118,11 +118,10 @@ Parameters to `xmp_start_player()`_ are the sampling
 rate (up to 768kHz) and a bitmapped integer holding one or more of the
 following mixer flags::
 
-  XMP_MIX_8BIT          /* Mix to 8-bit instead of 16 */
-  XMP_MIX_UNSIGNED      /* Mix to unsigned samples */
-  XMP_MIX_MONO          /* Mix to mono instead of stereo */
-  XMP_MIX_NEAREST       /* Mix using nearest neighbor interpolation */
-  XMP_MIX_NOFILTER      /* Disable lowpass filter */
+  XMP_FORMAT_8BIT       /* Mix to 8-bit instead of 16 */
+  XMP_FORMAT_UNSIGNED   /* Mix to unsigned samples */
+  XMP_FORMAT_MONO       /* Mix to mono instead of stereo */
+  XMP_FORMAT_32BIT      /* Mix to 32-bit integer instead of 16 */
 
 After `xmp_start_player()`_ is called, each call to `xmp_play_frame()`_
 will render an audio frame. Call `xmp_get_frame_info()`_ to retrieve the
@@ -608,6 +607,7 @@ int xmp_start_player(xmp_context c, int rate, int format)
         XMP_FORMAT_8BIT         /* Mix to 8-bit instead of 16 */
         XMP_FORMAT_UNSIGNED     /* Mix to unsigned samples */
         XMP_FORMAT_MONO         /* Mix to mono instead of stereo */
+        XMP_FORMAT_32BIT        /* Mix to 32-bit integer instead of 16 */
 
   **Returns:**
     0 if successful, or a negative error code in case of error.

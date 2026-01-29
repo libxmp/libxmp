@@ -79,12 +79,14 @@ static inline int libxmp_test_function(xmp_context opaque, const uint8_t *data,
 	if (load_error == 0) {
 		/* Fuzz playback. */
 		struct xmp_module_info info;
-		int interp, mono, i;
+		int interp, format, mono, uns, i;
 
 		/* Derive config from the MD5 for now... :( */
 		xmp_get_module_info(opaque, &info);
 		interp = info.md5[7] * 3U / 256;
+		format = info.md5[12] * 3U / 256;
 		mono = (info.md5[3] & 1) ^ (info.md5[14] >> 7);
+		uns = (info.md5[9] >> 7) ^ (info.md5[1] & 1);
 
 		switch (interp) {
 		case 0:
@@ -97,7 +99,24 @@ static inline int libxmp_test_function(xmp_context opaque, const uint8_t *data,
 			interp = XMP_INTERP_SPLINE;
 			break;
 		}
-		xmp_start_player(opaque, XMP_MIN_SRATE, mono ? XMP_FORMAT_MONO : 0);
+		switch (format) {
+		default:
+			format = 0;
+			break;
+		case 1:
+			format = XMP_FORMAT_8BIT;
+			break;
+		case 2:
+			format = XMP_FORMAT_32BIT;
+			break;
+		}
+		if (mono) {
+			mono = XMP_FORMAT_MONO;
+		}
+		if (uns) {
+			uns = XMP_FORMAT_UNSIGNED;
+		}
+		xmp_start_player(opaque, XMP_MIN_SRATE, format | mono | uns);
 		xmp_set_player(opaque, XMP_PLAYER_INTERP, interp);
 
 		/* Play initial frames */

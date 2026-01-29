@@ -655,6 +655,8 @@ struct mixer_data {
 	char *buffer;		/* output buffer */
 	int32 *buf32;		/* temporary buffer for 32 bit samples */
 	int total_size;		/* allocated samples (not frames) in buffers */
+	int sample_size;	/* individual output sample (not frame) size */
+	int output_chn;		/* output channels (1 or 2) */
 	int numvoc;		/* default softmixer voices number */
 	int ticksize;
 	int dtright;		/* anticlick control, right channel */

@@ -66,6 +66,7 @@ extern "C" {
 #define XMP_FORMAT_8BIT		(1 << 0) /* Mix to 8-bit instead of 16 */
 #define XMP_FORMAT_UNSIGNED	(1 << 1) /* Mix to unsigned samples */
 #define XMP_FORMAT_MONO		(1 << 2) /* Mix to mono instead of stereo */
+#define XMP_FORMAT_32BIT	(1 << 3) /* Mix to 32-bit int instead of 16 */
 
 /* player parameters */
 #define XMP_PLAYER_AMP		0	/* Amplification factor */

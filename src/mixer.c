@@ -38,6 +38,8 @@
 #define LIM8_LO		-128
 #define LIM16_HI	 32767
 #define LIM16_LO	-32768
+#define LIM32_HI	2147483647
+#define LIM32_LO	(-2147483647 - 1)
 
 #define ANTICLICK_FPSHIFT	24
 
@@ -68,7 +70,8 @@ struct loop_data
 
 
 /* Downmix 32bit samples to 8bit, signed or unsigned, mono or stereo output */
-static void downmix_int_8bit(char *dest, int32 *src, int num, int amp, int offs)
+static void downmix_int_8bit(int8 *LIBXMP_RESTRICT dest,
+			     const int32 *src, int num, int amp, unsigned offs)
 {
 	int smp;
 	int shift = DOWNMIX_SHIFT + 8 - amp;
@@ -83,13 +86,14 @@ static void downmix_int_8bit(char *dest, int32 *src, int num, int amp, int offs)
 			*dest = smp;
 		}
 
-		if (offs) *dest += offs;
+		if (offs) *dest = (int8)((uint8)*dest + offs);
 	}
 }
 
 
 /* Downmix 32bit samples to 16bit, signed or unsigned, mono or stereo output */
-static void downmix_int_16bit(int16 *dest, int32 *src, int num, int amp, int offs)
+static void downmix_int_16bit(int16 *LIBXMP_RESTRICT dest,
+			      const int32 *src, int num, int amp, unsigned offs)
 {
 	int smp;
 	int shift = DOWNMIX_SHIFT - amp;
@@ -104,7 +108,32 @@ static void downmix_int_16bit(int16 *dest, int32 *src, int num, int amp, int off
 			*dest = smp;
 		}
 
-		if (offs) *dest += offs;
+		if (offs) *dest = (int16)((uint16)*dest + offs);
+	}
+}
+
+/* Saturate 32bit samples, signed or unsigned, mono or stereo output */
+static void downmix_int_32bit(int32 *LIBXMP_RESTRICT dest,
+			      const int32 *src, int num, int amp, unsigned offs)
+{
+	int32 smp;
+	int shift = (16 - DOWNMIX_SHIFT) + amp;
+
+	/* Signed left shift overflow is UB; clamp with pre-shifted bounds. */
+	int max_value = LIM32_HI >> shift;
+	int min_value = LIM32_LO >> shift;
+
+	for (; num--; src++, dest++) {
+		smp = *src;
+		if (smp >= max_value) {
+			*dest = LIM32_HI;
+		} else if (smp <= min_value) {
+			*dest = LIM32_LO;
+		} else {
+			*dest = smp << shift;
+		}
+
+		if (offs) *dest = (int32)((uint32)*dest + offs);
 	}
 }
 
@@ -742,12 +771,15 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 		size = s->total_size;
 	}
 
-	if (s->format & XMP_FORMAT_8BIT) {
-		downmix_int_8bit(s->buffer, s->buf32, size, s->amplify,
-				s->format & XMP_FORMAT_UNSIGNED ? 0x80 : 0);
-	} else {
+	if (s->format & XMP_FORMAT_32BIT) {
+		downmix_int_32bit((int32 *)s->buffer, s->buf32, size, s->amplify,
+				s->format & XMP_FORMAT_UNSIGNED ? 0x80000000u : 0u);
+	} else if (~s->format & XMP_FORMAT_8BIT) {
 		downmix_int_16bit((int16 *)s->buffer, s->buf32, size, s->amplify,
-				s->format & XMP_FORMAT_UNSIGNED ? 0x8000 : 0);
+				s->format & XMP_FORMAT_UNSIGNED ? 0x8000u : 0u);
+	} else {
+		downmix_int_8bit((int8 *)s->buffer, s->buf32, size, s->amplify,
+				s->format & XMP_FORMAT_UNSIGNED ? 0x80u : 0u);
 	}
 
 	s->dtright = s->dtleft = 0;
@@ -1012,10 +1044,27 @@ int libxmp_mixer_numvoices(struct context_data *ctx, int num)
 int libxmp_mixer_on(struct context_data *ctx, int rate, int format, int c4rate)
 {
 	struct mixer_data *s = &ctx->s;
-	/* This should be equivalent to the XMP_MAX_FRAMESIZE calculation. */
-	int total_size = 2 * libxmp_mixer_get_ticksize(rate,
-				DEFAULT_TIME_FACTOR * 2, PAL_RATE, XMP_MIN_BPM);
+	int total_size;
+	int sample_size;
+	int output_chn;
 
+	if (format & XMP_FORMAT_32BIT) {
+		sample_size = 4;
+	} else if (~format & XMP_FORMAT_8BIT) {
+		sample_size = 2;
+	} else {
+		sample_size = 1;
+	}
+
+	if (format & XMP_FORMAT_MONO) {
+		output_chn = 1;
+	} else {
+		output_chn = 2;
+	}
+
+	/* This should be equivalent to the XMP_MAX_FRAMESIZE calculation. */
+	total_size = output_chn * libxmp_mixer_get_ticksize(rate,
+				DEFAULT_TIME_FACTOR * 2, PAL_RATE, XMP_MIN_BPM);
 	if (total_size < 0)
 		goto err;
 
@@ -1023,7 +1072,7 @@ int libxmp_mixer_on(struct context_data *ctx, int rate, int format, int c4rate)
 	 * 49170 for a long time, so make that the minimum size for now. */
 	CLAMP(total_size, 5 * 49170 * 2 / 20, XMP_MAX_FRAMESIZE);
 
-	s->buffer = (char *) calloc(total_size, sizeof(int16));
+	s->buffer = (char *) calloc(total_size, sample_size);
 	if (s->buffer == NULL)
 		goto err;
 
@@ -1032,6 +1081,8 @@ int libxmp_mixer_on(struct context_data *ctx, int rate, int format, int c4rate)
 		goto err1;
 
 	s->total_size = total_size;
+	s->sample_size = sample_size;
+	s->output_chn = output_chn;
 	s->freq = rate;
 	s->format = format;
 	s->amplify = DEFAULT_AMPLIFY;
