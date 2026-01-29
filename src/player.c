@@ -2314,13 +2314,7 @@ void xmp_get_frame_info(xmp_context opaque, struct xmp_frame_info *info)
 	info->buffer = s->buffer;
 
 	info->total_size = s->total_size;
-	info->buffer_size = s->ticksize;
-	if (~s->format & XMP_FORMAT_MONO) {
-		info->buffer_size *= 2;
-	}
-	if (~s->format & XMP_FORMAT_8BIT) {
-		info->buffer_size *= 2;
-	}
+	info->buffer_size = s->ticksize * s->output_chn * s->sample_size;
 
 	info->volume = p->gvol;
 	info->loop_count = p->loop_count;

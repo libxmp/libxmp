@@ -4,6 +4,8 @@ Stable versions
 4.7.0 (?):
 	Changes by Alice Rowan:
 	- Increase maximum sampling rate (XMP_MAX_SRATE) to 768000.
+	- New API define: XMP_FORMAT_32BIT for xmp_start_player to enable
+	  32-bit integer output.
 	- New API define: XMP_INST_NO_DEFAULT_PAN for xmp_subinstrument::pan
 	- New API defines: XMP_MARK_SKIP and XMP_MARK_END for xmp_module::xxo
 	- Add support for Pack-Ice ("Ice!", "ICE!") depacking.
