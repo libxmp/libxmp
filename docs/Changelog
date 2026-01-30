@@ -4,6 +4,12 @@ Stable versions
 4.7.0 (?):
 	Changes by Alice Rowan:
 	- Increase maximum sampling rate (XMP_MAX_SRATE) to 768000.
+	- New function: xmp_set_tempo_factor_relative, to set a relative
+	  tempo factor without clobbering the module's tempo factor.
+	- New function: xmp_get_tempo_factor, to get the base tempo factor
+	  set by loading a module or by xmp_set_tempo_factor.
+	- New function: xmp_get_tempo_factor_relative, to get the relative
+	  tempo factor set by xmp_start_player/xmp_set_tempo_factor_relative.
 	- New API define: XMP_FORMAT_32BIT for xmp_start_player to enable
 	  32-bit integer output.
 	- New API define: XMP_INST_NO_DEFAULT_PAN for xmp_subinstrument::pan

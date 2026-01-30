@@ -605,7 +605,8 @@ int xmp_set_tempo_factor(xmp_context opaque, double val)
 
 	/* s->freq can change between xmp_start_player calls and p->bpm can
 	 * change during playback, so repeat these checks in the mixer. */
-	ticksize = libxmp_mixer_get_ticksize(s->freq, val, m->rrate, p->bpm);
+	ticksize = libxmp_mixer_get_ticksize(s->freq,
+		val * p->time_factor_relative, m->rrate, p->bpm);
 
 	/* ticksize is in frames, s->total_size is in frames * 2. */
 	if (ticksize < 0 || ticksize > (s->total_size / 2)) {
@@ -614,4 +615,56 @@ int xmp_set_tempo_factor(xmp_context opaque, double val)
 	m->time_factor = val;
 
 	return 0;
+}
+
+int xmp_set_tempo_factor_relative(xmp_context opaque, double val)
+{
+	struct context_data *ctx = (struct context_data *)opaque;
+	struct player_data *p = &ctx->p;
+	struct module_data *m = &ctx->m;
+	struct mixer_data *s = &ctx->s;
+	int ticksize;
+
+	/* This function relies on values initialized by xmp_start_player
+	 * and will behave in an undefined manner if called prior. */
+	if (ctx->state < XMP_STATE_PLAYING) {
+		return -XMP_ERROR_STATE;
+	}
+
+	if (val <= 0.0 || val != val /* NaN */) {
+		return -1;
+	}
+
+	ticksize = libxmp_mixer_get_ticksize(s->freq,
+		m->time_factor * val, m->rrate, p->bpm);
+
+	/* ticksize is in frames, s->total_size is in frames * 2. */
+	if (ticksize < 0 || ticksize > (s->total_size / 2)) {
+		return -1;
+	}
+	p->time_factor_relative = val;
+
+	return 0;
+}
+
+double xmp_get_tempo_factor(xmp_context opaque)
+{
+	struct context_data *ctx = (struct context_data *)opaque;
+
+	if (ctx->state < XMP_STATE_LOADED) {
+		return -1.0 * XMP_ERROR_STATE;
+	}
+
+	return ctx->m.time_factor * 0.1;
+}
+
+double xmp_get_tempo_factor_relative(xmp_context opaque)
+{
+	struct context_data *ctx = (struct context_data *)opaque;
+
+	if (ctx->state < XMP_STATE_PLAYING) {
+		return -1.0 * XMP_ERROR_STATE;
+	}
+
+	return ctx->p.time_factor_relative;
 }

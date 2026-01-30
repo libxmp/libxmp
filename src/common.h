@@ -600,6 +600,7 @@ struct player_data {
 	int player_flags;
 	int flags;
 
+	double time_factor_relative;	/* User time factor adjustment */
 	double scan_time_factor;	/* m->time_factor for most recent scan */
 	double current_time;		/* current time based on scan time factor */
 

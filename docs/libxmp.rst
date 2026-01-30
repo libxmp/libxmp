@@ -531,6 +531,8 @@ void xmp_scan_module(xmp_context c)
   if `xmp_set_player()`_ is used to change player timing (with parameter
   ``XMP_PLAYER_VBLANK``) in libxmp 4.0.2 or older, or if
   `xmp_set_tempo_factor()`_ is used to change the base tempo factor.
+  The scan is unaffected by the relative tempo factor set by
+  `xmp_set_tempo_factor_relative()`_.
 
   **Parameters:**
     :c: the player context handle.
@@ -819,6 +821,8 @@ int xmp_set_tempo_factor(xmp_context c, double val)
   `xmp_get_frame_info()`_. To recalculate these times, call
   `xmp_scan_module()`_ after setting the tempo factor.
 
+  To set a relative tempo factor, see `xmp_set_tempo_factor_relative()`_.
+
   **Parameters:**
     :c: the player context handle.
 
@@ -827,6 +831,65 @@ int xmp_set_tempo_factor(xmp_context c, double val)
   **Returns:**
     0 on success, -1 if value is invalid, or ``-XMP_ERROR_STATE`` if
     the player is not in the playing state.
+
+.. _xmp_set_tempo_factor_relative():
+
+int xmp_set_tempo_factor_relative(xmp_context c, double val)
+````````````````````````````````````````````````````````````
+
+  *[Added in libxmp 4.7]* Set a relative tempo multiplier. This value
+  will be multiplied against the base tempo multiplier (as set by
+  loading a module or calling `xmp_set_tempo_factor()_`) when
+  calculating the duration of the next tick. This value does not
+  affect the times reported by scanning the module, even if
+  `xmp_scan_module()`_ is called. The default relative tempo factor
+  value is ``1.0``, and it is reset to this value every time
+  `xmp_start_player()`_ is called.
+
+  Relative tempo factors between ``0.1`` and ``2.0`` should work with
+  the default base tempo multiplier, but more extreme values are not
+  guaranteed to work.
+
+  To set the base tempo factor, see `xmp_set_tempo_factor()`_.
+
+  **Parameters:**
+    :c: the player context handle.
+
+    :val: the new multiplier.
+
+  **Returns:**
+    0 on success, -1 if value is invalid, or ``-XMP_ERROR_STATE`` if
+    the player is not in the playing state.
+
+.. _xmp_get_tempo_factor():
+
+double xmp_get_tempo_factor(xmp_context c)
+``````````````````````````````````````````
+
+  *[Added in libxmp 4.7]* Get the base tempo multiplier, as set by
+  loading a module or after calling `xmp_set_tempo_factor()`_.
+
+  **Parameters:**
+    :c: the player context handle.
+
+  **Returns:**
+    the current base time factor on success or ``-1.0 * XMP_ERROR_STATE``
+    if the player is not in either the loaded or the playing states.
+
+.. _xmp_get_tempo_factor_relative():
+
+double xmp_get_tempo_factor_relative(xmp_context c)
+````````````````````````````````````````````````````````````
+
+  *[Added in libxmp 4.7]* Get the relative tempo multiplier, as set by
+  `xmp_start_player()`_ or after calling `xmp_set_tempo_factor_relative()`_.
+
+  **Parameters:**
+    :c: the player context handle.
+
+  **Returns:**
+    the current relative time factor on success or ``-1.0 * XMP_ERROR_STATE``
+    if the player is not in the playing state.
 
 .. _xmp_stop_module():
 
