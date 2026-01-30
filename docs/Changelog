@@ -4,6 +4,12 @@ Stable versions
 4.7.0 (?):
 	Changes by Alice Rowan:
 	- Increase maximum sampling rate (XMP_MAX_SRATE) to 768000.
+	  This increases XMP_MAX_FRAMESIZE to 384000. The tick buffers are now
+	  allocated using the player-provided rate instead of XMP_MAX_FRAMESIZE:
+	  the frame info buffer may also be much smaller than XMP_MAX_FRAMESIZE.
+	  In case of existing software misusing the old XMP_MAX_FRAMESIZE, the
+	  minimum value for mixer_data->total_size is the old XMP_MAX_FRAMESIZE
+	  for now.
 	- New function: xmp_set_tempo_factor_relative, to set a relative
 	  tempo factor without clobbering the module's tempo factor.
 	- New function: xmp_get_tempo_factor, to get the base tempo factor

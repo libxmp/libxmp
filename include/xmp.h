@@ -136,6 +136,8 @@ extern "C" {
 /* frame rate = (50 * bpm / 125) Hz */
 /* frame size = (sampling rate * channels * size) / frame rate */
 #define XMP_MAX_FRAMESIZE	(5 * XMP_MAX_SRATE * 2 / XMP_MIN_BPM)
+/* Old max frame size before v4.7.0 bump of XMP_MAX_SRATE: */
+#define XMP_MAX_FRAMESIZE_OLD	(5 * 49170 * 2 / XMP_MIN_BPM)
 
 /* error codes */
 #define XMP_END			1
