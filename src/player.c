@@ -1934,6 +1934,7 @@ int xmp_start_player(xmp_context opaque, int rate, int format)
 	if (libxmp_mixer_on(ctx, rate, format, m->c4rate) < 0)
 		return -XMP_ERROR_INTERNAL;
 
+	p->time_factor_relative = 1.0;
 	p->master_vol = 100;
 	p->smix_vol = 100;
 	p->gvol = m->volbase;

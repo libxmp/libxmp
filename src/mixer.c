@@ -453,7 +453,8 @@ static void libxmp_mixer_prepare(struct context_data *ctx)
 	struct mixer_data *s = &ctx->s;
 	int bytelen;
 
-	s->ticksize = libxmp_mixer_get_ticksize(s->freq, m->time_factor, m->rrate, p->bpm);
+	s->ticksize = libxmp_mixer_get_ticksize(s->freq,
+		m->time_factor * p->time_factor_relative, m->rrate, p->bpm);
 
 	/* Protect the mixer from broken values caused by xmp_set_tempo_factor. */
 	if (s->ticksize < 0 || s->ticksize > (s->total_size / 2)) {
