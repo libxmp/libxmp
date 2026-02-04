@@ -10,6 +10,14 @@ Stable versions
 	  In case of existing software misusing the old XMP_MAX_FRAMESIZE, the
 	  minimum value for mixer_data->total_size is the old XMP_MAX_FRAMESIZE
 	  for now.
+	- xmp_seek_time now always seeks (even if the position is the same
+	  as the current position) and uses the start row detected by the scan.
+	- New function: xmp_seek_time_frame, which attempts to seek to the time
+	  requested by the caller within frame precision. This is achieved by
+	  using xmp_seek_time then repeatedly calling xmp_play_frame until the
+	  *next* frame contains the caller-requested time. The caller can then
+	  use xmp_play_frame/xmp_play_buffer to render the requested frame.
+	  WARNING: this is more computationally expensive than xmp_seek_time.
 	- New function: xmp_set_tempo_factor_relative, to set a relative
 	  tempo factor without clobbering the module's tempo factor.
 	- New function: xmp_get_tempo_factor, to get the base tempo factor

@@ -742,9 +742,12 @@ int xmp_next_position(xmp_context c)
 ````````````````````````````````````
 
   Skip replay to the start of the next position.
-  If the module was stopped with ``xmp_stop_module``, this operation
+  If the module was stopped with `xmp_stop_module()`_, this operation
   restarts the module at position 0. If the module is restarting
   at position 0, this operation does nothing.
+
+  libxmp functions that set the current position do not fully take effect until
+  the next `xmp_play_frame()`_ or `xmp_play_buffer()`_ call.
 
   **Parameters:**
     :c: the player context handle.
@@ -759,9 +762,12 @@ int xmp_prev_position(xmp_context c)
 ````````````````````````````````````
 
   Skip replay to the start of the previous position.
-  If the module was stopped with ``xmp_stop_module``, is restarting at
+  If the module was stopped with `xmp_stop_module()`_, is restarting at
   position 0, or if the previous position is part of a different sequence,
   this operation does nothing.
+
+  libxmp functions that set the current position do not fully take effect until
+  the next `xmp_play_frame()`_ or `xmp_play_buffer()`_ call.
 
   **Parameters:**
     :c: the player context handle.
@@ -776,8 +782,11 @@ int xmp_set_position(xmp_context c, int pos)
 ````````````````````````````````````````````
 
   Skip replay to the start of the given position.
-  If the module was stopped with ``xmp_stop_module``, this operation
+  If the module was stopped with `xmp_stop_module()`_, this operation
   will restart the module at the destination position.
+
+  libxmp functions that set the current position do not fully take effect until
+  the next `xmp_play_frame()`_ or `xmp_play_buffer()`_ call.
 
   **Parameters:**
     :c: the player context handle.
@@ -908,6 +917,9 @@ void xmp_restart_module(xmp_context c)
 
   Restart the currently playing module.
 
+  libxmp functions that set the current position do not fully take effect until
+  the next `xmp_play_frame()`_ or `xmp_play_buffer()`_ call.
+
   **Parameters:**
     :c: the player context handle.
 
@@ -916,7 +928,41 @@ void xmp_restart_module(xmp_context c)
 int xmp_seek_time(xmp_context c, int time)
 ``````````````````````````````````````````
 
-  Skip replay to the specified time.
+  Skip replay to the specified time. This function sets the current position to
+  the position closest to the specified time in the current sequence. This
+  function is fast, but not particularly precise; it does not process any
+  frames to seek closer to the requested time. For a more accurate (but much
+  slower) function, see `xmp_seek_time_frame()`_.
+
+  libxmp functions that set the current position do not fully take effect until
+  the next `xmp_play_frame()`_ or `xmp_play_buffer()`_ call.
+
+  **Parameters:**
+    :c: the player context handle.
+
+    :time: time to seek in milliseconds.
+
+  **Returns:**
+    The new position index, or ``-XMP_ERROR_STATE`` if the player is not
+    in playing state.
+
+.. _xmp_seek_time_frame():
+
+int xmp_seek_time_frame(xmp_context c, int time)
+````````````````````````````````````````````````
+
+  Skip replay to the specified time. This function sets the current position to
+  the position closest to the specified time in the current sequence, then
+  plays frames as-needed (via `xmp_play_frame()`_) until the player is
+  positioned at the frame containing the requested time. The caller can then
+  render this frame with a subsequent call to `xmp_play_frame()`_ or
+  `xmp_play_buffer()`_.
+
+  *Warning:* this function is computationally expensive. It is not
+  guaranteed to call `xmp_play_frame()`_, but may call it numerous times.
+
+  libxmp functions that set the current position do not fully take effect until
+  the next `xmp_play_frame()`_ or `xmp_play_buffer()`_ call.
 
   **Parameters:**
     :c: the player context handle.
@@ -939,8 +985,8 @@ int xmp_channel_mute(xmp_context c, int chn, int status)
 
     :chn: the channel to mute or unmute.
 
-    :status: 0 to mute channel, 1 to unmute, 2 the inverse of the current channel status, or -1 to query the
-      current channel status.
+    :status: 0 to mute channel, 1 to unmute, 2 the inverse of the current
+      channel status, or -1 to query the current channel status.
 
   **Returns:**
     The previous channel status, or ``-XMP_ERROR_STATE`` if the player is not
@@ -1163,7 +1209,8 @@ int xmp_set_player(xmp_context c, int param, int val)
 
       By default, formats similar to S3M such as PTM or IMF will use S3M
       replayer (without Scream Tracker 3 quirks/bug emulation), and formats
-      similar to XM such as RTM and MDL will use the XM replayer (without             FT2 quirks/bug emulation).
+      similar to XM such as RTM and MDL will use the XM replayer (without
+      FT2 quirks/bug emulation).
 
       Multichannel MOD files will use the XM replayer, and Scream Tracker 3
       MOD files will use S3M replayer with ST3 quirks. S3M files will use

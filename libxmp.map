@@ -79,4 +79,5 @@ XMP_4.7 {
     xmp_get_tempo_factor;
     xmp_get_tempo_factor_relative;
     xmp_set_tempo_factor_relative;
+    xmp_seek_time_frame;
 } XMP_4.5;

@@ -1869,7 +1869,7 @@ void libxmp_player_set_fadeout(struct context_data *ctx, int chn)
 /* Get frame time for calculation of the current playback time
  * based on the most recent scan. This value should be used for
  * playback time calculation ONLY. */
-static double libxmp_get_frame_time(struct context_data *ctx)
+double libxmp_get_frame_time(struct context_data *ctx)
 {
 	struct player_data *p = &ctx->p;
 	struct module_data *m = &ctx->m;
@@ -1909,6 +1909,15 @@ void libxmp_reset_flow(struct context_data *ctx)
 	f->delay = 0;
 	f->rowdelay = 0;
 	f->rowdelay_set = 0;
+	f->force_reposition = 0;
+
+	if (f->loop) {
+		int i;
+		for (i = 0; i < ctx->m.mod.chn; i++) {
+			f->loop[i].start = 0;
+			f->loop[i].count = 0;
+		}
+	}
 }
 
 int xmp_start_player(xmp_context opaque, int rate, int format)
@@ -2068,8 +2077,9 @@ int xmp_play_frame(xmp_context opaque)
 	}
 
 	/* check reposition */
-	if (p->ord != p->pos) {
+	if (p->ord != p->pos || f->force_reposition) {
 		int start = m->seq_data[p->sequence].entry_point;
+		f->force_reposition = 0;
 
 		if (p->pos == -2) {		/* set by xmp_module_stop */
 			return -XMP_END;	/* that's all folks */
@@ -2089,7 +2099,6 @@ int xmp_play_frame(xmp_context opaque)
 			f->end_point = 0;
 		}
 
-		f->jumpline = 0;
 		f->jump = -1;
 
 		p->ord = p->pos - 1;

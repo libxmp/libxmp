@@ -220,6 +220,7 @@ void xmp_stop_module(xmp_context opaque)
 		return;
 
 	p->pos = -2;
+	libxmp_reset_flow(ctx);
 }
 
 void xmp_restart_module(xmp_context opaque)
@@ -232,6 +233,7 @@ void xmp_restart_module(xmp_context opaque)
 
 	p->loop_count = 0;
 	p->pos = -1;
+	libxmp_reset_flow(ctx);
 }
 
 int xmp_seek_time(xmp_context opaque, int time)
@@ -239,7 +241,9 @@ int xmp_seek_time(xmp_context opaque, int time)
 	struct context_data *ctx = (struct context_data *)opaque;
 	struct player_data *p = &ctx->p;
 	struct module_data *m = &ctx->m;
+	struct ord_data *oinfo;
 	double t;
+	int pos;
 	int i;
 
 	if (ctx->state < XMP_STATE_PLAYING)
@@ -266,6 +270,72 @@ int xmp_seek_time(xmp_context opaque, int time)
 	if (i < 0) {
 		xmp_set_position(opaque, 0);
 	}
+
+	/* Get the correct start row + force the next xmp_play_frame call to
+	 * do a reposition, which updates properties such as BPM and global
+	 * volume and normally doesn't happen within the same position: */
+	pos = p->pos >= 0 ? p->pos : m->seq_data[p->sequence].entry_point;
+
+	oinfo = &m->xxo_info[pos];
+	p->flow.jumpline = oinfo->start_row;
+	p->flow.force_reposition = 1;
+
+	/* For the first p->current_time + libxmp_get_frame_time check
+	 * in xmp_seek_time_frame: */
+	p->current_time = oinfo->time;
+	p->bpm = oinfo->bpm;
+
+	return p->pos < 0 ? 0 : p->pos;
+}
+
+int xmp_seek_time_frame(xmp_context opaque, int time)
+{
+	struct context_data *ctx = (struct context_data *)opaque;
+	struct player_data *p = &ctx->p;
+	struct module_data *m = &ctx->m;
+	double max_time, t;
+	int ret, i;
+
+	if ((ret = xmp_seek_time(opaque, time)) < 0) {
+		return ret;
+	}
+
+	/* set_position/xmp_set_position doesn't actually complete the seek;
+	 * may need to play frames from the start of the new position until
+	 * the player is at the closest frame to the requested time.
+	 * TODO: it may be possible to get closer times for xmp_play_buffer
+	 * users.
+	 */
+#if 0
+	D_(D_INFO "%d %d init: %.06f, %.06f >=? %.06f", p->pos, p->flow.jumpline,
+		p->current_time, p->current_time + libxmp_get_frame_time(ctx),
+		(double)time);
+#endif
+
+	max_time = m->seq_data[p->sequence].duration - 0.1;
+	t = MIN((double)time, max_time);
+
+	/* Try to find the correct frame (this may take a while).
+	 * TODO: temporarily put the mixer in a lower rate? */
+	for (i = 0; i < (1 << 13); i++) {
+		double prev = p->current_time;
+
+		/* TODO: the actual BPM isn't known until mid-frame. */
+		if (p->current_time + libxmp_get_frame_time(ctx) > t) {
+			break;
+		}
+		if (xmp_play_frame(opaque) < 0 || p->current_time < prev) {
+			break;
+		}
+#if 0
+		D_(D_INFO "%d %d %d: %.06f >=? %.06f", p->pos, p->row, p->frame,
+			p->current_time + libxmp_get_frame_time(ctx), t);
+#endif
+	}
+
+	/* Force an xmp_play_buffer refresh so the new (wrong) frame data
+	 * doesn't confuse the caller: */
+	xmp_play_buffer(opaque, NULL, 0, 0);
 
 	return p->pos < 0 ? 0 : p->pos;
 }
