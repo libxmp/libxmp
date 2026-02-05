@@ -393,6 +393,7 @@ LIBXMP_EXPORT double      xmp_get_tempo_factor_relative(xmp_context);
 LIBXMP_EXPORT void        xmp_stop_module     (xmp_context);
 LIBXMP_EXPORT void        xmp_restart_module  (xmp_context);
 LIBXMP_EXPORT int         xmp_seek_time       (xmp_context, int);
+LIBXMP_EXPORT int         xmp_seek_time_frame (xmp_context, int);
 LIBXMP_EXPORT int         xmp_channel_mute    (xmp_context, int, int);
 LIBXMP_EXPORT int         xmp_channel_vol     (xmp_context, int, int);
 LIBXMP_EXPORT int         xmp_set_player      (xmp_context, int, int);

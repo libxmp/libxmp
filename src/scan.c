@@ -238,14 +238,13 @@ static double scan_module(struct context_data *ctx, int ep, int chain)
 #ifndef LIBXMP_CORE_PLAYER
             info->st26_speed = st26_speed;
 #endif
-        }
+	    info->start_row = f.jumpline;
+	}
 
 	if (info->start_row == 0 && ord != 0) {
 	    if (ord == ep) {
 		start_time = time + m->time_factor * frame_count * base_time / bpm;
 	    }
-
-	    info->start_row = f.jumpline;
 	}
 
 	/* Get tracks in advance to speed up the event parsing loop. */

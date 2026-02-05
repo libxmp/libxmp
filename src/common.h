@@ -575,6 +575,7 @@ struct flow_control {
 #define ROWDELAY_FIRST_FRAME	(1 << 1)
 	int rowdelay;		/* For IT pattern row delay */
 	int rowdelay_set;
+	int force_reposition;
 };
 
 struct virt_channel {
@@ -692,6 +693,7 @@ void	libxmp_free_scan	(struct context_data *);
 int	libxmp_scan_sequences	(struct context_data *);
 int	libxmp_get_sequence	(struct context_data *, int);
 int	libxmp_set_player_mode	(struct context_data *);
+double	libxmp_get_frame_time	(struct context_data *);
 void	libxmp_reset_flow	(struct context_data *);
 
 int8	read8s			(FILE *, int *err);
