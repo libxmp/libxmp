@@ -446,7 +446,7 @@ static void identify_tracker(struct module_data *m, struct it_file_header *ifh,
 
 static int load_old_it_instrument(struct xmp_instrument *xxi, HIO_HANDLE *f)
 {
-	int inst_map[120], inst_rmap[XMP_MAX_KEYS];
+	uint8 inst_map[255], inst_rmap[XMP_MAX_KEYS];
 	struct it_instrument1_header i1h;
 	int c, k, j;
 	uint8 buf[64];
@@ -521,17 +521,16 @@ static int load_old_it_instrument(struct xmp_instrument *xxi, HIO_HANDLE *f)
 	}
 
 	/* See how many different instruments we have */
-	for (j = 0; j < 120; j++)
-		inst_map[j] = -1;
+	memset(inst_map, 0xff, sizeof(inst_map));
 
 	for (k = j = 0; j < XMP_MAX_KEYS; j++) {
 		c = j < 120 ? i1h.keys[j * 2 + 1] - 1 : -1;
-		if (c < 0 || c >= 120) {
+		if (c < 0) {
 			xxi->map[j].ins = 0;
 			xxi->map[j].xpo = 0;
 			continue;
 		}
-		if (inst_map[c] == -1) {
+		if (inst_map[c] == 0xff) {
 			inst_map[c] = k;
 			inst_rmap[k] = c;
 			k++;
@@ -576,7 +575,7 @@ static int load_old_it_instrument(struct xmp_instrument *xxi, HIO_HANDLE *f)
 
 static int load_new_it_instrument(struct xmp_instrument *xxi, HIO_HANDLE *f)
 {
-	int inst_map[120], inst_rmap[XMP_MAX_KEYS];
+	uint8 inst_map[255], inst_rmap[XMP_MAX_KEYS];
 	struct it_instrument2_header i2h;
 	struct it_envelope env;
 	int dca2nna[] = { 0, 2, 3, 3 /* Northern Sky (cj-north.it) has this... */ };
@@ -672,17 +671,16 @@ static int load_new_it_instrument(struct xmp_instrument *xxi, HIO_HANDLE *f)
 	}
 
 	/* See how many different instruments we have */
-	for (j = 0; j < 120; j++)
-		inst_map[j] = -1;
+	memset(inst_map, 0xff, sizeof(inst_map));
 
 	for (k = j = 0; j < 120; j++) {
 		c = i2h.keys[j * 2 + 1] - 1;
-		if (c < 0 || c >= 120) {
+		if (c < 0) {
 			xxi->map[j].ins = 0xff;	/* No sample */
 			xxi->map[j].xpo = 0;
 			continue;
 		}
-		if (inst_map[c] == -1) {
+		if (inst_map[c] == 0xff) {
 			inst_map[c] = k;
 			inst_rmap[k] = c;
 			k++;
@@ -764,7 +762,7 @@ static void *unpack_it_sample(struct xmp_sample *xxs,
 		channels = 2;
 	}
 
-	decbuf = calloc(1, bytes);
+	decbuf = calloc(bytes, 1);
 	if (decbuf == NULL)
 		return NULL;
 
@@ -1220,18 +1218,18 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	}
 
 	if (mod->ins) {
-		pp_ins = (uint32 *) calloc(4, mod->ins);
+		pp_ins = (uint32 *) calloc(mod->ins, sizeof(uint32));
 		if (pp_ins == NULL)
 			goto err;
 	} else {
 		pp_ins = NULL;
 	}
 
-	pp_smp = (uint32 *) calloc(4, mod->smp);
+	pp_smp = (uint32 *) calloc(mod->smp, sizeof(uint32));
 	if (pp_smp == NULL)
 		goto err2;
 
-	pp_pat = (uint32 *) calloc(4, mod->pat);
+	pp_pat = (uint32 *) calloc(mod->pat, sizeof(uint32));
 	if (pp_pat == NULL)
 		goto err3;
 
