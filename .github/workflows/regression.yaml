@@ -307,11 +307,11 @@ jobs:
           cmake . -DCMAKE_BUILD_TYPE=Release -DWITH_UNIT_TESTS=ON -B build ${{ matrix.cmakeflags }}
       - name: CMake build
         run: |
-          cmake --build build --target ALL_BUILD
+          cmake --build build --config Release --target ALL_BUILD
       - name: CMake checks
         run: |
           cd build
-          ctest -C Debug --output-on-failure
+          ctest -C Release --output-on-failure
       - name: Preparing NMake
         uses: ilammy/msvc-dev-cmd@v1
         with:
