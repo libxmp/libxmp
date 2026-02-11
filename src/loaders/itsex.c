@@ -1,12 +1,12 @@
+/* Public domain IT sample decompressor by Olivier Lapicque */
+
+/* Modified by Alice Rowan (2023-2024)- more or less complete
+ * rewrite of the input stream to add buffering.
+ */
+
 #include "../common.h"
 
 #ifndef LIBXMP_CORE_DISABLE_IT
-
-/* Public domain IT sample decompressor by Olivier Lapicque */
-
-/* Modified by Alice Rowan (2023)- more or less complete rewrite of the input
- * stream to add buffering.
- */
 
 #include "loader.h"
 #include "it.h"

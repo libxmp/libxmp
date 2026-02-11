@@ -1,6 +1,6 @@
 /* Extended Module Player
  * AMOS/STOS Music Bank Loader
- * Copyright (C) 2014 Stephen J Leary and Claudio Matsuoka
+ * Copyright (C) 2014-2026 Stephen J Leary and Claudio Matsuoka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
