@@ -22,9 +22,6 @@
 
 #include "path.h"
 
-#include <assert.h>
-
-
 void libxmp_path_init(struct libxmp_path *p)
 {
 	memset(p, 0, sizeof(struct libxmp_path));

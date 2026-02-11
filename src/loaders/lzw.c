@@ -24,7 +24,6 @@
  * This does not handle the hacks required for ARC or UnShrink. */
 
 #include "lzw.h"
-#include <assert.h>
 
 /*#define LZW_DEBUG*/
 
