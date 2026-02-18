@@ -19,6 +19,11 @@ TEST(test_fuzzer_xm_invalid)
 	ret = xmp_load_module(opaque, "data/f/load_xm_invalid_instsize.xm");
 	fail_unless(ret == -XMP_ERROR_LOAD, "module load (invalid_instsize)");
 
+	/* This input caused slow loads in the XM loader from allocating a
+	 * buffer from a junk MPT text chunk. This should load instantly. */
+	ret = xmp_load_module(opaque, "data/f/load_xm_invalid_comment_length.xm");
+	fail_unless(ret == 0, "module load (invalid_comment_length)");
+
 	xmp_free_context(opaque);
 }
 END_TEST

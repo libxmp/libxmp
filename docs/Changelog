@@ -114,6 +114,7 @@ Stable versions
 	  in an event; FT2 bug emulation for double toneporta now zeroes the
 	  parameter of 3xx in the player instead of using a loader hack. This
 	  doesn't affect Ultra Tracker toneporta.
+	- XM: fix slow loads/OoMs caused by not verifying the MPT text length.
 	- XMF: toneporta is identical to Ultra Tracker toneporta (slightly
 	  affects max.xmf pos 13+, but the notes are out-of-tune either way).
 	- Fix time tracking bugs in some complex pattern loop cases.

@@ -950,6 +950,8 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			known = 1;
 			if (m->comment != NULL)
 				break;
+			if ((int64)sz > hio_size(f))
+				break;
 
 			if ((m->comment = (char *)malloc(sz + 1)) == NULL)
 				break;
@@ -966,6 +968,7 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 					m->comment[i] = '.';
 				}
 			}
+			sz = 0;
 			break;
 
 		case MAGIC4('M','I','D','I'):		/* MIDI config */
@@ -981,13 +984,14 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			if ((ext & MAGIC4('F','X', 0, 0)) == MAGIC4('F','X', 0, 0))
 				known = 1;
 
-			if (sz) hio_seek(f, sz, SEEK_CUR);
 			break;
 		}
 
 		if(known && claims_ft2)
 			is_mpt_116 = 1;
 
+		if (sz && hio_seek(f, sz, SEEK_CUR) < 0)
+			break;
 		if (ext == MAGIC4('X','T','P','M'))
 			break;
 	}
