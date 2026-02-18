@@ -119,7 +119,8 @@ static int ims_test(HIO_HANDLE *f, char *t, const int start)
 
     ih.len = hio_read8(f);
     ih.restart = hio_read8(f);
-    hio_read(ih.orders, 128, 1, f);
+    if (hio_read(ih.orders, 1, 128, f) < 128)
+	return -1;
     ih.sample_offset = hio_read32b(f);
 
     if (ih.restart >= ih.len)

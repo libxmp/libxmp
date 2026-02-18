@@ -502,7 +502,7 @@ FUZZER		= misc \
 		  ice_truncated \
 		  imf_truncated \
 		  ims_scan_loop \
-		  ims_truncated_magic \
+		  ims_truncated \
 		  liq_no_valid_orders \
 		  liq_truncated \
 		  masi_invalid_length \
