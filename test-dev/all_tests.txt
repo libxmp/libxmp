@@ -835,7 +835,7 @@ test_fuzzer_hmn_truncated
 test_fuzzer_ice_truncated
 test_fuzzer_imf_truncated
 test_fuzzer_ims_scan_loop
-test_fuzzer_ims_truncated_magic
+test_fuzzer_ims_truncated
 test_fuzzer_liq_no_valid_orders
 test_fuzzer_liq_truncated
 test_fuzzer_masi_invalid_length
