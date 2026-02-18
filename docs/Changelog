@@ -28,6 +28,10 @@ Stable versions
 	  32-bit integer output.
 	- New API define: XMP_INST_NO_DEFAULT_PAN for xmp_subinstrument::pan
 	- New API defines: XMP_MARK_SKIP and XMP_MARK_END for xmp_module::xxo
+	- New API defines: XMP_MODE_MPT_MOD, XMP_MODE_MPT_S3M, XMP_MODE_MPT_XM,
+	  XMP_MODE_MPT_IT, XMP_MODE_MPT_ITSMP (ModPlug Tracker <=1.16);
+	  XMP_MODE_LIQUID, XMP_MODE_LIQUID_S3M, XMP_MODE_ORPHEUS. These are
+	  placeholders and not guaranteed to be particularly accurate yet.
 	- Add support for Pack-Ice ("Ice!", "ICE!") depacking.
 	- Add support for Software Visions DMF (Apocalypse Abyss MOD variant).
 	- Replace kernel list helper in iff.c with custom list management

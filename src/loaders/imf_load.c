@@ -550,7 +550,7 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
     }
 
     m->c4rate = C4_NTSC_RATE;
-    m->quirk |= QUIRK_FILTER | QUIRK_MARKER | QUIRK_RSTCHN | QUIRK_ARPMEM;
+    m->quirk |= QUIRKS_ORPHEUS;
     m->flow_mode = FLOW_MODE_ORPHEUS;
     m->read_event_type = READ_EVENT_ST3;
 
