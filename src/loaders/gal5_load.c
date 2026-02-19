@@ -310,6 +310,8 @@ static int gal5_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	LOAD_INIT();
 
+	memset(&data, 0, sizeof(data));
+
 	hio_read32b(f);	/* Skip RIFF */
 	hio_read32b(f);	/* Skip size */
 	hio_read32b(f);	/* Skip AM   */
