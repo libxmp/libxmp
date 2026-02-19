@@ -64,7 +64,7 @@ static int gal4_test(HIO_HANDLE *f, char *t, const int start)
 #define GAL4_SAMP_SET_PANNING	(1 << 5)
 
 struct local_data {
-    int snum;
+	int snum;
 };
 
 static int get_main(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
@@ -222,6 +222,9 @@ static int get_patt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *par
 static int get_inst(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
+	struct xmp_instrument *xxi;
+	struct xmp_envelope *aei;
+	struct xmp_envelope *pei;
 	struct local_data *data = (struct local_data *)parm;
 	int i, j;
 	int srate, finetune, flags;
@@ -235,12 +238,15 @@ static int get_inst(struct module_data *m, uint32 size, HIO_HANDLE *f, void *par
 	if (i >= mod->ins || mod->xxi[i].nsm) {
 		return -1;
 	}
+	xxi = &mod->xxi[i];
+	aei = &xxi->aei;
+	pei = &xxi->pei;
 
-	hio_read(mod->xxi[i].name, 1, 28, f);
-	mod->xxi[i].nsm = hio_read8(f);
+	hio_read(xxi->name, 1, 28, f);
+	xxi->nsm = hio_read8(f);
 
 	for (j = 0; j < 108; j++) {
-		mod->xxi[i].map[j].ins = hio_read8(f);
+		xxi->map[j].ins = hio_read8(f);
 	}
 
 	hio_seek(f, 11, SEEK_CUR);		/* unknown */
@@ -254,82 +260,83 @@ static int get_inst(struct module_data *m, uint32 size, HIO_HANDLE *f, void *par
 
 	val = hio_read8(f);			/* PV envelopes flags */
 	if (LSN(val) & 0x01)
-		mod->xxi[i].aei.flg |= XMP_ENVELOPE_ON;
+		aei->flg |= XMP_ENVELOPE_ON;
 	if (LSN(val) & 0x02)
-		mod->xxi[i].aei.flg |= XMP_ENVELOPE_SUS;
+		aei->flg |= XMP_ENVELOPE_SUS;
 	if (LSN(val) & 0x04)
-		mod->xxi[i].aei.flg |= XMP_ENVELOPE_LOOP;
+		aei->flg |= XMP_ENVELOPE_LOOP;
 	if (MSN(val) & 0x01)
-		mod->xxi[i].pei.flg |= XMP_ENVELOPE_ON;
+		pei->flg |= XMP_ENVELOPE_ON;
 	if (MSN(val) & 0x02)
-		mod->xxi[i].pei.flg |= XMP_ENVELOPE_SUS;
+		pei->flg |= XMP_ENVELOPE_SUS;
 	if (MSN(val) & 0x04)
-		mod->xxi[i].pei.flg |= XMP_ENVELOPE_LOOP;
+		pei->flg |= XMP_ENVELOPE_LOOP;
 
 	val = hio_read8(f);			/* PV envelopes points */
-	mod->xxi[i].aei.npt = LSN(val) + 1;
-	mod->xxi[i].pei.npt = MSN(val) + 1;
+	aei->npt = LSN(val) + 1;
+	pei->npt = MSN(val) + 1;
 
 	val = hio_read8(f);			/* PV envelopes sustain point */
-	mod->xxi[i].aei.sus = LSN(val);
-	mod->xxi[i].pei.sus = MSN(val);
+	aei->sus = LSN(val);
+	pei->sus = MSN(val);
 
 	val = hio_read8(f);			/* PV envelopes loop start */
-	mod->xxi[i].aei.lps = LSN(val);
-	mod->xxi[i].pei.lps = MSN(val);
+	aei->lps = LSN(val);
+	pei->lps = MSN(val);
 
 	hio_read8(f);			/* PV envelopes loop end */
-	mod->xxi[i].aei.lpe = LSN(val);
-	mod->xxi[i].pei.lpe = MSN(val);
+	aei->lpe = LSN(val);
+	pei->lpe = MSN(val);
 
-	if (mod->xxi[i].aei.npt <= 0 || mod->xxi[i].aei.npt > MIN(10, XMP_MAX_ENV_POINTS))
-		mod->xxi[i].aei.flg &= ~XMP_ENVELOPE_ON;
+	if (aei->npt <= 0 || aei->npt > MIN(10, XMP_MAX_ENV_POINTS))
+		aei->flg &= ~XMP_ENVELOPE_ON;
 
-	if (mod->xxi[i].pei.npt <= 0 || mod->xxi[i].pei.npt > MIN(10, XMP_MAX_ENV_POINTS))
-		mod->xxi[i].pei.flg &= ~XMP_ENVELOPE_ON;
+	if (pei->npt <= 0 || pei->npt > MIN(10, XMP_MAX_ENV_POINTS))
+		pei->flg &= ~XMP_ENVELOPE_ON;
 
 	if (hio_read(buf, 1, 30, f) < 30) {	/* volume envelope points */
 		D_(D_CRIT "read error at vol env %d", i);
 		return -1;
 	}
-	for (j = 0; j < mod->xxi[i].aei.npt; j++) {
+	for (j = 0; j < aei->npt; j++) {
 		if (j >= 10) {
 			break;
 		}
-		mod->xxi[i].aei.data[j * 2] = readmem16l(buf + j * 3) / 16;
-		mod->xxi[i].aei.data[j * 2 + 1] = buf[j * 3 + 2];
+		aei->data[j * 2] = readmem16l(buf + j * 3) / 16;
+		aei->data[j * 2 + 1] = buf[j * 3 + 2];
 	}
 
 	if (hio_read(buf, 1, 30, f) < 30) {	/* pan envelope points */
 		D_(D_CRIT "read error at pan env %d", i);
 		return -1;
 	}
-	for (j = 0; j < mod->xxi[i].pei.npt; j++) {
+	for (j = 0; j < pei->npt; j++) {
 		if (j >= 10) {
 			break;
 		}
-		mod->xxi[i].pei.data[j * 2] = readmem16l(buf + j * 3) / 16;
-		mod->xxi[i].pei.data[j * 2 + 1] = buf[j * 3 + 2];
+		pei->data[j * 2] = readmem16l(buf + j * 3) / 16;
+		pei->data[j * 2 + 1] = buf[j * 3 + 2];
 	}
 
 	/*fade =*/ hio_read8(f);	/* fadeout - 0x80->0x02 0x310->0x0c */
 	hio_read8(f);			/* unknown */
 
-	D_(D_INFO "[%2X] %-28.28s  %2d ", i, mod->xxi[i].name, mod->xxi[i].nsm);
+	D_(D_INFO "[%2X] %-28.28s  %2d ", i, xxi->name, xxi->nsm);
 
-	if (mod->xxi[i].nsm == 0)
+	if (xxi->nsm == 0)
 		return 0;
 
-	if (libxmp_alloc_subinstrument(mod, i, mod->xxi[i].nsm) < 0)
+	if (libxmp_alloc_subinstrument(mod, i, xxi->nsm) < 0)
 		return -1;
 
-	for (j = 0; j < mod->xxi[i].nsm; j++, data->snum++) {
-		struct xmp_subinstrument *sub = &mod->xxi[i].sub[j];
+	for (j = 0; j < xxi->nsm; j++, data->snum++) {
+		struct xmp_subinstrument *sub = &xxi->sub[j];
+		struct xmp_sample *xxs = &mod->xxs[data->snum];
 
 		hio_read32b(f);	/* SAMP */
 		hio_read32b(f);	/* size */
 
-		hio_read(mod->xxs[data->snum].name, 1, 28, f);
+		hio_read(xxs->name, 1, 28, f);
 
 		pan = hio_read8(f);
 		sub->vol = hio_read8(f);
@@ -344,42 +351,41 @@ static int get_inst(struct module_data *m, uint32 size, HIO_HANDLE *f, void *par
 		sub->vsw = vsw;
 		sub->sid = data->snum;
 
-		mod->xxs[data->snum].len = hio_read32l(f);
-		mod->xxs[data->snum].lps = hio_read32l(f);
-		mod->xxs[data->snum].lpe = hio_read32l(f);
+		xxs->len = hio_read32l(f);
+		xxs->lps = hio_read32l(f);
+		xxs->lpe = hio_read32l(f);
 
-		mod->xxs[data->snum].flg = 0;
+		xxs->flg = 0;
 		if (flags & GAL4_SAMP_16BIT)
-			mod->xxs[data->snum].flg |= XMP_SAMPLE_16BIT;
+			xxs->flg |= XMP_SAMPLE_16BIT;
 		if (flags & GAL4_SAMP_LOOP)
-			mod->xxs[data->snum].flg |= XMP_SAMPLE_LOOP;
+			xxs->flg |= XMP_SAMPLE_LOOP;
 		if (flags & GAL4_SAMP_LOOP_BIDIR)
-			mod->xxs[data->snum].flg |= XMP_SAMPLE_LOOP_BIDIR;
+			xxs->flg |= XMP_SAMPLE_LOOP_BIDIR;
 		/* if (flags & 0x80)
-			mod->xxs[data->snum].flg |= ? */
+			xxs->flg |= ? */
 
 		srate = hio_read32l(f);
 		finetune = 0;
-		libxmp_c2spd_to_note(srate, &mod->xxi[i].sub[j].xpo, &mod->xxi[i].sub[j].fin);
-		mod->xxi[i].sub[j].fin += finetune;
+		libxmp_c2spd_to_note(srate, &sub->xpo, &sub->fin);
+		sub->fin += finetune;
 
 		hio_read32l(f);			/* 0x00000000 */
 		hio_read32l(f);			/* unknown */
 
 		D_(D_INFO "  %X: %05x%c%05x %05x %c V%02x P%02x %5d",
-			j, mod->xxs[data->snum].len,
-			mod->xxs[data->snum].flg & XMP_SAMPLE_16BIT ? '+' : ' ',
-			mod->xxs[data->snum].lps,
-			mod->xxs[data->snum].lpe,
-			mod->xxs[data->snum].flg & XMP_SAMPLE_LOOP_BIDIR ? 'B' :
-			mod->xxs[data->snum].flg & XMP_SAMPLE_LOOP ? 'L' : ' ',
-			mod->xxi[i].sub[j].vol,
-			mod->xxi[i].sub[j].pan,
+			j, xxs->len,
+			xxs->flg & XMP_SAMPLE_16BIT ? '+' : ' ',
+			xxs->lps,
+			xxs->lpe,
+			xxs->flg & XMP_SAMPLE_LOOP_BIDIR ? 'B' :
+			xxs->flg & XMP_SAMPLE_LOOP ? 'L' : ' ',
+			sub->vol,
+			sub->pan,
 			srate);
 
-		if (mod->xxs[data->snum].len > 1) {
-			int snum = data->snum;
-			if (libxmp_load_sample(m, f, 0, &mod->xxs[snum], NULL) < 0)
+		if (xxs->len > 1) {
+			if (libxmp_load_sample(m, f, 0, xxs, NULL) < 0)
 				return -1;
 		}
 	}

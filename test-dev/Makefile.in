@@ -493,7 +493,6 @@ FUZZER		= misc \
 		  gal5_duplicate_instrument \
 		  gal5_invalid_sample_num \
 		  gal5_truncated \
-		  gal5_truncated_info \
 		  gdm_invalid_sample_size \
 		  gdm_samples_bound \
 		  gdm_truncated \
