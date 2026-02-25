@@ -1,7 +1,7 @@
 Stable versions
 ---------------
 
-4.7.0 (?):
+4.7.0 (20260225):
 	Changes by Alice Rowan:
 	- Increase maximum sampling rate (XMP_MAX_SRATE) to 768000.
 	  This increases XMP_MAX_FRAMESIZE to 384000. The tick buffers are now
