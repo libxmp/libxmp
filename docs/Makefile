@@ -31,5 +31,5 @@ docs/libxmp.html: docs/libxmp.rst docs/pdfdoc.rst docs/style.css
 	rst2html docs/pdfdoc.rst --stylesheet docs/style.css > $@
 
 docs/libxmp.pdf: docs/libxmp.rst docs/pdfdoc.rst docs/custom.style
-	rst2pdf docs/pdfdoc.rst -c --smart-quotes=1 -s docs/custom.style --footer="###Page###" -o $@
+	rst2pdf docs/pdfdoc.rst -c --date-invariant --smart-quotes=1 -s docs/custom.style --footer="###Page###" -o $@
 
