@@ -45,207 +45,7 @@ static long get_size(FILE *f)
 	}
 }
 
-int8 hio_read8s(HIO_HANDLE *h)
-{
-	int err;
-	int8 ret;
-
-	switch (HIO_HANDLE_TYPE(h)) {
-	case HIO_HANDLE_TYPE_FILE:
-		ret = read8s(h->handle.file, &err);
-		break;
-	case HIO_HANDLE_TYPE_MEMORY:
-		ret = mread8s(h->handle.mem, &err);
-		break;
-	case HIO_HANDLE_TYPE_CBFILE:
-		ret = cbread8s(h->handle.cbfile, &err);
-		break;
-	default:
-		return 0;
-	}
-
-	if (err != 0) {
-		h->error = err;
-	}
-	return ret;
-}
-
-uint8 hio_read8(HIO_HANDLE *h)
-{
-	int err;
-	uint8 ret;
-
-	switch (HIO_HANDLE_TYPE(h)) {
-	case HIO_HANDLE_TYPE_FILE:
-		ret = read8(h->handle.file, &err);
-		break;
-	case HIO_HANDLE_TYPE_MEMORY:
-		ret = mread8(h->handle.mem, &err);
-		break;
-	case HIO_HANDLE_TYPE_CBFILE:
-		ret = cbread8(h->handle.cbfile, &err);
-		break;
-	default:
-		return 0;
-	}
-
-	if (err != 0) {
-		h->error = err;
-	}
-	return ret;
-}
-
-uint16 hio_read16l(HIO_HANDLE *h)
-{
-	int err;
-	uint16 ret;
-
-	switch (HIO_HANDLE_TYPE(h)) {
-	case HIO_HANDLE_TYPE_FILE:
-		ret = read16l(h->handle.file, &err);
-		break;
-	case HIO_HANDLE_TYPE_MEMORY:
-		ret = mread16l(h->handle.mem, &err);
-		break;
-	case HIO_HANDLE_TYPE_CBFILE:
-		ret = cbread16l(h->handle.cbfile, &err);
-		break;
-	default:
-		return 0;
-	}
-
-	if (err != 0) {
-		h->error = err;
-	}
-	return ret;
-}
-
-uint16 hio_read16b(HIO_HANDLE *h)
-{
-	int err;
-	uint16 ret;
-
-	switch (HIO_HANDLE_TYPE(h)) {
-	case HIO_HANDLE_TYPE_FILE:
-		ret = read16b(h->handle.file, &err);
-		break;
-	case HIO_HANDLE_TYPE_MEMORY:
-		ret = mread16b(h->handle.mem, &err);
-		break;
-	case HIO_HANDLE_TYPE_CBFILE:
-		ret = cbread16b(h->handle.cbfile, &err);
-		break;
-	default:
-		return 0;
-	}
-
-	if (err != 0) {
-		h->error = err;
-	}
-	return ret;
-}
-
-uint32 hio_read24l(HIO_HANDLE *h)
-{
-	int err;
-	uint32 ret;
-
-	switch (HIO_HANDLE_TYPE(h)) {
-	case HIO_HANDLE_TYPE_FILE:
-		ret = read24l(h->handle.file, &err);
-		break;
-	case HIO_HANDLE_TYPE_MEMORY:
-		ret = mread24l(h->handle.mem, &err);
-		break;
-	case HIO_HANDLE_TYPE_CBFILE:
-		ret = cbread24l(h->handle.cbfile, &err);
-		break;
-	default:
-		return 0;
-	}
-
-	if (err != 0) {
-		h->error = err;
-	}
-	return ret;
-}
-
-uint32 hio_read24b(HIO_HANDLE *h)
-{
-	int err;
-	uint32 ret;
-
-	switch (HIO_HANDLE_TYPE(h)) {
-	case HIO_HANDLE_TYPE_FILE:
-		ret = read24b(h->handle.file, &err);
-		break;
-	case HIO_HANDLE_TYPE_MEMORY:
-		ret = mread24b(h->handle.mem, &err);
-		break;
-	case HIO_HANDLE_TYPE_CBFILE:
-		ret = cbread24b(h->handle.cbfile, &err);
-		break;
-	default:
-		return 0;
-	}
-
-	if (err != 0) {
-		h->error = err;
-	}
-	return ret;
-}
-
-uint32 hio_read32l(HIO_HANDLE *h)
-{
-	int err;
-	uint32 ret;
-
-	switch (HIO_HANDLE_TYPE(h)) {
-	case HIO_HANDLE_TYPE_FILE:
-		ret = read32l(h->handle.file, &err);
-		break;
-	case HIO_HANDLE_TYPE_MEMORY:
-		ret = mread32l(h->handle.mem, &err);
-		break;
-	case HIO_HANDLE_TYPE_CBFILE:
-		ret = cbread32l(h->handle.cbfile, &err);
-		break;
-	default:
-		return 0;
-	}
-
-	if (err != 0) {
-		h->error = err;
-	}
-	return ret;
-}
-
-uint32 hio_read32b(HIO_HANDLE *h)
-{
-	int err;
-	uint32 ret;
-
-	switch (HIO_HANDLE_TYPE(h)) {
-	case HIO_HANDLE_TYPE_FILE:
-		ret = read32b(h->handle.file, &err);
-		break;
-	case HIO_HANDLE_TYPE_MEMORY:
-		ret = mread32b(h->handle.mem, &err);
-		break;
-	case HIO_HANDLE_TYPE_CBFILE:
-		ret = cbread32b(h->handle.cbfile, &err);
-		break;
-	default:
-		return 0;
-	}
-
-	if (err != 0) {
-		h->error = err;
-	}
-	return ret;
-}
-
-size_t hio_read(void *buf, size_t size, size_t num, HIO_HANDLE *h)
+static size_t hio_read_internal(void *buf, size_t size, size_t num, HIO_HANDLE *h)
 {
 	size_t ret = 0;
 
@@ -277,7 +77,7 @@ size_t hio_read(void *buf, size_t size, size_t num, HIO_HANDLE *h)
 	return ret;
 }
 
-int hio_seek(HIO_HANDLE *h, long offset, int whence)
+static int hio_seek_internal(HIO_HANDLE *h, long offset, int whence)
 {
 	int ret = -1;
 
@@ -314,7 +114,7 @@ int hio_seek(HIO_HANDLE *h, long offset, int whence)
 	return ret;
 }
 
-long hio_tell(HIO_HANDLE *h)
+static long hio_tell_internal(HIO_HANDLE *h)
 {
 	long ret = -1;
 
@@ -343,7 +143,7 @@ long hio_tell(HIO_HANDLE *h)
 	return ret;
 }
 
-int hio_eof(HIO_HANDLE *h)
+static int hio_eof_internal(HIO_HANDLE *h)
 {
 	switch (HIO_HANDLE_TYPE(h)) {
 	case HIO_HANDLE_TYPE_FILE:
@@ -354,6 +154,317 @@ int hio_eof(HIO_HANDLE *h)
 		return cbeof(h->handle.cbfile);
 	}
 	return EOF;
+}
+
+static void hio_fill_buffer_internal(HIO_HANDLE *h)
+{
+	if (h->buffer_end == HIO_FULL_BUFFER) {
+		/* copy old "preview" bytes */
+		h->buffer[0] = h->buffer[HIO_BUFFER_SIZE + 0];
+		h->buffer[1] = h->buffer[HIO_BUFFER_SIZE + 1];
+		h->buffer[2] = h->buffer[HIO_BUFFER_SIZE + 2];
+		h->buffer[3] = h->buffer[HIO_BUFFER_SIZE + 3];
+
+		h->buffer_end = 4 + hio_read_internal(h->buffer + 4, 1, HIO_BUFFER_SIZE, h);
+	}
+	else {
+		/* read a full buffer from file */
+		h->buffer_end = hio_read_internal(h->buffer, 1, HIO_FULL_BUFFER, h);
+	}
+
+	/* don't set EOF error yet */
+	if(h->error == EOF) {
+		h->error = 0;
+	}
+}
+
+int8 hio_read8s(HIO_HANDLE *h)
+{
+	int8 ret = 0;
+
+	if (HIO_BUFFER_CURSOR(h) >= h->buffer_end) {
+		h->error = EOF;
+		return ret;
+	}
+
+	ret = (int8)h->buffer[HIO_BUFFER_CURSOR(h)];
+	h->cursor++;
+
+	if (HIO_BUFFER_CURSOR(h) < 1) {
+		hio_fill_buffer_internal(h);
+	}
+
+	return ret;
+}
+
+uint8 hio_read8(HIO_HANDLE *h)
+{
+	uint8 ret = 0;
+
+	if (HIO_BUFFER_CURSOR(h) >= h->buffer_end) {
+		h->error = EOF;
+		return ret;
+	}
+
+	ret = h->buffer[HIO_BUFFER_CURSOR(h)];
+	h->cursor++;
+
+	if (HIO_BUFFER_CURSOR(h) < 1) {
+		hio_fill_buffer_internal(h);
+	}
+
+	return ret;
+}
+
+uint16 hio_read16l(HIO_HANDLE *h)
+{
+	uint16 ret = 0;
+	uint8 buf[2];
+
+	if (HIO_BUFFER_CURSOR(h) + 1 >= h->buffer_end) {
+		h->cursor += h->buffer_end - HIO_BUFFER_CURSOR(h);
+		h->error = EOF;
+		return ret;
+	}
+
+	buf[0] = h->buffer[HIO_BUFFER_CURSOR(h)];
+	buf[1] = h->buffer[HIO_BUFFER_CURSOR(h) + 1];
+	h->cursor += 2;
+
+	ret = readmem16l(buf);
+
+	if (HIO_BUFFER_CURSOR(h) < 2) {
+		hio_fill_buffer_internal(h);
+	}
+
+	return ret;
+}
+
+uint16 hio_read16b(HIO_HANDLE *h)
+{
+	uint16 ret = 0;
+	uint8 buf[2];
+
+	if (HIO_BUFFER_CURSOR(h) + 1 >= h->buffer_end) {
+		h->cursor += h->buffer_end - HIO_BUFFER_CURSOR(h);
+		h->error = EOF;
+		return ret;
+	}
+
+	buf[0] = h->buffer[HIO_BUFFER_CURSOR(h)];
+	buf[1] = h->buffer[HIO_BUFFER_CURSOR(h) + 1];
+	h->cursor += 2;
+
+	ret = readmem16b(buf);
+
+	if (HIO_BUFFER_CURSOR(h) < 2) {
+		hio_fill_buffer_internal(h);
+	}
+
+	return ret;
+}
+
+uint32 hio_read24l(HIO_HANDLE *h)
+{
+	uint32 ret = 0;
+	uint8 buf[3];
+
+	if (HIO_BUFFER_CURSOR(h) + 2 >= h->buffer_end) {
+		h->cursor += h->buffer_end - HIO_BUFFER_CURSOR(h);
+		h->error = EOF;
+		return ret;
+	}
+
+	buf[0] = h->buffer[HIO_BUFFER_CURSOR(h)];
+	buf[1] = h->buffer[HIO_BUFFER_CURSOR(h) + 1];
+	buf[2] = h->buffer[HIO_BUFFER_CURSOR(h) + 2];
+	h->cursor += 3;
+
+	ret = readmem24l(buf);
+
+	if (HIO_BUFFER_CURSOR(h) < 3) {
+		hio_fill_buffer_internal(h);
+	}
+
+	return ret;
+}
+
+uint32 hio_read24b(HIO_HANDLE *h)
+{
+	uint32 ret = 0;
+	uint8 buf[3];
+
+	if (HIO_BUFFER_CURSOR(h) + 2 >= h->buffer_end) {
+		h->cursor += h->buffer_end - HIO_BUFFER_CURSOR(h);
+		h->error = EOF;
+		return ret;
+	}
+
+	buf[0] = h->buffer[HIO_BUFFER_CURSOR(h)];
+	buf[1] = h->buffer[HIO_BUFFER_CURSOR(h) + 1];
+	buf[2] = h->buffer[HIO_BUFFER_CURSOR(h) + 2];
+	h->cursor += 3;
+
+	ret = readmem24b(buf);
+
+	if (HIO_BUFFER_CURSOR(h) < 3) {
+		hio_fill_buffer_internal(h);
+	}
+
+	return ret;
+}
+
+uint32 hio_read32l(HIO_HANDLE *h)
+{
+	uint32 ret = 0;
+	uint8 buf[4];
+
+	if (HIO_BUFFER_CURSOR(h) + 3 >= h->buffer_end) {
+		h->cursor += h->buffer_end - HIO_BUFFER_CURSOR(h);
+		h->error = EOF;
+		return ret;
+	}
+
+	buf[0] = h->buffer[HIO_BUFFER_CURSOR(h)];
+	buf[1] = h->buffer[HIO_BUFFER_CURSOR(h) + 1];
+	buf[2] = h->buffer[HIO_BUFFER_CURSOR(h) + 2];
+	buf[3] = h->buffer[HIO_BUFFER_CURSOR(h) + 3];
+	h->cursor += 4;
+
+	ret = readmem32l(buf);
+
+	if (HIO_BUFFER_CURSOR(h) < 4) {
+		hio_fill_buffer_internal(h);
+	}
+
+	return ret;
+}
+
+uint32 hio_read32b(HIO_HANDLE *h)
+{
+	uint32 ret = 0;
+	uint8 buf[4];
+
+	if (HIO_BUFFER_CURSOR(h) + 3 >= h->buffer_end) {
+		h->cursor += h->buffer_end - HIO_BUFFER_CURSOR(h);
+		h->error = EOF;
+		return ret;
+	}
+
+	buf[0] = h->buffer[HIO_BUFFER_CURSOR(h)];
+	buf[1] = h->buffer[HIO_BUFFER_CURSOR(h) + 1];
+	buf[2] = h->buffer[HIO_BUFFER_CURSOR(h) + 2];
+	buf[3] = h->buffer[HIO_BUFFER_CURSOR(h) + 3];
+	h->cursor += 4;
+
+	ret = readmem32b(buf);
+
+	if (HIO_BUFFER_CURSOR(h) < 4) {
+		hio_fill_buffer_internal(h);
+	}
+
+	return ret;
+}
+
+size_t hio_read(void *buf, size_t size, size_t num, HIO_HANDLE *h)
+{
+	/* memcpy the current HIO buffer, then read directly into buf, then copy back to the HIO buffer and finish it */
+	size_t should_read = size * num;
+	int buffer_left = h->buffer_end - HIO_BUFFER_CURSOR(h);
+	uint8 *buf_use = (uint8 *)buf;
+	size_t did_read = 0;
+
+	if(should_read <= buffer_left) {
+		/* easy case */
+		memcpy(buf_use, h->buffer + HIO_BUFFER_CURSOR(h), size * num);
+
+		h->cursor += size * num;
+		if(HIO_BUFFER_CURSOR(h) < should_read) {
+			hio_fill_buffer_internal(h);
+		}
+
+		return should_read;
+	}
+
+	/* memcpy the current buffer */
+	memcpy(buf_use, h->buffer + HIO_BUFFER_CURSOR(h), buffer_left);
+	buf_use += buffer_left;
+	should_read -= buffer_left;
+	h->cursor += buffer_left;
+
+	/* read the rest directly, may set h->error */
+	did_read = hio_read_internal(buf_use, 1, should_read, h);
+	h->cursor += did_read;
+
+	/* copy back to the HIO buffer */
+	memcpy(h->buffer, buf_use + did_read - HIO_BUFFER_CURSOR(h), HIO_BUFFER_CURSOR(h));
+	h->buffer_end = HIO_BUFFER_CURSOR(h);
+
+	/* finish the HIO buffer */
+	if(did_read == should_read) {
+		h->buffer_end += hio_read_internal(h->buffer + HIO_BUFFER_CURSOR(h), 1, HIO_BUFFER_SIZE - HIO_BUFFER_CURSOR(h), h);
+	}
+
+	return (buffer_left + did_read) / size;
+}
+
+int hio_seek(HIO_HANDLE *h, long offset, int whence)
+{
+	int ret;
+	int seek_error;
+	ptrdiff_t ofs = offset;
+
+	/* special case for SEEK_END, will need to rewind to fill buffer */
+	if (whence == SEEK_END) {
+		ret = hio_seek_internal(h, offset, whence);
+
+		if (ret < 0) {
+			return ret;
+		}
+
+		ofs = hio_tell_internal(h);
+	}
+
+	if (whence == SEEK_CUR) {
+		ofs += h->cursor;
+	}
+
+	if (ofs < 0) return -1;
+
+	if (whence != SEEK_END && ofs / HIO_BUFFER_SIZE == h->cursor / HIO_BUFFER_SIZE) {
+		h->cursor = ofs;
+		return 0;
+	}
+
+	h->cursor = ofs;
+
+	/* round to buffer start */
+	ofs = (ofs / HIO_BUFFER_SIZE) * HIO_BUFFER_SIZE;
+
+	ret = hio_seek_internal(h, ofs, SEEK_SET);
+	seek_error = h->error;
+
+	h->buffer_end = hio_read_internal(h->buffer, 1, HIO_FULL_BUFFER, h);
+
+	/* don't set EOF error yet */
+	if(h->error == EOF) {
+		h->error = seek_error;
+	}
+
+	return ret;
+}
+
+long hio_tell(HIO_HANDLE *h)
+{
+	return h->cursor;
+}
+
+int hio_eof(HIO_HANDLE *h)
+{
+	if (HIO_BUFFER_CURSOR(h) < h->buffer_end)
+		return 0;
+
+	return hio_eof_internal(h);
 }
 
 int hio_error(HIO_HANDLE *h)
@@ -379,6 +490,10 @@ HIO_HANDLE *hio_open(const char *path, const char *mode)
 	h->size = get_size(h->handle.file);
 	if (h->size < 0)
 		goto err3;
+
+	h->cursor = 0;
+	h->buffer_end = 0;
+	hio_fill_buffer_internal(h);
 
 	return h;
 
@@ -408,6 +523,10 @@ HIO_HANDLE *hio_open_const_mem(const void *ptr, long size)
 		h = NULL;
 	}
 
+	h->cursor = 0;
+	h->buffer_end = 0;
+	hio_fill_buffer_internal(h);
+
 	return h;
 }
 
@@ -427,6 +546,10 @@ HIO_HANDLE *hio_open_file(FILE *f)
 		free(h);
 		return NULL;
 	}
+
+	h->cursor = -HIO_FULL_BUFFER;
+	h->buffer_end = 0;
+	hio_seek(h, ftell(f), SEEK_SET);
 
 	return h;
 }
@@ -464,6 +587,11 @@ HIO_HANDLE *hio_open_callbacks(void *priv, struct xmp_callbacks callbacks)
 		free(h);
 		return NULL;
 	}
+
+	h->cursor = 0;
+	h->buffer_end = 0;
+	hio_fill_buffer_internal(h);
+
 	return h;
 }
 
@@ -507,6 +635,11 @@ int hio_reopen_mem(void *ptr, long size, int free_after_use, HIO_HANDLE *h)
 	h->type = HIO_HANDLE_TYPE_MEMORY;
 	h->handle.mem = m;
 	h->size = size;
+
+	h->cursor = 0;
+	h->buffer_end = 0;
+	hio_fill_buffer_internal(h);
+
 	return 0;
 }
 
@@ -528,6 +661,11 @@ int hio_reopen_file(FILE *f, int close_after_use, HIO_HANDLE *h)
 	h->type = HIO_HANDLE_TYPE_FILE;
 	h->handle.file = f;
 	h->size = size;
+
+	h->cursor = -HIO_FULL_BUFFER;
+	h->buffer_end = 0;
+	hio_seek(h, ftell(f), SEEK_SET);
+
 	return 0;
 }
 
