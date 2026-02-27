@@ -46,7 +46,7 @@ if(LIBXMP_DOCS)
   else()
     message(STATUS "Found ${RST2PDF_EXE}")
     add_custom_command(OUTPUT ${libxmp_pdf}
-      COMMAND ${RST2PDF_EXE} -c --smart-quotes=1 -s ${CMAKE_CURRENT_SOURCE_DIR}/custom.style --footer=\#\#\#Page\#\#\# ${libxmp_html_rst} -o ${libxmp_pdf}
+      COMMAND ${RST2PDF_EXE} -c --date-invariant --smart-quotes=1 -s ${CMAKE_CURRENT_SOURCE_DIR}/custom.style --footer=\#\#\#Page\#\#\# ${libxmp_html_rst} -o ${libxmp_pdf}
       DEPENDS ${libxmp_html_rst}
       COMMENT "Creating HTML file ${libxmp_pdf}"
       VERBATIM)
