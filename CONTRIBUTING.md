@@ -153,7 +153,7 @@ acceptable:
   comments, or sell our data.
 
 
-## Using of GitHub to contribute (CLI, GCC/Clang)
+## Using GitHub to contribute (CLI, GCC/Clang)
 
 Create a GitHub account, add your SSH key, fork the libxmp repository
 to your account, clone it locally, and create a new branch for your
@@ -186,7 +186,7 @@ included in the Git repository.
 
 ```sh
 # Basic test (Autoconf)
-make test
+make check
 
 # Full regression test suite (Autoconf)
 (cd test-dev && autoconf && ./configure)
