@@ -60,7 +60,7 @@ darwin*)
     CFLAGS="${CFLAGS} -fno-common"
   fi
   ;;
-cygwin* | *djgpp | emx* | mint* | amigaos* | aros* | morphos*)
+cygwin* | *djgpp | os2* | mint* | amigaos* | aros* | morphos*)
   enable_static=yes
   enable_shared=no
   ;;
@@ -191,7 +191,7 @@ int bar(void) { return 1; }])]
 )
 
 case $host_os in
-    mingw*|cygwin*|emx*|*djgpp|amigaos*|aros*|morphos*)
+    mingw*|cygwin*|os2*|*djgpp|amigaos*|aros*|morphos*)
 	if test $ac_cv_c_flag_f_visibility_hidden = yes; then
 	   AC_MSG_NOTICE([ignoring -fvisibility flags for $host_os])
 	fi
