@@ -32,7 +32,7 @@ SHELL		= /bin/sh
 
 DIST		= libxmp-$(VERSION)
 DFILES		= README INSTALL install-sh configure configure.ac config.sub config.guess Makefile.in  \
-		  Makefile.vc Makefile.dos Makefile.os2 Makefile.w32 Makefile.lnx watcom.mif  \
+		  Makefile.vc Makefile.emx Makefile.dos Makefile.os2 Makefile.w32 Makefile.lnx watcom.mif  \
 		  CMakeLists.txt aclocal.m4 autogen.sh libxmp.map libxmp.pc.in libxmp-config.cmake \
 		  libxmp-config.cmake.autotools libxmp-config-version.cmake.autotools.in
 DDIRS		= docs include src loaders prowiz depackers lhasa lite test cmake m4
@@ -293,7 +293,7 @@ dist-jni:
 	mkdir $(DIST)/jni
 	cp jni/Android.mk jni/Application.mk $(DIST)/jni
 
-dist-prepare: cmake-prepare vc-prepare watcom-prepare
+dist-prepare: cmake-prepare emx-prepare vc-prepare watcom-prepare
 	./config.status
 	rm -Rf $(DIST) $(DIST).tar.gz
 	mkdir -p $(DIST)
@@ -307,6 +307,14 @@ cmake-prepare:
 	     -e 's!@DSRCS@!\n$(subst $(space),    , $(DEPACKER_OBJS:.o=.c\n))!' \
 	     -e 's!@LITE_SRCS@!\n$(subst $(space),    , $(LITE_OBJS:.o=.c\n))!' \
 	     cmake/libxmp-sources.cmake.in > cmake/libxmp-sources.cmake
+
+emx-prepare:
+	@echo Generate Makefile.emx
+	@sed -e 's!@OBJS@!\\\n $(OBJS:.o=.o \\\n)!' \
+	     -e 's!@POBJS@!\\\n $(PROWIZARD_OBJS:.o=.o \\\n)!' \
+	     -e 's!@DOBJS@!\\\n $(DEPACKER_OBJS:.o=.o \\\n)!' \
+	     -e 's!@LITE_OBJS@!\\\n $(LITE_OBJS:.o=.o \\\n)!' \
+	     Makefile.emx.in > Makefile.emx
 
 vc-prepare:
 	@echo Generate Makefile.vc

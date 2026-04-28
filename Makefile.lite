@@ -10,7 +10,8 @@ DFILES		= INSTALL install-sh config.sub config.guess aclocal.m4 autogen.sh libxm
 		  lite/README lite/configure.ac \
 		  lite/Makefile.in lite/Makefile.vc.in \
 		  lite/Makefile.dos lite/Makefile.os2  \
-		  lite/Makefile.w32 lite/watcom.mif.in
+		  lite/Makefile.w32 lite/watcom.mif.in \
+		  lite/Makefile.emx.in
 DDIRS		= src loaders test cmake m4
 
 all: dist
@@ -21,7 +22,7 @@ include cmake/Makefile
 include m4/Makefile
 include test/Makefile
 
-dist: dist-prepare dist-subdirs cmake-prepare vc-prepare watcom-prepare dist-dist check-no-it
+dist: dist-prepare dist-subdirs cmake-prepare emx-prepare vc-prepare watcom-prepare dist-dist check-no-it
 	mv $(DIST)/libxmp-lite-*.tar.gz .
 	ls -l libxmp-lite-*.tar.gz
 
@@ -34,6 +35,10 @@ space = $(eval) $(eval)
 cmake-prepare:
 	@echo Generate cmake/libxmp-sources.cmake
 	@sed -e 's!@SRCS@!\n$(subst $(space),    , $(OBJS:.o=.c\n))!' $(DIST)/cmake/libxmp-sources.cmake.in > $(DIST)/cmake/libxmp-sources.cmake
+
+emx-prepare:
+	@echo Generate Makefile.emx
+	@sed -e 's!@OBJS@!\\\n $(OBJS:.o=.o \\\n)!' $(DIST)/Makefile.emx.in > $(DIST)/Makefile.emx
 
 vc-prepare:
 	@echo Generate Makefile.vc

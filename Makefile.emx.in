@@ -1,0 +1,132 @@
+# GNU Makefile for OS/2 -- using GCC/EMX KLIBC environment
+#	make -f Makefile.emx
+#
+# To disable module depacker functionality:
+#	make -f Makefile.emx USE_DEPACKERS=0
+#
+# To disable ProWizard functionality:
+#	make -f Makefile.emx USE_PROWIZARD=0
+#
+# To build the lite version of the library:
+#	make -f Makefile.emx lite
+
+USE_DEPACKERS	= 1
+USE_PROWIZARD	= 1
+
+DLLFILE = libxmp.dll
+DEFNAME = xmp_emx.def
+TESTNAME= libxmp-test.exe
+DLLLITE = libxmplt.dll
+DEFLITE = xmplite_emx.def
+TESTLITE= libxmp-lite-test.exe
+
+GREP=grep
+SED=sed
+SORT=sort
+UNIQ=uniq
+ifeq ($(CROSS),)
+CC=gcc
+AR=ar
+RANLIB=ranlib
+else
+CC=$(CROSS)-gcc
+AR=$(CROSS)-ar
+RANLIB=$(CROSS)-ranlib
+endif
+CFLAGS  = -Iinclude -Wall -O2 -fsigned-char -Zmt
+#CFLAGS += -DDEBUG
+CFLAGS += -DHAVE_FNMATCH -DHAVE_MKSTEMP -DHAVE_UMASK -DHAVE_DIRENT
+LDFLAGS = -Zdll -Zomf -Zmt
+
+ifeq ($(USE_PROWIZARD),0)
+CFLAGS += -DLIBXMP_NO_PROWIZARD
+endif
+ifeq ($(USE_DEPACKERS),0)
+CFLAGS += -DLIBXMP_NO_DEPACKERS
+else
+CFLAGS += -DHAVE_POPEN -DHAVE_FORK -DHAVE_PIPE -DHAVE_EXECVP -DHAVE_DUP2 -DHAVE_WAIT
+endif
+
+OBJS	= @OBJS@
+PROWIZ_OBJS	= @POBJS@
+DEPACKER_OBJS	= @DOBJS@
+LITE_OBJS	= @LITE_OBJS@
+ALL_OBJS	= $(OBJS)
+ifeq ($(USE_PROWIZARD),1)
+ALL_OBJS += $(PROWIZ_OBJS)
+endif
+ifeq ($(USE_DEPACKERS),1)
+ALL_OBJS += $(DEPACKER_OBJS)
+endif
+TEST_OBJS = test/md5.o test/test.o
+TESTLITE_OBJS = test/md5.o test/testlite.o
+
+.PHONY: clean distclean
+
+all: $(DLLFILE) xmp_dll.a xmp.lib xmp.a
+lite: $(DLLLITE) xmp-lite_dll.a xmp-lite.lib xmp-lite.a
+
+.c.o:
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+test/md5.o: src/md5.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+test/test.o: test/test.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+test/testlite.o: test/testlite.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(DLLFILE): $(ALL_OBJS) $(DEFNAME)
+	$(CC) $(LDFLAGS) -o $(DLLFILE) $(DEFNAME) $(ALL_OBJS)
+$(DLLLITE): $(LITE_OBJS) $(DEFLITE)
+	$(CC) $(LDFLAGS) -o $(DLLLITE) $(DEFLITE) $(LITE_OBJS)
+
+$(DEFNAME): libxmp.map
+	echo "LIBRARY LIBXMP INITINSTANCE TERMINSTANCE" > $@
+	echo "DATA MULTIPLE NONSHARED" >> $@
+	echo "DESCRIPTION \"libxmp-4.x\"" >> $@
+	echo EXPORTS >> $@
+	$(GREP) xmp_ libxmp.map | $(SORT) | $(UNIQ) | $(SED) -e s/xmp_/_xmp_/g | $(SED) -e s/\;//g >> $@
+$(DEFLITE): libxmp.map
+	echo "LIBRARY LIBXMPLT INITINSTANCE TERMINSTANCE" > $@
+	echo "DATA MULTIPLE NONSHARED" >> $@
+	echo "DESCRIPTION \"libxmp-lite-4.x\"" >> $@
+	echo EXPORTS >> $@
+	$(GREP) xmp_ libxmp.map | $(SORT) | $(UNIQ) | $(SED) -e s/xmp_/_xmp_/g | $(SED) -e s/\;//g >> $@
+
+xmp.a: $(ALL_OBJS)
+	$(AR) cru xmp.a $(ALL_OBJS)
+	$(RANLIB) xmp.a
+xmp-lite.a: $(LITE_OBJS)
+	$(AR) cru xmp-lite.a $(LITE_OBJS)
+	$(RANLIB) xmp-lite.a
+
+xmp_dll.a: $(DLLFILE)
+	emximp -o $@ $(DLLFILE)
+xmp-lite_dll.a: $(DLLLITE)
+	emximp -o $@ $(DLLLITE)
+
+xmp.lib: xmp_dll.a
+	emxomf -o $@ $<
+xmp-lite.lib: xmp-lite_dll.a
+	emxomf -o $@ $<
+
+test/$(TESTNAME): $(LIBFILE) $(TEST_OBJS)
+	$(CC) $(TEST_OBJS) -L. -lxmp -Zmt -o $@
+test/$(TESTLITE): $(LIBLITE) $(TESTLITE_OBJS)
+	$(CC) $(TESTLITE_OBJS) -L. -lxmp-lite -Zmt -o $@
+check: test/$(TESTNAME)
+	cd test & $(TESTNAME)
+check-lite: test/$(TESTLITE)
+	cd test & $(TESTLITE)
+
+clean:
+	$(RM) src/*.o
+	$(RM) src/loaders/*.o
+	$(RM) src/lite/*.o
+	$(RM) src/loaders/prowizard/*.o
+	$(RM) src/depackers/*.o
+	$(RM) test/*.o
+distclean: clean
+	$(RM) *.dll *.a *.lib *.def
+	$(RM) test/*.exe

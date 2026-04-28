@@ -1,0 +1,344 @@
+# GNU Makefile for OS/2 -- using GCC/EMX KLIBC environment
+#	make -f Makefile.emx
+#
+# To disable module depacker functionality:
+#	make -f Makefile.emx USE_DEPACKERS=0
+#
+# To disable ProWizard functionality:
+#	make -f Makefile.emx USE_PROWIZARD=0
+#
+# To build the lite version of the library:
+#	make -f Makefile.emx lite
+
+USE_DEPACKERS	= 1
+USE_PROWIZARD	= 1
+
+DLLFILE = libxmp.dll
+DEFNAME = xmp_emx.def
+TESTNAME= libxmp-test.exe
+DLLLITE = libxmplt.dll
+DEFLITE = xmplite_emx.def
+TESTLITE= libxmp-lite-test.exe
+
+GREP=grep
+SED=sed
+SORT=sort
+UNIQ=uniq
+ifeq ($(CROSS),)
+CC=gcc
+AR=ar
+RANLIB=ranlib
+else
+CC=$(CROSS)-gcc
+AR=$(CROSS)-ar
+RANLIB=$(CROSS)-ranlib
+endif
+CFLAGS  = -Iinclude -Wall -O2 -fsigned-char -Zmt
+#CFLAGS += -DDEBUG
+CFLAGS += -DHAVE_FNMATCH -DHAVE_MKSTEMP -DHAVE_UMASK -DHAVE_DIRENT
+LDFLAGS = -Zdll -Zomf -Zmt
+
+ifeq ($(USE_PROWIZARD),0)
+CFLAGS += -DLIBXMP_NO_PROWIZARD
+endif
+ifeq ($(USE_DEPACKERS),0)
+CFLAGS += -DLIBXMP_NO_DEPACKERS
+else
+CFLAGS += -DHAVE_POPEN -DHAVE_FORK -DHAVE_PIPE -DHAVE_EXECVP -DHAVE_DUP2 -DHAVE_WAIT
+endif
+
+OBJS	= \
+ src/virtual.o \
+ src/format.o \
+ src/period.o \
+ src/player.o \
+ src/read_event.o \
+ src/dataio.o \
+ src/misc.o \
+ src/mkstemp.o \
+ src/md5.o \
+ src/lfo.o \
+ src/scan.o \
+ src/control.o \
+ src/far_extras.o \
+ src/med_extras.o \
+ src/filter.o \
+ src/effects.o \
+ src/flow.o \
+ src/mixer.o \
+ src/mix_all.o \
+ src/rng.o \
+ src/load_helpers.o \
+ src/load.o \
+ src/hio.o \
+ src/hmn_extras.o \
+ src/extras.o \
+ src/smix.o \
+ src/path.o \
+ src/filetype.o \
+ src/memio.o \
+ src/tempfile.o \
+ src/mix_paula.o \
+ src/miniz_tinfl.o \
+ src/win32.o \
+ src/loaders/common.o \
+ src/loaders/iff.o \
+ src/loaders/itsex.o \
+ src/loaders/lzw.o \
+ src/loaders/voltable.o \
+ src/loaders/sample.o \
+ src/loaders/vorbis.o \
+ src/loaders/xm_load.o \
+ src/loaders/mod_load.o \
+ src/loaders/s3m_load.o \
+ src/loaders/stm_load.o \
+ src/loaders/669_load.o \
+ src/loaders/far_load.o \
+ src/loaders/mtm_load.o \
+ src/loaders/ptm_load.o \
+ src/loaders/okt_load.o \
+ src/loaders/ult_load.o \
+ src/loaders/mdl_load.o \
+ src/loaders/it_load.o \
+ src/loaders/stx_load.o \
+ src/loaders/pt3_load.o \
+ src/loaders/sfx_load.o \
+ src/loaders/flt_load.o \
+ src/loaders/st_load.o \
+ src/loaders/emod_load.o \
+ src/loaders/imf_load.o \
+ src/loaders/digi_load.o \
+ src/loaders/fnk_load.o \
+ src/loaders/ice_load.o \
+ src/loaders/liq_load.o \
+ src/loaders/ims_load.o \
+ src/loaders/masi_load.o \
+ src/loaders/masi16_load.o \
+ src/loaders/amf_load.o \
+ src/loaders/stim_load.o \
+ src/loaders/mmd_common.o \
+ src/loaders/mmd1_load.o \
+ src/loaders/mmd3_load.o \
+ src/loaders/rtm_load.o \
+ src/loaders/dt_load.o \
+ src/loaders/no_load.o \
+ src/loaders/arch_load.o \
+ src/loaders/sym_load.o \
+ src/loaders/med2_load.o \
+ src/loaders/med3_load.o \
+ src/loaders/med4_load.o \
+ src/loaders/dbm_load.o \
+ src/loaders/umx_load.o \
+ src/loaders/gdm_load.o \
+ src/loaders/pw_load.o \
+ src/loaders/gal5_load.o \
+ src/loaders/gal4_load.o \
+ src/loaders/mfp_load.o \
+ src/loaders/asylum_load.o \
+ src/loaders/muse_load.o \
+ src/loaders/hmn_load.o \
+ src/loaders/mgt_load.o \
+ src/loaders/chip_load.o \
+ src/loaders/abk_load.o \
+ src/loaders/coco_load.o \
+ src/loaders/xmf_load.o \
+
+PROWIZ_OBJS	= \
+ src/loaders/prowizard/prowiz.o \
+ src/loaders/prowizard/ptktable.o \
+ src/loaders/prowizard/tuning.o \
+ src/loaders/prowizard/ac1d.o \
+ src/loaders/prowizard/di.o \
+ src/loaders/prowizard/eureka.o \
+ src/loaders/prowizard/fc-m.o \
+ src/loaders/prowizard/fuchs.o \
+ src/loaders/prowizard/fuzzac.o \
+ src/loaders/prowizard/gmc.o \
+ src/loaders/prowizard/heatseek.o \
+ src/loaders/prowizard/ksm.o \
+ src/loaders/prowizard/mp.o \
+ src/loaders/prowizard/np1.o \
+ src/loaders/prowizard/np2.o \
+ src/loaders/prowizard/np3.o \
+ src/loaders/prowizard/p61a.o \
+ src/loaders/prowizard/pm10c.o \
+ src/loaders/prowizard/pm18a.o \
+ src/loaders/prowizard/pha.o \
+ src/loaders/prowizard/prun1.o \
+ src/loaders/prowizard/prun2.o \
+ src/loaders/prowizard/tdd.o \
+ src/loaders/prowizard/unic.o \
+ src/loaders/prowizard/unic2.o \
+ src/loaders/prowizard/wn.o \
+ src/loaders/prowizard/zen.o \
+ src/loaders/prowizard/tp1.o \
+ src/loaders/prowizard/tp3.o \
+ src/loaders/prowizard/p40.o \
+ src/loaders/prowizard/xann.o \
+ src/loaders/prowizard/theplayer.o \
+ src/loaders/prowizard/pp10.o \
+ src/loaders/prowizard/pp21.o \
+ src/loaders/prowizard/starpack.o \
+ src/loaders/prowizard/titanics.o \
+ src/loaders/prowizard/skyt.o \
+ src/loaders/prowizard/novotrade.o \
+ src/loaders/prowizard/hrt.o \
+ src/loaders/prowizard/noiserun.o \
+
+DEPACKER_OBJS	= \
+ src/depackers/depacker.o \
+ src/depackers/ppdepack.o \
+ src/depackers/unsqsh.o \
+ src/depackers/mmcmp.o \
+ src/depackers/s404_dec.o \
+ src/depackers/arc.o \
+ src/depackers/arcfs.o \
+ src/depackers/arc_unpack.o \
+ src/depackers/lzx.o \
+ src/depackers/lzx_unpack.o \
+ src/depackers/ice.o \
+ src/depackers/ice_unpack.o \
+ src/depackers/miniz_zip.o \
+ src/depackers/unzip.o \
+ src/depackers/gunzip.o \
+ src/depackers/uncompress.o \
+ src/depackers/bunzip2.o \
+ src/depackers/unlha.o \
+ src/depackers/unxz.o \
+ src/depackers/xz_dec_lzma2.o \
+ src/depackers/xz_dec_stream.o \
+ src/depackers/crc32.o \
+ src/depackers/xfnmatch.o \
+ src/depackers/ptpopen.o \
+ src/depackers/xfd.o \
+ src/depackers/xfd_link.o \
+ src/depackers/lhasa/ext_header.o \
+ src/depackers/lhasa/lha_file_header.o \
+ src/depackers/lhasa/lha_input_stream.o \
+ src/depackers/lhasa/lha_decoder.o \
+ src/depackers/lhasa/lha_reader.o \
+ src/depackers/lhasa/lha_basic_reader.o \
+ src/depackers/lhasa/lh1_decoder.o \
+ src/depackers/lhasa/lh5_decoder.o \
+ src/depackers/lhasa/lh6_decoder.o \
+ src/depackers/lhasa/lh7_decoder.o \
+ src/depackers/lhasa/lhx_decoder.o \
+ src/depackers/lhasa/lk7_decoder.o \
+ src/depackers/lhasa/lz5_decoder.o \
+ src/depackers/lhasa/lzs_decoder.o \
+ src/depackers/lhasa/null_decoder.o \
+ src/depackers/lhasa/pm1_decoder.o \
+ src/depackers/lhasa/pm2_decoder.o \
+ src/depackers/lhasa/macbinary.o \
+
+LITE_OBJS	= \
+ src/lite/lite-virtual.o \
+ src/lite/lite-format.o \
+ src/lite/lite-period.o \
+ src/lite/lite-player.o \
+ src/lite/lite-read_event.o \
+ src/lite/lite-misc.o \
+ src/lite/lite-dataio.o \
+ src/lite/lite-lfo.o \
+ src/lite/lite-scan.o \
+ src/lite/lite-control.o \
+ src/lite/lite-filter.o \
+ src/lite/lite-effects.o \
+ src/lite/lite-mixer.o \
+ src/lite/lite-mix_all.o \
+ src/lite/lite-load_helpers.o \
+ src/lite/lite-load.o \
+ src/lite/lite-filetype.o \
+ src/lite/lite-hio.o \
+ src/lite/lite-smix.o \
+ src/lite/lite-memio.o \
+ src/lite/lite-rng.o \
+ src/lite/lite-win32.o \
+ src/lite/lite-flow.o \
+ src/lite/lite-common.o \
+ src/lite/lite-itsex.o \
+ src/lite/lite-sample.o \
+ src/lite/lite-xm_load.o \
+ src/lite/lite-mod_load.o \
+ src/lite/lite-s3m_load.o \
+ src/lite/lite-it_load.o \
+
+ALL_OBJS	= $(OBJS)
+ifeq ($(USE_PROWIZARD),1)
+ALL_OBJS += $(PROWIZ_OBJS)
+endif
+ifeq ($(USE_DEPACKERS),1)
+ALL_OBJS += $(DEPACKER_OBJS)
+endif
+TEST_OBJS = test/md5.o test/test.o
+TESTLITE_OBJS = test/md5.o test/testlite.o
+
+.PHONY: clean distclean
+
+all: $(DLLFILE) xmp_dll.a xmp.lib xmp.a
+lite: $(DLLLITE) xmp-lite_dll.a xmp-lite.lib xmp-lite.a
+
+.c.o:
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+test/md5.o: src/md5.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+test/test.o: test/test.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+test/testlite.o: test/testlite.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(DLLFILE): $(ALL_OBJS) $(DEFNAME)
+	$(CC) $(LDFLAGS) -o $(DLLFILE) $(DEFNAME) $(ALL_OBJS)
+$(DLLLITE): $(LITE_OBJS) $(DEFLITE)
+	$(CC) $(LDFLAGS) -o $(DLLLITE) $(DEFLITE) $(LITE_OBJS)
+
+$(DEFNAME): libxmp.map
+	echo "LIBRARY LIBXMP INITINSTANCE TERMINSTANCE" > $@
+	echo "DATA MULTIPLE NONSHARED" >> $@
+	echo "DESCRIPTION \"libxmp-4.x\"" >> $@
+	echo EXPORTS >> $@
+	$(GREP) xmp_ libxmp.map | $(SORT) | $(UNIQ) | $(SED) -e s/xmp_/_xmp_/g | $(SED) -e s/\;//g >> $@
+$(DEFLITE): libxmp.map
+	echo "LIBRARY LIBXMPLT INITINSTANCE TERMINSTANCE" > $@
+	echo "DATA MULTIPLE NONSHARED" >> $@
+	echo "DESCRIPTION \"libxmp-lite-4.x\"" >> $@
+	echo EXPORTS >> $@
+	$(GREP) xmp_ libxmp.map | $(SORT) | $(UNIQ) | $(SED) -e s/xmp_/_xmp_/g | $(SED) -e s/\;//g >> $@
+
+xmp.a: $(ALL_OBJS)
+	$(AR) cru xmp.a $(ALL_OBJS)
+	$(RANLIB) xmp.a
+xmp-lite.a: $(LITE_OBJS)
+	$(AR) cru xmp-lite.a $(LITE_OBJS)
+	$(RANLIB) xmp-lite.a
+
+xmp_dll.a: $(DLLFILE)
+	emximp -o $@ $(DLLFILE)
+xmp-lite_dll.a: $(DLLLITE)
+	emximp -o $@ $(DLLLITE)
+
+xmp.lib: xmp_dll.a
+	emxomf -o $@ $<
+xmp-lite.lib: xmp-lite_dll.a
+	emxomf -o $@ $<
+
+test/$(TESTNAME): $(LIBFILE) $(TEST_OBJS)
+	$(CC) $(TEST_OBJS) -L. -lxmp -Zmt -o $@
+test/$(TESTLITE): $(LIBLITE) $(TESTLITE_OBJS)
+	$(CC) $(TESTLITE_OBJS) -L. -lxmp-lite -Zmt -o $@
+check: test/$(TESTNAME)
+	cd test & $(TESTNAME)
+check-lite: test/$(TESTLITE)
+	cd test & $(TESTLITE)
+
+clean:
+	$(RM) src/*.o
+	$(RM) src/loaders/*.o
+	$(RM) src/lite/*.o
+	$(RM) src/loaders/prowizard/*.o
+	$(RM) src/depackers/*.o
+	$(RM) test/*.o
+distclean: clean
+	$(RM) *.dll *.a *.lib *.def
+	$(RM) test/*.exe

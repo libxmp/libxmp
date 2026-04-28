@@ -1,0 +1,81 @@
+# GNU Makefile for OS/2 -- using GCC/EMX KLIBC environment
+#	make -f Makefile.emx
+#
+# To disable Impulse Tracker support :
+#	nmake -f Makefile.emx DISABLE_IT=1
+
+DISABLE_IT	= 0
+
+DLLFILE = libxmplt.dll
+DEFNAME = xmplite_emx.def
+TESTNAME= libxmp-lite-test.exe
+
+GREP=grep
+SED=sed
+SORT=sort
+UNIQ=uniq
+ifeq ($(CROSS),)
+CC=gcc
+AR=ar
+RANLIB=ranlib
+else
+CC=$(CROSS)-gcc
+AR=$(CROSS)-ar
+RANLIB=$(CROSS)-ranlib
+endif
+CFLAGS  = -Iinclude/libxmp-lite -Wall -O2 -fsigned-char -Zmt
+#CFLAGS += -DDEBUG
+CFLAGS += -DLIBXMP_CORE_PLAYER -DHAVE_FNMATCH -DHAVE_MKSTEMP -DHAVE_UMASK
+LDFLAGS = -Zdll -Zomf -Zmt
+
+ifeq ($(DISABLE_IT),1)
+CFLAGS += -DLIBXMP_CORE_DISABLE_IT
+endif
+
+OBJS	= @OBJS@
+TEST_OBJS = test/md5.o test/test.o
+
+.PHONY: clean distclean
+
+all: $(DLLFILE) xmp-lite_dll.a xmp-lite.lib xmp-lite.a
+
+.c.o:
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+test/md5.o: src/md5.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+test/test.o: test/test.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(DLLFILE): $(OBJS) $(DEFNAME)
+	$(CC) $(LDFLAGS) -o $(DLLFILE) $(DEFNAME) $(OBJS)
+
+$(DEFNAME): libxmp.map
+	echo "LIBRARY LIBXMPLT INITINSTANCE TERMINSTANCE" > $@
+	echo "DATA MULTIPLE NONSHARED" >> $@
+	echo "DESCRIPTION \"libxmp-lite-4.x\"" >> $@
+	echo EXPORTS >> $@
+	$(GREP) xmp_ libxmp.map | $(SORT) | $(UNIQ) | $(SED) -e s/xmp_/_xmp_/g | $(SED) -e s/\;//g >> $@
+
+xmp-lite.a: $(OBJS)
+	$(AR) cru xmp-lite.a $(OBJS)
+	$(RANLIB) xmp-lite.a
+
+xmp-lite_dll.a: $(DLLFILE)
+	emximp -o $@ $(DLLFILE)
+
+xmp-lite.lib: xmp-lite_dll.a
+	emxomf -o $@ $<
+
+test/$(TESTNAME): $(LIBFILE) $(TEST_OBJS)
+	$(CC) $(TEST_OBJS) -L. -lxmp-lite -Zmt -o $@
+check: test/$(TESTNAME)
+	cd test & $(TESTNAME)
+
+clean:
+	$(RM) src/*.o
+	$(RM) src/loaders/*.o
+	$(RM) test/*.o
+distclean: clean
+	$(RM) *.dll *.a *.lib *.def
+	$(RM) test/*.exe
