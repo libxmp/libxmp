@@ -1,0 +1,51 @@
+LIBRARY LIBXMPLT INITINSTANCE TERMINSTANCE
+DATA MULTIPLE NONSHARED
+DESCRIPTION "Extended Module Player Library."
+EXPORTS
+ _xmp_channel_mute
+ _xmp_channel_vol
+ _xmp_create_context
+ _xmp_end_player
+ _xmp_end_smix
+ _xmp_free_context
+ _xmp_get_format_list
+ _xmp_get_frame_info
+ _xmp_get_module_info
+ _xmp_get_player
+ _xmp_get_tempo_factor
+ _xmp_get_tempo_factor_relative
+ _xmp_inject_event
+ _xmp_load_module
+ _xmp_load_module_from_callbacks
+ _xmp_load_module_from_file
+ _xmp_load_module_from_memory
+ _xmp_next_position
+ _xmp_play_buffer
+ _xmp_play_frame
+ _xmp_prev_position
+ _xmp_release_module
+ _xmp_restart_module
+ _xmp_scan_module
+ _xmp_seek_time
+ _xmp_seek_time_frame
+ _xmp_set_instrument_path
+ _xmp_set_player
+ _xmp_set_position
+ _xmp_set_row
+ _xmp_set_tempo_factor
+ _xmp_set_tempo_factor_relative
+ _xmp_smix_channel_pan
+ _xmp_smix_load_sample
+ _xmp_smix_play_instrument
+ _xmp_smix_play_sample
+ _xmp_smix_release_sample
+ _xmp_start_player
+ _xmp_start_smix
+ _xmp_stop_module
+ _xmp_syserrno
+ _xmp_test_module
+ _xmp_test_module_from_callbacks
+ _xmp_test_module_from_file
+ _xmp_test_module_from_memory
+ _xmp_vercode
+ _xmp_version

@@ -33,8 +33,8 @@ SHELL		= /bin/sh
 DIST		= libxmp-$(VERSION)
 DFILES		= README INSTALL install-sh configure configure.ac config.sub config.guess Makefile.in  \
 		  Makefile.vc Makefile.emx Makefile.dos Makefile.os2 Makefile.w32 Makefile.lnx watcom.mif  \
-		  CMakeLists.txt aclocal.m4 autogen.sh libxmp.map libxmp.pc.in libxmp-config.cmake \
-		  libxmp-config.cmake.autotools libxmp-config-version.cmake.autotools.in
+		  CMakeLists.txt aclocal.m4 libxmp.map emx.def emxlite.def libxmp.pc.in libxmp-config.cmake \
+		  libxmp-config.cmake.autotools libxmp-config-version.cmake.autotools.in autogen.sh
 DDIRS		= docs include src loaders prowiz depackers lhasa lite test cmake m4
 V		= 0
 LIB		= libxmp.a
@@ -315,6 +315,18 @@ emx-prepare:
 	     -e 's!@DOBJS@!\\\n $(DEPACKER_OBJS:.o=.o \\\n)!' \
 	     -e 's!@LITE_OBJS@!\\\n $(LITE_OBJS:.o=.o \\\n)!' \
 	     Makefile.emx.in > Makefile.emx
+	@echo Generate emx.def
+	@echo "LIBRARY LIBXMP INITINSTANCE TERMINSTANCE" > emx.def
+	@echo "DATA MULTIPLE NONSHARED" >> emx.def
+	@echo "DESCRIPTION \"Extended Module Player Library.\"" >> emx.def
+	@echo EXPORTS >> emx.def
+	@grep xmp_ libxmp.map | sed -e "s/\;//g" | sed -e "s/^[ \t]*//g" | sed -e "s/xmp_/\ _xmp_/g" | sort | uniq >> emx.def
+	@echo Generate emxlite.def
+	@echo "LIBRARY LIBXMPLT INITINSTANCE TERMINSTANCE" > emxlite.def
+	@echo "DATA MULTIPLE NONSHARED" >> emxlite.def
+	@echo "DESCRIPTION \"Extended Module Player Library.\"" >> emxlite.def
+	@echo EXPORTS >> emxlite.def
+	@grep xmp_ libxmp.map | sed -e "s/\;//g" | sed -e "s/^[ \t]*//g" | sed -e "s/xmp_/\ _xmp_/g" | sort | uniq >> emxlite.def
 
 vc-prepare:
 	@echo Generate Makefile.vc

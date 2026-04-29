@@ -9,21 +9,21 @@
 #
 # To build the lite version of the library:
 #	make -f Makefile.emx lite
+#
+# To cross-compile on linux, specify cross-compiler prefix,
+# e.g.:
+#	make -f Makefile.emx CROSS=i686-pc-os2-emx
 
 USE_DEPACKERS	= 1
 USE_PROWIZARD	= 1
 
 DLLFILE = libxmp.dll
-DEFNAME = xmp_emx.def
+DEFNAME = emx.def
 TESTNAME= libxmp-test.exe
 DLLLITE = libxmplt.dll
-DEFLITE = xmplite_emx.def
+DEFLITE = emxlite.def
 TESTLITE= libxmp-lite-test.exe
 
-GREP=grep
-SED=sed
-SORT=sort
-UNIQ=uniq
 ifeq ($(CROSS),)
 CC=gcc
 AR=ar
@@ -33,9 +33,10 @@ CC=$(CROSS)-gcc
 AR=$(CROSS)-ar
 RANLIB=$(CROSS)-ranlib
 endif
+
 CFLAGS  = -Iinclude -Wall -O2 -fsigned-char -Zmt
-#CFLAGS += -DDEBUG
 CFLAGS += -DHAVE_FNMATCH -DHAVE_MKSTEMP -DHAVE_UMASK -DHAVE_DIRENT
+#CFLAGS += -DDEBUG
 LDFLAGS = -Zdll -Zomf -Zmt
 
 ifeq ($(USE_PROWIZARD),0)
@@ -81,19 +82,6 @@ $(DLLFILE): $(ALL_OBJS) $(DEFNAME)
 $(DLLLITE): $(LITE_OBJS) $(DEFLITE)
 	$(CC) $(LDFLAGS) -o $(DLLLITE) $(DEFLITE) $(LITE_OBJS)
 
-$(DEFNAME): libxmp.map
-	echo "LIBRARY LIBXMP INITINSTANCE TERMINSTANCE" > $@
-	echo "DATA MULTIPLE NONSHARED" >> $@
-	echo "DESCRIPTION \"libxmp-4.x\"" >> $@
-	echo EXPORTS >> $@
-	$(GREP) xmp_ libxmp.map | $(SORT) | $(UNIQ) | $(SED) -e s/xmp_/_xmp_/g | $(SED) -e s/\;//g >> $@
-$(DEFLITE): libxmp.map
-	echo "LIBRARY LIBXMPLT INITINSTANCE TERMINSTANCE" > $@
-	echo "DATA MULTIPLE NONSHARED" >> $@
-	echo "DESCRIPTION \"libxmp-lite-4.x\"" >> $@
-	echo EXPORTS >> $@
-	$(GREP) xmp_ libxmp.map | $(SORT) | $(UNIQ) | $(SED) -e s/xmp_/_xmp_/g | $(SED) -e s/\;//g >> $@
-
 xmp.a: $(ALL_OBJS)
 	$(AR) cru xmp.a $(ALL_OBJS)
 	$(RANLIB) xmp.a
@@ -128,5 +116,5 @@ clean:
 	$(RM) src/depackers/*.o
 	$(RM) test/*.o
 distclean: clean
-	$(RM) *.dll *.a *.lib *.def
+	$(RM) *.dll *.a *.lib
 	$(RM) test/*.exe

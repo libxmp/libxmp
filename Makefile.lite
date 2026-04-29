@@ -3,7 +3,7 @@
 
 AUTOCONF	= autoconf
 DIST		= libxmp-lite-stagedir
-DFILES		= INSTALL install-sh config.sub config.guess aclocal.m4 autogen.sh libxmp.map \
+DFILES		= INSTALL install-sh config.sub config.guess aclocal.m4 autogen.sh libxmp.map emxlite.def \
 		  src/lite/libxmp-lite.pc.in src/lite/libxmp-lite-config.cmake \
 		  src/lite/libxmp-lite-config.cmake.autotools \
 		  src/lite/libxmp-lite-config-version.cmake.autotools.in \
@@ -39,6 +39,12 @@ cmake-prepare:
 emx-prepare:
 	@echo Generate Makefile.emx
 	@sed -e 's!@OBJS@!\\\n $(OBJS:.o=.o \\\n)!' $(DIST)/Makefile.emx.in > $(DIST)/Makefile.emx
+	@echo Generate emxlite.def
+	@echo "LIBRARY LIBXMPLT INITINSTANCE TERMINSTANCE" > emxlite.def
+	@echo "DATA MULTIPLE NONSHARED" >> emxlite.def
+	@echo "DESCRIPTION \"Extended Module Player Library.\"" >> emxlite.def
+	@echo EXPORTS >> emxlite.def
+	@grep xmp_ libxmp.map | sed -e "s/\;//g" | sed -e "s/^[ \t]*//g" | sed -e "s/xmp_/\ _xmp_/g" | sort | uniq >> emxlite.def
 
 vc-prepare:
 	@echo Generate Makefile.vc
