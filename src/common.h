@@ -323,6 +323,9 @@ int libxmp_snprintf (char *, size_t, const char *, ...) LIBXMP_ATTRIB_PRINTF(3,4
 				 QUIRK_ENVFADE | QUIRK_ITVPOR | QUIRK_KEYOFF | \
 				 QUIRK_VIRTUAL | QUIRK_FILTER | QUIRK_RSTCHN | \
 				 QUIRK_IGSTPOR | QUIRK_S3MRTG | QUIRK_MARKER )
+#define QUIRKS_LIQUID		(QUIRK_FINEFX  | QUIRK_RTONCE)
+#define QUIRKS_ORPHEUS		(QUIRK_FILTER  | QUIRK_MARKER | QUIRK_RSTCHN | \
+				 QUIRK_ARPMEM)
 
 /* Quirks specific to flow effects, especially Pattern Loop. */
 #define FLOW_LOOP_GLOBAL_TARGET	(1 <<  0) /* Global target for all tracks */

@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -543,7 +543,7 @@ int libxmp_set_player_mode(struct context_data *ctx)
 		break;
 	case XMP_MODE_FT2:
 		m->c4rate = C4_NTSC_RATE;
-		m->quirk = QUIRKS_FT2 | QUIRK_FT2BUGS;
+		m->quirk = QUIRKS_FT2 | QUIRK_FT2ENV | QUIRK_FT2BUGS;
 		m->flow_mode = FLOW_MODE_GENERIC;
 		m->read_event_type = READ_EVENT_FT2;
 		break;
@@ -559,6 +559,57 @@ int libxmp_set_player_mode(struct context_data *ctx)
 		m->quirk &= ~(QUIRK_VIRTUAL | QUIRK_RSTCHN);
 		m->flow_mode = FLOW_MODE_IT_210;
 		m->read_event_type = READ_EVENT_IT;
+		break;
+	case XMP_MODE_MPT_MOD:
+		m->c4rate = C4_NTSC_RATE;
+		m->quirk = 0;
+		m->flow_mode = FLOW_MODE_MPT_116;
+		m->read_event_type = READ_EVENT_MOD;
+		m->period_type = PERIOD_AMIGA;
+		break;
+	case XMP_MODE_MPT_S3M:
+		q = m->quirk & (QUIRK_VSALL | QUIRK_ARPMEM);
+		m->c4rate = C4_NTSC_RATE;
+		m->quirk = QUIRKS_ST3 | q;
+		m->flow_mode = FLOW_MODE_MPT_116;
+		m->read_event_type = READ_EVENT_ST3;
+		break;
+	case XMP_MODE_MPT_XM:
+		m->c4rate = C4_NTSC_RATE;
+		m->quirk = QUIRKS_FT2 | QUIRK_FT2ENV;
+		m->flow_mode = FLOW_MODE_MPT_116;
+		m->read_event_type = READ_EVENT_FT2;
+		break;
+	case XMP_MODE_MPT_IT:
+		m->c4rate = C4_NTSC_RATE;
+		m->quirk = QUIRKS_IT | QUIRK_VIBHALF | QUIRK_VIBINV;
+		m->flow_mode = FLOW_MODE_MPT_116;
+		m->read_event_type = READ_EVENT_IT;
+		break;
+	case XMP_MODE_MPT_ITSMP:
+		m->c4rate = C4_NTSC_RATE;
+		m->quirk = QUIRKS_IT | QUIRK_VIBHALF | QUIRK_VIBINV;
+		m->quirk &= ~(QUIRK_VIRTUAL | QUIRK_RSTCHN);
+		m->flow_mode = FLOW_MODE_MPT_116;
+		m->read_event_type = READ_EVENT_IT;
+		break;
+	case XMP_MODE_LIQUID:
+		m->c4rate = C4_NTSC_RATE;
+		m->quirk = QUIRKS_LIQUID;
+		m->flow_mode = FLOW_MODE_LIQUID;
+		m->read_event_type = READ_EVENT_ST3;
+		break;
+	case XMP_MODE_LIQUID_S3M:
+		m->c4rate = C4_NTSC_RATE;
+		m->quirk = QUIRKS_LIQUID;
+		m->flow_mode = FLOW_MODE_LIQUID_COMPAT;
+		m->read_event_type = READ_EVENT_ST3;
+		break;
+	case XMP_MODE_ORPHEUS:
+		m->c4rate = C4_NTSC_RATE;
+		m->quirk = QUIRKS_ORPHEUS;
+		m->flow_mode = FLOW_MODE_ORPHEUS;
+		m->read_event_type = READ_EVENT_ST3;
 		break;
 	default:
 		return -1;
