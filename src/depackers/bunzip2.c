@@ -68,13 +68,11 @@ struct bwdata {
   unsigned int *dbuf;
 };
 
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable:4324) /* structure was padded due to alignment specifier */
-#endif
 // Structure holding all the housekeeping data, including IO buffers and
 // memory that persists between calls to bunzip
 struct bunzip_data {
+  jmp_buf jmpbuf; /* libxmp: For I/O error handling */
+
   // Input stream, input buffer, input bit buffer
   HIO_HANDLE *in_fd; /* libxmp: int -> HIO_HANDLE * */
   int inbufCount, inbufPos;
@@ -99,13 +97,7 @@ struct bunzip_data {
   // Second pass decompression data (burrows-wheeler transform)
   unsigned int dbufSize;
   struct bwdata bwdata[THREADS];
-
-  /* libxmp: For I/O error handling */
-  jmp_buf jmpbuf;
 };
-#if defined(_MSC_VER)
-#pragma warning (pop)
-#endif
 
 /* libxmp addition */
 struct bunzip_output {
