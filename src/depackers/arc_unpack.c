@@ -169,11 +169,11 @@ static arc_uint32 arc_get_bytes(const unsigned char *pos, int num)
     case 1:
       return pos[0];
     case 2:
-      return pos[0] | (pos[1] << 8UL);
+      return pos[0] | (pos[1] << 8);
     case 3:
-      return pos[0] | (pos[1] << 8UL) | (pos[2] << 16UL);
+      return pos[0] | (pos[1] << 8) | (pos[2] << 16);
     default:
-      return pos[0] | (pos[1] << 8UL) | (pos[2] << 16UL) | (pos[3] << 24UL);
+      return pos[0] | (pos[1] << 8) | (pos[2] << 16) | ((arc_uint32)pos[3] << 24);
   }
 }
 

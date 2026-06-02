@@ -162,6 +162,11 @@ typedef int tst_uint64[2 * (8 == sizeof(uint64)) - 1];
 #define MAX(x,y) ((x) > (y) ? (x) : (y))
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
+/* Standards-compliant sign-extending arithmetic left shift.
+ * This is required for potentially negative input values. */
+#define XMP_ASL(x,e)	((int)((unsigned)(int)(x) << (e)))
+#define XMP_ASL64(x,e)	((int64)((uint64)(int64)(x) << (e)))
+
 #define TRACK_NUM(a,c)	m->mod.xxp[a]->index[c]
 #define EVENT(a,c,r)	m->mod.xxt[TRACK_NUM((a),(c))]->event[r]
 
@@ -304,13 +309,12 @@ int libxmp_snprintf (char *, size_t, const char *, ...) LIBXMP_ATTRIB_PRINTF(3,4
 #define QUIRK_PRENV	(1 << 22)	/* Portamento resets envelope & fade */
 #define QUIRK_ITOLDFX	(1 << 23)	/* IT old effects mode */
 #define QUIRK_S3MRTG	(1 << 24)	/* S3M-style retrig when count == 0 */
-/*#define QUIRK_RTDELAY	(1 << 25)*/	/* Delay effect retrigs instrument */
+#define QUIRK_FT2ENV	(1 << 25)	/* Use FT2-style envelope handling */
 #define QUIRK_FT2BUGS	(1 << 26)	/* FT2 bug compatibility */
 #define QUIRK_MARKER	(1 << 27)	/* Patterns 0xfe and 0xff reserved */
 #define QUIRK_NOBPM	(1 << 28)	/* Adjust speed only, no BPM */
 #define QUIRK_ARPMEM	(1 << 29)	/* Arpeggio has memory (S3M_ARPEGGIO) */
 #define QUIRK_RSTCHN	(1 << 30)	/* Reset channel on sample end */
-#define QUIRK_FT2ENV	(1 << 31)	/* Use FT2-style envelope handling */
 
 #define HAS_QUIRK(x)	(m->quirk & (x))
 
@@ -340,9 +344,9 @@ int libxmp_snprintf (char *, size_t, const char *, ...) LIBXMP_ATTRIB_PRINTF(3,4
 #define FLOW_LOOP_UNSET_JUMP	(1 << 12) /* E6x jump cancels prior Bxx on same row (S3M) */
 #define FLOW_LOOP_SHARED_BREAK	(1 << 13) /* E6x overrides prior Dxx dest on same row (LIQ) */
 /*#define FLOW_LOOP_TICK_0_JUMP */	  /* Loop jump shortens row to one tick (DTM) */
-#define FLOW_JUMP_THEN_BREAK	(1 << 29) /* TODO: Bxx Dxx jumps, then breaks (IMF, TT) */
-#define FLOW_JUMP_QUEUED	(1 << 30) /* TODO: Jump queues next position (ST2) */
-#define FLOW_JUMP_NO_ROW_SET	(1 << 31) /* Jump doesn't set break row to 0 (ST3/IT) */
+#define FLOW_JUMP_THEN_BREAK	(1 << 28) /* TODO: Bxx Dxx jumps, then breaks (IMF, TT) */
+#define FLOW_JUMP_QUEUED	(1 << 29) /* TODO: Jump queues next position (ST2) */
+#define FLOW_JUMP_NO_ROW_SET	(1 << 30) /* Jump doesn't set break row to 0 (ST3/IT) */
 
 #define HAS_FLOW_MODE(x)	(m->flow_mode & (x))
 

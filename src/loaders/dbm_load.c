@@ -408,7 +408,7 @@ static int get_smpl(struct module_data *m, uint32 size, HIO_HANDLE *f, void *par
 
 		} else if (flags & DBM_SAMPLE_32BIT) {
 			/* Skip 32-bit samples */
-			hio_seek(f, (long)xxs->len << 2, SEEK_CUR);
+			hio_seek(f, (long) ((unsigned)xxs->len << 2), SEEK_CUR);
 			continue;
 		} else {
 			D_(D_CRIT "unknown sample type %08x", flags);

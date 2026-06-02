@@ -128,7 +128,7 @@ static ICE_INLINE ice_uint16 mem_u16be(const ice_uint8 *buf)
 
 static ICE_INLINE ice_uint32 mem_u32(const ice_uint8 *buf)
 {
-	return (buf[0] << 24u) | (buf[1] << 16u) | (buf[2] << 8u) | buf[3];
+	return ((ice_uint32)buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
 }
 
 #ifndef ICE_FAST_BITPLANES

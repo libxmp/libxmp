@@ -61,13 +61,13 @@ int8 read8s(FILE *f, int *err)
 
 uint16 read16l(FILE *f, int *err)
 {
-	int a, b;
+	int32 a, b;
 
 	read_byte(a);
 	read_byte(b);
 
 	set_error(0);
-	return ((uint16)b << 8) | a;
+	return ((uint32)b << 8) | a;
 
     error:
 	set_error(ferror(f) ? errno : EOF);
@@ -76,7 +76,7 @@ uint16 read16l(FILE *f, int *err)
 
 uint16 read16b(FILE *f, int *err)
 {
-	int a, b;
+	int32 a, b;
 
 	read_byte(a);
 	read_byte(b);
@@ -91,7 +91,7 @@ uint16 read16b(FILE *f, int *err)
 
 uint32 read24l(FILE *f, int *err)
 {
-	int a, b, c;
+	int32 a, b, c;
 
 	read_byte(a);
 	read_byte(b);
@@ -107,7 +107,7 @@ uint32 read24l(FILE *f, int *err)
 
 uint32 read24b(FILE *f, int *err)
 {
-	int a, b, c;
+	int32 a, b, c;
 
 	read_byte(a);
 	read_byte(b);
@@ -123,7 +123,7 @@ uint32 read24b(FILE *f, int *err)
 
 uint32 read32l(FILE *f, int *err)
 {
-	int a, b, c, d;
+	int32 a, b, c, d;
 
 	read_byte(a);
 	read_byte(b);
@@ -131,7 +131,7 @@ uint32 read32l(FILE *f, int *err)
 	read_byte(d);
 
 	set_error(0);
-	return (d << 24) | (c << 16) | (b << 8) | a;
+	return ((uint32)d << 24) | (c << 16) | (b << 8) | a;
 
     error:
 	set_error(ferror(f) ? errno : EOF);
@@ -140,7 +140,7 @@ uint32 read32l(FILE *f, int *err)
 
 uint32 read32b(FILE *f, int *err)
 {
-	int a, b, c, d;
+	int32 a, b, c, d;
 
 	read_byte(a);
 	read_byte(b);
@@ -148,7 +148,7 @@ uint32 read32b(FILE *f, int *err)
 	read_byte(d);
 
 	set_error(0);
-	return (a << 24) | (b << 16) | (c << 8) | d;
+	return ((uint32)a << 24) | (b << 16) | (c << 8) | d;
 
     error:
 	set_error(ferror(f) ? errno : EOF);

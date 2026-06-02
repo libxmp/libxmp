@@ -58,7 +58,7 @@ static lzx_uint32 lzx_crc32(lzx_uint32 crc, const lzx_uint8 *buf, size_t len)
 
 static inline lzx_uint32 lzx_mem_u32(const lzx_uint8 *buf)
 {
-  return (buf[3] << 24UL) | (buf[2] << 16UL) | (buf[1] << 8UL) | buf[0];
+  return ((lzx_uint32)buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
 }
 
 enum lzx_merge_state
