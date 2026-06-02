@@ -162,6 +162,11 @@ typedef int tst_uint64[2 * (8 == sizeof(uint64)) - 1];
 #define MAX(x,y) ((x) > (y) ? (x) : (y))
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
+/* Standards-compliant sign-extending arithmetic left shift.
+ * This is required for potentially negative input values. */
+#define XMP_ASL(x,e)	((int)((unsigned)(int)(x) << (e)))
+#define XMP_ASL64(x,e)	((int64)((uint64)(int64)(x) << (e)))
+
 #define TRACK_NUM(a,c)	m->mod.xxp[a]->index[c]
 #define EVENT(a,c,r)	m->mod.xxt[TRACK_NUM((a),(c))]->event[r]
 
@@ -278,39 +283,38 @@ int libxmp_snprintf (char *, size_t, const char *, ...) LIBXMP_ATTRIB_PRINTF(3,4
 #define LIBXMP_DEPACK_LIMIT (512 << 20)
 
 /* Quirks */
-#define QUIRK_S3MLOOP	(1U << 0)	/* S3M loop mode */
-#define QUIRK_ENVFADE	(1U << 1)	/* Fade at end of envelope */
-#define QUIRK_PROTRACK	(1U << 2)	/* Use Protracker-specific quirks */
-#define QUIRK_RTONCE	(1U << 3)	/* Retrigger one time only */
-#define QUIRK_ST3BUGS	(1U << 4)	/* Scream Tracker 3 bug compatibility */
-#define QUIRK_FINEFX	(1U << 5)	/* Enable 0xf/0xe for fine effects */
-#define QUIRK_VSALL	(1U << 6)	/* Volume slides in all frames */
-#define QUIRK_PBALL	(1U << 7)	/* Pitch bending in all frames */
-#define QUIRK_PERPAT	(1U << 8)	/* Cancel persistent fx at pat start */
-#define QUIRK_VOLPDN	(1U << 9)	/* Set priority to volume slide down */
-#define QUIRK_UNISLD	(1U << 10)	/* Unified pitch slide/portamento */
-#define QUIRK_ITVPOR	(1U << 11)	/* Disable fine bends in IT vol fx */
-/*#define QUIRK_FTMOD	(1U << 12)*/	/* Flag for multichannel mods */
-#define QUIRK_INVLOOP	(1U << 13)	/* Enable invert loop */
-/*#define QUIRK_MODRNG	(1U << 13)*/	/* Limit periods to MOD range */
-#define QUIRK_INSVOL	(1U << 14)	/* Use instrument volume */
-#define QUIRK_VIRTUAL	(1U << 15)	/* Enable virtual channels */
-#define QUIRK_FILTER	(1U << 16)	/* Enable filter */
-#define QUIRK_IGSTPOR	(1U << 17)	/* Ignore stray tone portamento */
-#define QUIRK_KEYOFF	(1U << 18)	/* Keyoff doesn't reset fadeout */
-#define QUIRK_VIBHALF	(1U << 19)	/* Vibrato is half as deep */
-#define QUIRK_VIBALL	(1U << 20)	/* Vibrato in all frames */
-#define QUIRK_VIBINV	(1U << 21)	/* Vibrato has inverse waveform */
-#define QUIRK_PRENV	(1U << 22)	/* Portamento resets envelope & fade */
-#define QUIRK_ITOLDFX	(1U << 23)	/* IT old effects mode */
-#define QUIRK_S3MRTG	(1U << 24)	/* S3M-style retrig when count == 0 */
-/*#define QUIRK_RTDELAY	(1U << 25)*/	/* Delay effect retrigs instrument */
-#define QUIRK_FT2BUGS	(1U << 26)	/* FT2 bug compatibility */
-#define QUIRK_MARKER	(1U << 27)	/* Patterns 0xfe and 0xff reserved */
-#define QUIRK_NOBPM	(1U << 28)	/* Adjust speed only, no BPM */
-#define QUIRK_ARPMEM	(1U << 29)	/* Arpeggio has memory (S3M_ARPEGGIO) */
-#define QUIRK_RSTCHN	(1U << 30)	/* Reset channel on sample end */
-#define QUIRK_FT2ENV	(1U << 31)	/* Use FT2-style envelope handling */
+#define QUIRK_S3MLOOP	(1 << 0)	/* S3M loop mode */
+#define QUIRK_ENVFADE	(1 << 1)	/* Fade at end of envelope */
+#define QUIRK_PROTRACK	(1 << 2)	/* Use Protracker-specific quirks */
+#define QUIRK_RTONCE	(1 << 3)	/* Retrigger one time only */
+#define QUIRK_ST3BUGS	(1 << 4)	/* Scream Tracker 3 bug compatibility */
+#define QUIRK_FINEFX	(1 << 5)	/* Enable 0xf/0xe for fine effects */
+#define QUIRK_VSALL	(1 << 6)	/* Volume slides in all frames */
+#define QUIRK_PBALL	(1 << 7)	/* Pitch bending in all frames */
+#define QUIRK_PERPAT	(1 << 8)	/* Cancel persistent fx at pat start */
+#define QUIRK_VOLPDN	(1 << 9)	/* Set priority to volume slide down */
+#define QUIRK_UNISLD	(1 << 10)	/* Unified pitch slide/portamento */
+#define QUIRK_ITVPOR	(1 << 11)	/* Disable fine bends in IT vol fx */
+/*#define QUIRK_FTMOD	(1 << 12)*/	/* Flag for multichannel mods */
+#define QUIRK_INVLOOP	(1 << 13)	/* Enable invert loop */
+/*#define QUIRK_MODRNG	(1 << 13)*/	/* Limit periods to MOD range */
+#define QUIRK_INSVOL	(1 << 14)	/* Use instrument volume */
+#define QUIRK_VIRTUAL	(1 << 15)	/* Enable virtual channels */
+#define QUIRK_FILTER	(1 << 16)	/* Enable filter */
+#define QUIRK_IGSTPOR	(1 << 17)	/* Ignore stray tone portamento */
+#define QUIRK_KEYOFF	(1 << 18)	/* Keyoff doesn't reset fadeout */
+#define QUIRK_VIBHALF	(1 << 19)	/* Vibrato is half as deep */
+#define QUIRK_VIBALL	(1 << 20)	/* Vibrato in all frames */
+#define QUIRK_VIBINV	(1 << 21)	/* Vibrato has inverse waveform */
+#define QUIRK_PRENV	(1 << 22)	/* Portamento resets envelope & fade */
+#define QUIRK_ITOLDFX	(1 << 23)	/* IT old effects mode */
+#define QUIRK_S3MRTG	(1 << 24)	/* S3M-style retrig when count == 0 */
+#define QUIRK_FT2ENV	(1 << 25)	/* Use FT2-style envelope handling */
+#define QUIRK_FT2BUGS	(1 << 26)	/* FT2 bug compatibility */
+#define QUIRK_MARKER	(1 << 27)	/* Patterns 0xfe and 0xff reserved */
+#define QUIRK_NOBPM	(1 << 28)	/* Adjust speed only, no BPM */
+#define QUIRK_ARPMEM	(1 << 29)	/* Arpeggio has memory (S3M_ARPEGGIO) */
+#define QUIRK_RSTCHN	(1 << 30)	/* Reset channel on sample end */
 
 #define HAS_QUIRK(x)	(m->quirk & (x))
 
@@ -325,24 +329,24 @@ int libxmp_snprintf (char *, size_t, const char *, ...) LIBXMP_ATTRIB_PRINTF(3,4
 				 QUIRK_IGSTPOR | QUIRK_S3MRTG | QUIRK_MARKER )
 
 /* Quirks specific to flow effects, especially Pattern Loop. */
-#define FLOW_LOOP_GLOBAL_TARGET	(1U <<  0) /* Global target for all tracks */
-#define FLOW_LOOP_GLOBAL_COUNT	(1U <<  1) /* Global count for all tracks */
-#define FLOW_LOOP_END_ADVANCES	(1U <<  2) /* Loop end advances target (S3M) */
-#define FLOW_LOOP_END_CANCELS	(1U <<  3) /* Loop end cancels prev jumps on row (LIQ) */
-#define FLOW_LOOP_PATTERN_RESET	(1U <<  4) /* Target/count reset on pattern change */
-#define FLOW_LOOP_INIT_SAMEROW	(1U <<  5) /* SBx sets target if it isn't set (ST 3.01) */
-#define FLOW_LOOP_FIRST_EFFECT	(1U <<  6) /* Only execute the first E60/E6x in a row */
-#define FLOW_LOOP_ONE_AT_A_TIME	(1U <<  7) /* Init E6x if no other channel is looping (MPT) */
-#define FLOW_LOOP_IGNORE_TARGET	(1U <<  8) /* Ignore E60 if count is >=1 (LIQ) */
-#define FLOW_LOOP_DELAY_BREAK	(1U <<  9) /* E6x jump prevents later Dxx on same row (S3M, IT) */
-#define FLOW_LOOP_DELAY_JUMP	(1U << 10) /* E6x jump prevents later Bxx on same row (S3M) */
-#define FLOW_LOOP_UNSET_BREAK	(1U << 11) /* E6x jump cancels prior Dxx on same row (S3M, IMF) */
-#define FLOW_LOOP_UNSET_JUMP	(1U << 12) /* E6x jump cancels prior Bxx on same row (S3M) */
-#define FLOW_LOOP_SHARED_BREAK	(1U << 13) /* E6x overrides prior Dxx dest on same row (LIQ) */
+#define FLOW_LOOP_GLOBAL_TARGET	(1 <<  0) /* Global target for all tracks */
+#define FLOW_LOOP_GLOBAL_COUNT	(1 <<  1) /* Global count for all tracks */
+#define FLOW_LOOP_END_ADVANCES	(1 <<  2) /* Loop end advances target (S3M) */
+#define FLOW_LOOP_END_CANCELS	(1 <<  3) /* Loop end cancels prev jumps on row (LIQ) */
+#define FLOW_LOOP_PATTERN_RESET	(1 <<  4) /* Target/count reset on pattern change */
+#define FLOW_LOOP_INIT_SAMEROW	(1 <<  5) /* SBx sets target if it isn't set (ST 3.01) */
+#define FLOW_LOOP_FIRST_EFFECT	(1 <<  6) /* Only execute the first E60/E6x in a row */
+#define FLOW_LOOP_ONE_AT_A_TIME	(1 <<  7) /* Init E6x if no other channel is looping (MPT) */
+#define FLOW_LOOP_IGNORE_TARGET	(1 <<  8) /* Ignore E60 if count is >=1 (LIQ) */
+#define FLOW_LOOP_DELAY_BREAK	(1 <<  9) /* E6x jump prevents later Dxx on same row (S3M, IT) */
+#define FLOW_LOOP_DELAY_JUMP	(1 << 10) /* E6x jump prevents later Bxx on same row (S3M) */
+#define FLOW_LOOP_UNSET_BREAK	(1 << 11) /* E6x jump cancels prior Dxx on same row (S3M, IMF) */
+#define FLOW_LOOP_UNSET_JUMP	(1 << 12) /* E6x jump cancels prior Bxx on same row (S3M) */
+#define FLOW_LOOP_SHARED_BREAK	(1 << 13) /* E6x overrides prior Dxx dest on same row (LIQ) */
 /*#define FLOW_LOOP_TICK_0_JUMP */	  /* Loop jump shortens row to one tick (DTM) */
-#define FLOW_JUMP_THEN_BREAK	(1U << 29) /* TODO: Bxx Dxx jumps, then breaks (IMF, TT) */
-#define FLOW_JUMP_QUEUED	(1U << 30) /* TODO: Jump queues next position (ST2) */
-#define FLOW_JUMP_NO_ROW_SET	(1U << 31) /* Jump doesn't set break row to 0 (ST3/IT) */
+#define FLOW_JUMP_THEN_BREAK	(1 << 28) /* TODO: Bxx Dxx jumps, then breaks (IMF, TT) */
+#define FLOW_JUMP_QUEUED	(1 << 29) /* TODO: Jump queues next position (ST2) */
+#define FLOW_JUMP_NO_ROW_SET	(1 << 30) /* Jump doesn't set break row to 0 (ST3/IT) */
 
 #define HAS_FLOW_MODE(x)	(m->flow_mode & (x))
 
@@ -525,8 +529,8 @@ struct module_data {
 	int mvolbase;			/* Mix volume base (S3M/IT) */
 	int mvol;			/* Mix volume (S3M/IT) */
 	const int *vol_table;		/* Volume translation table */
-	unsigned int quirk;		/* player quirks */
-	unsigned int flow_mode;		/* Flow quirks, esp. Pattern Loop */
+	int quirk;			/* player quirks */
+	int flow_mode;			/* Flow quirks, esp. Pattern Loop */
 #define READ_EVENT_MOD	0
 #define READ_EVENT_FT2	1
 #define READ_EVENT_ST3	2

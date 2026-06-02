@@ -38,7 +38,7 @@
  * and number of channels.
  */
 #define NEAREST_8BIT(smp_in, off) do { \
-    (smp_in) = (int16)((uint16)((uint8)sptr[pos + (off)]) << 8); \
+    (smp_in) = XMP_ASL(sptr[pos + (off)], 8); \
 } while (0)
 
 #define NEAREST_16BIT(smp_in, off) do { \
@@ -46,8 +46,8 @@
 } while (0)
 
 #define LINEAR_8BIT(smp_in, off) do { \
-    smp_l1 = (int16)((uint16)((uint8)sptr[pos + (off)]) << 8); \
-    smp_dt = (int16)((uint16)((uint8)sptr[pos + (off) + chn]) << 8) - smp_l1; \
+    smp_l1 = XMP_ASL(sptr[pos + (off)], 8); \
+    smp_dt = XMP_ASL(sptr[pos + (off) + chn], 8) - smp_l1; \
     (smp_in) = smp_l1 + (((frac >> 1) * smp_dt) >> (SMIX_SHIFT - 1)); \
 } while (0)
 
@@ -109,14 +109,14 @@
  ((a) < FILTER_MIN ? FILTER_MIN : (a) > FILTER_MAX ? FILTER_MAX : (a))
 
 #define FILTER_LEFT(smp_in_l) do { \
-    sl64 = (a0 * ((smp_in_l) << PREAMP_BITS) + b0 * fl1 + b1 * fl2) >> FILTER_SHIFT; \
+    sl64 = (a0 * XMP_ASL((smp_in_l), PREAMP_BITS) + b0 * fl1 + b1 * fl2) >> FILTER_SHIFT; \
     sl = MIX_FILTER_CLAMP(sl64); \
     fl2 = fl1; fl1 = sl; \
     (smp_in_l) = sl >> PREAMP_BITS; \
 } while (0)
 
 #define FILTER_RIGHT(smp_in_r) do { \
-    sr64 = (a0 * ((smp_in_r) << PREAMP_BITS) + b0 * fr1 + b1 * fr2) >> FILTER_SHIFT; \
+    sr64 = (a0 * XMP_ASL((smp_in_r), PREAMP_BITS) + b0 * fr1 + b1 * fr2) >> FILTER_SHIFT; \
     sr = MIX_FILTER_CLAMP(sr64); \
     fr2 = fr1; fr1 = sr; \
     (smp_in_r) = sr >> PREAMP_BITS; \
