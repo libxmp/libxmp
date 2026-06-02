@@ -38,7 +38,7 @@
  * and number of channels.
  */
 #define NEAREST_8BIT(smp_in, off) do { \
-    (smp_in) = ((int16)sptr[pos + (off)] << 8); \
+    (smp_in) = (int16)((uint16)((uint8)sptr[pos + (off)]) << 8); \
 } while (0)
 
 #define NEAREST_16BIT(smp_in, off) do { \
@@ -46,8 +46,8 @@
 } while (0)
 
 #define LINEAR_8BIT(smp_in, off) do { \
-    smp_l1 = ((int16)sptr[pos + (off)] << 8); \
-    smp_dt = ((int16)sptr[pos + (off) + chn] << 8) - smp_l1; \
+    smp_l1 = (int16)((uint16)((uint8)sptr[pos + (off)]) << 8); \
+    smp_dt = (int16)((uint16)((uint8)sptr[pos + (off) + chn]) << 8) - smp_l1; \
     (smp_in) = smp_l1 + (((frac >> 1) * smp_dt) >> (SMIX_SHIFT - 1)); \
 } while (0)
 

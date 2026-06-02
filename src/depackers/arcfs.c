@@ -58,9 +58,9 @@ static arc_uint16 arc_mem_u16(arc_uint8 *buf)
   return (buf[1] << 8) | buf[0];
 }
 
-static arc_uint32 arc_mem_u32(arc_uint8 *buf)
+static arc_uint32 arc_mem_u32(const arc_uint8 *buf)
 {
-  return (buf[3] << 24UL) | (buf[2] << 16UL) | (buf[1] << 8UL) | buf[0];
+  return ((arc_uint32)buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
 }
 
 struct arcfs_data
