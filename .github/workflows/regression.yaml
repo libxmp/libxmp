@@ -340,9 +340,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Setup OpenWatcom
-        uses: open-watcom/setup-watcom@v0
+        uses: open-watcom/setup-watcom@v1
         with:
           version: "2.0"
+          tag: "last"
       - name: WMake Build (Win32)
         run: |
           wmake -f Makefile.w32
@@ -377,9 +378,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Setup OpenWatcom
-        uses: open-watcom/setup-watcom@v0
+        uses: open-watcom/setup-watcom@v1
         with:
           version: "2.0"
+          tag: "last"
       - name: WMake Build (Linux)
         run: |
           wmake -f Makefile.lnx
