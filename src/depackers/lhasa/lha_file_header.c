@@ -113,10 +113,10 @@ static int check_common_crc(LHAFileHeader *header)
 
 static unsigned int decode_ftime(uint8 *buf)
 {
-	int raw;
+	uint32 raw;
 	struct tm datetime;
 
-	raw = (int) readmem32l(buf);
+	raw = readmem32l(buf);
 
 	if (raw == 0) {
 		return 0;
