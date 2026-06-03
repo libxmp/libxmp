@@ -481,6 +481,7 @@ FUZZER		= misc \
 		  dt_invalid \
 		  dt_truncated \
 		  emod_duplicate_chunk \
+		  emod_shift_base \
 		  far_truncated \
 		  flt_umr \
 		  fnk_channels_bound \
