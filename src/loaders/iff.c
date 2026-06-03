@@ -197,10 +197,9 @@ int libxmp_iff_register(iff_handle opaque, const char *id, iff_loader loader)
 		return -1;
 
 	/* Note: previously was an strncpy */
+	memset(f->id, 0, sizeof(f->id));
 	for (; i < 4 && id && id[i]; i++)
 		f->id[i] = id[i];
-	for (; i < 4; i++)
-		f->id[i] = '\0';
 
 	f->loader = loader;
 	f->next = NULL;
