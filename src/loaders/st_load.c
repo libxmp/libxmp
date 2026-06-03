@@ -141,7 +141,7 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 		if (mh.ins[i].volume > 0x40)
 			return -1;
 
-		if (mh.ins[i].finetune > 0x0f)
+		if (mh.ins[i].finetune & 0xf0)
 			return -1;
 
 		if (mh.ins[i].size > 0x8000)
@@ -366,7 +366,7 @@ static int st_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		xxs->lps = 0;
 		xxs->lpe = xxs->lps + 2 * mh.ins[i].loop_size;
 		xxs->flg = mh.ins[i].loop_size > 1 ? XMP_SAMPLE_LOOP : 0;
-		sub->fin = (int8) (mh.ins[i].finetune << 4);
+		sub->fin = (int8)((uint8)mh.ins[i].finetune << 4);
 		sub->vol = mh.ins[i].volume;
 		sub->pan = XMP_INST_NO_DEFAULT_PAN;
 		sub->sid = i;
