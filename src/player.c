@@ -1245,7 +1245,7 @@ static void process_frequency(struct context_data *ctx, int chn, int act)
 		/* IT pitch envelopes are always linear, even in Amiga period
 		 * mode. Each unit in the envelope scale is 1/25 semitone.
 		 */
-		linear_bend += frq_envelope << 7;
+		linear_bend += frq_envelope * 128;
 	}
 
 	/* Arpeggio */
