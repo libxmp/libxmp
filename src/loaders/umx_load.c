@@ -110,7 +110,7 @@ static fci_t get_fci (const char *in, int *pos)
 
 				if (in[3] & 0x80) {
 					size++;
-					a |= (in[4] & 0x3f) << 27;
+					a |= (uint32)(in[4] & 0x3f) << 27;
 				}
 			}
 		}
