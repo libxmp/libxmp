@@ -1,6 +1,26 @@
 Stable versions
 ---------------
 
+4.7.1 (?):
+	Changes by Alice Rowan and Ozkan Sezer:
+	- Fix various -fsanitize=shift-base warnings:
+	  Various: QUIRK_FT2ENV and FLOW_LOOP_NO_ROW_SET
+	  src/dataio.c: read32l and read32b
+	  src/far_extras.c: FAR tempo conversion
+	  src/player.c: pitch envelope calculation
+	  src/mix_all.c: 8-bit samples and IT filter
+	  src/mixer.c: downmix_int_32bit
+	  src/loaders/amf_load.c: conversion of pan effect
+	  src/loaders/dbm_load.c: skipping 32-bit samples
+	  src/loaders/flt_load.c: conversion of finetune
+	  src/loaders/hmn_load.c: conversion of finetune
+	  src/loaders/pt3_load.c: conversion of finetune
+	  src/loaders/rtm_load.c: conversion of pan values
+	  src/loaders/umx_load.c: get_fci
+	  src/depackers/bunzip2.c: read_huffman_data
+	  src/depackers/unsqsh.c: get_bits_final
+	  src/depackers/lhasa/lha_file_header.c: decode_ftime
+
 4.7.0 (20260225):
 	Changes by Alice Rowan:
 	- Increase maximum sampling rate (XMP_MAX_SRATE) to 768000.
