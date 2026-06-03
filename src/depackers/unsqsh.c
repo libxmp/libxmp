@@ -87,7 +87,8 @@ static int get_bits_final(struct io *io, int count)
 	 */
 	int r = readmem24b(io->src + (io->offs >> 3));
 
-	r <<= (io->offs % 8) + 8;
+	//r <<= (io->offs % 8) + 8;
+	r = XMP_ASL(r, (io->offs % 8) + 8);
 	r >>= 32 - count;
 	io->offs += count;
 

@@ -130,7 +130,7 @@ static void downmix_int_32bit(int32 *LIBXMP_RESTRICT dest,
 		} else if (smp <= min_value) {
 			*dest = LIM32_LO;
 		} else {
-			*dest = smp << shift;
+			*dest = XMP_ASL(smp, shift);
 		}
 
 		if (offs) *dest = (int32)((uint32)*dest + offs);

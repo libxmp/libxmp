@@ -110,7 +110,6 @@ int libxmp_far_translate_tempo(int mode, int fine_change, int coarse,
 		speed = 0;
 		while (divisor > 0xffff) {
 			divisor >>= 1;
-			tempo <<= 1;
 			speed++;
 		}
 		if (speed >= 2)
@@ -120,14 +119,16 @@ int libxmp_far_translate_tempo(int mode, int fine_change, int coarse,
 		 * remaining count before decrementing it but after handling
 		 * each tick, i.e. a count of "3" executes 4 ticks. */
 		speed++;
-		bpm = tempo;
+		/* TODO: non-integer BPMs: use PIT Hz here, make time factor 4.0? */
+		bpm = 1197255u / divisor;
 	} else {
 		/* "Old" FAR tempo
 		 * This runs into the XMP_MIN_BPM limit, but nothing uses it anyway.
 		 * Old tempo mode in the original FAR replayer has 32 ticks,
 		 * but ignores all except every 8th. */
+		/* TODO: this is also is affected by bad divisor math. */
 		speed = 4 << FAR_OLD_TEMPO_SHIFT;
-		bpm = (far_tempos[coarse] + *fine * 2) << FAR_OLD_TEMPO_SHIFT;
+		bpm = (uint16)(far_tempos[coarse] + *fine * 2) << FAR_OLD_TEMPO_SHIFT;
 	}
 
 	if (bpm < XMP_MIN_BPM)

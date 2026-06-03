@@ -274,7 +274,7 @@ static int ptdt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (mod->xxs[i].len > 0)
 			mod->xxi[i].nsm = 1;
 
-		mod->xxi[i].sub[0].fin = (int8)(mh.ins[i].finetune << 4);
+		mod->xxi[i].sub[0].fin = (int8)((uint8)mh.ins[i].finetune << 4);
 		mod->xxi[i].sub[0].vol = mh.ins[i].volume;
 		mod->xxi[i].sub[0].pan = XMP_INST_NO_DEFAULT_PAN;
 		mod->xxi[i].sub[0].sid = i;

@@ -299,7 +299,7 @@ static void rtm_translate_effect(uint8 *fxt, uint8 *fxp)
 /* Convert Real Tracker -64..64 pan values into xmp 0..255 pan values. */
 static int rtm_convert_pan(int8 pan)
 {
-	int v = ((int)pan << 1) + 0x80;
+	int v = (pan * 2) + 0x80;
 	CLAMP(v, 0, 255);
 	return v;
 }

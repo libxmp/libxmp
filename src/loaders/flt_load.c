@@ -412,7 +412,7 @@ static int flt_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		xxs->lps = 2 * mh.ins[i].loop_start;
 		xxs->lpe = xxs->lps + 2 * mh.ins[i].loop_size;
 		xxs->flg = mh.ins[i].loop_size > 1 ? XMP_SAMPLE_LOOP : 0;
-		sub->fin = (int8) (mh.ins[i].finetune << 4);
+		sub->fin = (int8) ((uint8)mh.ins[i].finetune << 4);
 		sub->vol = mh.ins[i].volume;
 		sub->pan = XMP_INST_NO_DEFAULT_PAN;
 		sub->sid = i;

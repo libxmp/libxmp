@@ -235,7 +235,7 @@ static int hmn_load(struct module_data *m, HIO_HANDLE * f, const int start)
 
 		for (j = 0; j < mod->xxi[i].nsm; j++) {
 			mod->xxi[i].sub[j].fin =
-					-(int8)(mh.ins[i].finetune << 3);
+					-(int8)((uint8)mh.ins[i].finetune << 3);
 			mod->xxi[i].sub[j].vol = mh.ins[i].volume;
 			mod->xxi[i].sub[j].pan = XMP_INST_NO_DEFAULT_PAN;
 			mod->xxi[i].sub[j].sid = i;

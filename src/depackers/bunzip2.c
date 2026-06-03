@@ -330,9 +330,9 @@ static int read_block_header(struct bunzip_data *bd, struct bwdata *bw)
 static int read_huffman_data(struct bunzip_data *bd, struct bwdata *bw)
 {
   struct group_data *hufGroup;
-  int ii, jj, kk, runPos, dbufCount, symCount, selector, nextSym,
+  int ii, jj, kk, dbufCount, symCount, selector, nextSym,
     *byteCount;
-  unsigned hh, *dbuf = bw->dbuf;
+  unsigned hh, runPos, *dbuf = bw->dbuf;
   unsigned char uc;
 
   // We've finished reading and digesting the block header.  Now read this

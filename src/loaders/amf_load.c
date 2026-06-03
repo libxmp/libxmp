@@ -566,7 +566,7 @@ static int amf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 						fxt = FX_SURROUND;
 						fxp = 1;
 					} else if (t3 >= 0xC0 || t3 <= 0x40) {
-						int pan = ((int8)t3 << 1) + 0x80;
+						int pan = ((int8)t3 * 2) + 0x80;
 						fxt = FX_SETPAN;
 						fxp = MIN(0xff, pan);
 					}
