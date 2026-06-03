@@ -571,6 +571,7 @@ FUZZER		= misc \
 		  prowizard_np2_invalid \
 		  prowizard_np3_invalid \
 		  prowizard_p40_invalid \
+		  prowizard_p40_shift_base \
 		  prowizard_p50_127_patterns \
 		  prowizard_p50_truncated \
 		  prowizard_p61a_invalid \
