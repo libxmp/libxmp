@@ -231,7 +231,7 @@ int libxmp_period_to_bend(struct context_data *ctx, double p, int n, double adj)
 
 	switch (m->period_type) {
 	case PERIOD_LINEAR:
-		return 100 * (8 * (((240 - n) << 4) - p));
+		return 100 * (8 * (((240 - n) * 16) - p));
 	case PERIOD_CSPD:
 		d = libxmp_note_to_period(ctx, n, 0, adj);
 		return libxmp_round(100.0 * (1536.0 / M_LN2) * log(p / d));
