@@ -844,6 +844,7 @@ test_fuzzer_liq_no_valid_orders
 test_fuzzer_liq_truncated
 test_fuzzer_masi_invalid_length
 test_fuzzer_masi_seek_loop
+test_fuzzer_masi_shift_base
 test_fuzzer_masi_truncated
 test_fuzzer_masi16_invalid
 test_fuzzer_mdl_duplicate_chunk

@@ -511,6 +511,7 @@ FUZZER		= misc \
 		  liq_truncated \
 		  masi_invalid_length \
 		  masi_seek_loop \
+		  masi_shift_base \
 		  masi_truncated \
 		  masi16_invalid \
 		  mdl_duplicate_chunk \

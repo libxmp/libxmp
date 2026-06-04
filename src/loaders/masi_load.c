@@ -206,7 +206,7 @@ static int get_dsmp(struct module_data *m, uint32 size, HIO_HANDLE *f, void *par
 
 	finetune = 0;
 	if (data->sinaria) {
-		finetune = (int8)(hio_read8s(f) << 4);
+		finetune = (int8)(hio_read8(f) << 4);
 	}
 
 	sub->vol = hio_read8(f) / 2 + 1;
