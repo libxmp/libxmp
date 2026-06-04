@@ -137,7 +137,7 @@ static int pw_load(struct module_data *m, HIO_HANDLE *h, const int start)
 		mod->xxs[i].lps = 2 * mh.ins[i].loop_start;
 		mod->xxs[i].lpe = mod->xxs[i].lps + 2 * mh.ins[i].loop_size;
 		mod->xxs[i].flg = mh.ins[i].loop_size > 1 ? XMP_SAMPLE_LOOP : 0;
-		mod->xxi[i].sub[0].fin = (int8) (mh.ins[i].finetune << 4);
+		mod->xxi[i].sub[0].fin = (int8)((uint8)mh.ins[i].finetune << 4);
 		mod->xxi[i].sub[0].vol = mh.ins[i].volume;
 		mod->xxi[i].sub[0].pan = XMP_INST_NO_DEFAULT_PAN;
 		mod->xxi[i].sub[0].sid = i;

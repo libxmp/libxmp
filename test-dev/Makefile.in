@@ -380,7 +380,8 @@ LOADER		= 6chn mod_adpcm4 mod_noterange mod_noterange2 mod_scrm mod_notawow \
 		  masi16 \
 		  mdl0 mdl \
 		  med2 med3 med3_song med4 med4_decvol med4_song \
-		  mmd0 mmd0_compattempo mmd0_longrepeat mmd0_med300 mmdc \
+		  mmd0 mmd0_compattempo mmd0_longrepeat mmd0_med300 \
+		  mmd0_finetune mmdc \
 		  mmd1_longpat mmd_iff3oct \
 		  mmd2_longrepeat mmd3 mmd3_stereo \
 		  mfp \
@@ -443,7 +444,9 @@ FUZZER		= misc \
 		  mod_no_null_terminator \
 		  mod_no_valid_orders \
 		  mod_scan_row_limit \
+		  mod_shift_base \
 		  st_invalid_sample_count \
+		  st_shift_base \
 		  st_truncated \
 		  s3m_invalid_sample_size \
 		  s3m_invalid_sample_size2 \
@@ -466,6 +469,7 @@ FUZZER		= misc \
 		  arch_duplicate_chunk \
 		  arch_invalid \
 		  asy_invalid_samples \
+		  chip_shift_base \
 		  chip_truncated \
 		  coco_invalid_sequence \
 		  dbm_bad_fx_conv \
@@ -479,6 +483,7 @@ FUZZER		= misc \
 		  dt_invalid \
 		  dt_truncated \
 		  emod_duplicate_chunk \
+		  emod_shift_base \
 		  far_truncated \
 		  flt_umr \
 		  fnk_channels_bound \
@@ -506,6 +511,7 @@ FUZZER		= misc \
 		  liq_truncated \
 		  masi_invalid_length \
 		  masi_seek_loop \
+		  masi_shift_base \
 		  masi_truncated \
 		  masi16_invalid \
 		  mdl_duplicate_chunk \
@@ -569,6 +575,7 @@ FUZZER		= misc \
 		  prowizard_np2_invalid \
 		  prowizard_np3_invalid \
 		  prowizard_p40_invalid \
+		  prowizard_p40_shift_base \
 		  prowizard_p50_127_patterns \
 		  prowizard_p50_truncated \
 		  prowizard_p61a_invalid \
@@ -620,6 +627,7 @@ FUZZER		= misc \
 		  play_it_bad_sustain \
 		  play_it_extreme_filter \
 		  play_it_globalvol_marker \
+		  play_it_high_transpose \
 		  play_it_interpolation_loop \
 		  play_it_offset_reverse \
 		  play_it_row_0_loop_row_delay \

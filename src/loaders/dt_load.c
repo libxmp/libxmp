@@ -112,8 +112,8 @@ struct local_data {
 	int stereo; /* 0=old stereo, ff=panoramic stereo (>=2.04) */
 	int depth; /* global sample depth used by pre-2.04 modules */
 	int c2spd; /* global sample rate used by pre-2.04 modules */
-	int version;
-	int version_derived;
+	unsigned version;
+	unsigned version_derived;
 	int format;
 	int realpat;
 	int last_pat;
@@ -434,7 +434,7 @@ static int get_vers(struct module_data *m, uint32 size, HIO_HANDLE *f, void *par
 	data->vers_flag = 1;
 
 	data->version = hio_read32b(f);
-	D_(D_INFO "DTM version    : %d", data->version);
+	D_(D_INFO "DTM version    : %u", data->version);
 	return 0;
 }
 
