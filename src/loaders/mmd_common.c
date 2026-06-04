@@ -602,7 +602,7 @@ static int mmd_load_hybrid_instrument(HIO_HANDLE *f, struct module_data *m, int 
 	sub->vol = info.enable ? sample->svol : 0;
 	sub->xpo = info.sampletrans;
 	sub->sid = smp_idx;
-	sub->fin = exp_smp->finetune;
+	sub->fin = (int8)((uint8)exp_smp->finetune << 4);
 
 	xxs = &mod->xxs[smp_idx];
 
@@ -628,7 +628,7 @@ static int mmd_load_hybrid_instrument(HIO_HANDLE *f, struct module_data *m, int 
 		sub->vol = info.enable ? 64 : 0;
 		sub->xpo = info.synthtrans;
 		sub->sid = smp_idx;
-		sub->fin = exp_smp->finetune;
+		sub->fin = (int8)((uint8)exp_smp->finetune << 4);
 
 		hio_seek(f, pos - 6 + synth->wf[j], SEEK_SET);
 
@@ -720,7 +720,7 @@ static int mmd_load_synth_instrument(HIO_HANDLE *f, struct module_data *m, int i
 		sub->vol = info.enable ? 64 : 0;
 		sub->xpo = info.synthtrans;
 		sub->sid = smp_idx;
-		sub->fin = exp_smp->finetune;
+		sub->fin = (int8)((uint8)exp_smp->finetune << 4);
 
 		hio_seek(f, pos - 6 + synth->wf[j], SEEK_SET);
 
@@ -772,7 +772,7 @@ static int mmd_load_sampled_instrument(HIO_HANDLE *f, struct module_data *m, int
 	sub->pan = XMP_INST_NO_DEFAULT_PAN;
 	sub->xpo = info.sampletrans;
 	sub->sid = smp_idx;
-	sub->fin = exp_smp->finetune << 4;
+	sub->fin = (int8)((uint8)exp_smp->finetune << 4);
 
 	xxs = &mod->xxs[smp_idx];
 
@@ -874,7 +874,7 @@ static int mmd_load_iffoct_instrument(HIO_HANDLE *f, struct module_data *m, int 
 		sub->pan = XMP_INST_NO_DEFAULT_PAN;
 		sub->xpo = info.sampletrans - 12;
 		sub->sid = smp_idx;
-		sub->fin = exp_smp->finetune << 4;
+		sub->fin = (int8)((uint8)exp_smp->finetune << 4);
 
 		xxs = &mod->xxs[smp_idx];
 

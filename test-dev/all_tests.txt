@@ -189,6 +189,7 @@ test_loader_mmd0
 test_loader_mmd0_compattempo
 test_loader_mmd0_longrepeat
 test_loader_mmd0_med300
+test_loader_mmd0_finetune
 test_loader_mmdc
 test_loader_mmd1_longpat
 test_loader_mmd_iff3oct
