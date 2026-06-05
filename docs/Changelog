@@ -4,6 +4,8 @@ Stable versions
 4.7.1 (?):
 	Changes by Alice Rowan:
 	- Fix conversion of MED synth/hybrid finetune.
+	- Allow Archimedes MUSX modules to load if the SDAT instrument
+	  subchunk is broken (fixes 5-OverPar).
 	Changes by Alice Rowan and Ozkan Sezer:
 	- Fix various -fsanitize=shift-base warnings:
 	  Various: QUIRK_FT2ENV and FLOW_LOOP_NO_ROW_SET

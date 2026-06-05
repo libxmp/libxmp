@@ -423,8 +423,12 @@ static int get_samp(struct module_data *m, uint32 size, HIO_HANDLE *f, void *par
 	hio_read32l(f);
 	mod->xxs[i].lpe = hio_read32l(f);
 
-	if (hio_read32b(f) != MAGIC_SDAT)	/* SDAT */
-		return -1;
+	if (hio_read32b(f) != MAGIC_SDAT) {	/* SDAT */
+		/* This is corrupt in the final sample of 5-OverPar.
+		 * TODO: a more robust IFF handler for these fields would
+		 * be better. */
+		mod->xxs[i].len = 0;
+	}
 	hio_read32l(f);
 	hio_read32l(f);	/* 0x00000000 */
 
