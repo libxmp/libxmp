@@ -688,6 +688,11 @@ static void reset_channels(struct context_data *ctx)
 	struct smix_data *smix = &ctx->smix;
 	struct channel_data *xc;
 	int i;
+	/* Default instrument memory: 0 = no ins., 1 = ins. 0, etc.
+	 * This should be no ins. for FT2 (ft2_instrument_memory_default.xm,
+	 * "playful girl" by Drozerix) and IT (it_instrument_memory_default.it).
+	 */
+	const int old_ins = 0;
 
 #ifndef LIBXMP_CORE_PLAYER
 	for (i = 0; i < p->virt.virt_channels; i++) {
@@ -699,7 +704,7 @@ static void reset_channels(struct context_data *ctx)
 		xc->extra = extra;
 		libxmp_reset_channel_extras(ctx, xc);
 		xc->ins = -1;
-		xc->old_ins = 1;	/* raw value */
+		xc->old_ins = old_ins;
 		xc->key = -1;
 		xc->volume = m->volbase;
 	}
@@ -708,7 +713,7 @@ static void reset_channels(struct context_data *ctx)
 		xc = &p->xc_data[i];
 		memset(xc, 0, sizeof (struct channel_data));
 		xc->ins = -1;
-		xc->old_ins = 1;	/* raw value */
+		xc->old_ins = old_ins;
 		xc->key = -1;
 		xc->volume = m->volbase;
 	}

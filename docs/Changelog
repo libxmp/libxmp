@@ -3,6 +3,7 @@ Stable versions
 
 4.7.1 (?):
 	Changes by Alice Rowan:
+	- Fix XM channel default instrument memory (should be no instrument).
 	- Fix conversion of MED synth/hybrid finetune.
 	Changes by Alice Rowan and Ozkan Sezer:
 	- Fix various -fsanitize=shift-base warnings:
