@@ -5,6 +5,7 @@ Stable versions
 	Changes by Alice Rowan:
 	- Fix XM channel default instrument memory (should be no instrument).
 	- Fix conversion of MED synth/hybrid finetune.
+	- Fix Magnetic Fields Packer track loading and optimize tracks.
 	- Fix path_join when loading a module from the current directory.
 	- Allow Archimedes MUSX modules to load if the SDAT instrument
 	  subchunk is broken (fixes 5-OverPar).
