@@ -150,10 +150,10 @@ TEST(test_path)
 			"/first/second/third/fourth");
 	test_join(&sp, "//\\//\\//woah//", "\\//\\better//clean\\\\this\\/",
 			"/woah/better/clean/this");
+	test_join(&sp, "", "second", "second");
+	test_join(&sp, "", "", "");
 
 	test_join(&sp, "first", "", "first"); /* unintended but works */
-	test_join(&sp, "", "second", "/second"); /* unintended but works */
-	test_join(&sp, "", "", "/"); /* unintended but works */
 
 	ret = libxmp_path_join(&sp, "a", NULL);
 	fail_unless(ret == -1, "fail on NULL");

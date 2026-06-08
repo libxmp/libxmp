@@ -92,6 +92,19 @@ static int mfp_test(HIO_HANDLE *f, char *t, const int start)
 	return 0;
 }
 
+struct mfp_map {
+	uint16 offset;
+	uint8  ord;
+	uint8  chn;
+};
+
+static int mfp_map_compare(const void *A, const void *B)
+{
+	const struct mfp_map *a = (const struct mfp_map *)A;
+	const struct mfp_map *b = (const struct mfp_map *)B;
+	return (int)a->offset - b->offset;
+}
+
 static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 {
 	struct xmp_module *mod = &m->mod;
@@ -100,9 +113,11 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	struct libxmp_path sp;
 	HIO_HANDLE *s;
 	int size1 /*, size2*/;
-	int pat_addr, pat_table[128][4];
-	uint8 buf[1024], mod_event[4];
-	int row;
+	long pat_addr;
+	uint8 buf[255 * 2 + 4];
+	uint8 *mod_event;
+	struct mfp_map *mapping, *current;
+	uint16 *track_offs;
 
 	LOAD_INIT();
 
@@ -146,63 +161,141 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	mod->len = mod->pat = hio_read8(f);
 	hio_read8(f);		/* restart */
 
+	/*
 	for (i = 0; i < 128; i++) {
 		mod->xxo[i] = hio_read8(f);
 	}
-
 	if (hio_error(f)) {
 		return -1;
 	}
-
-	mod->trk = mod->pat * mod->chn;
+	*/
+	if (hio_seek(f, 128, SEEK_CUR)) {
+		D_(D_CRIT "seek error at order list");
+		return -1;
+	}
+	for (i = 0; i < mod->len; i++) {
+		mod->xxo[i] = i;
+	}
 
 	/* Read and convert patterns */
 
-	if (libxmp_init_pattern(mod) < 0)
-		return -1;
-
 	size1 = hio_read16b(f);
 	/* size2 = */ hio_read16b(f);
+	if (size1 > mod->len) {
+		D_(D_CRIT "invalid track table length %d > %d", size1, mod->len);
+		return -1;
+	}
 
+	/* What follows is a list of order (not pattern) track offsets.
+	 * To avoid duplicating tracks, try to merge track offsets.
+	 *
+	 * It is probably possible to merge patterns to match the original
+	 * order list, but not really worth the effort.
+	 */
+	mapping = (struct mfp_map *) calloc(size1 * 4, sizeof(struct mfp_map));
+	track_offs = (uint16 *) malloc(size1 * 4 * sizeof(uint16));
+
+	if (mapping == NULL || track_offs == NULL) {
+		free(mapping);
+		free(track_offs);
+		return -1;
+	}
+
+	D_(D_INFO "pattern table @ %lxh", hio_tell(f));
+	current = mapping;
 	for (i = 0; i < size1; i++) {		/* Read pattern table */
 		for (j = 0; j < 4; j++) {
-			pat_table[i][j] = hio_read16b(f);
+			current->offset = hio_read16b(f);
+			current->ord = i;
+			current->chn = j;
+			D_(D_INFO "  %d,%d: %d", i, j, current->offset);
+			current++;
 		}
 	}
 
-	D_(D_INFO "Stored patterns: %d ", mod->pat);
+	qsort(mapping, size1 * 4, sizeof(struct mfp_map), mfp_map_compare);
+
+	mod->trk = 0;
+	for (i = 0; i < size1 * 4; ) {
+		int offset = mapping[i].offset;
+		track_offs[mod->trk] = offset;
+
+		while (i < size1 * 4 && mapping[i].offset == offset) {
+			D_(D_INFO "  %d,%d (%d) -> track %d", mapping[i].ord,
+			   mapping[i].chn, mapping[i].offset, mod->trk);
+
+			/* Write track # to offset to save an extra field. */
+			mapping[i].offset = mod->trk;
+			i++;
+		}
+		mod->trk++;
+	}
+
+	if (libxmp_init_pattern(mod) < 0) {
+		free(mapping);
+		free(track_offs);
+		return -1;
+	}
+
+	for (i = 0; i < mod->len; i++) {
+		if (libxmp_alloc_pattern(mod, i) < 0) {
+			free(mapping);
+			free(track_offs);
+			return -1;
+		}
+		mod->xxp[i]->rows = 64;
+	}
+
+	for (i = 0; i < size1 * 4; i++) {
+		/* offset was replaced with the track number. */
+		mod->xxp[mapping[i].ord]->index[mapping[i].chn] = mapping[i].offset;
+	}
+	free(mapping);
+
+	D_(D_INFO "Stored tracks: %d ", mod->trk);
 
 	pat_addr = hio_tell(f);
+	D_(D_INFO "  @ %lxh", pat_addr);
 
-	for (i = 0; i < mod->pat; i++) {
-		if (libxmp_alloc_pattern_tracks(mod, i, 64) < 0)
+	for (i = 0; i < mod->trk; i++) {
+		int len;
+
+		if (libxmp_alloc_track(mod, i, 64) < 0) {
+			free(track_offs);
 			return -1;
+		}
 
-		for (j = 0; j < 4; j++) {
-			size_t len;
-			hio_seek(f, pat_addr + pat_table[i][j], SEEK_SET);
+		if (hio_seek(f, pat_addr + track_offs[i], SEEK_SET) < 0) {
+			D_(D_CRIT "seek error to track %d", i);
+			free(track_offs);
+			return -1;
+		}
 
-			len = hio_read(buf, 1, 1024, f);
+		len = (i < mod->trk - 1) ? track_offs[i + 1] - track_offs[i]
+					 : sizeof(buf);
 
-			for (row = k = 0; k < 4; k++) {
-				for (x = 0; x < 4; x++) {
-					for (y = 0; y < 4; y++, row++) {
-						event = &EVENT(i, j, row);
+		len = hio_read(buf, 1, MIN(len, sizeof(buf)), f);
 
-						if (k >= len ||
-						    buf[k] + x >= len ||
-						    buf[buf[k] + x] + y >= len ||
-						    buf[buf[buf[k] + x] + y] * 2 + 4 > len) {
-							D_(D_CRIT "read error at pat %d", i);
-							return -1;
-						}
-						memcpy(mod_event, &buf[buf[buf[buf[k] + x] + y] * 2], 4);
-						libxmp_decode_protracker_event(event, mod_event);
+		event = mod->xxt[i]->event;
+		for (k = 0; k < 4; k++) {
+			for (x = 0; x < 4; x++) {
+				for (y = 0; y < 4; y++) {
+					if (k >= len ||
+					    buf[k] + x >= len ||
+					    buf[buf[k] + x] + y >= len ||
+					    buf[buf[buf[k] + x] + y] * 2 + 4 > len) {
+						D_(D_CRIT "read error at track %d", i);
+						free(track_offs);
+						return -1;
 					}
+					mod_event = &buf[buf[buf[buf[k] + x] + y] * 2];
+					libxmp_decode_protracker_event(event, mod_event);
+					event++;
 				}
 			}
 		}
 	}
+	free(track_offs);
 
 	/* Read samples */
 	D_(D_INFO "Loading samples: %d", mod->ins);

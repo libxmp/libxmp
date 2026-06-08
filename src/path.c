@@ -183,6 +183,9 @@ int libxmp_path_join(struct libxmp_path *p, const char *prefix_path,
 		return -1;
 	}
 
+	if (prefix_path[0] == '\0')
+		return libxmp_path_set(p, suffix_path);
+
 	ret = snprintf(NULL, 0, "%s/%s", prefix_path, suffix_path);
 	if (ret < 0 || fix_size(p, (size_t)ret + 1u) < 0) {
 		return -1;
