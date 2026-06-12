@@ -7,6 +7,13 @@ Stable versions
 	- Fix conversion of MED synth/hybrid finetune.
 	- Fix Magnetic Fields Packer track loading and optimize tracks.
 	- Fix path_join when loading a module from the current directory.
+	- Fix loading truncated Startrekker AM instruments.
+	- Startrekker AM instruments now take precedence over sampled
+	  instruments in the same slot (fixes GTS/fa.worse face.mod and
+	  WOTW/intro 12.mod).
+	- Fix StarTrekker AM instrument envelope, P.FALL, and FQ toneporta
+	  bugs by reimplementing these features using extras (fixes
+	  Epsilon (ES)/frankie.mod, WOTW/intro 12.mod, maybe others).
 	- Allow Archimedes MUSX modules to load if the SDAT instrument
 	  subchunk is broken (fixes 5-OverPar).
 	Changes by Alice Rowan and Ozkan Sezer:

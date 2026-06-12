@@ -62,6 +62,7 @@ OBJS	= \
  src/scan.o \
  src/control.o \
  src/far_extras.o \
+ src/flt_extras.o \
  src/med_extras.o \
  src/filter.o \
  src/effects.o \
