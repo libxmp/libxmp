@@ -36,6 +36,26 @@ jobs:
           (cd test-dev && autoconf && ./configure)
           (cd test-dev && make -j 3)
 
+  linux-cxx:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Create and run Autotools configure script
+        run: |
+          autoconf
+          CC=g++ ./configure
+      - name: Autotools build
+        run: |
+          make -j 3
+      - name: Autotools check
+        run: |
+          make check
+      - name: Autotools devcheck
+        run: |
+          (cd test-dev && autoconf && CC=g++ ./configure)
+          (cd test-dev && make -j 3)
+
   linux-clang:
     runs-on: ubuntu-latest
     steps:
