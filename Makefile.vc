@@ -43,6 +43,7 @@ OBJS	= \
  src\scan.obj \
  src\control.obj \
  src\far_extras.obj \
+ src\flt_extras.obj \
  src\med_extras.obj \
  src\filter.obj \
  src\effects.obj \

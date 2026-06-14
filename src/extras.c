@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -26,6 +26,7 @@
 #include "med_extras.h"
 #include "hmn_extras.h"
 #include "far_extras.h"
+#include "flt_extras.h"
 
 /*
  * Module extras
@@ -41,6 +42,8 @@ void libxmp_release_module_extras(struct context_data *ctx)
 		libxmp_hmn_release_module_extras(m);
 	else if (HAS_FAR_MODULE_EXTRAS(*m))
 		libxmp_far_release_module_extras(m);
+	else if (HAS_FLT_MODULE_EXTRAS(*m))
+		libxmp_flt_release_module_extras(m);
 }
 
 /*
@@ -60,6 +63,9 @@ int libxmp_new_channel_extras(struct context_data *ctx, struct channel_data *xc)
 	} else if (HAS_FAR_MODULE_EXTRAS(*m)) {
 		if (libxmp_far_new_channel_extras(xc) < 0)
 			return -1;
+	} else if (HAS_FLT_MODULE_EXTRAS(*m)) {
+		if (libxmp_flt_new_channel_extras(xc) < 0)
+			return -1;
 	}
 
 	return 0;
@@ -75,6 +81,8 @@ void libxmp_release_channel_extras(struct context_data *ctx, struct channel_data
 		libxmp_hmn_release_channel_extras(xc);
 	else if (HAS_FAR_CHANNEL_EXTRAS(*m))
 		libxmp_far_release_channel_extras(xc);
+	else if (HAS_FLT_CHANNEL_EXTRAS(*m))
+		libxmp_flt_release_channel_extras(xc);
 }
 
 void libxmp_reset_channel_extras(struct context_data *ctx, struct channel_data *xc)
@@ -87,6 +95,8 @@ void libxmp_reset_channel_extras(struct context_data *ctx, struct channel_data *
 		libxmp_hmn_reset_channel_extras(xc);
 	else if (HAS_FAR_CHANNEL_EXTRAS(*m))
 		libxmp_far_reset_channel_extras(xc);
+	else if (HAS_FLT_CHANNEL_EXTRAS(*m))
+		libxmp_flt_reset_channel_extras(xc);
 }
 
 /*
@@ -107,6 +117,8 @@ void libxmp_play_extras(struct context_data *ctx, struct channel_data *xc, int c
 		libxmp_med_play_extras(ctx, xc, chn);
 	else if (HAS_HMN_INSTRUMENT_EXTRAS(m->mod.xxi[xc->ins]))
 		libxmp_hmn_play_extras(ctx, xc, chn);
+	else if (HAS_FLT_INSTRUMENT_EXTRAS(m->mod.xxi[xc->ins]))
+		libxmp_flt_play_extras(ctx, xc, chn);
 }
 
 int libxmp_extras_get_volume(struct context_data *ctx, struct channel_data *xc)
@@ -120,6 +132,8 @@ int libxmp_extras_get_volume(struct context_data *ctx, struct channel_data *xc)
 		vol = MED_CHANNEL_EXTRAS(*xc)->volume * xc->volume / 64;
 	else if (HAS_HMN_INSTRUMENT_EXTRAS(m->mod.xxi[xc->ins]))
 		vol = HMN_CHANNEL_EXTRAS(*xc)->volume * xc->volume / 64;
+	else if (HAS_FLT_INSTRUMENT_EXTRAS(m->mod.xxi[xc->ins]))
+		vol = FLT_CHANNEL_EXTRAS(*xc)->volume / 4;
 	else
 		vol = xc->volume;
 

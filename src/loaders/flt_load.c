@@ -22,6 +22,7 @@
 
 #include "loader.h"
 #include "mod.h"
+#include "../flt_extras.h"
 #include "../path.h"
 #include "../period.h"
 #include "../rng.h"
@@ -79,17 +80,17 @@ static const int8 am_waveform[3][32] = {
 };
 
 struct am_instrument {
-	int16 l0;		/* start amplitude */
-	int16 a1l;		/* attack level */
-	int16 a1s;		/* attack speed */
-	int16 a2l;		/* secondary attack level */
-	int16 a2s;		/* secondary attack speed */
-	int16 sl;		/* sustain level */
-	int16 ds;		/* decay speed */
-	int16 st;		/* sustain time */
-	int16 rs;		/* release speed */
+	uint16 l0;		/* start amplitude */
+	uint16 a1l;		/* attack level */
+	uint16 a1s;		/* attack speed */
+	uint16 a2l;		/* secondary attack level */
+	uint16 a2s;		/* secondary attack speed */
+	uint16 sl;		/* sustain level */
+	uint16 ds;		/* decay speed */
+	uint16 st;		/* sustain time */
+	uint16 rs;		/* release speed */
 	int16 wf;		/* waveform */
-	int16 p_fall;		/* ? */
+	int16 p_fall;		/* "pitch" fall (add to period each tick) */
 	int16 v_amp;		/* vibrato amplitude */
 	int16 v_spd;		/* vibrato speed */
 	int16 fq;		/* base frequency */
@@ -97,54 +98,151 @@ struct am_instrument {
 
 static int is_am_instrument(HIO_HANDLE *nt, int i)
 {
-	char buf[2];
-	int16 wf;
+	uint8 buf[28];
 
 	hio_seek(nt, 144 + i * 120, SEEK_SET);
-	hio_read(buf, 1, 2, nt);
+	if (hio_read(buf, 1, sizeof(buf), nt) < sizeof(buf))
+		return 0;
 	if (memcmp(buf, "AM", 2))
 		return 0;
-	hio_seek(nt, 24, SEEK_CUR);
-	wf = hio_read16b(nt);
-	if (hio_error(nt) || wf < 0 || wf > 3)
+	if (readmem16b(buf + 26) /* WF */ > 3)
 		return 0;
 
 	return 1;
 }
+
+#if 0
+/*
+ * AM synth envelope parameters based on the Startrekker 1.2 docs
+ *
+ * L0    Start amplitude for the envelope
+ * A1L   Attack level
+ * A1S   The speed that the amplitude changes to the attack level, $1
+ *       is slow and $40 is fast.
+ * A2L   Secondary attack level, for those who likes envelopes...
+ * A2S   Secondary attack speed.
+ * DS    The speed that the amplitude decays down to the:
+ * SL    Sustain level. There is remains for the time set by the
+ * ST    Sustain time.
+ * RS    Release speed. The speed that the amplitude falls from ST to 0.
+ *
+ * Keeping this (now working) conversion routine as intact deadcode, as it
+ * may be useful if libxmp ever needs to convert StarTrekker envelopes again.
+ */
+
+#define AM_SET_ENVELOPE(time, lv) do { \
+	env->data[pos]     = (time); \
+	env->data[pos + 1] = (lv) / 4; \
+	env->npt++; \
+	pos += 2; \
+} while(0)
+
+#define AM_ADD_ENVELOPE(dur, lv) do { \
+	int prev_time = env->data[pos - 2]; \
+	AM_SET_ENVELOPE(prev_time + (dur), (lv)); \
+} while(0)
+
+/* Speed is linear and is added/subtracted once every tick before
+ * checking for the target level, making the duration of stage n:
+ *
+ * Duration[n] = max(ceil(abs(L[n] - L[n-1]) / S[n]), 1)
+ *
+ * A speed of 0 causes the envelope to stop at the level of the
+ * previous stage (unless the target level is the same as the
+ * previous level). This can be simulated with a sustain point.
+ * (Add a new point for sustain to guarantee there at least 2 points.)
+ */
+#define AM_STAGE_DURATION(dur, prev_lv, lv, rate) do { \
+	int a; \
+	if ((rate) == 0 && (lv) != (prev_lv)) { \
+		env->flg |= XMP_ENVELOPE_SUS; \
+		env->sus = env->sue = env->npt; \
+		AM_ADD_ENVELOPE(1, (prev_lv)); \
+		return; \
+	} \
+	a = ((lv) > (prev_lv)) ? (lv) - (prev_lv) : (prev_lv) - (lv); \
+	if ((rate) > 0 && a > 0) { \
+		(dur) = (a + (rate) - 1) / (rate); \
+	} else { \
+		(dur) = 1; \
+	} \
+} while(0)
+
+static void convert_am_envelope(struct xmp_envelope *env, const struct am_instrument *am)
+{
+	int adjusted_l0;
+	int duration;
+	int pos = 0;
+
+	env->flg |= XMP_ENVELOPE_ON;
+	env->npt = 0;
+
+	/* Attack 1
+	 * This stage begins immediately on tick 0. To convert this to an XM/IT
+	 * envelope, one step needs to be applied to the initial level.
+	 * If attack 1 completes on this tick, don't add its envelope point. */
+	if (am->a1l > am->l0) {
+		adjusted_l0 = MIN(am->l0 + am->a1s, am->a1l);
+	} else {
+		adjusted_l0 = MAX(am->l0 - am->a1s, am->a1l);
+	}
+	AM_SET_ENVELOPE(0, adjusted_l0);
+	if (adjusted_l0 != am->a1l) {
+		AM_STAGE_DURATION(duration, adjusted_l0, am->a1l, am->a1s);
+		AM_ADD_ENVELOPE(duration, am->a1l);
+	}
+
+	/* Attack 2 */
+	AM_STAGE_DURATION(duration, am->a1l, am->a2l, am->a2s);
+	AM_ADD_ENVELOPE(duration, am->a2l);
+
+	/* Decay */
+	AM_STAGE_DURATION(duration, am->a2l, am->sl, am->ds);
+	AM_ADD_ENVELOPE(duration, am->sl);
+
+	/* Sustain seems to check for termination before decrementing,
+	 * meaning duration 0 takes 1 tick, 1 takes 2 ticks, etc. */
+	AM_ADD_ENVELOPE(am->st + 1, am->sl);
+
+	/* Release */
+	AM_STAGE_DURATION(duration, am->sl, 0, am->rs);
+	AM_ADD_ENVELOPE(duration, 0);
+}
+#endif
 
 static int read_am_instrument(struct module_data *m, HIO_HANDLE *nt, int i)
 {
 	struct xmp_module *mod = &m->mod;
 	struct xmp_instrument *xxi = &mod->xxi[i];
 	struct xmp_sample *xxs = &mod->xxs[i];
-	struct xmp_envelope *vol_env = &xxi->aei;
-	struct xmp_envelope *freq_env = &xxi->fei;
+	struct flt_instrument_extras *extra;
 	struct am_instrument am;
 	struct rng_state rng;
 	const int8 *wave;
-	int a, b;
+	uint8 buf[30];
 	int8 am_noise[1024];
 
-	hio_seek(nt, 144 + i * 120 + 2 + 4, SEEK_SET);
-	am.l0  = hio_read16b(nt);
-	am.a1l = hio_read16b(nt);
-	am.a1s = hio_read16b(nt);
-	am.a2l = hio_read16b(nt);
-	am.a2s = hio_read16b(nt);
-	am.sl  = hio_read16b(nt);
-	am.ds  = hio_read16b(nt);
-	am.st  = hio_read16b(nt);
-	hio_read16b(nt);
-	am.rs  = hio_read16b(nt);
-	am.wf  = hio_read16b(nt);
-	am.p_fall = -(int16) hio_read16b(nt);
-	am.v_amp = hio_read16b(nt);
-	am.v_spd = hio_read16b(nt);
-	am.fq  = hio_read16b(nt);
+	memset(&buf, 0, sizeof(buf));
 
-	if (hio_error(nt)) {
-		return -1;
+	hio_seek(nt, 144 + i * 120 + 2 + 4, SEEK_SET);
+	/* Allow partial/missing AM instruments (GTS/fa.worse face.mod). */
+	if (hio_read(buf, 1, 30, nt) < 30) {
+		D_(D_WARN "AM instrument %d is truncated or missing", i);
 	}
+	am.l0  = readmem16b(buf + 0);
+	am.a1l = readmem16b(buf + 2);
+	am.a1s = readmem16b(buf + 4);
+	am.a2l = readmem16b(buf + 6);
+	am.a2s = readmem16b(buf + 8);
+	am.sl  = readmem16b(buf + 10);
+	am.ds  = readmem16b(buf + 12);
+	am.st  = readmem16b(buf + 14);
+	am.rs  = readmem16b(buf + 18);
+	am.wf  = readmem16b(buf + 20);
+	am.p_fall = (int16) readmem16b(buf + 22);
+	am.v_amp = readmem16b(buf + 24);
+	am.v_spd = readmem16b(buf + 26);
+	am.fq  = readmem16b(buf + 28);
 
 #if 0
 	printf
@@ -157,7 +255,7 @@ static int read_am_instrument(struct module_data *m, HIO_HANDLE *nt, int i)
 		xxs->len = 32;
 		xxs->lps = 0;
 		xxs->lpe = 32;
-		wave = &am_waveform[am.wf][0];
+		wave = am_waveform[am.wf];
 	} else {
 		int j;
 
@@ -169,109 +267,33 @@ static int read_am_instrument(struct module_data *m, HIO_HANDLE *nt, int i)
 		for (j = 0; j < 1024; j++)
 			am_noise[j] = libxmp_get_random(&rng, 256);
 
-		wave = &am_noise[0];
+		wave = am_noise;
 	}
 
 	xxs->flg = XMP_SAMPLE_LOOP;
-	xxi->sub[0].vol = 0x40;	/* prelude.mod has 0 in instrument */
 	xxi->nsm = 1;
 	xxi->sub[0].xpo = -12 * am.fq;
 	xxi->sub[0].vwf = 0;
-	xxi->sub[0].vde = am.v_amp << 2;
+	xxi->sub[0].vde = am.v_amp * 4;
 	xxi->sub[0].vra = am.v_spd;
 
-	/*
-	 * AM synth envelope parameters based on the Startrekker 1.2 docs
-	 *
-	 * L0    Start amplitude for the envelope
-	 * A1L   Attack level
-	 * A1S   The speed that the amplitude changes to the attack level, $1
-	 *       is slow and $40 is fast.
-	 * A2L   Secondary attack level, for those who likes envelopes...
-	 * A2S   Secondary attack speed.
-	 * DS    The speed that the amplitude decays down to the:
-	 * SL    Sustain level. There is remains for the time set by the
-	 * ST    Sustain time.
-	 * RS    Release speed. The speed that the amplitude falls from ST to 0.
-	 */
-	if (am.a1s == 0)
-		am.a1s = 1;
-	if (am.a2s == 0)
-		am.a2s = 1;
-	if (am.ds == 0)
-		am.ds = 1;
-	if (am.rs == 0)
-		am.rs = 1;
+	if (libxmp_flt_new_instrument_extras(xxi) < 0)
+		return -1;
 
-	vol_env->npt = 6;
-	vol_env->flg = XMP_ENVELOPE_ON;
+	extra = FLT_INSTRUMENT_EXTRAS(*xxi);
+	extra->l0  = am.l0;
+	extra->a1l = am.a1l;
+	extra->a1s = am.a1s;
+	extra->a2l = am.a2l;
+	extra->a2s = am.a2s;
+	extra->sl  = am.sl;
+	extra->ds  = am.ds;
+	extra->st  = am.st;
+	extra->rs  = am.rs;
+	extra->p_fall = am.p_fall;
+	extra->fq  = am.fq; /* Required to fix toneporta */
 
-	vol_env->data[0] = 0;
-	vol_env->data[1] = am.l0 / 4;
-
-	/*
-	 * Startrekker increments/decrements the envelope by the stage speed
-	 * until it reaches the next stage level.
-	 *
-	 *         ^
-	 *         |
-	 *     100 +.........o
-	 *         |        /:
-	 *     A2L +.......o :        x = 256 * (A2L - A1L) / (256 - A1L)
-	 *         |      /: :
-	 *         |     / : :
-	 *     A1L +....o..:.:
-	 *         |    :  : :
-	 *         |    :x : :
-	 *         +----+--+-+----->
-	 *              |    |
-	 *              |256/|
-	 *               A2S
-	 */
-
-	if (am.a1l > am.l0) {
-		a = am.a1l - am.l0;
-		b = 256 - am.l0;
-	} else {
-		a = am.l0 - am.a1l;
-		b = am.l0;
-	}
-	if (b == 0)
-		b = 1;
-
-	vol_env->data[2] = vol_env->data[0] + (256 * a) / (am.a1s * b);
-	vol_env->data[3] = am.a1l / 4;
-
-	if (am.a2l > am.a1l) {
-		a = am.a2l - am.a1l;
-		b = 256 - am.a1l;
-	} else {
-		a = am.a1l - am.a2l;
-		b = am.a1l;
-	}
-	if (b == 0)
-		b = 1;
-
-	vol_env->data[4] = vol_env->data[2] + (256 * a) / (am.a2s * b);
-	vol_env->data[5] = am.a2l / 4;
-
-	if (am.sl > am.a2l) {
-		a = am.sl - am.a2l;
-		b = 256 - am.a2l;
-	} else {
-		a = am.a2l - am.sl;
-		b = am.a2l;
-	}
-	if (b == 0)
-		b = 1;
-
-	vol_env->data[6] = vol_env->data[4] + (256 * a) / (am.ds * b);
-	vol_env->data[7] = am.sl / 4;
-	vol_env->data[8] = vol_env->data[6] + am.st;
-	vol_env->data[9] = am.sl / 4;
-	vol_env->data[10] = vol_env->data[8] + (256 / am.rs);
-	vol_env->data[11] = 0;
-
+#if 0
 	/*
 	 * Implement P.FALL using pitch envelope
 	 */
@@ -282,8 +304,9 @@ static int read_am_instrument(struct module_data *m, HIO_HANDLE *nt, int i)
 		freq_env->data[0] = 0;
 		freq_env->data[1] = 0;
 		freq_env->data[2] = 1024 / abs(am.p_fall);
-		freq_env->data[3] = 10 * (am.p_fall < 0 ? -256 : 256);
+		freq_env->data[3] = 10 * (am.p_fall > 0 ? -256 : 256);
 	}
+#endif
 
 	if (libxmp_load_sample(m, NULL, SAMPLE_FLAG_NOLOAD, xxs, wave))
 		return -1;
@@ -391,6 +414,9 @@ static int flt_load(struct module_data *m, HIO_HANDLE * f, const int start)
 
 	mod->trk = mod->chn * mod->pat;
 
+	if (am_synth && libxmp_flt_new_module_extras(m) < 0)
+		return -1;
+
 	strncpy(mod->name, (char *)mh.name, 20);
 	libxmp_set_type(m, "%s %4.4s", tracker, mh.magic);
 	MODULE_INFO();
@@ -479,12 +505,14 @@ static int flt_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	D_(D_INFO "Stored samples: %d", mod->smp);
 
 	for (i = 0; i < mod->smp; i++) {
-		if (mod->xxs[i].len == 0) {
-			if (am_synth && is_am_instrument(nt, i)) {
-				if (read_am_instrument(m, nt, i) < 0) {
-					D_(D_CRIT "Missing nt file");
-					goto err;
-				}
+		if (am_synth && is_am_instrument(nt, i)) {
+			if (hio_seek(f, mod->xxs[i].len, SEEK_CUR) < 0) {
+				D_(D_CRIT "seek error at AM instrument %d", i);
+				goto err;
+			}
+			if (read_am_instrument(m, nt, i) < 0) {
+				D_(D_CRIT "error loading AM instrument %d", i);
+				goto err;
 			}
 			continue;
 		}

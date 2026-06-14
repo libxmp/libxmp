@@ -156,6 +156,7 @@ test_loader_far
 test_loader_far_fx
 test_loader_flt
 test_loader_flt8
+test_loader_flt_am_override
 test_loader_fnk
 test_loader_fnk_fk08
 test_loader_fnk_smpl_setpan
@@ -719,6 +720,11 @@ test_player_it_noteoff_nosuck
 test_player_sample_sync
 test_player_dbm_sample_default_pan
 test_player_far_weird_events
+test_player_flt_am_envelope
+test_player_flt_am_ignore_volfx
+test_player_flt_am_new_note
+test_player_flt_am_override
+test_player_flt_am_period_fall
 test_player_fnk_note_vslide_cancel
 test_player_fnk_sample_default_pan
 test_player_imf_sample_default_pan
