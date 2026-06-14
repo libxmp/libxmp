@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: CMake configure
         run: |
           mkdir build
@@ -36,11 +36,31 @@ jobs:
           (cd test-dev && autoconf && ./configure)
           (cd test-dev && make -j 3)
 
+  linux-cxx:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Create and run configure script
+        run: |
+          autoconf
+          CC=g++ ./configure
+      - name: Autotools build
+        run: |
+          make -j 3
+      - name: Autotools check
+        run: |
+          make check
+      - name: Autotools devcheck
+        run: |
+          (cd test-dev && autoconf && CC=g++ ./configure)
+          (cd test-dev && make -j 3)
+
   linux-clang:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install dependencies
         run: sudo apt update -qq && sudo apt install -y lld
       - name: CMake configure
@@ -76,7 +96,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: CMake configure
         run: |
           export CFLAGS="-flto"
@@ -110,7 +130,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install dependencies
         run: sudo apt update && sudo apt install autoconf
       - name: Install emscripten
@@ -158,11 +178,11 @@ jobs:
     strategy:
       matrix:
         platform:
-          - { name: freebsd,  os: freebsd,  os-version: 14.3, os-arch: x86-64,
+          - { name: freebsd,  os: freebsd,  os-version: 14.4, os-arch: x86-64,
               setup_cmd: 'sudo pkg update',
               install_cmd: 'sudo pkg install -y cmake',
             }
-          - { name: openbsd,  os: openbsd, os-version: 7.7,  os-arch: x86-64,
+          - { name: openbsd,  os: openbsd, os-version: 7.9,  os-arch: x86-64,
               setup_cmd: 'sudo pkg_add -u',
               install_cmd: 'sudo pkg_add cmake',
             }
@@ -170,54 +190,74 @@ jobs:
               setup_cmd: 'export PATH="/usr/pkg/sbin:/usr/pkg/bin:/sbin:$PATH";export PKG_PATH="https://cdn.netBSD.org/pub/pkgsrc/packages/NetBSD/$(uname -p)/$(uname -r|cut -f "1 2" -d.)/All/";echo "PKG_PATH=$PKG_PATH";echo "uname -a -> \"$(uname -a)\"";sudo -E sysctl -w security.pax.aslr.enabled=0;sudo -E sysctl -w security.pax.aslr.global=0;sudo -E pkgin clean;sudo -E pkgin update',
               install_cmd: 'sudo -E pkgin -y install cmake',
             }
+    defaults:
+      run:
+        shell: cpa.sh {0}
     steps:
-    - uses: actions/checkout@v4
-    - name: Build
-      uses: cross-platform-actions/action@v0.30.0
+    - uses: actions/checkout@v6
+    - name: Start VM
+      uses: cross-platform-actions/action@v1
       with:
         operating_system: ${{ matrix.platform.os }}
         architecture: ${{ matrix.platform.os-arch }}
         version: ${{ matrix.platform.os-version }}
-        run: |
-          ${{ matrix.platform.setup_cmd }}
-          ${{ matrix.platform.install_cmd }}
-          cmake -B build \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DBUILD_SHARED=ON  \
-            -DBUILD_STATIC=OFF \
-            -DBUILD_LITE=ON    \
-            -DWITH_UNIT_TESTS=ON
-          cmake --build build
-          (cd build && ctest --output-on-failure)
+    - name: Setup OS
+      run: |
+        ${{ matrix.platform.setup_cmd }}
+        ${{ matrix.platform.install_cmd }}
+    - name: Cmake configure
+      run: |
+        cmake -B build \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DBUILD_SHARED=ON  \
+          -DBUILD_STATIC=OFF \
+          -DBUILD_LITE=ON    \
+          -DWITH_UNIT_TESTS=ON
+    - name: Cmake build
+      run: |
+        cmake --build build
+    - name: CMake checks
+      run: |
+        (cd build && ctest --output-on-failure)
 
   haiku:
     runs-on: ubuntu-latest
     name: haiku
     timeout-minutes: 30
+    defaults:
+      run:
+        shell: cpa.sh {0}
     steps:
-    - uses: actions/checkout@v4
-    - name: Build
-      uses: cross-platform-actions/action@v0.30.0
+    - uses: actions/checkout@v6
+    - name: Start VM
+      uses: cross-platform-actions/action@v1
       with:
         operating_system: haiku
         architecture: x86-64
         version: r1beta5
-        run: |
-          pkgman install -y cmake
-          cmake -B build \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DBUILD_SHARED=ON  \
-            -DBUILD_STATIC=OFF \
-            -DBUILD_LITE=ON    \
-            -DWITH_UNIT_TESTS=ON
-          cmake --build build
-          (cd build && ctest --output-on-failure)
+    - name: Setup OS
+      run: |
+        pkgman install -y cmake
+    - name: Cmake configure
+      run: |
+        cmake -B build \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DBUILD_SHARED=ON  \
+          -DBUILD_STATIC=OFF \
+          -DBUILD_LITE=ON    \
+          -DWITH_UNIT_TESTS=ON
+    - name: Cmake build
+      run: |
+        cmake --build build
+    - name: CMake checks
+      run: |
+        (cd build && ctest --output-on-failure)
 
   macos:
     runs-on: macos-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install dependencies
         run: brew install autoconf
       - name: CMake configure for Intel
@@ -261,7 +301,7 @@ jobs:
         ]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: CMake configure
         run: |
           cmake . -DCMAKE_BUILD_TYPE=Release -DWITH_UNIT_TESTS=ON -B build ${{ matrix.cmakeflags }}
@@ -306,7 +346,7 @@ jobs:
           update: true
           install: base-devel git autoconf ${{ matrix.pkg }}
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Create and run Autotools configure script
         run: |
           autoconf
@@ -338,7 +378,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup OpenWatcom
         uses: open-watcom/setup-watcom@v0
         with:
@@ -375,7 +415,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup OpenWatcom
         uses: open-watcom/setup-watcom@v0
         with:
@@ -401,7 +441,7 @@ jobs:
     container: amigadev/crosstools:${{ matrix.host }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Create and run Autotools configure script
         run: |
           autoconf
@@ -414,7 +454,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install dependencies
         run: sudo apt install unrar
       - name: Create and run configure script
@@ -435,7 +475,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install dependencies
         run: sudo apt install unrar
       - name: Create and run configure script
