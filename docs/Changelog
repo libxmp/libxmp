@@ -4,6 +4,9 @@ Stable versions
 4.7.1 (?):
 	Changes by Alice Rowan:
 	- Fix XM channel default instrument memory (should be no instrument).
+	- Fix IT high offset being applied when no Oxx effect is present.
+	- Fix IT offsets >length setting the offset to sample end instead of 0
+	  in new effects mode.
 	- Fix conversion of MED synth/hybrid finetune.
 	- Fix Magnetic Fields Packer track loading and optimize tracks.
 	- Fix path_join when loading a module from the current directory.

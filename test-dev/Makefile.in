@@ -300,6 +300,7 @@ PLAYER		= read_event scan loop period_amiga period_mod_range pan \
 		  s3m_sample_porta \
 		  it_channel_filter it_cut_invalid_ins \
 		  it_fade_env_reset it_fade_env_reset_carry \
+		  it_high_offset_memory it_high_offset_memory_oldfx \
 		  it_instrument_memory_default \
 		  it_keyoff it_note_after_cut it_note_delay_nna it_sample_porta \
 		  it_sus_after_loop_bidi it_default_volume it_ins_199 \
