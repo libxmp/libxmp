@@ -6,11 +6,22 @@ LDFLAGS		= @LDFLAGS@
 LIBS		= @LIBS@
 V		= 0
 
+TEST_PATH	= .
+SRC_PATH	= ../src
+
 GCLIB		= libxmp-gc.a
+
+default-test: check
 
 .c.o:
 	@CMD='$(CC) -MMD $(CFLAGS) -o $*.o $<'; \
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo CC $*.o ; fi; \
+	eval $$CMD
+
+$(TEST_PATH)/%.a:
+	@$(RM) $@
+	@CMD='$(AR) rc $@ $^'; \
+	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo AR $@ ; fi; \
 	eval $$CMD
 
 #
@@ -656,72 +667,83 @@ FUZZER		= misc \
 
 SYNTH		= #adlib #spectrum
 
-CASE1_TESTS	= $(addprefix new_note_no_ins_,$(REPLAYERS)) \
-		  $(addprefix new_note_same_ins_,$(REPLAYERS)) \
-		  $(addprefix new_note_valid_ins_,$(REPLAYERS)) \
-		  $(addprefix new_note_invalid_ins_,$(REPLAYERS))
+CASE1_TESTS	= $(addprefix test_new_note_no_ins_,$(REPLAYERS)) \
+		  $(addprefix test_new_note_same_ins_,$(REPLAYERS)) \
+		  $(addprefix test_new_note_valid_ins_,$(REPLAYERS)) \
+		  $(addprefix test_new_note_invalid_ins_,$(REPLAYERS))
 
-CASE2_TESTS	= $(addprefix no_note_same_ins_,$(REPLAYERS)) \
-		  $(addprefix no_note_valid_ins_,$(REPLAYERS)) \
-		  $(addprefix no_note_invalid_ins_,$(REPLAYERS))
+CASE2_TESTS	= $(addprefix test_no_note_same_ins_,$(REPLAYERS)) \
+		  $(addprefix test_no_note_valid_ins_,$(REPLAYERS)) \
+		  $(addprefix test_no_note_invalid_ins_,$(REPLAYERS))
 
-CASE3_TESTS	= $(addprefix porta_no_ins_,$(REPLAYERS)) \
-		  $(addprefix porta_same_ins_,$(REPLAYERS)) \
-		  $(addprefix porta_valid_ins_,$(REPLAYERS)) \
-		  $(addprefix porta_invalid_ins_,$(REPLAYERS))
+CASE3_TESTS	= $(addprefix test_porta_no_ins_,$(REPLAYERS)) \
+		  $(addprefix test_porta_same_ins_,$(REPLAYERS)) \
+		  $(addprefix test_porta_valid_ins_,$(REPLAYERS)) \
+		  $(addprefix test_porta_invalid_ins_,$(REPLAYERS))
 
-QUIRK_TESTS	= $(addprefix quirk_,$(QUIRKS)) \
-		  $(addprefix no_quirk_,$(QUIRKS))
+QUIRK_TESTS	= $(addprefix test_quirk_,$(QUIRKS)) \
+		  $(addprefix test_no_quirk_,$(QUIRKS))
 
-SMPLOAD_TESTS	= $(addprefix sample_load_,$(SMPLOADERS))
+ALGORITHM_TESTS	= test_string_adjustment \
+		  test_path \
 
-DEPACK_TESTS	= $(addprefix depack_,$(DEPACKERS))
+SMPLOAD_TESTS	= $(addprefix test_sample_load_,$(SMPLOADERS))
 
-PROWIZARD_TESTS	= $(addprefix prowizard_,$(PROWIZARD))
+DEPACK_TESTS	= $(addprefix test_depack_,$(DEPACKERS))
 
-EFFECT_TESTS	= $(addprefix effect_,$(EFFECTS))
-PATJUMP_TESTS	= $(addprefix effect_pattern_jump_,$(PATJUMPS))
-PATLOOP_TESTS	= $(addprefix effect_pattern_loop_,$(PATLOOPS))
+PROWIZARD_TESTS	= $(addprefix test_prowizard_,$(PROWIZARD))
 
-SEQUENCER_TESTS	= prev_order_start prev_order_skip prev_order_start_seq \
-		  next_order_skip
+EFFECT_TESTS	= $(addprefix test_effect_,$(EFFECTS))
+PATJUMP_TESTS	= $(addprefix test_effect_pattern_jump_,$(PATJUMPS))
+PATLOOP_TESTS	= $(addprefix test_effect_pattern_loop_,$(PATLOOPS))
 
-STORLEK_TESTS	= $(addprefix storlek_,$(STORLEK))
+SEQUENCER_TESTS	= test_prev_order_start \
+		  test_prev_order_skip \
+		  test_prev_order_start_seq \
+		  test_next_order_skip
 
-OPENMPT_XM_TESTS= $(addprefix openmpt_xm_,$(OPENMPT_XM))
+STORLEK_TESTS	= $(addprefix test_storlek_,$(STORLEK))
 
-OPENMPT_IT_TESTS= $(addprefix openmpt_it_,$(OPENMPT_IT))
+OPENMPT_XM_TESTS= $(addprefix test_openmpt_xm_,$(OPENMPT_XM))
 
-OPENMPT_S3M_TESTS= $(addprefix openmpt_s3m_,$(OPENMPT_S3M))
+OPENMPT_IT_TESTS= $(addprefix test_openmpt_it_,$(OPENMPT_IT))
 
-OPENMPT_MOD_TESTS= $(addprefix openmpt_mod_,$(OPENMPT_MOD))
+OPENMPT_S3M_TESTS= $(addprefix test_openmpt_s3m_,$(OPENMPT_S3M))
 
-MIXER_TESTS	= $(addprefix mixer_,$(MIXER))
+OPENMPT_MOD_TESTS= $(addprefix test_openmpt_mod_,$(OPENMPT_MOD))
 
-READ_TESTS	= $(addprefix read_,$(READ))
+MIXER_TESTS	= $(addprefix test_mixer_,$(MIXER))
 
-WRITE_TESTS	= $(addprefix write_,$(WRITE))
+READ_TESTS	= $(addprefix test_read_,$(READ))
 
-PLAYER_TESTS	= $(addprefix player_,$(PLAYER))
+WRITE_TESTS	= $(addprefix test_write_,$(WRITE))
 
-LOADER_TESTS	= $(addprefix loader_,$(LOADER))
+PLAYER_TESTS	= $(addprefix test_player_,$(PLAYER))
 
-SYNTH_TESTS	= $(addprefix synth_,$(SYNTH))
+LOADER_TESTS	= $(addprefix test_loader_,$(LOADER))
 
-API_TESTS	= $(addprefix api_,$(API)) $(addprefix api_,$(API_SMIX))
+SYNTH_TESTS	= $(addprefix test_synth_,$(SYNTH))
 
-FUZZER_TESTS	= $(addprefix fuzzer_,$(FUZZER))
+API_TESTS	= $(addprefix test_api_,$(API)) \
+		  $(addprefix test_api_,$(API_SMIX))
 
-PROBLEM_TESTS	= $(addprefix module_,$(PROBLEMATIC))
+FUZZER_TESTS	= $(addprefix test_fuzzer_,$(FUZZER))
 
-TESTS		= $(READ_TESTS) \
+PROBLEM_TESTS	= $(addprefix test_module_,$(PROBLEMATIC))
+
+#
+# Intermediate test subsets to avoid argument list limits on MinGW.
+# This is only required for linking; all_tests.{c,txt} can safely
+# use the full list and clean can safely use wildcards.
+#
+TEST_NAMES_1	= $(READ_TESTS) \
 		  $(WRITE_TESTS) \
 		  $(SMPLOAD_TESTS) \
 		  $(DEPACK_TESTS) \
 		  $(PROWIZARD_TESTS) \
-		  string_adjustment \
-		  path \
-		  $(LOADER_TESTS) \
+		  $(ALGORITHM_TESTS) \
+
+TEST_NAMES_2	= $(LOADER_TESTS) \
 		  $(API_TESTS) \
 		  $(QUIRK_TESTS) \
 		  $(CASE1_TESTS) \
@@ -732,42 +754,77 @@ TESTS		= $(READ_TESTS) \
 		  $(PATJUMP_TESTS) \
 		  $(PATLOOP_TESTS) \
 		  $(SEQUENCER_TESTS) \
-		  $(STORLEK_TESTS) \
+
+TEST_NAMES_3	= $(STORLEK_TESTS) \
 		  $(OPENMPT_XM_TESTS) \
 		  $(OPENMPT_IT_TESTS) \
 		  $(OPENMPT_S3M_TESTS) \
 		  $(OPENMPT_MOD_TESTS) \
-		  $(PLAYER_TESTS) \
+
+TEST_NAMES_4	= $(PLAYER_TESTS) \
 		  $(MIXER_TESTS) \
 		  $(SYNTH_TESTS) \
-		  $(FUZZER_TESTS) \
+
+TEST_NAMES_5	= $(FUZZER_TESTS) \
 		  $(PROBLEM_TESTS)
 
-TEST_NAMES	= $(addprefix test_,$(TESTS))
+TEST_NAMES	= $(TEST_NAMES_1) \
+		  $(TEST_NAMES_2) \
+		  $(TEST_NAMES_3) \
+		  $(TEST_NAMES_4) \
+		  $(TEST_NAMES_5) \
+
+TEST_OBJS_1	= $(addprefix $(TEST_PATH)/,$(TEST_NAMES_1:=.o))
+TEST_OBJS_2	= $(addprefix $(TEST_PATH)/,$(TEST_NAMES_2:=.o))
+TEST_OBJS_3	= $(addprefix $(TEST_PATH)/,$(TEST_NAMES_3:=.o))
+TEST_OBJS_4	= $(addprefix $(TEST_PATH)/,$(TEST_NAMES_4:=.o))
+TEST_OBJS_5	= $(addprefix $(TEST_PATH)/,$(TEST_NAMES_5:=.o))
+
+TEST_OBJS	= $(TEST_OBJS_1) \
+		  $(TEST_OBJS_2) \
+		  $(TEST_OBJS_3) \
+		  $(TEST_OBJS_4) \
+		  $(TEST_OBJS_5) \
+
+TEST_INTERMED	= $(TEST_PATH)/libxmp-tests-1.a \
+		  $(TEST_PATH)/libxmp-tests-2.a \
+		  $(TEST_PATH)/libxmp-tests-3.a \
+		  $(TEST_PATH)/libxmp-tests-4.a \
+		  $(TEST_PATH)/libxmp-tests-5.a \
+
+$(TEST_PATH)/libxmp-tests-1.a: $(TEST_OBJS_1)
+$(TEST_PATH)/libxmp-tests-2.a: $(TEST_OBJS_2)
+$(TEST_PATH)/libxmp-tests-3.a: $(TEST_OBJS_3)
+$(TEST_PATH)/libxmp-tests-4.a: $(TEST_OBJS_4)
+$(TEST_PATH)/libxmp-tests-5.a: $(TEST_OBJS_5)
 
 MAIN_OBJS	= util.o main.o simple_module.o compare_mixer_data.o \
 		  compare_med_synth_data.o read_event_common.o
-TEST_OBJS	= $(MAIN_OBJS) $(TEST_NAMES:=.o)
 
-TEST_DFILES	= Makefile $(TEST_OBJS:.o=.c) test.h md5.h data
-
-TEST_PATH	= .
-SRC_PATH	= ../src
+TEST_DFILES	= $(addprefix $(TEST_PATH)/,Makefile $(MAIN_OBJS:.o=.c) test.h md5.h data) \
+		  $(TEST_OBJS:.o=.c)
 
 TEST_INTERNAL	= md5.o win32.o hio.o load_helpers.o loaders/itsex.o dataio.o scan.o \
 		  loaders/sample.o loaders/common.o filetype.o period.o memio.o \
 		  depackers/xfnmatch.o far_extras.o flow.o lfo.o rng.o path.o
 
-T_OBJS 		= $(addprefix $(TEST_PATH)/,$(TEST_OBJS)) \
-		  $(addprefix $(SRC_PATH)/,$(TEST_INTERNAL))
+T_OBJS 		= $(addprefix $(TEST_PATH)/,$(MAIN_OBJS)) \
+		  $(addprefix $(SRC_PATH)/,$(TEST_INTERNAL)) \
+		  $(TEST_INTERMED)
 
-GCT_OBJS 	= $(addprefix $(TEST_PATH)/,$(TEST_OBJS))
+GCT_OBJS 	= $(addprefix $(TEST_PATH)/,$(MAIN_OBJS)) \
+		  $(TEST_INTERMED)
 
-default-test: check
+sinclude $(addprefix $(TEST_PATH)/,$(MAIN_OBJS:.o=.d))
+sinclude $(addprefix $(SRC_PATH)/,$(TEST_INTERNAL:.o=.d))
+sinclude $(TEST_OBJS:.o=.d)
+
+$(TEST_OBJS): $(TEST_PATH)/all_tests.c
+$(addprefix $(TEST_PATH)/,$(MAIN_OBJS)): $(TEST_PATH)/all_tests.c
 
 dist-test:
 	mkdir -p $(DIST)/$(TEST_PATH)
-	cp -RPp $(addprefix $(TEST_PATH)/,$(TEST_DFILES)) $(DIST)/$(TEST_PATH)
+	cp -RPp $(TEST_DFILES) $(DIST)/$(TEST_PATH)
 
 clean: fuzzerclean
 	@rm -f core *~ $(T_OBJS)
@@ -783,7 +840,17 @@ vc-prepare: $(TEST_PATH)/all_tests.txt
 	     -e 's!@XMPSRCS@!\\\r\n $(subst .o,.c \\\r\n,$(subst /,\\,$(addprefix $(SRC_PATH)/,$(TEST_INTERNAL))))!' \
 	     Makefile.vc.in > Makefile.vc
 
-sinclude $(T_OBJS:.o=.d)
+$(TEST_PATH)/all_tests.c: $(TEST_PATH)/Makefile
+	@echo > $@; \
+	for i in $(TEST_NAMES); do \
+		echo "declare_test($$i);" >> $@; \
+	done
+
+$(TEST_PATH)/all_tests.txt: $(TEST_PATH)/Makefile
+	@$(RM) $@; \
+	for i in $(TEST_NAMES); do \
+		echo "$$i" >> $@; \
+	done;
 
 #
 # Utilities
@@ -838,25 +905,6 @@ $(TEST_PATH)/libxmp-covertest: $(GCT_OBJS) ../lib/$(GCLIB)
 
 ../lib/$(GCLIB):
 	make -C .. coverage
-
-$(TEST_PATH)/main.o: $(TEST_PATH)/main.c $(TEST_PATH)/all_tests.c $(TEST_PATH)/test.h $(TEST_PATH)/all_tests.c
-
-$(TEST_PATH)/test.h $(TEST_PATH)/main.c: $(TEST_PATH)/all_tests.c
-$(addprefix $(TEST_PATH)/,$(TEST_OBJS)): $(TEST_PATH)/all_tests.c
-
-$(TEST_PATH)/all_tests.c: $(TEST_PATH)/Makefile
-	@echo > $@; \
-	for i in $(TEST_NAMES); do \
-		echo "declare_test($$i);" >> $@; \
-	done
-
-$(TEST_PATH)/all_tests.txt: $(TEST_PATH)/Makefile
-	@$(RM) $@; \
-	for i in $(TEST_NAMES); do \
-		echo "$$i" >> $@; \
-	done
-
-$(addprefix $(SRC_PATH)/,$(TEST_INTERNAL)): $(SRC_PATH)/player.h
 
 #
 # Fuzzers

@@ -28,7 +28,7 @@ test-dev/xmpchk
 *.lib
 *.suo
 *.ncb
-Makefile.vc.tmp
+*.rsp
 
 # VSCode/clangd files
 /.cache
