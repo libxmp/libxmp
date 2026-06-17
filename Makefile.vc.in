@@ -77,6 +77,6 @@ check: $(TEST)
 	cd test & libxmp-test
 
 check-lite: $(TESTLITE)
-	$(LD) /RELEASE /OUT:test\libxmp-lite-test.exe $(TEST) libxmp-lite.lib
+	$(LD) /RELEASE /OUT:test\libxmp-lite-test.exe $(TESTLITE) libxmp-lite.lib
 	copy libxmp-lite.dll test
 	cd test & libxmp-lite-test
