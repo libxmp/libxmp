@@ -916,9 +916,9 @@ FUZZ_LDFLAGS		+= -fuse-ld=lld -L$(FUZZLIB_PATH)
 FUZZ_CC			?= clang
 
 FUZZ_ASAN_FLAGS		= -O3 -fsanitize=fuzzer,address,undefined \
-			  -fno-sanitize-recover=all -fno-sanitize=shift-base
+			  -fno-sanitize-recover=all
 FUZZ_HWASAN_FLAGS	= -O3 -fsanitize=fuzzer,hwaddress,undefined \
-			  -fno-sanitize-recover=all -fno-sanitize=shift-base
+			  -fno-sanitize-recover=all
 FUZZ_MSAN_FLAGS		= -O3 -fsanitize=fuzzer,memory -fsanitize-memory-track-origins=2
 
 FUZZ_ASAN_FLAGS		+= $(FUZZ_CFLAGS)
