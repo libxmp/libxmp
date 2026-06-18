@@ -839,7 +839,8 @@ static int mmd_load_iffoct_instrument(HIO_HANDLE *f, struct module_data *m, int 
 	struct xmp_subinstrument *sub;
 	struct xmp_sample *xxs;
 	struct mmd_instrument_info info;
-	int size, j, k;
+	int j, k;
+	uint32 size;
 
 	if (num_oct < 2 || num_oct > 7)
 		return -1;

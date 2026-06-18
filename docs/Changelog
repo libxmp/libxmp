@@ -31,6 +31,7 @@ Stable versions
 	  src/mixer.c: downmix_int_32bit
 	  src/loaders/amf_load.c: conversion of pan effect
 	  src/loaders/dbm_load.c: skipping 32-bit samples
+	  src/loaders/mmd_common.c: octave instrument size calculation.
 	  src/loaders/rtm_load.c: conversion of pan values
 	  src/loaders/umx_load.c: get_fci
 	  src/depackers/bunzip2.c: read_huffman_data

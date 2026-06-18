@@ -548,6 +548,7 @@ FUZZER		= misc \
 		  mgt_invalid \
 		  mgt_patterns_bound \
 		  mmd0_sample_count \
+		  mmd1_5octave_overflow \
 		  mmd1_channel_count \
 		  mmd1_invalid \
 		  mmd3_invalid \
