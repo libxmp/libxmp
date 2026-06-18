@@ -6,6 +6,8 @@
 mkdir -p "ARTIFACTS"
 
 DEFAULT_PARAMETERS="CORPUS data/ openmpt/ -artifact_prefix=ARTIFACTS/ -timeout=30"
+# MemorySanitizer needs at least 4G per worker for libxmp.
+MSAN_LIMIT_MB="-rss_limit_mb=4096"
 
 COMMAND="$1"
 shift
@@ -20,8 +22,8 @@ case "$COMMAND" in
 		[ -n "$1" ] && { NEW_CORPUS="$1"; }
 		[ -n "$2" ] && { OLD_CORPUS="$2"; }
 		mkdir -p "$NEW_CORPUS"
-		./libxmp_fuzz_asan -merge=1 -rss_limit_mb=4096 -timeout=2 "$NEW_CORPUS" "$OLD_CORPUS"
-		./libxmp_fuzz_msan -merge=1 -rss_limit_mb=4096 -timeout=2 "$NEW_CORPUS" "$OLD_CORPUS"
+		./libxmp_fuzz_asan -merge=1 $MSAN_LIMIT_MB -timeout=2 "$NEW_CORPUS" "$OLD_CORPUS"
+		./libxmp_fuzz_msan -merge=1 $MSAN_LIMIT_MB -timeout=2 "$NEW_CORPUS" "$OLD_CORPUS"
 		;;
 
 	#
@@ -34,7 +36,7 @@ case "$COMMAND" in
 		./libxmp_fuzz_hwasan -artifact_prefix="ARTIFACTS/" "$@"
 		;;
 	msanx)
-		./libxmp_fuzz_msan -artifact_prefix="ARTIFACTS/" "$@"
+		./libxmp_fuzz_msan -artifact_prefix="ARTIFACTS/" $MSAN_LIMIT_MB "$@"
 		;;
 
 	#
@@ -50,6 +52,6 @@ case "$COMMAND" in
 		;;
 	msan)
 		mkdir -p "CORPUS"
-		./libxmp_fuzz_msan $DEFAULT_PARAMETERS "$@"
+		./libxmp_fuzz_msan $DEFAULT_PARAMETERS $MSAN_LIMIT_MB "$@"
 		;;
 esac

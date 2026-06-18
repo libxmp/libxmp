@@ -24,13 +24,14 @@ Stable versions
 	  Various: QUIRK_FT2ENV and FLOW_LOOP_NO_ROW_SET
 	  Various loaders: conversion of 4-bit finetune
 	  src/dataio.c: read32l and read32b
-	  src/far_extras.c: FAR tempo conversion
+	  src/far_extras.c: FAR tempo conversion and negative tempos
 	  src/period.c: linear libxmp_period_to_bend for notes >240
 	  src/player.c: pitch envelope calculation
 	  src/mix_all.c: 8-bit samples and IT filter
 	  src/mixer.c: downmix_int_32bit
 	  src/loaders/amf_load.c: conversion of pan effect
 	  src/loaders/dbm_load.c: skipping 32-bit samples
+	  src/loaders/mmd_common.c: octave instrument size calculation.
 	  src/loaders/rtm_load.c: conversion of pan values
 	  src/loaders/umx_load.c: get_fci
 	  src/depackers/bunzip2.c: read_huffman_data
