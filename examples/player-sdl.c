@@ -39,9 +39,22 @@ static int sdl_init(xmp_context ctx)
 	return 0;
 }
 
-static void sdl_deinit()
+static void sdl_deinit(void)
 {
 	SDL_CloseAudio();
+}
+
+static int sdl_poll_exit(void)
+{
+	SDL_Event ev;
+
+	while (SDL_PollEvent(&ev)) {
+		switch (ev.type) {
+		case SDL_QUIT:
+			return 1;
+		}
+	}
+	return 0;
 }
 
 int main(int argc, char **argv)
@@ -57,6 +70,8 @@ int main(int argc, char **argv)
 		fprintf(stderr, "%s: can't initialize sound\n", argv[0]);
 		exit(1);
 	}
+
+	xmp_set_player(ctx, XMP_PLAYER_DEFPAN, 50);
 
 	for (i = 1; i < argc; i++) {
 		if (xmp_load_module(ctx, argv[i]) < 0) {
@@ -77,7 +92,7 @@ int main(int argc, char **argv)
 			playing = 1;
 			SDL_PauseAudio(0);
 
-			while (playing) {
+			while (playing && !sdl_poll_exit()) {
 				SDL_Delay(10);
 				xmp_get_frame_info(ctx, &fi);
 				printf("%3d/%3d %3d/%3d\r", fi.pos,

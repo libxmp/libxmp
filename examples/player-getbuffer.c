@@ -23,6 +23,8 @@ int main(int argc, char **argv)
 
 	ctx = xmp_create_context();
 
+	xmp_set_player(ctx, XMP_PLAYER_DEFPAN, 50);
+
 	for (i = 1; i < argc; i++) {
 		if (xmp_load_module(ctx, argv[i]) < 0) {
 			fprintf(stderr, "%s: error loading %s\n", argv[0],

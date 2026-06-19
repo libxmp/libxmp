@@ -74,6 +74,11 @@ int main(int argc, char **argv)
 
 	ctx = xmp_create_context();
 
+	/* Since this is a diagnostic utility, it may be more useful to
+	 * use the real initial panning for hard-panned formats instead
+	 * of 50% pan separation. */
+	xmp_set_player(ctx, XMP_PLAYER_DEFPAN, 100);
+
 	for (i = 1; i < argc; i++) {
 		if (xmp_load_module(ctx, argv[i]) < 0) {
 			fprintf(stderr, "%s: error loading %s\n", argv[0],

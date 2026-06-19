@@ -1,13 +1,16 @@
 
-CC = gcc
-CFLAGS = -O3 -Wall -I../include
-LD = gcc
-LDFLAGS =
+CC ?= gcc
+CFLAGS := -O3 -Wall -I../include $(CFLAGS)
+LD = $(CC)
+LDFLAGS ?=
 LIBS = -lxmp
+
+EXAMPLE_EXES	= player-simple player-showpatterns showinfo player-getbuffer player-openal player-openal-buffer
+EXAMPLE_EXES_SDL= player-sdl player-sdl2 player-sdl-smix player-sdl2-smix
 
 all: examples
 
-examples: player-simple player-showpatterns showinfo player-getbuffer player-openal player-openal-buffer
+examples: $(EXAMPLE_EXES)
 
 player-simple: player-simple.o alsa.o
 	$(LD) -o $@ $(LDFLAGS) $+ -lasound $(LIBS)
@@ -54,3 +57,10 @@ player-sdl2-smix: player-sdl2-smix.o
 
 player-sdl2-smix.o: player-sdl-smix.c
 	$(CC) $(CFLAGS) -c $+ -o $@ $$(pkg-config --cflags sdl2)
+
+clean:
+	@rm -f $(EXAMPLE_EXES)
+	@rm -f $(EXAMPLE_EXES:=.exe)
+	@rm -f $(EXAMPLE_EXES_SDL)
+	@rm -f $(EXAMPLE_EXES_SDL:=.exe)
+	@rm *.o

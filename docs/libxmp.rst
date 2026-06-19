@@ -71,6 +71,8 @@ sound file::
         /* Create the player context */
         c = xmp_create_context();
 
+        xmp_set_player(c, XMP_PLAYER_DEFPAN, 50);
+
         /* Load our module */
         if (xmp_load_module(c, argv[1]) != 0) {
             fprintf(stderr, "can't load module\n");
@@ -171,6 +173,7 @@ data. The module will play when ``SDL_PauseAudio(0)`` is called::
                 return 1;
 
         sound_init(ctx, 44100, 2);
+        xmp_set_player(ctx, XMP_PLAYER_DEFPAN, 50);
         xmp_load_module(ctx, argv[1]);
         xmp_start_player(ctx, 44100, 0);
 
@@ -1177,13 +1180,15 @@ int xmp_set_player(xmp_context c, int param, int val)
       computation of module duration without decompressing and
       loading large sample data, and is useful when duration information
       is needed for a module that won't be played immediately.
+      This option must be specified **before** calling `xmp_load_module()`_.
 
     * *[Added in libxmp 4.2]* Player volumes: Set the player master volume
       or the external sample mixer master volume. Valid values are 0 to 100.
 
     * *[Added in libxmp 4.3]* Default pan separation: percentual left/right
       pan separation in formats with only left and right channels. Default
-      is 100%.
+      is 100%, but 50% is recommended for most audio playback situations.
+      This option must be specified **before** calling `xmp_load_module()`_.
 
 .. raw:: pdf
 
@@ -1303,6 +1308,7 @@ as background music, and plays the sample when a key is pressed::
         xmp_start_smix(ctx, 1, 1);
         xmp_smix_load_sample(ctx, 0, "blip.wav");
 
+        xmp_set_player(ctx, XMP_PLAYER_DEFPAN, 50);
         xmp_load_module(ctx, "music.mod");
         xmp_start_player(ctx, 44100, 0);
         xmp_set_player(ctx, XMP_PLAYER_VOLUME, 40);
