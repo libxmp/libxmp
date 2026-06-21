@@ -346,12 +346,15 @@ int compare_module(struct xmp_module *mod, FILE *f)
 		MD5_CTX ctx;
 		int len = xxs->len;
 
-		if (xxs->flg & XMP_SAMPLE_16BIT) {
+		if (xxs->flg & XMP_SAMPLE_STEREO) {
 			len *= 2;
+		}
+		if (xxs->flg & XMP_SAMPLE_16BIT) {
 			/* Normalize data to little endian for the hash. */
 			if (is_big_endian()) {
-				convert_endian(xxs->data, xxs->len);
+				convert_endian(xxs->data, len);
 			}
+			len *= 2;
 		}
 
 		read_line(line, 1024, f);
@@ -530,12 +533,15 @@ void dump_module(struct xmp_module *mod, FILE *f)
 		MD5_CTX ctx;
 		int len = xxs->len;
 
-		if (xxs->flg & XMP_SAMPLE_16BIT) {
+		if (xxs->flg & XMP_SAMPLE_STEREO) {
 			len *= 2;
+		}
+		if (xxs->flg & XMP_SAMPLE_16BIT) {
 			/* Normalize data to little endian for the hash. */
 			if (is_big_endian()) {
-				convert_endian(xxs->data, xxs->len);
+				convert_endian(xxs->data, len);
 			}
+			len *= 2;
 		}
 
 		fprintf(f, "%d %d %d %d",
