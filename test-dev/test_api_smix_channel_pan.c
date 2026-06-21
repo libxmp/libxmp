@@ -14,10 +14,18 @@ TEST(test_api_smix_channel_pan)
 	ctx = (struct context_data *)opaque;
 	p = &ctx->p;
 
-	xmp_start_smix(opaque, 1, 2);
-
 	ret = xmp_load_module(opaque, "data/mod.loving_is_easy.pp");
 	fail_unless(ret == 0, "load module");
+
+	/* Try to set pan before initializing */
+	ret = xmp_smix_channel_pan(opaque, 0, 0x55);
+	fail_unless(ret == -XMP_ERROR_STATE, "set pan before init");
+
+	xmp_start_smix(opaque, 1, 2);
+
+	/* Try to set before starting player */
+	ret = xmp_smix_channel_pan(opaque, 0, 0x66);
+	fail_unless(ret == -XMP_ERROR_STATE, "set pan before start player");
 
 	xmp_start_player(opaque, 44100, 0);
 
@@ -37,6 +45,9 @@ TEST(test_api_smix_channel_pan)
 	ret = xmp_smix_channel_pan(opaque, 2, 0x00);
 	fail_unless(ret == -XMP_ERROR_INVALID, "invalid channel");
 
+	ret = xmp_smix_channel_pan(opaque, -1, 0xaa);
+	fail_unless(ret == -XMP_ERROR_INVALID, "invalid channel");
+
 	ret = xmp_smix_channel_pan(opaque, 0, -1);
 	fail_unless(ret == -XMP_ERROR_INVALID, "invalid pan");
 
@@ -51,8 +62,16 @@ TEST(test_api_smix_channel_pan)
 	xmp_play_frame(opaque);
 	fail_unless(vi->pan == 127, "set pan right");
 
-	xmp_release_module(opaque);
+	xmp_end_player(opaque);
 	xmp_end_smix(opaque);
+
+	xmp_start_player(opaque, 44100, 0);
+
+	/* Try to set pan after deinit */
+	xmp_smix_channel_pan(opaque, 0, 0x78);
+	fail_unless(ret == -XMP_ERROR_INVALID, "set pan after deinit");
+
+	xmp_release_module(opaque);
 	xmp_free_context(opaque);
 }
 END_TEST

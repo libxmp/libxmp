@@ -33,9 +33,15 @@ TEST(test_api_smix_play_instrument)
 	ret = xmp_smix_play_instrument(opaque, 31, 60, 64, 0);
 	fail_unless(ret == -XMP_ERROR_INVALID, "invalid instrument");
 
+	ret = xmp_smix_play_instrument(opaque, -1, 60, 64, 0);
+	fail_unless(ret == -XMP_ERROR_INVALID, "invalid instrument");
+
 	/* play instrument in invalid channel */
 	ret = xmp_smix_play_instrument(opaque, 31, 60, 64, 1);
-	fail_unless(ret == -XMP_ERROR_INVALID, "invalid instrument");
+	fail_unless(ret == -XMP_ERROR_INVALID, "invalid channel");
+
+	ret = xmp_smix_play_instrument(opaque, 31, 60, 64, -1);
+	fail_unless(ret == -XMP_ERROR_INVALID, "invalid channel");
 
 	ret = xmp_smix_play_instrument(opaque, 2, 60, 64, 0);
 	fail_unless(ret == 0, "play instrument");
@@ -82,8 +88,16 @@ TEST(test_api_smix_play_instrument)
 
 	fail_unless(!xc->period, "note end");
 
-	xmp_release_module(opaque);
+	xmp_end_player(opaque);
 	xmp_end_smix(opaque);
+
+	xmp_start_player(opaque, 44100, 0);
+
+	/* Try to play instrument after deinit */
+	ret = xmp_smix_play_instrument(opaque, 1, 60, 64, 0);
+	fail_unless(ret == -XMP_ERROR_INVALID, "play instrument after deinit");
+
+	xmp_release_module(opaque);
 	xmp_free_context(opaque);
 }
 END_TEST

@@ -54,6 +54,8 @@ void xmp_free_context(xmp_context opaque)
 	if (ctx->state > XMP_STATE_UNLOADED)
 		xmp_release_module(opaque);
 
+	xmp_end_smix(opaque);
+
 	free(m->instrument_path);
 	free(opaque);
 }

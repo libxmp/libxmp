@@ -1419,8 +1419,9 @@ int xmp_smix_channel_pan(xmp_context c, int chn, int pan)
     :pan: the pan value to set (0 to 255).
 
   **Returns:**
-    0 if the pan value was set, or ``-XMP_ERROR_INVALID`` if parameters
-    are invalid.
+    0 if the pan value was set, ``-XMP_ERROR_INVALID`` in
+    case of invalid parameters, or ``-XMP_ERROR_STATE`` if the player is not
+    in playing state.
 
 .. _xmp_smix_load_sample():
 
