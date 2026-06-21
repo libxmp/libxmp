@@ -71,16 +71,30 @@ int xmp_start_smix(xmp_context opaque, int chn, int smp)
 {
 	struct context_data *ctx = (struct context_data *)opaque;
 	struct smix_data *smix = &ctx->smix;
+	int smp_alloc;
 
 	if (ctx->state > XMP_STATE_LOADED) {
 		return -XMP_ERROR_STATE;
 	}
 
-	smix->xxi = (struct xmp_instrument *) calloc(smp, sizeof(struct xmp_instrument));
+	if (chn < 1 || smp < 0) {
+		return -XMP_ERROR_INVALID;
+	}
+	/* May already be initialized. Previously, this call
+	 * overwrote the old smix state and leaked it.  */
+	xmp_end_smix(opaque);
+
+	/* Sample count of 0 previously had undefined behavior,
+	 * possibly failing to allocate zero instruments/samples.
+	 * Allow it to allocate on the chance anything used it,
+	 * but do not allow usage of the extra sample. */
+	smp_alloc = MAX(smp, 1);
+
+	smix->xxi = (struct xmp_instrument *) calloc(smp_alloc, sizeof(struct xmp_instrument));
 	if (smix->xxi == NULL) {
 		goto err;
 	}
-	smix->xxs = (struct xmp_sample *) calloc(smp, sizeof(struct xmp_sample));
+	smix->xxs = (struct xmp_sample *) calloc(smp_alloc, sizeof(struct xmp_sample));
 	if (smix->xxs == NULL) {
 		goto err1;
 	}
@@ -167,7 +181,11 @@ int xmp_smix_channel_pan(xmp_context opaque, int chn, int pan)
 	struct module_data *m = &ctx->m;
 	struct channel_data *xc;
 
-	if (chn >= smix->chn || pan < 0 || pan > 255) {
+	if (ctx->state < XMP_STATE_PLAYING) {
+		return -XMP_ERROR_STATE;
+	}
+
+	if (chn >= smix->chn || chn < 0 || pan < 0 || pan > 255) {
 		return -XMP_ERROR_INVALID;
 	}
 
@@ -189,7 +207,7 @@ int xmp_smix_load_sample(xmp_context opaque, int num, const char *path)
 	int chn, rate, bits, size;
 	int retval = -XMP_ERROR_INTERNAL;
 
-	if (num >= smix->ins) {
+	if (num >= smix->ins || num < 0) {
 		retval = -XMP_ERROR_INVALID;
 		goto err;
 	}
@@ -305,7 +323,7 @@ int xmp_smix_release_sample(xmp_context opaque, int num)
 	struct context_data *ctx = (struct context_data *)opaque;
 	struct smix_data *smix = &ctx->smix;
 
-	if (num >= smix->ins) {
+	if (num >= smix->ins || num < 0) {
 		return -XMP_ERROR_INVALID;
 	}
 
@@ -324,6 +342,10 @@ void xmp_end_smix(xmp_context opaque)
 	struct smix_data *smix = &ctx->smix;
 	int i;
 
+	if (smix->xxs == NULL) {
+		return;
+	}
+
 	for (i = 0; i < smix->smp; i++) {
 		xmp_smix_release_sample(opaque, i);
 	}
@@ -332,4 +354,7 @@ void xmp_end_smix(xmp_context opaque)
 	free(smix->xxi);
 	smix->xxs = NULL;
 	smix->xxi = NULL;
+	smix->chn = 0;
+	smix->ins = 0;
+	smix->smp = 0;
 }

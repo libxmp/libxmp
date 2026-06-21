@@ -21,6 +21,9 @@ TEST(test_api_smix_load_sample)
 	ret = xmp_smix_load_sample(opaque, 2, "data/blip.wav");
 	fail_unless(ret == -XMP_ERROR_INVALID, "load sample in invalid slot");
 
+	ret = xmp_smix_load_sample(opaque, -1, "data/blip.wav");
+	fail_unless(ret == -XMP_ERROR_INVALID, "load sample in invalid slot");
+
 	/* try to load non-existent file */
 	ret = xmp_smix_load_sample(opaque, 0, "doesnt.exist");
 	fail_unless(ret == -XMP_ERROR_SYSTEM, "sample doesn't exist");
@@ -37,9 +40,28 @@ TEST(test_api_smix_load_sample)
 	ret = xmp_smix_load_sample(opaque, 0, "data/blip.wav");
 	fail_unless(ret == 0, "load sample");
 
-	xmp_smix_release_sample(opaque, 0);
+	ret = xmp_smix_release_sample(opaque, 0);
+	fail_unless(ret == 0, "release sample");
 
+	/* Double free sample */
+	ret = xmp_smix_release_sample(opaque, 0);
+	fail_unless(ret == 0, "release sample (double free)");
+
+	/* Invalid sample number */
+	ret = xmp_smix_release_sample(opaque, -1);
+	fail_unless(ret == -XMP_ERROR_INVALID, "release sample with invalid number");
+
+	xmp_end_player(opaque);
 	xmp_end_smix(opaque);
+
+	/* Try to load sample after deinit */
+	ret = xmp_smix_load_sample(opaque, 0, "data/blip.wav");
+	fail_unless(ret == -XMP_ERROR_INVALID, "load sample after deinit");
+
+	/* Try to release sample after deinit */
+	ret = xmp_smix_release_sample(opaque, 0);
+	fail_unless(ret == -XMP_ERROR_INVALID, "release sample after deinit");
+
 	xmp_free_context(opaque);
 }
 END_TEST
