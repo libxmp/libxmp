@@ -6,6 +6,8 @@ Stable versions
 	- Add xmp_set_player(ctx, XMP_PLAYER_DEFPAN, 50) to relevant examples
 	  in libxmp.rst and in the examples directory, clarify it must be
 	  used BEFORE calling xmp_load_module, and recommend its usage.
+	- Fix crashes and other bugs in the smix API.
+	- Rewrite the smix API WAV loader to support stereo samples.
 	- Fix XM channel default instrument memory (should be no instrument).
 	- Fix IT high offset being applied when no Oxx effect is present.
 	- Fix IT offsets >length setting the offset to sample end instead of 0
