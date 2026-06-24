@@ -42,6 +42,13 @@ Stable versions
 	  src/depackers/bunzip2.c: read_huffman_data
 	  src/depackers/unsqsh.c: get_bits_final
 	  src/depackers/lhasa/lha_file_header.c: decode_ftime
+	Changes by Ozkan Sezer:
+	- Add OS/2 EMX makefiles for KLIBC environment. Build tested under linux
+	  using cross-os2emx toolchain at https://github.com/komh/cross-os2emx
+	Changes by Stephen Kitt:
+	- Build the PDF without date information to improve reproducibility.
+	Other changes:
+	- Prevent overflow read in lha depacker pm2 decoder.
 
 4.7.0 (20260225):
 	Changes by Alice Rowan:
