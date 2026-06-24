@@ -1575,10 +1575,10 @@ static int read_event_smix(struct context_data *ctx, const struct xmp_event *e, 
 	RESET_NOTE(NOTE_END);
 
 	if (ins >= mod->ins && ins < mod->ins + smix->ins) {
-		sub = &xxi->sub[0];
-		if (sub == NULL) {
+		if (xxi->sub == NULL) {
 			return 0;
 		}
+		sub = &xxi->sub[0];
 
 		note = xc->key + sub->xpo;
 		smp = sub->sid;

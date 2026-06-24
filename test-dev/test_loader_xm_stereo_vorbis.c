@@ -1,6 +1,11 @@
 #include "test.h"
 
-/* Test loading 8-bit and 16-bit stereo XM samples (OggMod). */
+/* Test loading 8-bit and 16-bit stereo XM samples (OggMod).
+ *
+ * This module was converted using OggMod at quality level 1
+ * for both samples. The samples should render identically
+ * at this level for both x87 and IEEE-754 floating point.
+ */
 
 TEST(test_loader_xm_stereo_vorbis)
 {

@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2022 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -23,9 +23,136 @@
 #include "common.h"
 #include "period.h"
 #include "player.h"
+#include "mixer.h"
+#include "virtual.h"
 #include "hio.h"
 #include "loaders/loader.h"
 
+
+#define WAV_MAGIC_RIFF	MAGIC4('R','I','F','F')
+#define WAV_MAGIC_WAVE	MAGIC4('W','A','V','E')
+#define WAV_MAGIC_FMT	MAGIC4('f','m','t',' ')
+#define WAV_MAGIC_DATA	MAGIC4('d','a','t','a')
+
+#define WAV_PAD(sz)	(((sz) + 1) & ~1)
+
+struct wav_fmt_data
+{
+#define WAV_FMT_TYPE_PCM	1
+	uint16 format;
+	uint16 channels;
+	uint32 sample_rate;
+	uint32 bytes_per_second;
+	uint16 bytes_per_frame;
+	uint16 sample_bits;
+};
+
+static int libxmp_load_wav_sample(struct module_data *m, struct xmp_sample *xxs,
+				  struct wav_fmt_data *wav, HIO_HANDLE *f)
+{
+	uint32 magic;
+	uint32 len;
+	int flags = 0;
+
+	magic = hio_read32b(f);
+	if (magic != WAV_MAGIC_RIFF) {
+		return -XMP_ERROR_FORMAT;
+	}
+	/* len = */ hio_read32l(f);
+	magic = hio_read32b(f);
+	if (magic != WAV_MAGIC_WAVE) {
+		return -XMP_ERROR_FORMAT;
+	}
+
+	magic = hio_read32b(f);
+	if (magic != WAV_MAGIC_FMT) {
+		return -XMP_ERROR_FORMAT;
+	}
+	len = hio_read32l(f);
+	if (len < 16 || len > 0xffff) {
+		return -XMP_ERROR_FORMAT;
+	}
+	wav->format           = hio_read16l(f);
+	wav->channels         = hio_read16l(f);
+	wav->sample_rate      = hio_read32l(f);
+	wav->bytes_per_second = hio_read32l(f);
+	wav->bytes_per_frame  = hio_read16l(f);
+	wav->sample_bits      = hio_read16l(f);
+	if (hio_error(f)) {
+		return -XMP_ERROR_FORMAT;
+	}
+
+	/* Only PCM, 8-bit/16-bit, 1 or 2 channels supported */
+	if (wav->format != WAV_FMT_TYPE_PCM) {
+		return -XMP_ERROR_FORMAT;
+	}
+	if (wav->channels != 1 && wav->channels != 2) {
+		return -XMP_ERROR_FORMAT;
+	}
+	if (wav->sample_bits != 8 && wav->sample_bits != 16) {
+		return -XMP_ERROR_FORMAT;
+	}
+	if (wav->sample_rate < 16 || wav->sample_rate > (uint32)INT_MAX) {
+		return -XMP_ERROR_FORMAT;
+	}
+
+	/* Sanity check on rate fields */
+	if (((wav->sample_bits + 7) >> 3) * wav->channels != wav->bytes_per_frame) {
+		return -XMP_ERROR_FORMAT;
+	}
+	if (wav->bytes_per_second / wav->sample_rate != wav->bytes_per_frame) {
+		return -XMP_ERROR_FORMAT;
+	}
+
+	/* Skip remaining fmt chunk */
+	if (len > 16 && hio_seek(f, WAV_PAD(len - 16), SEEK_CUR) < 0) {
+		return -XMP_ERROR_SYSTEM;
+	}
+
+	/* Seek to data chunk */
+	for (;;) {
+		magic = hio_read32b(f);
+		len = hio_read32l(f);
+		if (hio_error(f)) {
+			return -XMP_ERROR_FORMAT;
+		}
+
+		if (magic == WAV_MAGIC_DATA) {
+			break;
+		}
+
+#if LONG_MAX <= 2147483647L
+		if (len > (uint32)LONG_MAX) {
+			return -XMP_ERROR_SYSTEM;
+		}
+#endif
+		if (hio_seek(f, WAV_PAD((long)len), SEEK_CUR) < 0) {
+			return -XMP_ERROR_SYSTEM;
+		}
+	}
+	/* Now positioned at the start of raw data. */
+
+	xxs->len = len / wav->bytes_per_frame;
+	xxs->lps = 0;
+	xxs->lpe = 0;
+	xxs->flg = 0;
+
+	if (wav->sample_bits == 16) {
+		xxs->flg |= XMP_SAMPLE_16BIT;
+	} else {
+		flags |= SAMPLE_FLAG_UNS;
+	}
+
+	if (wav->channels == 2) {
+		xxs->flg |= XMP_SAMPLE_STEREO;
+		flags |= SAMPLE_FLAG_INTERLEAVED;
+	}
+
+	if (libxmp_load_sample(m, f, flags, xxs, NULL) < 0) {
+		return -XMP_ERROR_SYSTEM;
+	}
+	return 0;
+}
 
 struct xmp_instrument *libxmp_get_instrument(struct context_data *ctx, int ins)
 {
@@ -203,13 +330,11 @@ int xmp_smix_load_sample(xmp_context opaque, int num, const char *path)
 	struct xmp_instrument *xxi;
 	struct xmp_sample *xxs;
 	HIO_HANDLE *h;
-	uint32 magic;
-	int chn, rate, bits, size;
-	int retval = -XMP_ERROR_INTERNAL;
+	struct wav_fmt_data wav;
+	int retval;
 
 	if (num >= smix->ins || num < 0) {
-		retval = -XMP_ERROR_INVALID;
-		goto err;
+		return -XMP_ERROR_INVALID;
 	}
 
 	xxi = &smix->xxi[num];
@@ -217,16 +342,20 @@ int xmp_smix_load_sample(xmp_context opaque, int num, const char *path)
 
 	h = hio_open(path, "rb");
 	if (h == NULL) {
-		retval = -XMP_ERROR_SYSTEM;
-		goto err;
+		return -XMP_ERROR_SYSTEM;
 	}
+
+	/* Release whatever instrument/sample exists, if any.
+	 * Prior versions leaked and potentially left the
+	 * instrument/sample in an undefined state. */
+	xmp_smix_release_sample(opaque, num);
 
 	/* Init instrument */
 
 	xxi->sub = (struct xmp_subinstrument *) calloc(1, sizeof(struct xmp_subinstrument));
 	if (xxi->sub == NULL) {
-		retval = -XMP_ERROR_SYSTEM;
-		goto err1;
+		hio_close(h);
+		return -XMP_ERROR_SYSTEM;
 	}
 
 	xxi->vol = m->volbase;
@@ -237,101 +366,50 @@ int xmp_smix_load_sample(xmp_context opaque, int num, const char *path)
 
 	/* Load sample */
 
-	magic = hio_read32b(h);
-	if (magic != 0x52494646) {	/* RIFF */
-		retval = -XMP_ERROR_FORMAT;
-		goto err2;
-	}
-
-	if (hio_seek(h, 22, SEEK_SET) < 0) {
-		retval = -XMP_ERROR_SYSTEM;
-		goto err2;
-	}
-	chn = hio_read16l(h);
-	if (chn != 1) {
-		retval = -XMP_ERROR_FORMAT;
-		goto err2;
-	}
-
-	rate = hio_read32l(h);
-	if (rate == 0) {
-		retval = -XMP_ERROR_FORMAT;
-		goto err2;
-	}
-
-	if (hio_seek(h, 34, SEEK_SET) < 0) {
-		retval = -XMP_ERROR_SYSTEM;
-		goto err2;
-	}
-	bits = hio_read16l(h);
-	if (bits == 0) {
-		retval = -XMP_ERROR_FORMAT;
-		goto err2;
-	}
-
-	if (hio_seek(h, 40, SEEK_SET) < 0) {
-		retval = -XMP_ERROR_SYSTEM;
-		goto err2;
-	}
-	size = hio_read32l(h);
-	if (size == 0) {
-		retval = -XMP_ERROR_FORMAT;
-		goto err2;
-	}
-
-	libxmp_c2spd_to_note(rate, &xxi->sub[0].xpo, &xxi->sub[0].fin);
-
-	xxs->len = 8 * size / bits;
-	xxs->lps = 0;
-	xxs->lpe = 0;
-	xxs->flg = bits == 16 ? XMP_SAMPLE_16BIT : 0;
-
-	xxs->data = (unsigned char *) malloc(size + 8);
-	if (xxs->data == NULL) {
-		retval = -XMP_ERROR_SYSTEM;
-		goto err2;
-	}
-
-	/* ugly hack to make the interpolator happy */
-	memset(xxs->data, 0, 4);
-	memset(xxs->data + 4 + size, 0, 4);
-	xxs->data += 4;
-
-	if (hio_seek(h, 44, SEEK_SET) < 0) {
-		retval = -XMP_ERROR_SYSTEM;
-		goto err2;
-	}
-	if (hio_read(xxs->data, 1, size, h) != size) {
-		retval = -XMP_ERROR_SYSTEM;
-		goto err2;
-	}
+	retval = libxmp_load_wav_sample(m, xxs, &wav, h);
 	hio_close(h);
+	if (retval != 0) {
+		free(xxi->sub);
+		xxi->sub = NULL;
+		return retval;
+	}
+
+	libxmp_c2spd_to_note(wav.sample_rate, &xxi->sub[0].xpo, &xxi->sub[0].fin);
 
 	return 0;
-
-    err2:
-	free(xxi->sub);
-	xxi->sub = NULL;
-    err1:
-	hio_close(h);
-    err:
-	return retval;
 }
 
 int xmp_smix_release_sample(xmp_context opaque, int num)
 {
 	struct context_data *ctx = (struct context_data *)opaque;
 	struct smix_data *smix = &ctx->smix;
+	struct player_data *p = &ctx->p;
+	struct xmp_instrument *xxi;
+	struct xmp_sample *xxs;
+	int i;
 
 	if (num >= smix->ins || num < 0) {
 		return -XMP_ERROR_INVALID;
 	}
 
-	libxmp_free_sample(&smix->xxs[num]);
-	free(smix->xxi[num].sub);
+	xxi = &smix->xxi[num];
+	xxs = &smix->xxs[num];
 
-	smix->xxs[num].data = NULL;
-	smix->xxi[num].sub = NULL;
+	/* This sample may be actively playing in the mixer. Fully clear
+	 * any mixer voice using it to avoid any playback issues/crashes. */
+	for (i = 0; i < p->virt.maxvoc; i++) {
+		struct mixer_voice *vi = &p->virt.voice_array[i];
+
+		if (vi->sptr == xxs->data) {
+			libxmp_virt_resetvoice(ctx, i, 1);
+		}
+	}
+
+	libxmp_free_sample(xxs);
+	free(xxi->sub);
+
+	xxs->data = NULL;
+	xxi->sub = NULL;
 
 	return 0;
 }
