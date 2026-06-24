@@ -222,7 +222,7 @@ static int read_am_instrument(struct module_data *m, HIO_HANDLE *nt, int i)
 	uint8 buf[30];
 	int8 am_noise[1024];
 
-	memset(&buf, 0, sizeof(buf));
+	memset(buf, 0, sizeof(buf));
 
 	hio_seek(nt, 144 + i * 120 + 2 + 4, SEEK_SET);
 	/* Allow partial/missing AM instruments (GTS/fa.worse face.mod). */
