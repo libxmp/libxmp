@@ -14,10 +14,7 @@ libxmp can be compiled with Autoconf and GNU Make, a POSIX shell, and GCC
 (or clang). This is libxmp's primary build system, and is recommended for
 development on Linux/BSD, macOS, Haiku, and others.
 
-(MSYS2 users will get better compilation times from CMake, but this build
-system is still required to regenerate the other build system Makefiles
-when developing in a git clone of libxmp and adding new compilation units
-or removing existing ones.)
+(MSYS2 users will get better compilation times from CMake.)
 
 ```sh
 # Configure libxmp
@@ -49,32 +46,6 @@ be enabled for CI), edit Makefile, uncomment this line, and rebuild:
 
 ```Makefile
 #CFLAGS += -DDEBUG
-```
-
-### Preparing other build systems
-
-This build system is used to regenerate the Makefiles for every other
-build system, which should be performed every time a new compilation unit
-is added:
-
-```sh
-make cmake-prepare
-make vc-prepare
-make watcom-prepare
-make emx-prepare
-```
-
-The regression tests system uses automatically constructed source file lists
-for CMake and NMAKE. Running the regression tests once with the GNU Make
-build system is sufficient to rebuild the list of test source files. Adding
-other new source files to the regression tests requires the following:
-
-```sh
-# Rebuild test-dev/Makefile.vc
-(cd test-dev && make vc-prepare)
-
-# There is currently no target to rebuild test-dev/CMakeLists.txt.
-# Base source files must be edited in manually.
 ```
 
 ### libxmp-lite (optional)
@@ -345,6 +316,152 @@ be enabled for CI), edit Makefile.emx, uncomment this line, and rebuild:
 
 ```Makefile
 #CFLAGS += -DDEBUG
+```
+
+
+## Developer-only targets and tools
+
+The Autoconf/GNU Make build system is currently mandatory for several
+development tasks. Even if developing with another build system, you should
+have Autoconf and GNU Make available (in Windows, this is usually via MSYS2).
+
+Like the regression tests, several of these require a cloned Git respository,
+and will not work if attempted using an extracted release tarball.
+
+### Preparing other build systems
+
+The Autoconf/GNU Make build system is used to regenerate the Makefiles
+for every other build system, which should be performed every time a
+compilation unit is added or renamed:
+
+```sh
+make cmake-prepare
+make vc-prepare
+make watcom-prepare
+make emx-prepare
+```
+
+The regression tests system uses automatically constructed source file lists
+for CMake and NMAKE. Running the regression tests once with the GNU Make
+build system is sufficient to rebuild the list of test source files. Adding
+other new source files to the regression tests requires the following:
+
+```sh
+# Rebuild test-dev/Makefile.vc
+(cd test-dev && make vc-prepare)
+
+# There is currently no target to rebuild test-dev/CMakeLists.txt.
+# Base source files must be edited in manually.
+```
+
+### Distribution and documentation
+
+Preparing distribution tarballs and rebuilding the documentation is supported
+by Autoconf/GNU Make and by CMake.
+
+Required dependencies: `python3-docutils`, `rst2pdf`.
+
+```sh
+# Only rebuild the documentation
+make docs
+
+# This will rebuild the documentation, prepare the other build systems, and
+# then produce a distribution tarball.
+make dist
+
+# To test the distribution tarball:
+make distcheck
+
+# To make a distribution tarball for libxmp-lite:
+make -f Makefile.lite dist
+```
+
+### Coverage testing
+
+This is only supported by the Autoconf/GNU Make build system and requires
+the test-dev folder.
+
+Required dependencies: `gcovr`, `lcov`.
+
+```sh
+# Build the coverage-instrumented library
+make coverage
+
+# If not done already:
+(cd test-dev && autoconf && ./configure)
+
+# Build and run the regression tests using the coverage-instrumented library
+make covercheck
+```
+
+The build system also supports building a coverage-instrumented libxmp-lite
+library (but with no equivalent regression tests or reporting):
+
+```sh
+make coverage-lite
+```
+
+### Development tools
+
+libxmp's development tools are part of the regression tests system
+and require Autoconf/GNU Make:
+
+```sh
+cd test-dev
+
+# If not done already
+autoconf && ./configure
+
+make utilities
+```
+
+#### gen_module_data
+
+This outputs information about data loaded from a module, and is primarily
+used for loader tests (`test_loader_*.c`).
+
+#### gen_mixer_data
+
+This outputs information about module playback and is used by a wide variety
+of regression tests.
+
+#### xmpchk
+
+This runs libxmp's fuzz testing routine on one or more modules and is useful
+for reproducing crashes found by libFuzzer (see below).
+
+### Fuzz testing
+
+libxmp also supports fuzzing via libFuzzer. Building the fuzzers is performed
+with the Autoconf/GNU Make build system, but it also requires CMake (to build
+the instrumented libraries in their own directories).
+
+Required dependencies: `clang`, `llvm`, `lld`, `compiler-rt`.
+
+```sh
+cd test-dev
+
+# If not done already
+autoconf && ./configure
+
+make fuzzers
+```
+
+Use `libxmp_fuzz.sh` in the test-dev directory to run the fuzzers:
+
+```sh
+# Run one job of the AddressSanitizer + UndefinedBehaviorSanitizer fuzzer:
+./libxmp_fuzz.sh asan
+
+# AArch64-only: HWAddressSanitizer + UndefinedBehaviorSanitizer fuzzer:
+./libxmp_fuzz.sh hwasan
+
+# Run 16 jobs using 4 workers of the MemorySanitizer fuzzer:
+./libxmp_fuzz.sh msan -jobs=16 -workers=4
+
+# Perform a corpus merge using the AddressSanitizer and MemorySanitizer
+# fuzzers (outputs to NEW_CORPUS):
+./libxmp_fuzz.sh merge
 ```
 
 
