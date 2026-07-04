@@ -1,7 +1,7 @@
 Stable versions
 ---------------
 
-4.7.1 (?):
+4.7.1 (20260704):
 	Changes by Alice Rowan:
 	- Add xmp_set_player(ctx, XMP_PLAYER_DEFPAN, 50) to relevant examples
 	  in libxmp.rst, clarify it must be used BEFORE calling xmp_load_module
