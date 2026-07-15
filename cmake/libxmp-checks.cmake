@@ -149,23 +149,40 @@ xmp_check_function(mkstemp "stdlib.h" HAVE_MKSTEMP)
 check_include_file(unistd.h HAVE_UNISTD_H)
 check_include_file(sys/wait.h HAVE_SYS_WAIT_H)
 
-if(HAVE_UNISTD_H AND HAVE_SYS_WAIT_H)
+if(HAVE_UNISTD_H)
     check_c_source_compiles("#include <unistd.h>
                              int fds[2];
                              int main(void) { return pipe(fds) < 0; }" HAVE_PIPE)
-    check_c_source_compiles("#include <unistd.h>
-                             #include <sys/wait.h>
-                             int status;
-                             int main(void) { wait(&status); return 0; }" HAVE_WAIT)
+    if(HAVE_PIPE)
+        add_definitions(-DHAVE_PIPE=1)
+    endif()
+    if(HAVE_SYS_WAIT_H)
+        check_c_source_compiles("#include <unistd.h>
+                                 #include <sys/wait.h>
+                                 int status;
+                                 int main(void) { wait(&status); return 0; }" HAVE_WAIT)
+        if(HAVE_WAIT)
+            add_definitions(-DHAVE_WAIT=1)
+        endif()
+    endif()
     check_c_source_compiles("#include <unistd.h>
                              pid_t pid;
                              int main(void) { pid = fork(); return 0; }" HAVE_FORK)
+    if(HAVE_FORK)
+        add_definitions(-DHAVE_FORK=1)
+    endif()
     check_c_source_compiles("#include <unistd.h>
                              int main(int argc, char** argv) { execvp(argv[0],(char* const*)argv);
                              return argc; }" HAVE_EXECVP)
+    if(HAVE_EXECVP)
+        add_definitions(-DHAVE_EXECVP=1)
+    endif()
     check_c_source_compiles("#include <unistd.h>
-                             int fds[2];
+                             int fds[2] = {1,2};
                              int main(void) { dup2(fds[1],STDOUT_FILENO); return 0; }" HAVE_DUP2)
+    if(HAVE_DUP2)
+        add_definitions(-DHAVE_DUP2=1)
+    endif()
 endif()
 
 if(AMIGA)
