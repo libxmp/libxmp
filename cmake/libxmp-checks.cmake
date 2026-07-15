@@ -144,16 +144,28 @@ cmake_pop_check_state()
 xmp_check_function(popen "stdio.h" HAVE_POPEN)
 xmp_check_function(fnmatch "fnmatch.h" HAVE_FNMATCH)
 xmp_check_function(umask "sys/stat.h" HAVE_UMASK)
-xmp_check_function(wait "sys/wait.h" HAVE_WAIT)
 xmp_check_function(mkstemp "stdlib.h" HAVE_MKSTEMP)
 
 check_include_file(unistd.h HAVE_UNISTD_H)
+check_include_file(sys/wait.h HAVE_SYS_WAIT_H)
 
-if(HAVE_UNISTD_H)
-    xmp_check_function(pipe "unistd.h" HAVE_PIPE)
-    xmp_check_function(fork "unistd.h" HAVE_FORK)
-    xmp_check_function(execvp "unistd.h" HAVE_EXECVP)
-    xmp_check_function(dup2 "unistd.h" HAVE_DUP2)
+if(HAVE_UNISTD_H AND HAVE_SYS_WAIT_H)
+    check_c_source_compiles("#include <unistd.h>
+                             int fds[2];
+                             int main(void) { return pipe(fds) < 0; }" HAVE_PIPE)
+    check_c_source_compiles("#include <unistd.h>
+                             #include <sys/wait.h>
+                             int status;
+                             int main(void) { wait(&status); return 0; }" HAVE_WAIT)
+    check_c_source_compiles("#include <unistd.h>
+                             pid_t pid;
+                             int main(void) { pid = fork(); return 0; }" HAVE_FORK)
+    check_c_source_compiles("#include <unistd.h>
+                             int main(int argc, char** argv) { execvp(argv[0],(char* const*)argv);
+                             return argc; }" HAVE_EXECVP)
+    check_c_source_compiles("#include <unistd.h>
+                             int fds[2];
+                             int main(void) { dup2(fds[1],STDOUT_FILENO); return 0; }" HAVE_DUP2)
 endif()
 
 if(AMIGA)

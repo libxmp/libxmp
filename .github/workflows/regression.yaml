@@ -262,7 +262,7 @@ jobs:
         run: brew install autoconf
       - name: CMake configure for Intel
         run: |
-          cmake . -DCMAKE_BUILD_TYPE=Release -DWITH_UNIT_TESTS=ON -B build
+          cmake . -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="x86_64" -DWITH_UNIT_TESTS=ON -B build
       - name: CMake build for Intel
         run: |
           cmake --build build --target all -- -j 4
@@ -276,6 +276,18 @@ jobs:
       - name: CMake build for M1
         run: |
           cmake --build build-m1 --target all
+      - name: CMake configure for iOS
+        run: |
+          cmake . -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_ARCHITECTURES="arm64" -DCMAKE_BUILD_TYPE=Release -DWITH_UNIT_TESTS=OFF -B build-ios
+      - name: CMake build for iOS
+        run: |
+          cmake --build build-ios --target all
+      - name: CMake configure for tvOS
+        run: |
+          cmake . -DCMAKE_SYSTEM_NAME=tvOS -DCMAKE_OSX_ARCHITECTURES="arm64" -DCMAKE_BUILD_TYPE=Release -DWITH_UNIT_TESTS=OFF -B build-tvos
+      - name: CMake build for tvOS
+        run: |
+          cmake --build build-tvos --target all
       - name: Create and run Autotools configure script
         run: |
           autoconf

@@ -27,6 +27,6 @@ CFLAGS += -wcd=303
 # -5r  :  Pentium register calling conventions.
 CFLAGS += -5s
 CFLAGS += -I"$(%WATCOM)/lh"
-CFLAGS += -DHAVE_PIPE -DHAVE_FORK -DHAVE_EXECVP -DHAVE_FORK
+CFLAGS += -DHAVE_PIPE -DHAVE_FORK -DHAVE_EXECVP -DHAVE_WAIT -DHAVE_DUP2
 
 !include watcom.mif
