@@ -1,6 +1,10 @@
 Stable versions
 ---------------
 
+4.7.2 (?):
+	Changes by Alice Rowan:
+	- Fix loading Startrekker modules from memory/handle/callbacks.
+
 4.7.1 (20260704):
 	Changes by Alice Rowan:
 	- Add xmp_set_player(ctx, XMP_PLAYER_DEFPAN, 50) to relevant examples

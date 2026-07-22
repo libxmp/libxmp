@@ -334,7 +334,7 @@ static int flt_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	struct libxmp_path sp;
 	size_t sp_length;
 	char buf[16];
-	HIO_HANDLE *nt;
+	HIO_HANDLE *nt = NULL;
 	int am_synth;
 
 	LOAD_INIT();
@@ -342,20 +342,19 @@ static int flt_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	/* See if we have the synth parameters file */
 	am_synth = 0;
 	libxmp_path_init(&sp);
-	if (libxmp_path_join(&sp, m->dirname, m->basename) != 0) {
-		return -1;
-	}
-	sp_length = sp.length;
+	if (libxmp_path_join(&sp, m->dirname, m->basename) == 0) {
+		sp_length = sp.length;
 
-	nt = flt_check_sample_file(&sp, sp_length, ".NT");
-	if (nt == NULL) {
-		nt = flt_check_sample_file(&sp, sp_length, ".nt");
-	}
-	if (nt == NULL) {
-		nt = flt_check_sample_file(&sp, sp_length, ".AS");
-	}
-	if (nt == NULL) {
-		nt = flt_check_sample_file(&sp, sp_length, ".as");
+		nt = flt_check_sample_file(&sp, sp_length, ".NT");
+		if (nt == NULL) {
+			nt = flt_check_sample_file(&sp, sp_length, ".nt");
+		}
+		if (nt == NULL) {
+			nt = flt_check_sample_file(&sp, sp_length, ".AS");
+		}
+		if (nt == NULL) {
+			nt = flt_check_sample_file(&sp, sp_length, ".as");
+		}
 	}
 	libxmp_path_free(&sp);
 
