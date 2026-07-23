@@ -462,6 +462,25 @@ jobs:
         run: |
           make -j 3
 
+  os2-emx:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Setup cross-os2emx toolchain
+        uses: komh/setup-cross-os2emx@v1
+        with:
+          platform: linux-x64
+      - name: Makefile.emx Build
+        run: |
+          make -f Makefile.emx CROSS=i686-pc-os2-emx
+      - name: Makefile.emx Build (lite)
+        run: |
+          make -f Makefile.emx lite CROSS=i686-pc-os2-emx
+      - name: distclean
+        run: |
+          make -f Makefile.emx distclean
+
   AddressSanitizer:
     runs-on: ubuntu-latest
     steps:
