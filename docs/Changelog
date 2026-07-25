@@ -4,6 +4,11 @@ Stable versions
 4.7.2 (?):
 	Changes by Alice Rowan:
 	- Fix loading Startrekker modules from memory/handle/callbacks.
+	Changes by Ozkan Sezer:
+	- Fix cmake build failure for certain Apple targets (e.g. tvOS.)
+	Other changes:
+	- Fix stb-vorbis floor1 inverse_db_table indexing (missing part
+	  of CVE-2019-13220 fix.)
 
 4.7.1 (20260704):
 	Changes by Alice Rowan:
