@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2021 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2026 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -55,12 +55,11 @@ int libxmp_snprintf (char *str, size_t sz, const char *fmt, ...)
 #endif
 
 /* Win32 debug message helper by Mirko Buffoni */
-#if defined(_MSC_VER) && defined(DEBUG)
+#if defined(_MSC_VER)
 void libxmp_msvc_dbgprint(const char *format, ...)
 {
 	va_list argptr;
 
-	/* do the output */
 	va_start(argptr, format);
 	vprintf(format, argptr);
 	printf("\n");
