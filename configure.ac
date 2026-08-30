@@ -70,9 +70,16 @@ AC_CHECK_DEFINED(__clang__)
 AC_CHECK_DEFINED(__cplusplus)
 
 case "${host_os}" in
-dnl Skip this on platforms where it is just simply busted.
+dnl Skip --no-undefined on platforms where it is just simply busted
  openbsd*) ;;
- darwin*) LDFLAGS="$LDFLAGS -Wl,-undefined,error" ;;
+ darwin*) LDFLAGS="$LDFLAGS -Wl,-undefined,error"
+    if test "$ac_cv_defined___clang__" = "no"; then
+       LDFLAGS="$LDFLAGS -static-libgcc"
+    fi
+    ;;
+ mingw*)
+    LDFLAGS="$LDFLAGS -static-libgcc -Wl,--no-undefined"
+    ;;
  dnl For whatever reason, the Clang sanitizers and --no-undefined for
  dnl shared libraries are incompatible.
  *) if test "$ac_cv_defined___clang__" = "no" || test "${LDFLAGS#*fsanitize}" = "$LDFLAGS"

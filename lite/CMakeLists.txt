@@ -89,7 +89,15 @@ if(BUILD_SHARED)
         if(APPLE)
             set_property(TARGET xmp_lite_shared APPEND_STRING PROPERTY
                          LINK_FLAGS " -Wl,-undefined,error")
+            if(NOT HAVE_CLANG)
+              set_property(TARGET xmp_lite_shared APPEND_STRING PROPERTY
+                         LINK_FLAGS " -static-libgcc")
+            endif()
         elseif(NOT CMAKE_SYSTEM_NAME MATCHES "kOpenBSD.*|OpenBSD.*")
+            if(MINGW)
+              set_property(TARGET xmp_lite_shared APPEND_STRING PROPERTY
+                           LINK_FLAGS " -static-libgcc")
+            endif()
             cmake_push_check_state()
             set(CMAKE_REQUIRED_FLAGS "-Wl,--no-undefined")
             check_c_compiler_flag("" HAVE_NO_UNDEFINED)
