@@ -234,7 +234,7 @@ jobs:
       with:
         operating_system: haiku
         architecture: x86-64
-        version: r1beta5
+        version: r1beta6
     - name: Setup OS
       run: |
         pkgman install -y cmake
