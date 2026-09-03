@@ -62,6 +62,8 @@ enum playback_action
 {
 	PLAY_END,
 	PLAY_FRAMES,
+	PLAY_SET_POSITION,
+	PLAY_SET_PLAYER_MODE
 };
 
 struct playback_sequence

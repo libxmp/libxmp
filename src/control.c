@@ -208,6 +208,7 @@ int xmp_set_row(xmp_context opaque, int row)
 	p->ord = p->pos;
 	p->row = row;
 	p->frame = -1;
+	p->bad_sequence = 0;
 	f->num_rows = mod->xxp[mod->xxo[p->ord]]->rows;
 
 	return row;

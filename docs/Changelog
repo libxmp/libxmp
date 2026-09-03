@@ -1,6 +1,14 @@
 Stable versions
 ---------------
 
+4.7.3 (?):
+	Changes by Alice Rowan:
+	- Fix hangs caused by changing the player mode to an S3M/IT mode
+	  with a loaded module sequence beginning with pattern FF.
+	- Also fixed incomplete rescanning of modules in the same situation.
+	  xmp now fully scans modules with an empty or invalid first sequence,
+	  allowing later sequences in modules that begin with an end marker.
+
 4.7.2 (20260726):
 	Changes by Alice Rowan:
 	- Fix loading Startrekker modules from memory/handle/callbacks.

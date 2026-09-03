@@ -611,6 +611,7 @@ struct player_data {
 
 	int loop_count;
 	int sequence;
+	int bad_sequence;		/* 1 = can't find next order, need reposition */
 	unsigned char sequence_control[XMP_MAX_MOD_LENGTH];
 
 	int smix_vol;			/* SFX volume */

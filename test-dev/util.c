@@ -607,6 +607,18 @@ void compare_playback(const char *filename, const struct playback_sequence *sequ
 
 			fail_unless(ret == sequence->result, "play frames");
 			break;
+
+		case PLAY_SET_POSITION:
+			ret = xmp_set_position(opaque, sequence->value);
+			fail_unless(ret == sequence->result, "set position");
+			break;
+
+		case PLAY_SET_PLAYER_MODE:
+			ret = xmp_set_player(opaque, XMP_PLAYER_MODE,
+					     sequence->value);
+
+			fail_unless(ret == sequence->result, "set player mode");
+			break;
 		}
 		sequence++;
 	}
