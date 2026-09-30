@@ -1,6 +1,12 @@
 Stable versions
 ---------------
 
+4.7.4 (?):
+	Changes by Alice Rowan:
+	- Fix sample bounding in Imago Orpheus IMF loader.
+	- Remove maximum samples clamp in libxmp_load_epilogue (isn't
+	  protecting anything and causes leaks in the XM loader).
+
 4.7.3 (20260911):
 	Changes by Alice Rowan:
 	- Fix hangs caused by changing the player mode to an S3M/IT mode

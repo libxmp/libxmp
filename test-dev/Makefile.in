@@ -636,6 +636,7 @@ FUZZER		= misc \
 		  play_s3m_low_period_vibrato \
 		  play_s3m_marker_sequence \
 		  play_s3m_marker_sequence_2 \
+		  play_xm_128ins_x_16smp \
 		  play_xm_bad_env_sustain \
 		  play_xm_bad_instrument \
 		  play_xm_bad_instrument_invloop \
@@ -664,11 +665,13 @@ FUZZER		= misc \
 		  play_gdm_bad_loop \
 		  play_hmn_bad_loop_index \
 		  play_hmn_bad_megaarp \
+		  play_imf_99ins_x_16smp \
 		  play_mdl_high_c5spd \
 		  play_mdl_zero_samples \
 		  play_med4_0_chn_invalid_ord \
 		  play_med4_hybrid_0_waveforms \
 		  play_mmd1_synth_bad_tables \
+		  play_rtm_82ins_x_16smp \
 		  play_rtm_autovib \
 		  play_stm_bad_note_toneporta \
 
