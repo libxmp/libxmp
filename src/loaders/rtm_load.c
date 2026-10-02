@@ -158,8 +158,6 @@ static int rtm_test(HIO_HANDLE *f, char *t, const int start)
 }
 
 
-#define MAX_SAMP 1024
-
 #define FX_NONE			0xff
 #define FX_EXTENDED_IT		0xfe
 #define FX_PORTA_UP_MOD		0xf1
@@ -497,7 +495,7 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	hio_seek(f, start + offset, SEEK_SET);
 
 	/* ESTIMATED value! We don't know the actual value at this point */
-	mod->smp = MAX_SAMP;
+	mod->smp = MAX_SAMPLES;
 
 	if (libxmp_init_instrument(m) < 0)
 		return -1;

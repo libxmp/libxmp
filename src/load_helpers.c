@@ -350,8 +350,10 @@ void libxmp_load_epilogue(struct context_data *ctx)
 	CLAMP(mod->len, 0, XMP_MAX_MOD_LENGTH);
 	CLAMP(mod->pat, 0, 257);   /* some formats have an extra pattern */
 	CLAMP(mod->ins, 0, 255);
-	CLAMP(mod->smp, 0, MAX_SAMPLES);
 	CLAMP(mod->chn, 0, XMP_MAX_CHANNELS);
+	if (mod->smp < 0) {
+		mod->smp = 0;
+	}
 
 	/* Fix cases where the restart value is invalid e.g. kc_fall8.xm
 	 * from http://aminet.net/mods/mvp/mvp_0002.lha (reported by
