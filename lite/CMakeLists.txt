@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2...3.10)
-project(libxmplite VERSION 4.7.3 LANGUAGES C)
+project(libxmplite VERSION 4.7.4 LANGUAGES C)
 
 set(LIBXMP_DEFINES)
 set(LIBXMP_CFLAGS)

@@ -1,7 +1,7 @@
 Stable versions
 ---------------
 
-4.7.4 (?):
+4.7.4 (20261010):
 	Changes by Alice Rowan:
 	- Fix sample bounding in Imago Orpheus IMF loader.
 	- Remove maximum samples clamp in libxmp_load_epilogue (isn't
