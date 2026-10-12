@@ -732,7 +732,7 @@ next_pattern:
 	    return -1;
     }
 
-    m->quirk |= QUIRK_FINEFX | QUIRK_RTONCE;
+    m->quirk |= QUIRKS_LIQUID;
     m->flow_mode = (lh.flags & LIQ_FLAG_SCREAM_TRACKER_COMPAT) ?
 		   FLOW_MODE_LIQUID_COMPAT : FLOW_MODE_LIQUID;
     m->read_event_type = READ_EVENT_ST3;
