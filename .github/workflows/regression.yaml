@@ -178,16 +178,16 @@ jobs:
     strategy:
       matrix:
         platform:
-          - { name: freebsd,  os: freebsd,  os-version: 14.4, os-arch: x86-64,
+          - { name: freebsd,  os: freebsd,  os-version: 14.5, os-arch: x86-64,
               setup_cmd: 'sudo pkg update',
-              install_cmd: 'sudo pkg install -y cmake',
+              install_cmd: 'sudo pkg install -y cmake-core',
             }
           - { name: openbsd,  os: openbsd, os-version: 7.9,  os-arch: x86-64,
               setup_cmd: 'sudo pkg_add -u',
               install_cmd: 'sudo pkg_add cmake',
             }
           - { name: netbsd,   os: netbsd,  os-version: 10.1, os-arch: x86-64,
-              setup_cmd: 'export PATH="/usr/pkg/sbin:/usr/pkg/bin:/sbin:$PATH";export PKG_PATH="https://cdn.netBSD.org/pub/pkgsrc/packages/NetBSD/$(uname -p)/$(uname -r|cut -f "1 2" -d.)/All/";echo "PKG_PATH=$PKG_PATH";echo "uname -a -> \"$(uname -a)\"";sudo -E sysctl -w security.pax.aslr.enabled=0;sudo -E sysctl -w security.pax.aslr.global=0;sudo -E pkgin clean;sudo -E pkgin update',
+              setup_cmd: 'export PATH="/usr/pkg/sbin:/usr/pkg/bin:/sbin:$PATH"; export PKG_PATH="https://cdn.netBSD.org/pub/pkgsrc/packages/NetBSD/$(uname -p)/$(uname -r|cut -f "1 2" -d.)/All/"; echo "PKG_PATH=$PKG_PATH"; echo "uname -a -> \"$(uname -a)\""; sudo -E sysctl -w security.pax.aslr.enabled=0; sudo -E sysctl -w security.pax.aslr.global=0; sudo -E pkgin clean; sudo -E pkgin update',
               install_cmd: 'sudo -E pkgin -y install cmake',
             }
     defaults:
