@@ -12,14 +12,24 @@ enum hio_type {
 	HIO_HANDLE_TYPE_CBFILE
 };
 
+#define HIO_BUFFER_SIZE 4096
+
+/* includes a preview of next buffer */
+#define HIO_FULL_BUFFER (HIO_BUFFER_SIZE + 4)
+
+#define HIO_BUFFER_CURSOR(h) ((h)->cursor % HIO_BUFFER_SIZE)
+
 typedef struct {
-	enum hio_type type;
+	uint8 buffer[HIO_FULL_BUFFER];
+	long cursor;
 	long size;
 	union {
 		FILE *file;
 		MFILE *mem;
 		CBFILE *cbfile;
 	} handle;
+	enum hio_type type;
+	int buffer_end; /* proportion of the current buffer that is filled, relevant for EOF detection */
 	int error;
 	int noclose;
 } HIO_HANDLE;
