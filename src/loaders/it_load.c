@@ -32,6 +32,10 @@
 #define MAGIC_IMPI	MAGIC4('I','M','P','I')
 #define MAGIC_IMPS	MAGIC4('I','M','P','S')
 
+/* Reversed because they may instead be 32-bit LE epoch for libxmp_schism_tracker_string() */
+#define MAGIC_CHBI	MAGIC4('I','B','H','C')
+#define MAGIC_OMPT	MAGIC4('T','P','M','O')
+
 #define TEMP_BUFFER_LEN	65536
 
 static int it_test(HIO_HANDLE *, char *, const int);
@@ -385,7 +389,7 @@ static void identify_tracker(struct module_data *m, struct it_file_header *ifh,
 			strcpy(tracker_name, "Impulse Tracker 2.14v3");
 		} else if (ifh->cwt == 0x0217) {
 			strcpy(tracker_name, "Impulse Tracker 2.14v5");
-		} else if (ifh->cwt == 0x0214 && !memcmp(&ifh->rsvd, "CHBI", 4)) {
+		} else if (ifh->cwt == 0x0214 && ifh->rsvd == MAGIC_CHBI) {
 			strcpy(tracker_name, "Chibi Tracker");
 		} else {
 			snprintf(tracker_name, 40, "Impulse Tracker %d.%02x",
@@ -424,7 +428,7 @@ static void identify_tracker(struct module_data *m, struct it_file_header *ifh,
 		case 0x5:
 			snprintf(tracker_name, 40, "OpenMPT %d.%02x",
 				 (ifh->cwt & 0x0f00) >> 8, ifh->cwt & 0xff);
-			if (memcmp(&ifh->rsvd, "OMPT", 4))
+			if (ifh->rsvd != MAGIC_OMPT)
 				strncat(tracker_name, " (compat.)", 39);
 			break;
 		case 0x06:
