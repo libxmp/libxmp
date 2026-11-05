@@ -749,6 +749,30 @@ static int load_instruments(struct module_data *m, int version,
 	return 0;
 }
 
+#ifndef LIBXMP_CORE_PLAYER
+static void load_fix_nitrotracker(struct xmp_module *mod)
+{
+	int i, j, k;
+	struct xmp_event *event;
+
+	for (i = 0; i < mod->ins; i++) {
+		/* NT writes uninitialized memory to new instrument pan envelope flags */
+		if (!mod->xxi[i].pei.npt)
+			mod->xxi[i].pei.flg = 0;
+	}
+
+	for (i = 0; i < mod->trk; i++) {
+		for (j = 0; j < mod->xxt[i]->rows; j++) {
+			event = &mod->xxt[i]->event[j];
+
+			/* NT ignores instrument numbers on non-note lines */
+			if (event->note == XMP_KEY_OFF || !event->note)
+				event->ins = 0;
+		}
+	}
+}
+#endif
+
 static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 {
 	struct xmp_module *mod = &m->mod;
@@ -759,6 +783,7 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	int claims_ft2 = 0;
 	int is_mpt_old = 0;
 	int is_mpt_116 = 0;
+	int is_nitro_old = 0;
 #endif
 	int mpt_ins_headers = 0;
 	int len;
@@ -886,6 +911,15 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		is_mpt_old = 1;
 	}
 
+	if (!strcmp(tracker_name, "NitroTracker")) {
+		m->quirk &= ~QUIRK_FT2BUGS;
+		is_nitro_old = 1;
+	}
+
+	if (!strncmp(tracker_name, "NitrousTracker", 14)) {
+		m->quirk |= QUIRK_FT2BUGS;
+	}
+
 	if (!strcmp(tracker_name, "Skale Tracker") ||
 	    !strcmp(tracker_name, "Sk@le Tracker")) {
 		/* Skale Tracker allows Dxx Byy to jump to row X. */
@@ -936,6 +970,10 @@ static int xm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	}
 
 #ifndef LIBXMP_CORE_PLAYER
+	/* Adjust module data to more closely match NT behaviour. */
+	if (is_nitro_old)
+		load_fix_nitrotracker(mod);
+
 	/* Load MPT properties from the end of the file. */
 	while (1) {
 		uint32 ext = hio_read32b(f);
